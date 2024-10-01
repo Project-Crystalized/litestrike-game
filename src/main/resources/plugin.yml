@@ -1,0 +1,12 @@
+name: Litestrike
+version: 0.0.1
+main: gg.litestrike.game.Litestrike
+api-version: '1.21.1'
+
+commands:
+  mapdata:
+    description: "For debugging purposes"
+    usage: "/mapdata"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"
