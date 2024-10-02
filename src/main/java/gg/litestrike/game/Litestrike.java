@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 // TODO add a sanity checker class
 
@@ -25,7 +26,38 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new MapData(), this);
 		this.getCommand("mapdata").setExecutor(mapdata);
 
-		// TODO bukkit runnable taht creates game controller
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				int countdown = 11;
+
+				// if there is already a game going on, do nothing
+				if (game_controller != null) {
+					return;
+				}
+
+				// if more then 6 players online, count down, else reset countdown
+				if (Bukkit.getOnlinePlayers().size() >= 6) {
+					countdown -= 1;
+				} else {
+					countdown = 11;
+					return;
+				}
+
+				// if countdown reaches zero, we start the game
+				if (countdown == 0) {
+					countdown = 11;
+					game_controller = new GameController();
+					return;
+				}
+
+				// while counting down, play sound/chat message/title
+				if (countdown < 11) {
+					count_down_animation(countdown);
+				}
+
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 1, 20);
 	}
 
 	@Override
@@ -48,4 +80,9 @@ public final class Litestrike extends JavaPlugin implements Listener {
 			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
 		}
 	}
+
+	// plays every second while the game is counting down to start
+	private void count_down_animation(int i) {
+		// TODO chat message, sound, title
+	};
 }

@@ -3,8 +3,11 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -34,8 +37,8 @@ public class GameController {
 	private RoundState round_state = RoundState.PreRound;
 
 	// the phase_timer starts counting up from the beginning of the round
-	// after it reaches 15, the game is started. when the round winner is
-	// determined its reset to 0 and counts until 5 for the postround time.
+	// after it reaches (15 * 20), the game is started. when the round winner is
+	// determined its reset to 0 and counts until (5 * 20) for the postround time.
 	// then the next round starts and it counts from 0 again
 	private int phase_timer = 0;
 
@@ -56,11 +59,11 @@ public class GameController {
 					cancel();
 				}
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 20, 20);
+		}.runTaskTimer(Litestrike.getInstance(), 20, 1);
 
 	}
 	
-	// This is run every second
+	// This is run every tick
 	// TODO
 	private Boolean update_game_state() {
 		phase_timer += 1;
@@ -69,7 +72,7 @@ public class GameController {
 		// if the condition is met, call a method to advance to the next state
 		switch (round_state) {
 			case RoundState.PreRound: {
-				if (phase_timer == 15) {
+				if (phase_timer == (15 * 20)) {
 					start_round();
 				}
 			}
@@ -81,7 +84,7 @@ public class GameController {
 			}
 			break;
 			case RoundState.PostRound: {
-				if (phase_timer == 5) {
+				if (phase_timer == (5 * 20)) {
 					if (current_round_number == switch_round * 2) {
 						start_podium();
 					} else {
@@ -91,7 +94,7 @@ public class GameController {
 			}
 			break;
 			case RoundState.GameFinished: {
-				if (phase_timer == 20) {
+				if (phase_timer == (20 * 20)) {
 					finish_game();
 					return true; // remove the update_game_state task
 				}
@@ -192,7 +195,7 @@ public class GameController {
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
 	private RoundWinner determine_winner() {
-		if (phase_timer == 120) {
+		if (phase_timer == (120 * 20)) {
 			return RoundWinner.Placers;
 		}
 
@@ -227,11 +230,16 @@ public class GameController {
 		return null;
 	}
 
+	// this gives everyone default armor for now
+	// TODO remove this once shop system is implemented
 	private void tmp_give_default_armor() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			// p.getInventory().
+			PlayerInventory inv = p.getInventory();
+			inv.setHelmet(new ItemStack(Material.LEATHER_HELMET));
+			inv.setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
+			inv.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
+			inv.setBoots(new ItemStack(Material.LEATHER_BOOTS));
+			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		}
-
 	}
-
 }
