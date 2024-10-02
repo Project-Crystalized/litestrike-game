@@ -1,5 +1,8 @@
 package gg.litestrike.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -31,7 +34,7 @@ enum RoundWinner {
 // This will be created by something else, whenever there are 6+ people online and no game is currently going
 public class GameController {
 	private Teams teams = new Teams();
-	// TODO private PlayerData[] player_datas;
+	private List<PlayerData> playerDatas;
 
 	private int current_round_number = 0;
 	private RoundState round_state = RoundState.PreRound;
@@ -50,6 +53,12 @@ public class GameController {
 	public GameController() {
 		next_round();
 
+		playerDatas = new ArrayList<PlayerData>();
+		for(Player player : Bukkit.getOnlinePlayers()){
+			PlayerData p = new PlayerData(player);
+			playerDatas.add(p);
+		}
+
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
 			@Override
@@ -64,7 +73,6 @@ public class GameController {
 	}
 	
 	// This is run every tick
-	// TODO
 	private Boolean update_game_state() {
 		phase_timer += 1;
 
