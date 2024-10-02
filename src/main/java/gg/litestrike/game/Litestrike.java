@@ -11,7 +11,16 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+
 // TODO add a sanity checker class
+
+enum Team {
+	Placer,
+	Breaker,
+}
 
 public final class Litestrike extends JavaPlugin implements Listener {
 
@@ -20,6 +29,11 @@ public final class Litestrike extends JavaPlugin implements Listener {
 
 	public GameController game_controller;
 
+	// constants for Placer and breaker text
+	public static final Component PLACER_TEXT = Component.text("Placer").color(TextColor.color(0xe31724)).decoration(TextDecoration.BOLD, true);
+	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415)).decoration(TextDecoration.BOLD, true);
+
+
 	@Override
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
@@ -27,9 +41,9 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getCommand("mapdata").setExecutor(mapdata);
 
 		new BukkitRunnable() {
+			int countdown = 11;
 			@Override
 			public void run() {
-				int countdown = 11;
 
 				// if there is already a game going on, do nothing
 				if (game_controller != null) {

@@ -9,24 +9,11 @@ import org.bukkit.entity.Player;
 import java.util.logging.Level;
 import java.lang.Exception;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-
-
-enum Team {
-	Placer,
-	Breaker,
-}
-
 public class Teams {
 	public List<Player> placers;
 	public List<Player> breakers;
 
 	// constants containing text for the teams names
-	public static final Component PLACER_TEXT = Component.text("Placer").color(TextColor.color(0xe31724)).decoration(TextDecoration.BOLD, true);
-	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415)).decoration(TextDecoration.BOLD, true);
-
 
 	public Teams() {
 		List<Player> list = new ArrayList<Player>();

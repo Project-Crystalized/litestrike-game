@@ -26,14 +26,10 @@ enum RoundState {
 	GameFinished,
 }
 
-enum RoundWinner {
-	Placers,
-	Breakers,
-}
 
 // This will be created by something else, whenever there are 6+ people online and no game is currently going
 public class GameController {
-	private Teams teams = new Teams();
+	public Teams teams = new Teams();
 	private List<PlayerData> playerDatas;
 
 	private int current_round_number = 0;
@@ -54,7 +50,7 @@ public class GameController {
 		next_round();
 
 		playerDatas = new ArrayList<PlayerData>();
-		for(Player player : Bukkit.getOnlinePlayers()){
+		for (Player player : Bukkit.getOnlinePlayers()) {
 			PlayerData p = new PlayerData(player);
 			playerDatas.add(p);
 		}
@@ -121,10 +117,10 @@ public class GameController {
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
 		if (current_round_number == 1) {
 			Audience.audience(teams.placers).sendMessage(Component.text("You are a ")
-				.append(Teams.PLACER_TEXT)
+				.append(Litestrike.PLACER_TEXT)
 				.append(Component.text("\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
 			Audience.audience(teams.breakers).sendMessage(Component.text("You are a ")
-				.append(Teams.BREAKER_TEXT)
+				.append(Litestrike.BREAKER_TEXT)
 				.append(Component.text("\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
 		}
 
@@ -138,20 +134,28 @@ public class GameController {
 	private void finish_round() {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
+		Team winner = determine_winner();
 
 		// play sound
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
 
 		// announce winner
-		Component winner;
-		if (determine_winner() == RoundWinner.Placers) {
-			winner = Teams.PLACER_TEXT;
+		Component winner_component;
+		if (winner == Team.Placer) {
+			winner_component = Litestrike.PLACER_TEXT;
 		} else {
-			winner = Teams.BREAKER_TEXT;
+			winner_component = Litestrike.BREAKER_TEXT;
 		}
-		Bukkit.getServer().sendMessage(Component.text("The winner was the ").append(winner).append(Component.text(" team!")));
+		Bukkit.getServer().sendMessage(Component.text("The winner was the ").append(winner_component).append(Component.text(" team!")));
 
-		// TODO give round money
+		// give money
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (teams.get_team(p) == winner) {
+				getPlayerData(p).addMoney(2000, "For winning the round!");
+			} else {
+				getPlayerData(p).addMoney(1200, "For loosing the round.");
+			}
+		}
 	}
 
 	// this is called when the last round is over and the podium should begin
@@ -188,6 +192,7 @@ public class GameController {
 
 		// TODO give armor and weapons
 		tmp_give_default_armor();
+
 		// TODO give shop item
 
 	}
@@ -202,9 +207,9 @@ public class GameController {
 
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
-	private RoundWinner determine_winner() {
+	private Team determine_winner() {
 		if (phase_timer == (120 * 20)) {
-			return RoundWinner.Placers;
+			return Team.Placer;
 		}
 
 		// check if all placers are alive
@@ -217,7 +222,7 @@ public class GameController {
 			}
 		}
 		if (all_placers_dead) {
-			return RoundWinner.Breakers;
+			return Team.Breaker;
 		}
 
 		Boolean all_breakers_dead = true;
@@ -229,7 +234,7 @@ public class GameController {
 			}
 		}
 		if (all_breakers_dead) {
-			return RoundWinner.Placers;
+			return Team.Placer;
 		}
 
 		// TODO check_bomb_exploded ||
@@ -249,5 +254,14 @@ public class GameController {
 			inv.setBoots(new ItemStack(Material.LEATHER_BOOTS));
 			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		}
+	}
+
+	public PlayerData getPlayerData(Player p) {
+		for (PlayerData pd : playerDatas) {
+			if (pd.player == p) {
+				return pd;
+			}
+		}
+		return null;
 	}
 }
