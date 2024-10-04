@@ -1,4 +1,5 @@
 package gg.litestrike.game;
+
 import org.bukkit.entity.Player;
 
 public class PlayerData {
@@ -9,12 +10,12 @@ public class PlayerData {
 	public int deaths = 0;
 	public int assists = 0;
 
-	public PlayerData(Player p){
+	public PlayerData(Player p) {
 		player = p;
 	}
 
-	public void addMoney(int amt, String reason)  {
-		player.sendMessage("You received " + amt + "g");
+	public void addMoney(int amt, String reason) {
+		player.sendMessage("You received " + amt + "g. " + reason);
 		money += amt;
 	}
 
@@ -29,7 +30,12 @@ public class PlayerData {
 		}
 	}
 
-	// TODO for debugging maybe: 
-	// public String toString() {}
+	public String toString() {
+		return "\nname: " + player.getName() +
+				"\nmoney: " + money +
+				"\nkills: " + kills +
+				"\ndeaths: " + deaths +
+				"\n assists: " + assists;
+	}
 
 }

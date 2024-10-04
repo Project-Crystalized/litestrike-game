@@ -3,19 +3,16 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.block.BlockFace;
-import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -32,7 +29,7 @@ import java.util.Arrays;
 // this will read a file, map_config.json, in the current world directory,
 // from this file it will read, for example: the spawn points and map_name.
 // this is a singleton
-public class MapData implements CommandExecutor, Listener {
+public class MapData implements Listener {
 	public final double[] placer_spawn;
 	public final double[] breaker_spawn;
 	public final double[] que_spawn;
@@ -47,32 +44,6 @@ public class MapData implements CommandExecutor, Listener {
 	public final Material border_specifier;
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
-
-	// This handles the /mapdata command
-  @Override
-  public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
-      @NotNull String[] args) {
-    Player cmd_sender = (Player) commandSender;
-		World w = cmd_sender.getWorld();
-
-		cmd_sender.sendMessage(this.toString());
-
-		if (args.length == 0) {
-			return true;
-		}
-		switch (args[0]) {
-			case "raise_border": {
-				this.raiseBorder(w);
-				break;
-			}
-			case "lower_border": {
-				this.lowerBorder(w);
-				break;
-			}
-		}
-
-		return true;
-	}
 
 	public void raiseBorder(World w) {
 		for (int[] b : border_blocks) {
@@ -101,15 +72,30 @@ public class MapData implements CommandExecutor, Listener {
 				public void run() {
 					for (int x = 0; x < 16; x++) {
 						for (int z = 0; z < 16; z++) {
-							for (int y = -64; y < cs.getHighestBlockYAt(x, z); y ++) {
+							for (int y = -64; y < cs.getHighestBlockYAt(x, z); y++) {
 								if (cs.getBlockType(x, y, z) == border_specifier) {
-									Litestrike.getInstance().mapdata.border_blocks.add(new int[]{cs.getX()*16 + x,y,cs.getZ()*16 + z});
+									Litestrike.getInstance().mapdata.border_blocks
+											.add(new int[] { cs.getX() * 16 + x, y, cs.getZ() * 16 + z });
 								}
 							}
 						}
 					}
 				}
 			}.runTaskAsynchronously(Litestrike.getInstance());
+		}
+	}
+
+	@EventHandler
+	public void onWorldInit(WorldInitEvent e) {
+		World w = e.getWorld();
+
+		if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
+			Bukkit.getLogger().log(Level.SEVERE,
+					"LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!");
+			Bukkit.getLogger().log(Level.SEVERE,
+					"LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs.");
+			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 		}
 	}
 
@@ -120,13 +106,16 @@ public class MapData implements CommandExecutor, Listener {
 
 			// pitch and yaw are not needed, as we just make players look at enemy spawn
 			JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();
-			this.placer_spawn = new double[]{p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(), p_spawn.get(2).getAsDouble()};
+			this.placer_spawn = new double[] { p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(),
+					p_spawn.get(2).getAsDouble() };
 
 			JsonArray b_spawn = json.get("breaker_spawn").getAsJsonArray();
-			this.breaker_spawn = new double[]{b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(), b_spawn.get(2).getAsDouble()};
+			this.breaker_spawn = new double[] { b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(),
+					b_spawn.get(2).getAsDouble() };
 
 			JsonArray q_spawn = json.get("que_spawn").getAsJsonArray();
-			this.que_spawn =  new double[]{q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(), q_spawn.get(2).getAsDouble()};
+			this.que_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
+					q_spawn.get(2).getAsDouble() };
 
 			this.map_name = json.get("map_name").getAsString();
 
@@ -153,15 +142,19 @@ public class MapData implements CommandExecutor, Listener {
 		return new Location(w, breaker_spawn[0], breaker_spawn[1], breaker_spawn[2]);
 	}
 
+	public Location get_que_spawn(World w) {
+		return new Location(w, que_spawn[0], que_spawn[1], que_spawn[2]);
+	}
+
 	public String toString() {
 		return "placer_spawn: " + Arrays.toString(this.placer_spawn) +
-		"\nbreaker_spawn: " + Arrays.toString(this.breaker_spawn) +
-		"\nque_spawn: " + Arrays.toString(this.que_spawn) +
-		"\nmap_name: " + this.map_name +
-		"\nborder_specifier: " + this.border_specifier +
-		"\nenable_jump_pads: " + this.jump_pads +
-		"\nenable_openable_doors: " + this.openable_doors +
-		"\namount of known border blocks: " + this.border_blocks.size();
+				"\nbreaker_spawn: " + Arrays.toString(this.breaker_spawn) +
+				"\nque_spawn: " + Arrays.toString(this.que_spawn) +
+				"\nmap_name: " + this.map_name +
+				"\nborder_specifier: " + this.border_specifier +
+				"\nenable_jump_pads: " + this.jump_pads +
+				"\nenable_openable_doors: " + this.openable_doors +
+				"\namount of known border blocks: " + this.border_blocks.size();
 	}
 
 	// if this returns true for a chunk, the chunk is searched for border blocks.
@@ -174,7 +167,8 @@ public class MapData implements CommandExecutor, Listener {
 		int upper_x_bound = placer_spawn_chunk.getX() + 5;
 		int lower_z_bound = placer_spawn_chunk.getZ() - 5;
 		int upper_z_bound = placer_spawn_chunk.getZ() + 5;
-		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound) && (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
+		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound)
+				&& (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
 			return true;
 		}
 
@@ -184,7 +178,8 @@ public class MapData implements CommandExecutor, Listener {
 		upper_x_bound = breaker_spawn_chunk.getX() + 5;
 		lower_z_bound = breaker_spawn_chunk.getZ() - 5;
 		upper_z_bound = breaker_spawn_chunk.getZ() + 5;
-		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound) && (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
+		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound)
+				&& (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
 			return true;
 		}
 
