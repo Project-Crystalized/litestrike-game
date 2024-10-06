@@ -24,7 +24,7 @@ public class DebugCommands implements CommandExecutor {
 		switch (label) {
 			case "mapdata":
 				return run_mapdata(args, commandSender);
-			case "playerinfo":
+			case "player_info":
 				return run_player_info(args, commandSender);
 			case "force_start":
 				return run_force_start(args, commandSender);
@@ -71,6 +71,8 @@ public class DebugCommands implements CommandExecutor {
 			return true;
 		}
 
+		// Bukkit.getLogger().warning("player data amt: " + Litestrike.getInstance().game_controller.playerDatas.size());
+
 		try {
 			Player p = Bukkit.getPlayer(args[0]);
 			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
@@ -80,6 +82,14 @@ public class DebugCommands implements CommandExecutor {
 			Bukkit.getLogger().log(Level.SEVERE, "Error running the /player_info command\n" + e);
 			return false;
 		}
+
+		// for (Player p : Litestrike.getInstance().game_controller.teams.get_breakers()) {
+		// 	commandSender.sendMessage("breaker: " + p.getName());
+		// }
+		//
+		// for (Player p : Litestrike.getInstance().game_controller.teams.get_placers()) {
+		// 	commandSender.sendMessage("placer: " + p.getName());
+		// }
 
 		return true;
 

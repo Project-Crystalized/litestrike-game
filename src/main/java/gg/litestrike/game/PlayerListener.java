@@ -8,8 +8,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
@@ -22,9 +24,14 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		// if a game is already running kick the player
-		// TODO implement /rejoin
-		if (Litestrike.getInstance().game_controller != null) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+
+		// the if condition checks if the player is rejoining
+		if (gc.teams.wasInitialPlayer(event.getPlayer().getName()) == null) {
+			// player isnt rejoining, so we dont allow join
 			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A game is already in Progress.\n")
 					.append(Component.text("If you see this message, it is likely a bug, pls report it to the admins")));
 		}
@@ -33,13 +40,27 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
+		GameController gc = Litestrike.getInstance().game_controller;
 
 		p.teleport(Litestrike.getInstance().mapdata.get_que_spawn(p.getWorld()));
-		p.setGameMode(GameMode.SURVIVAL);
-
-		// idk where to make them look, but this seems to work often
-		// maybe document this behaviour tho
+		p.getInventory().clear();
+		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
+
+		if (gc == null) {
+			p.setGameMode(GameMode.SURVIVAL);
+		} else {
+			// if we are here, it means the player is rejoining
+			p.setGameMode(GameMode.SPECTATOR);
+
+			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
+			if (should_be_team == null) {
+				p.kick(Component.text("a fatal logic error occured, pls report this as a bug"));
+				Bukkit.getLogger().severe("fatal logic error occured:" +
+					"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
+			}
+		}
 	}
 
 	@EventHandler
@@ -49,8 +70,18 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
-	public void onDamage(EntityDamageByEntityEvent e) {
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		// prevent interactions
+		event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onEntityDamage(EntityDamageByEntityEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			e.setCancelled(true);
+			return;
+		}
 		if (!(e.getDamager() instanceof Player)) {
 			return;
 		}
@@ -60,8 +91,23 @@ public class PlayerListener implements Listener {
 		Player damager = (Player) e.getDamager();
 		Player damage_receiver = (Player) e.getEntity();
 
-		// if game isnt going, or both players are in the same team : cancel damage
-		if (gc == null || gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
+		// if both players arent in same team, cancel damage
+		if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		// if game isnt going, cancel event
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			e.setCancelled(true);
+			return;
+		}
+
+		// if round isnt running, cancel event
+		if (gc.round_state != RoundState.Running) {
 			e.setCancelled(true);
 		}
 	}

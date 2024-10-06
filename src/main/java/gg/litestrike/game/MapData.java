@@ -3,16 +3,14 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.Block;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -36,27 +34,41 @@ public class MapData implements Listener {
 
 	public final String map_name;
 
+	public final int border_height;
+
 	// toggelable map-specific features
 	public final Boolean jump_pads;
 	public final Boolean openable_doors;
 
 	// border gets placed 1 block above this block type
-	public final Material border_specifier;
+	public final Material border_marker;
+
+	public final Material border_block_type;
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
 
 	public void raiseBorder(World w) {
-		for (int[] b : border_blocks) {
-			w.getBlockAt(b[0], b[1], b[2]).getRelative(BlockFace.UP, 2).setType(Material.RED_CONCRETE);
-			w.getBlockAt(b[0], b[1], b[2]).getRelative(BlockFace.UP, 3).setType(Material.RED_CONCRETE);
-		}
+		setBorderBlock(border_block_type, w);
 	}
 
 	public void lowerBorder(World w) {
-		for (int[] b : border_blocks) {
-			w.getBlockAt(b[0], b[1], b[2]).getRelative(BlockFace.UP, 2).setType(Material.AIR);
-			w.getBlockAt(b[0], b[1], b[2]).getRelative(BlockFace.UP, 3).setType(Material.AIR);
+		setBorderBlock(Material.AIR, w);
+	}
+
+	private void setBorderBlock(Material m, World w) {
+		if (m.isBlock()) {
+			for (int[] b : border_blocks) {
+				for (int i = 0; i < border_height; i++) { // go until border_height
+					Block block = w.getBlockAt(b[0], b[1]+2+i, b[2]);
+					if (block.isEmpty() || block.getType() == border_block_type) {	// only replace empty, or border_block_type
+						block.setType(m);
+					}
+				}
+			}
+		} else {
+			Bukkit.getLogger().log(Level.SEVERE, "a Material that isnt a block was used for the border!!");
 		}
+
 	}
 
 	// IMPORTANT this only works of /gamerule spawnChunkRadius is set to 0
@@ -73,7 +85,7 @@ public class MapData implements Listener {
 					for (int x = 0; x < 16; x++) {
 						for (int z = 0; z < 16; z++) {
 							for (int y = -64; y < cs.getHighestBlockYAt(x, z); y++) {
-								if (cs.getBlockType(x, y, z) == border_specifier) {
+								if (cs.getBlockType(x, y, z) == border_marker) {
 									Litestrike.getInstance().mapdata.border_blocks
 											.add(new int[] { cs.getX() * 16 + x, y, cs.getZ() * 16 + z });
 								}
@@ -82,20 +94,6 @@ public class MapData implements Listener {
 					}
 				}
 			}.runTaskAsynchronously(Litestrike.getInstance());
-		}
-	}
-
-	@EventHandler
-	public void onWorldInit(WorldInitEvent e) {
-		World w = e.getWorld();
-
-		if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
-			Bukkit.getLogger().log(Level.SEVERE,
-					"LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!");
-			Bukkit.getLogger().log(Level.SEVERE,
-					"LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs.");
-			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
-			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 		}
 	}
 
@@ -119,14 +117,25 @@ public class MapData implements Listener {
 
 			this.map_name = json.get("map_name").getAsString();
 
-			String b_spec = json.get("border_specifier").getAsString();
-			this.border_specifier = Material.matchMaterial(b_spec);
+			String b_mark = json.get("border_marker").getAsString();
+			this.border_marker = Material.matchMaterial(b_mark);
+			if (!border_marker.isBlock()) {
+				throw new Exception("border_marker needs to be a placable block");
+			}
+
+			String b_type = json.get("border_block_type").getAsString();
+			this.border_block_type = Material.matchMaterial(b_type);
+			if (!border_block_type.isBlock()) {
+				throw new Exception("border_block_type needs to be a placable block");
+			}
+
+			this.border_height = json.get("border_height").getAsInt();
 
 			this.jump_pads = json.get("enable_jump_pads") != null;
 			this.openable_doors = json.get("enable_openable_doors") != null;
 
 		} catch (Exception e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n" + e);
+			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
 			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
 			// disable plugin when failure
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
@@ -151,7 +160,8 @@ public class MapData implements Listener {
 				"\nbreaker_spawn: " + Arrays.toString(this.breaker_spawn) +
 				"\nque_spawn: " + Arrays.toString(this.que_spawn) +
 				"\nmap_name: " + this.map_name +
-				"\nborder_specifier: " + this.border_specifier +
+				"\nborder_marker: " + this.border_marker +
+				"\nborder_block_type: " + this.border_block_type +
 				"\nenable_jump_pads: " + this.jump_pads +
 				"\nenable_openable_doors: " + this.openable_doors +
 				"\namount of known border blocks: " + this.border_blocks.size();
