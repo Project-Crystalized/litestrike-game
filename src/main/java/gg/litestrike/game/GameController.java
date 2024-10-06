@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -30,10 +33,10 @@ enum RoundState {
 // This will be created by something else, whenever there are 6+ people online and no game is currently going
 public class GameController {
 	public Teams teams = new Teams();
-	private List<PlayerData> playerDatas;
+	public List<PlayerData> playerDatas;
 
 	private int current_round_number = 0;
-	private RoundState round_state = RoundState.PreRound;
+	public RoundState round_state = RoundState.PreRound;
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -116,10 +119,10 @@ public class GameController {
 		// play a sound and send messages to the teams
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
 		if (current_round_number == 1) {
-			Audience.audience(teams.placers).sendMessage(Component.text("You are a ")
+			Audience.audience(teams.get_placers()).sendMessage(Component.text("You are a ")
 				.append(Litestrike.PLACER_TEXT)
 				.append(Component.text("\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
-			Audience.audience(teams.breakers).sendMessage(Component.text("You are a ")
+			Audience.audience(teams.get_breakers()).sendMessage(Component.text("You are a ")
 				.append(Litestrike.BREAKER_TEXT)
 				.append(Component.text("\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
 		}
@@ -162,6 +165,8 @@ public class GameController {
 	private void start_podium() {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
+
+		Bukkit.getServer().sendMessage(Component.text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
 	};
 
@@ -178,16 +183,20 @@ public class GameController {
 		// raise border
 		Litestrike.getInstance().mapdata.raiseBorder(w);
 
-		// teleport everyone to spawn and set to survival
-		for (Player p : teams.breakers) {
+		// teleport everyone to spawn and make them look at enemy spawn
+		for (Player p : teams.get_breakers()) {
 			p.teleport(breaker_spawn);
 			p.lookAt(placer_spawn.x(), placer_spawn.y(), placer_spawn.z(), LookAnchor.EYES);
-			p.setGameMode(GameMode.SURVIVAL);
 		}
-		for (Player p : teams.placers) {
+		for (Player p : teams.get_placers()) {
 			p.teleport(placer_spawn);
 			p.lookAt(breaker_spawn.x(), breaker_spawn.y(), breaker_spawn.z(), LookAnchor.EYES);
+		}
+
+		// heal and set everyone to survival
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.setGameMode(GameMode.SURVIVAL);
+			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		}
 
 		// TODO give armor and weapons
@@ -213,8 +222,8 @@ public class GameController {
 		}
 
 		// check if all placers are alive
-		Boolean all_placers_dead = true;
-		for (Player p : teams.placers) {
+		boolean all_placers_dead = true;
+		for (Player p : teams.get_placers()) {
 			// if a placer isnt in spectator mode they are alive
 			if (p.getGameMode() != GameMode.SPECTATOR) {
 				all_placers_dead = false;
@@ -225,8 +234,8 @@ public class GameController {
 			return Team.Breaker;
 		}
 
-		Boolean all_breakers_dead = true;
-		for (Player p : teams.breakers) {
+		boolean all_breakers_dead = true;
+		for (Player p : teams.get_breakers()) {
 			// if a breaker isnt in spectator mode they are alive
 			if (p.getGameMode() != GameMode.SPECTATOR) {
 				all_breakers_dead = false;
@@ -246,22 +255,47 @@ public class GameController {
 	// this gives everyone default armor for now
 	// TODO remove this once shop system is implemented
 	private void tmp_give_default_armor() {
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_placers()) {
 			PlayerInventory inv = p.getInventory();
-			inv.setHelmet(new ItemStack(Material.LEATHER_HELMET));
-			inv.setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
-			inv.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
-			inv.setBoots(new ItemStack(Material.LEATHER_BOOTS));
+			inv.setHelmet(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_HELMET)));
+			inv.setChestplate(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
+			inv.setLeggings(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_LEGGINGS)));
+			inv.setBoots(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_BOOTS)));
+			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
+		}
+
+		for (Player p : teams.get_breakers()) {
+			PlayerInventory inv = p.getInventory();
+			inv.setHelmet(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_HELMET)));
+			inv.setChestplate(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
+			inv.setLeggings(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
+			inv.setBoots(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
 			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		}
 	}
 
+	// TODO remove this once shop is implemented
+	private ItemStack tmp_color_armor(Color c, ItemStack i) {
+		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
+		lam.setColor(c);
+		i.setItemMeta(lam);
+		return i;
+	}
+
 	public PlayerData getPlayerData(Player p) {
 		for (PlayerData pd : playerDatas) {
-			if (pd.player == p) {
+			if (pd.player.equals(p.getName())) {
 				return pd;
 			}
 		}
+		Bukkit.getServer().sendMessage(Component.text("error occured, a player didnt have associated data"));
+		Bukkit.getLogger().warning("player name: " + p.getName());
+		Bukkit.getLogger().warning("known names: ");
+
+		for (PlayerData pd : playerDatas) {
+			Bukkit.getLogger().warning(pd.player);
+		}
+
 		return null;
 	}
 }

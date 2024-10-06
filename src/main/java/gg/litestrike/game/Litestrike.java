@@ -1,6 +1,13 @@
 package gg.litestrike.game;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -18,7 +25,7 @@ enum Team {
 	Breaker,
 }
 
-public final class Litestrike extends JavaPlugin {
+public final class Litestrike extends JavaPlugin implements Listener {
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -37,6 +44,7 @@ public final class Litestrike extends JavaPlugin {
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(new MapData(), this);
+		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getCommand("mapdata").setExecutor(new DebugCommands());
 		this.getCommand("force_start").setExecutor(new DebugCommands());
 		this.getCommand("player_info").setExecutor(new DebugCommands());
@@ -96,4 +104,27 @@ public final class Litestrike extends JavaPlugin {
 			}
 		}
 	};
+
+	// setup stuff like gamerules
+	@EventHandler
+	public void onWorldInit(WorldInitEvent e) {
+		World w = e.getWorld();
+
+		// disable natural regen
+		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
+
+		// /gamerule spawnChunkRadius needs to be set to 0 before world load,
+		// otherwise the border detection can fail.
+		// so we set it to 0 and disable the plugin if it wasnt at 0 already
+		if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
+			Bukkit.getLogger().log(Level.SEVERE,
+					"LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!");
+			Bukkit.getLogger().log(Level.SEVERE,
+					"LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs.");
+			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+		}
+
+	}
+
 }

@@ -1,21 +1,26 @@
 package gg.litestrike.game;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class PlayerData {
 
-	public Player player;
+	public String player;
 	private int money = 0;
 	public int kills = 0;
 	public int deaths = 0;
 	public int assists = 0;
 
 	public PlayerData(Player p) {
-		player = p;
+		player = p.getName();
 	}
 
 	public void addMoney(int amt, String reason) {
-		player.sendMessage("You received " + amt + "g. " + reason);
+		Player p = Bukkit.getPlayer(player);
+		if (p == null) {
+			return;
+		}
+		p.sendMessage("You received " + amt + "g. " + reason);
 		money += amt;
 	}
 
@@ -31,7 +36,7 @@ public class PlayerData {
 	}
 
 	public String toString() {
-		return "\nname: " + player.getName() +
+		return "\nname: " + player +
 				"\nmoney: " + money +
 				"\nkills: " + kills +
 				"\ndeaths: " + deaths +
