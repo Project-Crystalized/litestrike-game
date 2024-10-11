@@ -18,8 +18,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 
-// TODO add a sanity checker class
-
 enum Team {
 	Placer,
 	Breaker,
@@ -36,21 +34,28 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	public boolean is_force_starting = false;
 
 	// constants for Placer and breaker text
-	public static final Component PLACER_TEXT = Component.text("Placer").color(TextColor.color(0xe31724)).decoration(TextDecoration.BOLD, true);
-	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415)).decoration(TextDecoration.BOLD, true);
-
+	public static final Component PLACER_TEXT = Component.text("Placer").color(TextColor.color(0xe31724))
+			.decoration(TextDecoration.BOLD, true);
+	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415))
+			.decoration(TextDecoration.BOLD, true);
 
 	@Override
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-		this.getServer().getPluginManager().registerEvents(new MapData(), this);
+		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(this, this);
-		this.getCommand("mapdata").setExecutor(new DebugCommands());
-		this.getCommand("force_start").setExecutor(new DebugCommands());
-		this.getCommand("player_info").setExecutor(new DebugCommands());
+		DebugCommands dc = new DebugCommands();
+
+		Bukkit.getServer().getPluginManager().registerEvents(new BombListener(), this);
+
+		this.getCommand("mapdata").setExecutor(dc);
+		this.getCommand("force_start").setExecutor(dc);
+		this.getCommand("player_info").setExecutor(dc);
+		this.getCommand("bomb_info").setExecutor(dc);
 
 		new BukkitRunnable() {
 			int countdown = 11;
+
 			@Override
 			public void run() {
 
@@ -69,7 +74,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 				}
 
 				// if countdown reaches zero, we start the game
-				if (countdown == 0) {
+				if (countdown == 0 || is_force_starting) {
 					countdown = 11;
 					game_controller = new GameController();
 					is_force_starting = false;

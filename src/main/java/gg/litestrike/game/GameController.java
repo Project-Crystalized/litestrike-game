@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -29,8 +30,8 @@ enum RoundState {
 	GameFinished,
 }
 
-
-// This will be created by something else, whenever there are 6+ people online and no game is currently going
+// This will be created by something else, whenever there are 6+ people online
+// and no game is currently going
 public class GameController {
 	public Teams teams = new Teams();
 	public List<PlayerData> playerDatas;
@@ -47,7 +48,9 @@ public class GameController {
 	// after this round, the sides get switched
 	private int switch_round = 4;
 
-	// TODO private Bomb bomb = new Bomb();
+	public Bomb bomb = new Bomb();
+
+	// TODO store round winners
 
 	public GameController() {
 		next_round();
@@ -70,12 +73,13 @@ public class GameController {
 		}.runTaskTimer(Litestrike.getInstance(), 20, 1);
 
 	}
-	
+
 	// This is run every tick
 	private Boolean update_game_state() {
 		phase_timer += 1;
 
-		// this is like a state-machine, it will check the current state, check a condition, and
+		// this is like a state-machine, it will check the current state, check a
+		// condition, and
 		// if the condition is met, call a method to advance to the next state
 		switch (round_state) {
 			case RoundState.PreRound: {
@@ -83,13 +87,13 @@ public class GameController {
 					start_round();
 				}
 			}
-			break;
+				break;
 			case RoundState.Running: {
 				if (determine_winner() != null) {
 					finish_round();
 				}
 			}
-			break;
+				break;
 			case RoundState.PostRound: {
 				if (phase_timer == (5 * 20)) {
 					if (current_round_number == switch_round * 2) {
@@ -99,14 +103,14 @@ public class GameController {
 					}
 				}
 			}
-			break;
+				break;
 			case RoundState.GameFinished: {
 				if (phase_timer == (20 * 20)) {
 					finish_game();
 					return true; // remove the update_game_state task
 				}
 			}
-			break;
+				break;
 		}
 		return false;
 	}
@@ -120,11 +124,13 @@ public class GameController {
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
 		if (current_round_number == 1) {
 			Audience.audience(teams.get_placers()).sendMessage(Component.text("You are a ")
-				.append(Litestrike.PLACER_TEXT)
-				.append(Component.text("\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
+					.append(Litestrike.PLACER_TEXT)
+					.append(Component.text(
+							"\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
 			Audience.audience(teams.get_breakers()).sendMessage(Component.text("You are a ")
-				.append(Litestrike.BREAKER_TEXT)
-				.append(Component.text("\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
+					.append(Litestrike.BREAKER_TEXT)
+					.append(Component.text(
+							"\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
 		}
 
 		// remove the border
@@ -137,6 +143,7 @@ public class GameController {
 	private void finish_round() {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
+		bomb.reset_bomb();
 		Team winner = determine_winner();
 
 		// play sound
@@ -149,7 +156,8 @@ public class GameController {
 		} else {
 			winner_component = Litestrike.BREAKER_TEXT;
 		}
-		Bukkit.getServer().sendMessage(Component.text("The winner was the ").append(winner_component).append(Component.text(" team!")));
+		Bukkit.getServer()
+				.sendMessage(Component.text("The winner was the ").append(winner_component).append(Component.text(" team!")));
 
 		// give money
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -165,12 +173,14 @@ public class GameController {
 	private void start_podium() {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
+		bomb.reset_bomb();
 
 		Bukkit.getServer().sendMessage(Component.text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
 	};
 
-	// this is called when we go from PostRound to PreRound and when the first round starts
+	// this is called when we go from PostRound to PreRound and when the first round
+	// starts
 	private void next_round() {
 		round_state = RoundState.PreRound;
 		phase_timer = 0;
@@ -202,6 +212,11 @@ public class GameController {
 		// TODO give armor and weapons
 		tmp_give_default_armor();
 
+		// give bomb to a random player
+		// generate int between 0 and placer teams size
+		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
+		bomb.give_bomb(teams.get_placers().get(random).getInventory());
+
 		// TODO give shop item
 
 	}
@@ -217,6 +232,30 @@ public class GameController {
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
 	private Team determine_winner() {
+		if (bomb.is_detonated) {
+			return Team.Placer;
+		}
+		if (bomb.is_broken) {
+			return Team.Breaker;
+		}
+
+		boolean all_breakers_dead = true;
+		for (Player p : teams.get_breakers()) {
+			// if a breaker isnt in spectator mode they are alive
+			if (p.getGameMode() != GameMode.SPECTATOR) {
+				all_breakers_dead = false;
+				break;
+			}
+		}
+		if (all_breakers_dead) {
+			return Team.Placer;
+		}
+
+		// if the bomb is Placed we skip the rest of the checks
+		if (bomb.bomb_loc instanceof PlacedBomb) {
+			return null;
+		}
+
 		if (phase_timer == (120 * 20)) {
 			return Team.Placer;
 		}
@@ -233,21 +272,6 @@ public class GameController {
 		if (all_placers_dead) {
 			return Team.Breaker;
 		}
-
-		boolean all_breakers_dead = true;
-		for (Player p : teams.get_breakers()) {
-			// if a breaker isnt in spectator mode they are alive
-			if (p.getGameMode() != GameMode.SPECTATOR) {
-				all_breakers_dead = false;
-				break;
-			}
-		}
-		if (all_breakers_dead) {
-			return Team.Placer;
-		}
-
-		// TODO check_bomb_exploded ||
-		// TODO check bomb_mined ||
 
 		return null;
 	}
@@ -270,7 +294,8 @@ public class GameController {
 			inv.setChestplate(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
 			inv.setLeggings(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
 			inv.setBoots(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
-			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
+			inv.addItem(new ItemStack(Material.STONE_SWORD));
+			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
 		}
 	}
 

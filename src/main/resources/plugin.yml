@@ -25,3 +25,10 @@ commands:
     aliases: []
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
+
+  bomb_info:
+    description: "For debugging purposes, get all info about the bomb"
+    usage: "/bomb_info"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"

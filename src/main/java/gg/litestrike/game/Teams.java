@@ -23,8 +23,8 @@ public class Teams {
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
-		placers = list.subList(0, middle);
-		breakers = list.subList(middle, list.size());
+		breakers = list.subList(0, middle);
+		placers = list.subList(middle, list.size());
 	}
 
 	public List<Player> get_placers() {
@@ -36,6 +36,7 @@ public class Teams {
 		}
 		return placer_list;
 	}
+
 	public List<Player> get_breakers() {
 		List<Player> breaker_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -64,6 +65,23 @@ public class Teams {
 		}
 
 		if (breakers.contains(p.getName())) {
+			return Team.Breaker;
+		}
+
+		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
+		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		// disable plugin when failure
+		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+
+		throw new RuntimeException(new Exception("player is in no team"));
+	}
+
+	public Team get_team(String name) {
+		if (placers.contains(name)) {
+			return Team.Placer;
+		}
+
+		if (breakers.contains(name)) {
 			return Team.Breaker;
 		}
 

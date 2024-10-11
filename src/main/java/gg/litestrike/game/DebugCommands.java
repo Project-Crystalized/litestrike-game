@@ -28,9 +28,22 @@ public class DebugCommands implements CommandExecutor {
 				return run_player_info(args, commandSender);
 			case "force_start":
 				return run_force_start(args, commandSender);
+			case "bomb_info":
+				return run_bomb_info(args, commandSender);
 			default:
 				return false;
 		}
+	}
+
+	private boolean run_bomb_info(String[] args, CommandSender commandSender) {
+		if (Litestrike.getInstance().game_controller == null) {
+			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
+			return true;
+		}
+
+		commandSender.sendMessage(Litestrike.getInstance().game_controller.bomb.toString());
+
+		return true;
 	}
 
 	private boolean run_force_start(String[] args, CommandSender commandSender) {
@@ -71,7 +84,8 @@ public class DebugCommands implements CommandExecutor {
 			return true;
 		}
 
-		// Bukkit.getLogger().warning("player data amt: " + Litestrike.getInstance().game_controller.playerDatas.size());
+		// Bukkit.getLogger().warning("player data amt: " +
+		// Litestrike.getInstance().game_controller.playerDatas.size());
 
 		try {
 			Player p = Bukkit.getPlayer(args[0]);
@@ -83,12 +97,14 @@ public class DebugCommands implements CommandExecutor {
 			return false;
 		}
 
-		// for (Player p : Litestrike.getInstance().game_controller.teams.get_breakers()) {
-		// 	commandSender.sendMessage("breaker: " + p.getName());
+		// for (Player p :
+		// Litestrike.getInstance().game_controller.teams.get_breakers()) {
+		// commandSender.sendMessage("breaker: " + p.getName());
 		// }
 		//
-		// for (Player p : Litestrike.getInstance().game_controller.teams.get_placers()) {
-		// 	commandSender.sendMessage("placer: " + p.getName());
+		// for (Player p : Litestrike.getInstance().game_controller.teams.get_placers())
+		// {
+		// commandSender.sendMessage("placer: " + p.getName());
 		// }
 
 		return true;

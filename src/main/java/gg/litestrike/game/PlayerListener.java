@@ -11,7 +11,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
@@ -58,7 +57,7 @@ public class PlayerListener implements Listener {
 			if (should_be_team == null) {
 				p.kick(Component.text("a fatal logic error occured, pls report this as a bug"));
 				Bukkit.getLogger().severe("fatal logic error occured:" +
-					"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
+						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
 			}
 		}
 	}
@@ -66,12 +65,6 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		// prevent blocks from getting broken
-		event.setCancelled(true);
-	}
-
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		// prevent interactions
 		event.setCancelled(true);
 	}
 
@@ -131,19 +124,25 @@ public class PlayerListener implements Listener {
 
 		// give death/kill and money
 		gc.getPlayerData(p).deaths += 1;
-		gc.getPlayerData(killer).kills += 1;
-		gc.getPlayerData(killer).addMoney(500, "For killing " + p.getName());
+		if (killer != null) {
+			gc.getPlayerData(killer).kills += 1;
+			gc.getPlayerData(killer).addMoney(500, "For killing " + p.getName());
+		}
+
+		Team killed_team = gc.teams.get_team(p);
+
+		// send message
+		Component death_message = Component.text(p.getName() + " was killed");
+		if (killer != null) {
+			death_message.append(Component.text("by " + killer.getName()));
+		}
+		Bukkit.getServer().sendMessage(death_message);
 
 		// play sound
-		Team killed_team = gc.teams.get_team(p);
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			// TODO replace sounds and color the text
-			player.sendMessage(Component.text(p.getName() + " was killed by " + killer.getName()));
 			if (gc.teams.get_team(player) == killed_team) {
-				// play sound of own teams killed
 				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.2f, 1f));
 			} else {
-				// play soundof enemy team killed
 				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.5f, 1f));
 			}
 		}
