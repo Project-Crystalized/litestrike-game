@@ -46,6 +46,7 @@ public class PlayerListener implements Listener {
 		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
+		p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
@@ -81,6 +82,7 @@ public class PlayerListener implements Listener {
 		if (!(e.getEntity() instanceof Player)) {
 			return;
 		}
+
 		Player damager = (Player) e.getDamager();
 		Player damage_receiver = (Player) e.getEntity();
 
@@ -113,6 +115,9 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		e.setCancelled(true);
+		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+			return;
+		}
 		Player p = e.getPlayer();
 		// i have no idea if this cast is safe, we will see through playtesting
 		Player killer = (Player) e.getDamageSource().getCausingEntity();

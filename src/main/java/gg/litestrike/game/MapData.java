@@ -59,8 +59,8 @@ public class MapData implements Listener {
 		if (m.isBlock()) {
 			for (int[] b : border_blocks) {
 				for (int i = 0; i < border_height; i++) { // go until border_height
-					Block block = w.getBlockAt(b[0], b[1]+2+i, b[2]);
-					if (block.isEmpty() || block.getType() == border_block_type) {	// only replace empty, or border_block_type
+					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
+					if (block.isEmpty() || block.getType() == border_block_type) { // only replace empty, or border_block_type
 						block.setType(m);
 					}
 				}
@@ -101,6 +101,11 @@ public class MapData implements Listener {
 		try {
 			String file_content = Files.readString(Paths.get("./world/map_config.json"));
 			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
+
+			int version = json.get("version").getAsInt();
+			if (version != 1) {
+				throw new Exception("incorrect map_config.java file version");
+			}
 
 			// pitch and yaw are not needed, as we just make players look at enemy spawn
 			JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();

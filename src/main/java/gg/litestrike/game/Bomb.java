@@ -57,7 +57,7 @@ public class Bomb {
 		if (!(bomb_loc instanceof InvItemBomb)) {
 			Bukkit.getLogger().severe("ERROR: bomb got placed without being in a inventory before. Check the Bomb Logic!");
 		}
-		bomb_block.setType(Material.LIME_STAINED_GLASS);
+		bomb_block.setType(Material.BARRIER);
 		reset_bomb();
 		bomb_loc = new PlacedBomb(bomb_block);
 

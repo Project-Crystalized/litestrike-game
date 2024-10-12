@@ -56,7 +56,6 @@ public class BombListener implements Listener {
 				is_placing -= 1;
 
 				if (mining_players.size() > 0) {
-					Bukkit.getServer().sendMessage(Component.text("a player is mining"));
 					breaking_counter += 1;
 				} else {
 					breaking_counter = 0;
@@ -67,8 +66,6 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent e) {
-		Bukkit.getServer().sendMessage(Component.text("received event"));
-
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (mining_players.contains(e.getPlayer()) ||
 				gc == null ||
@@ -77,8 +74,6 @@ public class BombListener implements Listener {
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
 			return;
 		}
-
-		Bukkit.getServer().sendMessage(Component.text("got here"));
 
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
 		if (!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE)) {

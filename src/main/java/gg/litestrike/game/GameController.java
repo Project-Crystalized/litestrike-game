@@ -35,9 +35,12 @@ enum RoundState {
 public class GameController {
 	public Teams teams = new Teams();
 	public List<PlayerData> playerDatas;
+	public Bomb bomb = new Bomb();
 
 	private int current_round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
+
+	private List<Team> round_results = new ArrayList<>();
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -46,11 +49,7 @@ public class GameController {
 	private int phase_timer = 0;
 
 	// after this round, the sides get switched
-	private int switch_round = 4;
-
-	public Bomb bomb = new Bomb();
-
-	// TODO store round winners
+	private final static int switch_round = 4;
 
 	public GameController() {
 		next_round();
@@ -145,6 +144,8 @@ public class GameController {
 		phase_timer = 0;
 		bomb.reset_bomb();
 		Team winner = determine_winner();
+
+		round_results.add(winner);
 
 		// play sound
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
