@@ -49,7 +49,7 @@ public class GameController {
 	private int phase_timer = 0;
 
 	// after this round, the sides get switched
-	private final static int switch_round = 4;
+	public final static int switch_round = 4;
 
 	public GameController() {
 		next_round();
@@ -59,6 +59,8 @@ public class GameController {
 			PlayerData p = new PlayerData(player);
 			playerDatas.add(p);
 		}
+
+		ScoreboardController.setup_scoreboard(teams);
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
@@ -146,6 +148,8 @@ public class GameController {
 		Team winner = determine_winner();
 
 		round_results.add(winner);
+
+		ScoreboardController.set_win_display(round_results);
 
 		// play sound
 		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));

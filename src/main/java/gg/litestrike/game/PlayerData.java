@@ -22,6 +22,8 @@ public class PlayerData {
 		}
 		p.sendMessage("You received " + amt + "g. " + reason);
 		money += amt;
+
+		ScoreboardController.set_player_money(player, money);
 	}
 
 	// returns false if not enought money was available
@@ -31,6 +33,7 @@ public class PlayerData {
 			return false;
 		} else {
 			money -= amt;
+			ScoreboardController.set_player_money(player, money);
 			return true;
 		}
 	}

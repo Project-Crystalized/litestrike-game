@@ -76,20 +76,20 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		if (!(e.getDamager() instanceof Player)) {
-			return;
-		}
-		if (!(e.getEntity() instanceof Player)) {
-			return;
-		}
+		// if (!(e.getDamager() instanceof Player)) {
+		// return;
+		// }
+		// if (!(e.getEntity() instanceof Player)) {
+		// return;
+		// }
 
-		Player damager = (Player) e.getDamager();
-		Player damage_receiver = (Player) e.getEntity();
+		// Player damager = (Player) e.getDamager();
+		// Player damage_receiver = (Player) e.getEntity();
 
 		// if both players arent in same team, cancel damage
-		if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
-			e.setCancelled(true);
-		}
+		// if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
+		// e.setCancelled(true);
+		// }
 	}
 
 	@EventHandler

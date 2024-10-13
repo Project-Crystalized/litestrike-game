@@ -36,8 +36,10 @@ public class Bomb {
 
 		// set item lore
 		List<Component> lore = new ArrayList<Component>();
-		lore.add(Component.text("This is the bomb. place it at the bomb sites").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
-		lore.add(Component.text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+		lore.add(Component.text("This is the bomb. place it at the bomb sites").color(NamedTextColor.GRAY)
+				.decoration(TextDecoration.ITALIC, false));
+		lore.add(Component.text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY)
+				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
 		im.setCustomModelData(3); // edit
@@ -68,13 +70,28 @@ public class Bomb {
 
 		new BukkitRunnable() {
 			int timer = 0;
+			int beep_delta = 40;
+			int last_beep = 0;
+
 			@Override
 			public void run() {
 				if (is_broken || is_detonated || bomb_loc == null || !(bomb_loc instanceof PlacedBomb)) {
 					cancel();
 				}
-				
-				timer +=1;
+
+				timer += 1;
+
+				Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, Float.POSITIVE_INFINITY, 1.8f);
+				if (last_beep + beep_delta == timer || (beep_delta < 1 && timer % 2 == 0)) {
+					last_beep = timer;
+					beep_delta -= 1;
+
+					Bukkit.getServer().sendMessage(Component.text("\n timer: " + timer + "\nbeep_delta: " + beep_delta));
+
+					PlacedBomb pb = (PlacedBomb) bomb_loc;
+					Block b = pb.block;
+					Bukkit.getServer().playSound(sound, b.getX(), b.getY(), b.getZ());
+				}
 
 				if (timer == DETONATION_TIME) {
 					explode();
@@ -95,20 +112,22 @@ public class Bomb {
 		// the explosion animation
 		new BukkitRunnable() {
 			int i = 0;
+
 			@Override
 			public void run() {
 				b.block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, b.block.getLocation(), 5);
-				b.block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1), b.block.getX(), b.block.getY(), b.block.getZ());
+				b.block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
+						b.block.getX(), b.block.getY(), b.block.getZ());
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					double distance = p.getLocation().distance(b.block.getLocation());
 					if (distance < 15) {
 						p.setHealth(0);
 					}
 					if (distance < 30) {
-						p.damage(30-distance);
+						p.damage(30 - distance);
 					}
 				}
-				i+= 1;
+				i += 1;
 				if (i == (20 * 4)) {
 					cancel();
 				}
@@ -153,8 +172,8 @@ public class Bomb {
 
 	public String toString() {
 		return "\nbreakdown of the bomb:\nbomb_state: " + bomb_loc.getClass() +
-		"\nbomb_timer: " + timer +
-		"\nis_bomb_detonated: " + is_detonated;
+				"\nbomb_timer: " + timer +
+				"\nis_bomb_detonated: " + is_detonated;
 	}
 
 }
@@ -166,9 +185,11 @@ interface BombLocation {
 
 class DroppedBomb implements BombLocation {
 	Item item;
+
 	public DroppedBomb(Item item) {
 		this.item = item;
 	}
+
 	@Override
 	public void remove() {
 		item.remove();
@@ -177,9 +198,11 @@ class DroppedBomb implements BombLocation {
 
 class PlacedBomb implements BombLocation {
 	public Block block;
+
 	public PlacedBomb(Block block) {
 		this.block = block;
 	}
+
 	@Override
 	public void remove() {
 		block.setType(Material.AIR);
@@ -188,9 +211,11 @@ class PlacedBomb implements BombLocation {
 
 class InvItemBomb implements BombLocation {
 	PlayerInventory p_inv;
+
 	public InvItemBomb(PlayerInventory p_inv) {
 		this.p_inv = p_inv;
 	}
+
 	@Override
 	public void remove() {
 		p_inv.remove(Bomb.bomb_item());
