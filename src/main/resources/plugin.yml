@@ -32,3 +32,10 @@ commands:
     aliases: []
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
+
+  soundd:
+    description: "For debugging purposes, play a sound effect"
+    usage: "/soundd"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"

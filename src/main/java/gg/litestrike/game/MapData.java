@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.block.Block;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -102,8 +103,8 @@ public class MapData implements Listener {
 			String file_content = Files.readString(Paths.get("./world/map_config.json"));
 			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
 
-			int version = json.get("version").getAsInt();
-			if (version != 1) {
+			JsonElement v = json.get("version");
+			if (v != null && v.getAsInt() != 1) {
 				throw new Exception("incorrect map_config.java file version");
 			}
 

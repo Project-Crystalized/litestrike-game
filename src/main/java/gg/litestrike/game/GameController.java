@@ -19,9 +19,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+
+import static net.kyori.adventure.text.Component.text;
 
 enum RoundState {
 	PreRound,
@@ -121,17 +121,20 @@ public class GameController {
 		round_state = RoundState.Running;
 		phase_timer = 0;
 
-		// play a sound and send messages to the teams
-		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
+		// send messages to the teams
 		if (current_round_number == 1) {
-			Audience.audience(teams.get_placers()).sendMessage(Component.text("You are a ")
-					.append(Litestrike.PLACER_TEXT)
-					.append(Component.text(
-							"\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
-			Audience.audience(teams.get_breakers()).sendMessage(Component.text("You are a ")
+			for (Player p : teams.get_placers()) {
+				p.sendMessage(text("\nʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
+						.append(Litestrike.PLACER_TEXT)
+						.append(text(
+								"\nɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n Oʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
+								.color(Litestrike.YELLOW)));
+			}
+			Audience.audience(teams.get_breakers()).sendMessage(text("\nYou are a ").color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
-					.append(Component.text(
-							"\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
+					.append(text(
+							"\nᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
+							.color(Litestrike.YELLOW)));
 		}
 
 		// remove the border
@@ -151,9 +154,6 @@ public class GameController {
 
 		ScoreboardController.set_win_display(round_results);
 
-		// play sound
-		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
-
 		// announce winner
 		Component winner_component;
 		if (winner == Team.Placer) {
@@ -162,14 +162,18 @@ public class GameController {
 			winner_component = Litestrike.BREAKER_TEXT;
 		}
 		Bukkit.getServer()
-				.sendMessage(Component.text("The winner was the ").append(winner_component).append(Component.text(" team!")));
+				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
+						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(current_round_number))
+						.append(text("!\n").color(Litestrike.YELLOW)));
 
-		// give money
+		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(2000, "For winning the round!");
+				getPlayerData(p).addMoney(2000, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(1200, "For loosing the round.");
+				getPlayerData(p).addMoney(1200, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				SoundEffects.round_lost(p);
 			}
 		}
 	}
@@ -180,7 +184,7 @@ public class GameController {
 		phase_timer = 0;
 		bomb.reset_bomb();
 
-		Bukkit.getServer().sendMessage(Component.text("The Podium would start now, but it isnt implemented yet"));
+		Bukkit.getServer().sendMessage(text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
 	};
 
@@ -213,6 +217,9 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		}
+
+		// sound effect has a cooldown, so we call it here instead of in round_start
+		SoundEffects.round_start();
 
 		// TODO give armor and weapons
 		tmp_give_default_armor();
@@ -318,7 +325,7 @@ public class GameController {
 				return pd;
 			}
 		}
-		Bukkit.getServer().sendMessage(Component.text("error occured, a player didnt have associated data"));
+		Bukkit.getServer().sendMessage(text("error occured, a player didnt have associated data"));
 		Bukkit.getLogger().warning("player name: " + p.getName());
 		Bukkit.getLogger().warning("known names: ");
 

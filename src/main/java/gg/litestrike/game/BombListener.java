@@ -85,6 +85,7 @@ public class BombListener implements Listener {
 			return;
 		}
 
+		// TODO play a start plant sound effect
 		mining_players.add(e.getPlayer());
 	}
 

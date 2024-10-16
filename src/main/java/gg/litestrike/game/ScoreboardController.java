@@ -12,6 +12,7 @@ import org.bukkit.scoreboard.Team.OptionStatus;
 
 import java.util.List;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -40,8 +41,7 @@ public class ScoreboardController {
 		breakers.setAllowFriendlyFire(false);
 		placers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
 
-
-		Component title = Component.text("LITESTRIKE").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, true);
+		Component title = Component.text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -66,7 +66,8 @@ public class ScoreboardController {
 		obj.getScore("5").setScore(5);
 		obj.getScore("5").customName(Component.text(""));
 
-		obj.getScore("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").setScore(4);
+		obj.getScore("4").setScore(5);
+		obj.getScore("4").customName(Component.text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
 		obj.getScore("3").customName(Component.text(""));
@@ -83,26 +84,27 @@ public class ScoreboardController {
 		Team money_count = sb.registerNewTeam("money_count");
 		money_count.addEntry("7");
 		money_count.prefix(Component.text("ᴍᴏɴᴇʏ: "));
+		// TODO this isnt initialized properly
 		money_count.suffix(Component.text("error"));
 		obj.getScore("7").setScore(7);
 
 		Team wins_placers = sb.registerNewTeam("wins_placers");
 		wins_placers.addEntry("3");
-		wins_placers.prefix(Component.text("  "));
-		wins_placers.suffix(Component.text("error2"));
+		wins_placers.prefix(Component.text("   "));
+		wins_placers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE105 (0)"));
 		obj.getScore("3").setScore(3);
 
 		Team wins_breakers = sb.registerNewTeam("wins_breakers");
 		wins_breakers.addEntry("2");
-		wins_breakers.prefix(Component.text("  "));
-		wins_breakers.suffix(Component.text("error2"));
+		wins_breakers.prefix(Component.text("   "));
+		wins_breakers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE105 (0)"));
 		obj.getScore("2").setScore(2);
 
 		Team footline = sb.registerNewTeam("footline");
 		footline.addEntry("0");
-		footline.prefix(Component.text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ "));
+		footline.prefix(Component.text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ ").color(TextColor.color(0xc4b50a)));
 		// TODO put in the game id here
-		footline.suffix(Component.text("TODO game id here"));
+		footline.suffix(Component.text("TODO"));
 		obj.getScore("0").setScore(0);
 
 		p.setScoreboard(sb);
@@ -110,7 +112,6 @@ public class ScoreboardController {
 	}
 
 	public static void set_win_display(List<gg.litestrike.game.Team> wins) {
-		Bukkit.getServer().sendMessage(Component.text("set_win_display was called"));
 		int placer_wins_amt = 0;
 		int breaker_wins_amt = 0;
 		for (gg.litestrike.game.Team w : wins) {
@@ -128,7 +129,7 @@ public class ScoreboardController {
 		for (Player p : t.get_placers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
-			placers.prefix(Component.text("> ").decoration(TextDecoration.BOLD, true));
+			placers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
@@ -137,7 +138,7 @@ public class ScoreboardController {
 		for (Player p : t.get_breakers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
-			breakers.prefix(Component.text("> ").decoration(TextDecoration.BOLD, true));
+			breakers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
@@ -145,23 +146,22 @@ public class ScoreboardController {
 
 	}
 
-	// e.g. 3 -> ◉︎ ◉︎ ◉︎ ○︎ ☆
 	public static String render_win_display(int amt) {
 		String s = "";
 		for (int i = 1; i <= GameController.switch_round; i++) {
 			if (i <= amt) {
-				s += "⚫";
+				s += "\uE106";
 			} else {
-				s += "⚬︎ ";
+				s += "\uE105";
 			}
 		}
 		if (GameController.switch_round == amt) {
-			s += "★ ";
+			s += "\uE108";
 		} else {
-			s += "☆ ";
+			s += "\uE107";
 		}
 
-		s += "	(" + amt + ")";
+		s += "  (" + amt + ")";
 		return s;
 	}
 
@@ -169,7 +169,7 @@ public class ScoreboardController {
 		Player p = Bukkit.getPlayer(player);
 		Scoreboard sb = p.getScoreboard();
 		Team money_count = sb.getTeam("money_count");
-		money_count.suffix(Component.text(money));
+		money_count.suffix(Component.text(money).color(TextColor.color(0x0ab1c4)).append(Component.text("\uE104")));
 	}
 
 }

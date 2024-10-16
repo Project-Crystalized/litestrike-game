@@ -63,14 +63,12 @@ public class Bomb {
 		reset_bomb();
 		bomb_loc = new PlacedBomb(bomb_block);
 
-		Sound s = Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1);
-		Bukkit.getServer().playSound(s, bomb_block.getX(), bomb_block.getY(), bomb_block.getZ());
+		SoundEffects.bomb_plant_start();
 
-		Bukkit.getServer().sendMessage(Component.text("The BOMB HAS BEEN PLACED"));
+		Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW));
 
 		new BukkitRunnable() {
 			int timer = 0;
-			int beep_delta = 40;
 			int last_beep = 0;
 
 			@Override
@@ -81,15 +79,14 @@ public class Bomb {
 
 				timer += 1;
 
-				Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, Float.POSITIVE_INFINITY, 1.8f);
-				if (last_beep + beep_delta == timer || (beep_delta < 1 && timer % 2 == 0)) {
-					last_beep = timer;
-					beep_delta -= 1;
+				int freq = 20 + (int)(-0.025 * timer);
 
-					Bukkit.getServer().sendMessage(Component.text("\n timer: " + timer + "\nbeep_delta: " + beep_delta));
+				if (timer - last_beep > freq) {
+					last_beep = timer;
 
 					PlacedBomb pb = (PlacedBomb) bomb_loc;
 					Block b = pb.block;
+					Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
 					Bukkit.getServer().playSound(sound, b.getX(), b.getY(), b.getZ());
 				}
 

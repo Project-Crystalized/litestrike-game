@@ -39,6 +39,8 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415))
 			.decoration(TextDecoration.BOLD, true);
 
+	public static TextColor YELLOW = TextColor.color(0xfbea85);
+
 	@Override
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
@@ -52,6 +54,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("bomb_info").setExecutor(dc);
+		this.getCommand("soundd").setExecutor(dc);
 
 		new BukkitRunnable() {
 			int countdown = 11;

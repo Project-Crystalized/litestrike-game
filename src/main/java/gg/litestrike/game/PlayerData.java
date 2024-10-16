@@ -3,6 +3,9 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+
 public class PlayerData {
 
 	public String player;
@@ -20,7 +23,9 @@ public class PlayerData {
 		if (p == null) {
 			return;
 		}
-		p.sendMessage("You received " + amt + "g. " + reason);
+		p.sendMessage(Component.text("ʏᴏᴜ ʀᴇᴄᴇɪᴠᴇᴅ ").color(Litestrike.YELLOW)
+				.append(Component.text(amt + "\uE104").color(TextColor.color(0x0ab1c4)))
+				.append(Component.text(" " + reason).color(Litestrike.YELLOW)));
 		money += amt;
 
 		ScoreboardController.set_player_money(player, money);

@@ -30,9 +30,37 @@ public class DebugCommands implements CommandExecutor {
 				return run_force_start(args, commandSender);
 			case "bomb_info":
 				return run_bomb_info(args, commandSender);
+			case "soundd":
+				return run_sound_info(args, commandSender);
 			default:
 				return false;
 		}
+	}
+
+	private boolean run_sound_info(String[] args, CommandSender commandSender) {
+		if (args.length == 0) {
+			return false;
+		}
+		switch (args[0]) {
+			case "start_round":
+				SoundEffects.round_start();
+				break;
+			case "round_lost":
+				SoundEffects.round_lost(Bukkit.getServer());
+				break;
+			case "round_won":
+				SoundEffects.round_won(Bukkit.getServer());
+				break;
+			case "bomb_start":
+				SoundEffects.bomb_plant_start();
+				break;
+			case "bomb_beep":
+				MapData md = Litestrike.getInstance().mapdata;
+				SoundEffects.bomb_beep((int) md.que_spawn[0], (int) md.que_spawn[1], (int) md.que_spawn[2]);
+				break;
+
+		}
+		return true;
 	}
 
 	private boolean run_bomb_info(String[] args, CommandSender commandSender) {

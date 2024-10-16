@@ -115,6 +115,7 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		e.setCancelled(true);
+		e.deathMessage(null);
 		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
 			return;
 		}
@@ -131,7 +132,7 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(p).deaths += 1;
 		if (killer != null) {
 			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).addMoney(500, "For killing " + p.getName());
+			gc.getPlayerData(killer).addMoney(500, "ғᴏʀ ᴋɪʟʟɪɴɢ " + p.getName());
 		}
 
 		Team killed_team = gc.teams.get_team(p);
