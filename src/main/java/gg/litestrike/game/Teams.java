@@ -47,6 +47,14 @@ public class Teams {
 		return breaker_list;
 	}
 
+	public List<String> get_initial_placers() {
+		return placers;
+	}
+
+	public List<String> get_initial_breakers() {
+		return breakers;
+	}
+
 	// returns null if the player wasnt a initial player
 	// otherwise returns the team that the player should be in
 	public Team wasInitialPlayer(String name) {

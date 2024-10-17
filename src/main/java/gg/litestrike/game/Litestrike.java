@@ -11,8 +11,6 @@ import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -98,18 +96,14 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	// plays every second while the game is counting down to start
 	private void count_down_animation(int i) {
 		switch (i) {
-			case 10:
-			case 5: {
-				Bukkit.getServer().sendMessage(Component.text("The game will start in " + i + " seconds!"));
-				break;
-			}
 			case 3:
 			case 2:
-			case 1: {
-				Bukkit.getServer().sendMessage(Component.text("The game will start in " + i + " seconds!"));
-				Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
+			case 1: 
+				SoundEffects.countdown_beep();
 				Bukkit.getServer().showTitle(Title.title(Component.text(i), Component.text("")));
-			}
+			case 10:
+			case 5: 
+				Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ɢᴀᴍᴇ ᴡɪʟʟ ꜱᴛᴀʀᴛ ɪɴ  " + i + " ꜱᴇᴄᴏɴᴅꜱ!").color(Litestrike.YELLOW));
 		}
 	};
 
@@ -134,5 +128,4 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		}
 
 	}
-
 }

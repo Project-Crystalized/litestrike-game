@@ -25,7 +25,6 @@ public class ScoreboardController {
 		for (Player p : t.get_breakers()) {
 			give_player_scoreboard(p, gg.litestrike.game.Team.Breaker);
 		}
-
 	}
 
 	private static void give_player_scoreboard(Player p, gg.litestrike.game.Team t) {
@@ -91,13 +90,13 @@ public class ScoreboardController {
 		Team wins_placers = sb.registerNewTeam("wins_placers");
 		wins_placers.addEntry("3");
 		wins_placers.prefix(Component.text("   "));
-		wins_placers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE105 (0)"));
+		wins_placers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
 		obj.getScore("3").setScore(3);
 
 		Team wins_breakers = sb.registerNewTeam("wins_breakers");
 		wins_breakers.addEntry("2");
 		wins_breakers.prefix(Component.text("   "));
-		wins_breakers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE105 (0)"));
+		wins_breakers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
 		obj.getScore("2").setScore(2);
 
 		Team footline = sb.registerNewTeam("footline");

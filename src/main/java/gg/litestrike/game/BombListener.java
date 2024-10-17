@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
@@ -38,7 +39,9 @@ public class BombListener implements Listener {
 
 	Block last_planting_block;
 
-	List<Player> mining_players = new ArrayList<>();
+	BlockFace planting_face;
+
+	List<MiningPlayer> mining_players = new ArrayList<>();
 
 	public BombListener() {
 		new BukkitRunnable() {
@@ -47,6 +50,11 @@ public class BombListener implements Listener {
 				if (is_placing > 0) {
 					// as long as we are placing/breaking, advance timer
 					placing_counter += 1;
+					if (placing_counter == PLACE_TIME) {
+						reset();
+						Block bomb_block = last_planting_block.getRelative(planting_face);
+						Litestrike.getInstance().game_controller.bomb.place_bomb(bomb_block);
+					}
 				} else {
 					// else reset the timer
 					placing_counter = 0;
@@ -55,8 +63,25 @@ public class BombListener implements Listener {
 				// always decrease timer
 				is_placing -= 1;
 
+				////// BReaking from here ///////
+
+				List<MiningPlayer> remove_list = new ArrayList<>();
+				for (MiningPlayer mp : mining_players) {
+					mp.timer -= 1;
+					if (mp.timer == 0) {
+						remove_list.add(mp);
+					}
+				}
+				mining_players.removeAll(remove_list);
+
 				if (mining_players.size() > 0) {
 					breaking_counter += 1;
+					if (breaking_counter == BREAK_TIME) {
+						Bomb b = Litestrike.getInstance().game_controller.bomb;
+						b.is_broken = true;
+						Bukkit.getServer().sendMessage(Component.text("The BOMB has been broken")); // TODO yelllow, smallcaps
+						reset();
+					}
 				} else {
 					breaking_counter = 0;
 				}
@@ -67,12 +92,17 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (mining_players.contains(e.getPlayer()) ||
-				gc == null ||
+		if (gc == null ||
 				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
 				!(gc.bomb.bomb_loc instanceof PlacedBomb) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
 			return;
+		}
+
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				return;
+			}
 		}
 
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
@@ -86,30 +116,35 @@ public class BombListener implements Listener {
 		}
 
 		// TODO play a start plant sound effect
-		mining_players.add(e.getPlayer());
+		mining_players.add(new MiningPlayer(e.getPlayer()));
 	}
 
 	@EventHandler
 	public void onDamageAbort(BlockDamageAbortEvent e) {
-		mining_players.remove(e.getPlayer());
+		MiningPlayer to_remove = null;
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				to_remove = mp;
+				break;
+			}
+		}
+		if (to_remove != null) {
+			mining_players.remove(to_remove);
+		}
 	}
 
 	@EventHandler
 	public void onSwingArm(PlayerArmSwingEvent e) {
-		if (!mining_players.contains(e.getPlayer())) {
-			return;
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				mp.timer = 2;
+				break;
+			}
 		}
 
+		// TODO make pretty
 		e.getPlayer().sendActionBar(Component.text("Breaking progress: " + breaking_counter / 20));
 
-		if (breaking_counter == BREAK_TIME) {
-			Bomb b = Litestrike.getInstance().game_controller.bomb;
-			b.is_broken = true;
-
-			Bukkit.getServer().sendMessage(Component.text("The BOMB has been broken"));
-
-			reset();
-		}
 	}
 
 	@EventHandler
@@ -143,6 +178,8 @@ public class BombListener implements Listener {
 		}
 
 		is_placing = 4;
+
+		// TODO make pretty
 		e.getPlayer().sendActionBar(Component.text("Placing progress: " + placing_counter / 20));
 
 		// if player starts looking at a different block, reset planting progress
@@ -151,11 +188,8 @@ public class BombListener implements Listener {
 			last_planting_block = e.getClickedBlock();
 		}
 
-		if (placing_counter == PLACE_TIME) {
-			reset();
-			Block bomb_block = e.getClickedBlock().getRelative(e.getBlockFace());
-			Litestrike.getInstance().game_controller.bomb.place_bomb(bomb_block);
-		}
+		planting_face = e.getBlockFace();
+
 	}
 
 	@EventHandler
@@ -196,5 +230,14 @@ public class BombListener implements Listener {
 		placing_counter = 0;
 		breaking_counter = 0;
 		mining_players.clear();
+	}
+}
+
+class MiningPlayer {
+	Player p;
+	int timer = 2;
+
+	public MiningPlayer(Player p) {
+		this.p = p;
 	}
 }

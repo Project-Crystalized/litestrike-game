@@ -46,14 +46,17 @@ public class GameController {
 	// after it reaches (15 * 20), the game is started. when the round winner is
 	// determined its reset to 0 and counts until (5 * 20) for the postround time.
 	// then the next round starts and it counts from 0 again
-	private int phase_timer = 0;
+	public int phase_timer = 0;
 
 	// after this round, the sides get switched
 	public final static int switch_round = 4;
 
-	public GameController() {
-		next_round();
+	public final static int PRE_ROUND_TIME = (15 * 20);
+	public final static int RUNNING_TIME = (180 * 20);
+	public final static int POST_ROUND_TIME = (5 * 20);
+	public final static int FINISH_TIME = (20 * 20);
 
+	public GameController() {
 		playerDatas = new ArrayList<PlayerData>();
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			PlayerData p = new PlayerData(player);
@@ -61,6 +64,8 @@ public class GameController {
 		}
 
 		ScoreboardController.setup_scoreboard(teams);
+
+		next_round();
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
@@ -84,7 +89,7 @@ public class GameController {
 		// if the condition is met, call a method to advance to the next state
 		switch (round_state) {
 			case RoundState.PreRound: {
-				if (phase_timer == (15 * 20)) {
+				if (phase_timer == PRE_ROUND_TIME) {
 					start_round();
 				}
 			}
@@ -96,7 +101,10 @@ public class GameController {
 			}
 				break;
 			case RoundState.PostRound: {
-				if (phase_timer == (5 * 20)) {
+				if (phase_timer == POST_ROUND_TIME) {
+					if (Bukkit.getOnlinePlayers().size() == 0) {
+						finish_round();
+					}
 					if (current_round_number == switch_round * 2) {
 						start_podium();
 					} else {
@@ -106,7 +114,7 @@ public class GameController {
 			}
 				break;
 			case RoundState.GameFinished: {
-				if (phase_timer == (20 * 20)) {
+				if (phase_timer == FINISH_TIME) {
 					finish_game();
 					return true; // remove the update_game_state task
 				}
@@ -124,16 +132,16 @@ public class GameController {
 		// send messages to the teams
 		if (current_round_number == 1) {
 			for (Player p : teams.get_placers()) {
-				p.sendMessage(text("\nʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
+				p.sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
 						.append(Litestrike.PLACER_TEXT)
 						.append(text(
-								"\nɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n Oʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
+								"\n ɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n Oʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
 								.color(Litestrike.YELLOW)));
 			}
-			Audience.audience(teams.get_breakers()).sendMessage(text("\nYou are a ").color(Litestrike.YELLOW)
+			Audience.audience(teams.get_breakers()).sendMessage(text("\n You are a ").color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
 					.append(text(
-							"\nᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
+							"\n ᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
 							.color(Litestrike.YELLOW)));
 		}
 
@@ -169,10 +177,10 @@ public class GameController {
 		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(2000, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(1000, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(1200, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(200, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_lost(p);
 			}
 		}
@@ -229,6 +237,10 @@ public class GameController {
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
 		bomb.give_bomb(teams.get_placers().get(random).getInventory());
 
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			getPlayerData(p).addMoney(1000, "");
+		}
+
 		// TODO give shop item
 
 	}
@@ -268,7 +280,7 @@ public class GameController {
 			return null;
 		}
 
-		if (phase_timer == (120 * 20)) {
+		if (phase_timer == RUNNING_TIME) {
 			return Team.Placer;
 		}
 

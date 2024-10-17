@@ -75,11 +75,12 @@ public class Bomb {
 			public void run() {
 				if (is_broken || is_detonated || bomb_loc == null || !(bomb_loc instanceof PlacedBomb)) {
 					cancel();
+					return;
 				}
 
 				timer += 1;
 
-				int freq = 20 + (int)(-0.025 * timer);
+				int freq = 20 + (int) (-0.025 * timer);
 
 				if (timer - last_beep > freq) {
 					last_beep = timer;

@@ -1,7 +1,5 @@
 package gg.litestrike.game;
 
-import static net.kyori.adventure.text.Component.text;
-
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -20,12 +18,8 @@ public class SoundEffects {
 					case 0:
 					case 8:
 					case 16:
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1f, 1.681793f));
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.bass"), Sound.Source.AMBIENT, 1f, 0.594604f));
+						countdown_beep();
 						break;
-
 					case 24:
 					case 26:
 					case 28:
@@ -166,15 +160,14 @@ public class SoundEffects {
 		Bukkit.getServer().playSound(sound1, x, y, z);
 		Bukkit.getServer().playSound(sound2, x, y, z);
 
-		Bukkit.getServer().sendMessage(text(Bukkit.getWorld("world").getFullTime()));
-
-		// new BukkitRunnable() {
-		// @Override
-		// public void run() {
 		// Bukkit.getServer().sendMessage(text(Bukkit.getWorld("world").getFullTime()));
-		// }
-		// }.runTaskLater(Litestrike.getInstance(), 2);
+	}
 
+	public static void countdown_beep() {
+		Bukkit.getServer()
+				.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1f, 1.681793f));
+		Bukkit.getServer()
+				.playSound(Sound.sound(Key.key("block.note_block.bass"), Sound.Source.AMBIENT, 1f, 0.594604f));
 	}
 
 }
