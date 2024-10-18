@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -206,8 +207,9 @@ public class GameController {
 		// heal and set everyone to survival
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.setGameMode(GameMode.SURVIVAL);
-			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+			p.setHealth(Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue());
 		}
+
 
 		// TODO give armor and weapons
 		tmp_give_default_armor();
@@ -217,7 +219,7 @@ public class GameController {
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
 		bomb.give_bomb(teams.get_placers().get(random).getInventory());
 
-		// TODO give shop item
+		Shop.giveShop();
 
 	}
 

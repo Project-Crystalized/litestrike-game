@@ -23,6 +23,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import net.kyori.adventure.text.Component;
 
+import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
+import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
+
 public class BombListener implements Listener {
 
 	// 5 seconds to place
@@ -118,8 +121,8 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
+		Player p = e.getPlayer();
 		e.setCancelled(true);
-
 		if (Litestrike.getInstance().game_controller == null) {
 			return;
 		}

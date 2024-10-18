@@ -27,7 +27,6 @@ public final class Litestrike extends JavaPlugin implements Listener {
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
-
 	public GameController game_controller;
 
 	// this is set by the /force_start command
@@ -44,6 +43,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(this, this);
+		this.getServer().getPluginManager().registerEvents(new Shop(null), this);
 		DebugCommands dc = new DebugCommands();
 
 		Bukkit.getServer().getPluginManager().registerEvents(new BombListener(), this);
@@ -121,6 +121,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		// /gamerule spawnChunkRadius needs to be set to 0 before world load,
 		// otherwise the border detection can fail.
 		// so we set it to 0 and disable the plugin if it wasnt at 0 already
+		/*
 		if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
 			Bukkit.getLogger().log(Level.SEVERE,
 					"LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!");
@@ -129,6 +130,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 		}
+		 */
 
 	}
 

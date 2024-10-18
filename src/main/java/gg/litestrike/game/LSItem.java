@@ -31,19 +31,22 @@ public class LSItem {
         lsItems.add(ironSword);
         return lsItems;
     }
-    /*
     public static void setDescription(LSItem display){
         if(display.description != null){
             List<Component> lore = new ArrayList<>();
             //TODO add the lore!!
-            lore.add(display.description);
-            display.displayItem.getItemMeta().lore();
+            lore.add(Component.text(display.description));
+            display.displayItem.getItemMeta().lore(lore);
             display.displayItem.setItemMeta(display.displayItem.getItemMeta());
         }
         String prize = "" + display.price;
-        display.displayItem.getItemMeta().lore(prize);
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text(""+ display.price));
+        display.displayItem.getItemMeta().lore(lore);
         display.displayItem.setItemMeta(display.displayItem.getItemMeta());
 
-     */
     }
 }
+
+
+

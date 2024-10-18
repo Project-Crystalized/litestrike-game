@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 public class PlayerData {
 
 	public String player;
-	private int money = 0;
+	private int money = 1000;
 	public int kills = 0;
 	public int deaths = 0;
 	public int assists = 0;
@@ -33,6 +33,10 @@ public class PlayerData {
 			money -= amt;
 			return true;
 		}
+	}
+
+	public int getMoney(){
+		return this.money;
 	}
 
 	public String toString() {

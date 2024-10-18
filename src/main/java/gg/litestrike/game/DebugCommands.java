@@ -30,6 +30,8 @@ public class DebugCommands implements CommandExecutor {
 				return run_force_start(args, commandSender);
 			case "bomb_info":
 				return run_bomb_info(args, commandSender);
+			case "give_money":
+				return give_money(args, commandSender);
 			default:
 				return false;
 		}
@@ -109,6 +111,13 @@ public class DebugCommands implements CommandExecutor {
 
 		return true;
 
+	}
+	private boolean give_money(String[] args, CommandSender commandsender){
+		if(commandsender instanceof Player){
+			Player p = (Player) commandsender;
+			Litestrike.getInstance().game_controller.getPlayerData(p).addMoney(1000, "debuging");
+		}
+		return true;
 	}
 
 }
