@@ -67,12 +67,18 @@ public class GameController {
 
 		next_round();
 
+		new BossBarDisplay();
+
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				Boolean game_over = update_game_state();
 				if (game_over) {
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						p.kick();
+					}
+					Litestrike.getInstance().game_controller = null;
 					cancel();
 				}
 			}
@@ -102,7 +108,7 @@ public class GameController {
 				break;
 			case RoundState.PostRound: {
 				if (phase_timer == POST_ROUND_TIME) {
-					if (Bukkit.getOnlinePlayers().size() == 0) {
+					if (teams.get_placers().size() == 0 || teams.get_breakers().size() == 0) {
 						finish_round();
 					}
 					if (current_round_number == switch_round * 2) {
@@ -115,7 +121,6 @@ public class GameController {
 				break;
 			case RoundState.GameFinished: {
 				if (phase_timer == FINISH_TIME) {
-					finish_game();
 					return true; // remove the update_game_state task
 				}
 			}
@@ -135,10 +140,10 @@ public class GameController {
 				p.sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
 						.append(Litestrike.PLACER_TEXT)
 						.append(text(
-								"\n ɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n Oʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
+								"\n ɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n ᴏʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
 								.color(Litestrike.YELLOW)));
 			}
-			Audience.audience(teams.get_breakers()).sendMessage(text("\n You are a ").color(Litestrike.YELLOW)
+			Audience.audience(teams.get_breakers()).sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
 					.append(text(
 							"\n ᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
@@ -243,14 +248,6 @@ public class GameController {
 
 		// TODO give shop item
 
-	}
-
-	// is called when the game will be finished after the podium
-	private void finish_game() {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.kick();
-		}
-		Litestrike.getInstance().game_controller = null;
 	}
 
 	// this will determine the winner of the round and return it.

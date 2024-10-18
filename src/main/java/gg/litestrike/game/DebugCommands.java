@@ -64,6 +64,10 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_bomb_info(String[] args, CommandSender commandSender) {
+		if (args[0] != null) {
+			int i = Integer.parseInt(args[0]);
+			Bukkit.getServer().sendMessage(Component.text(ScoreboardController.render_win_display(i)));
+		}
 		if (Litestrike.getInstance().game_controller == null) {
 			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
 			return true;

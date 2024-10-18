@@ -30,7 +30,7 @@ public class Teams {
 	public List<Player> get_placers() {
 		List<Player> placer_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (placers.contains(p.getName())) {
+			if (placers.contains(p.getName()) && p.isConnected()) {
 				placer_list.add(p);
 			}
 		}
@@ -40,7 +40,7 @@ public class Teams {
 	public List<Player> get_breakers() {
 		List<Player> breaker_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (breakers.contains(p.getName())) {
+			if (breakers.contains(p.getName()) && p.isConnected()) {
 				breaker_list.add(p);
 			}
 		}

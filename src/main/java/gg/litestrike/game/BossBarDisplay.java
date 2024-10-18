@@ -3,24 +3,28 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 
 public class BossBarDisplay {
-	public BossBar bb;
 
 	public BossBarDisplay() {
 		BossBar bb = BossBar.bossBar(Component.text(), 0f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
-		this.bb = bb;
-	}
-
-	public void showBossBar() {
-		Bukkit.getServer().hideBossBar(bb);
-	}
-
-	public void hideBossBar() {
 		Bukkit.getServer().showBossBar(bb);
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (Litestrike.getInstance().game_controller == null) {
+					Bukkit.getServer().hideBossBar(bb);
+					cancel();
+				}
+
+				bb.name(Component.text(renderBossBar()));
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 1, 4);
 	}
 
 	public String renderBossBar() {

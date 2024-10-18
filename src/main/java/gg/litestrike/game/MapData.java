@@ -142,6 +142,7 @@ public class MapData implements Listener {
 
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
+			e.printStackTrace();
 			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
 			// disable plugin when failure
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());

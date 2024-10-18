@@ -138,7 +138,7 @@ public class PlayerListener implements Listener {
 		Team killed_team = gc.teams.get_team(p);
 
 		// send message
-		Component death_message = Component.text(p.getName() + " was killed");
+		Component death_message = Component.text(p.getName() + " was killed ");
 		if (killer != null) {
 			death_message.append(Component.text("by " + killer.getName()));
 		}

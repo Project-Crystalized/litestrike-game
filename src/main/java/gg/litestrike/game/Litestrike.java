@@ -98,12 +98,13 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		switch (i) {
 			case 3:
 			case 2:
-			case 1: 
+			case 1:
 				SoundEffects.countdown_beep();
 				Bukkit.getServer().showTitle(Title.title(Component.text(i), Component.text("")));
 			case 10:
-			case 5: 
-				Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ɢᴀᴍᴇ ᴡɪʟʟ ꜱᴛᴀʀᴛ ɪɴ  " + i + " ꜱᴇᴄᴏɴᴅꜱ!").color(Litestrike.YELLOW));
+			case 5:
+				Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ɢᴀᴍᴇ ᴡɪʟʟ ꜱᴛᴀʀᴛ ɪɴ  " + i + " ꜱᴇᴄᴏɴᴅꜱ!")
+						.color(Litestrike.YELLOW));
 		}
 	};
 
@@ -112,8 +113,12 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	public void onWorldInit(WorldInitEvent e) {
 		World w = e.getWorld();
 
-		// disable natural regen
 		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
+		w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+		w.setGameRule(GameRule.DO_INSOMNIA, false);
+		w.setGameRule(GameRule.MOB_GRIEFING, false);
+		w.setGameRule(GameRule.DO_FIRE_TICK, false);
+		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
 
 		// /gamerule spawnChunkRadius needs to be set to 0 before world load,
 		// otherwise the border detection can fail.

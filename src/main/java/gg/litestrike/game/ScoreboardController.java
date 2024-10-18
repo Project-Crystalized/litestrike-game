@@ -65,7 +65,7 @@ public class ScoreboardController {
 		obj.getScore("5").setScore(5);
 		obj.getScore("5").customName(Component.text(""));
 
-		obj.getScore("4").setScore(5);
+		obj.getScore("4").setScore(4);
 		obj.getScore("4").customName(Component.text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
@@ -128,6 +128,9 @@ public class ScoreboardController {
 		for (Player p : t.get_placers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
+			if (breakers == null || placers == null) {
+				continue;
+			}
 			placers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
@@ -137,12 +140,14 @@ public class ScoreboardController {
 		for (Player p : t.get_breakers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
+			if (breakers == null || placers == null) {
+				continue;
+			}
 			breakers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
 		}
-
 	}
 
 	public static String render_win_display(int amt) {
@@ -154,7 +159,7 @@ public class ScoreboardController {
 				s += "\uE105";
 			}
 		}
-		if (GameController.switch_round == amt) {
+		if (GameController.switch_round + 1 == amt) {
 			s += "\uE108";
 		} else {
 			s += "\uE107";
@@ -168,6 +173,9 @@ public class ScoreboardController {
 		Player p = Bukkit.getPlayer(player);
 		Scoreboard sb = p.getScoreboard();
 		Team money_count = sb.getTeam("money_count");
+		if (money_count == null) {
+			return;
+		}
 		money_count.suffix(Component.text(money).color(TextColor.color(0x0ab1c4)).append(Component.text("\uE104")));
 	}
 

@@ -161,7 +161,9 @@ public class Bomb {
 	}
 
 	public void reset_bomb() {
-		bomb_loc.remove();
+		if (bomb_loc != null) {
+			bomb_loc.remove();
+		}
 		bomb_loc = null;
 		timer = 0;
 		is_detonated = false;
