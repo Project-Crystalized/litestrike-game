@@ -19,27 +19,27 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
+import static net.kyori.adventure.text.Component.text;
 
-public class Bomb {
+public interface Bomb {
 	static final int DETONATION_TIME = (20 * 40);
 
-	public BombLocation bomb_loc;
-
-	protected static ItemStack bomb_item() {
+	public static ItemStack bomb_item() {
 		ItemStack item = new ItemStack(Material.POPPED_CHORUS_FRUIT);
 		ItemMeta im = item.getItemMeta();
 
 		// set item lore
 		List<Component> lore = new ArrayList<Component>();
-		lore.add(Component.text("This is the bomb. place it at the bomb sites").color(NamedTextColor.GRAY)
+		lore.add(text("This is the bomb. place it at the bomb sites").color(NamedTextColor.GRAY)
 				.decoration(TextDecoration.ITALIC, false));
-		lore.add(Component.text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY)
+		lore.add(text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY)
 				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
 		im.setCustomModelData(3); // edit
 
-		im.displayName(Component.text("The Bomb!!"));
+		im.displayName(text("The Bomb!!"));
 
 		// these apis are deprecated:
 		// Set<Material> can_place_set = new HashSet<Material>();
@@ -50,44 +50,82 @@ public class Bomb {
 		return item;
 	}
 
-	public void place_bomb(Block bomb_block) {
-		// bomb has to be inv bomb for this
-		if (!(bomb_loc instanceof InvItemBomb)) {
-			Bukkit.getLogger().severe("ERROR: bomb got placed without being in a inventory. Check the Bomb Logic!");
+	public static void give_bomb(PlayerInventory inv) {
+		// some sanity checks
+		Bomb b = Litestrike.getInstance().game_controller.bomb;
+		if (b instanceof InvItemBomb || b instanceof PlacedBomb) {
+			// bomb was in a invalid state
+			Bukkit.getLogger().severe("ERROR: bomb got given while already placed or in inv. Check the Bomb Logic!");
 		}
-		bomb_loc.remove();
-		bomb_loc = new PlacedBomb(bomb_block);
+
+		if (b != null) {
+			b.remove();
+		}
+		Litestrike.getInstance().game_controller.bomb = new InvItemBomb(inv);
+	}
+
+	public void remove();
+}
+
+class DroppedBomb implements Bomb {
+	Item item;
+
+	public DroppedBomb(Item item) {
+		this.item = item;
+
+		item.setGlowing(true);
+		item.setInvulnerable(true);
+	}
+
+	@Override
+	public void remove() {
+		item.remove();
+	}
+}
+
+class PlacedBomb implements Bomb {
+	public Block block;
+
+	public boolean is_detonated = false;
+	public boolean is_broken = false;
+	public int timer = 0;
+
+	public PlacedBomb(Block block) {
+		this.block = block;
+
 		SoundEffects.bomb_plant_finish();
+		block.setType(Material.BARRIER);
+		Bukkit.getServer().showTitle(Title.title(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW), text("")));
+		start_explosion_timer();
+	}
 
-		bomb_block.setType(Material.BARRIER);
+	@Override
+	public void remove() {
+		block.setType(Material.AIR);
+	}
 
-		Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW));
-
+	private void start_explosion_timer() {
 		new BukkitRunnable() {
 			int last_beep = 0;
 
 			@Override
 			public void run() {
-				if (!(bomb_loc instanceof PlacedBomb)) {
+				if (!(Litestrike.getInstance().game_controller.bomb instanceof PlacedBomb) || is_broken || is_detonated) {
 					cancel();
 					return;
 				}
 
-				PlacedBomb pb = (PlacedBomb) bomb_loc;
+				timer += 1;
 
-				pb.timer += 1;
+				int freq = 20 + (int) (-0.025 * timer);
+				if (timer - last_beep > freq) {
+					last_beep = timer;
 
-				int freq = 20 + (int) (-0.025 * pb.timer);
-
-				if (pb.timer - last_beep > freq) {
-					last_beep = pb.timer;
-
-					Block b = pb.block;
 					Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
-					Bukkit.getServer().playSound(sound, b.getX(), b.getY(), b.getZ());
+					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
 				}
 
-				if (pb.timer == DETONATION_TIME) {
+				if (timer == DETONATION_TIME) {
 					explode();
 					cancel();
 				}
@@ -96,13 +134,8 @@ public class Bomb {
 	}
 
 	private void explode() {
-		// bomb must be placed for this
-		if (!(bomb_loc instanceof PlacedBomb)) {
-			Bukkit.getLogger().severe("ERROR: bomb exploded without being placed. Check the Bomb Logic!");
-		}
-		bomb_loc.remove();
-		PlacedBomb b = (PlacedBomb) bomb_loc;
-		b.is_detonated = true;
+		remove();
+		is_detonated = true;
 
 		// the explosion animation
 		new BukkitRunnable() {
@@ -110,11 +143,11 @@ public class Bomb {
 
 			@Override
 			public void run() {
-				b.block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, b.block.getLocation(), 5);
-				b.block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
-						b.block.getX(), b.block.getY(), b.block.getZ());
+				block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, block.getLocation(), 5);
+				block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
+						block.getX(), block.getY(), block.getZ());
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					double distance = p.getLocation().distance(b.block.getLocation());
+					double distance = p.getLocation().distance(block.getLocation());
 					if (distance < 15) {
 						p.setHealth(0);
 					}
@@ -130,81 +163,28 @@ public class Bomb {
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 
-	public void drop_bomb(Item item) {
-		// bomb must be in inventory for this
-		if (!(bomb_loc instanceof InvItemBomb)) {
-			Bukkit.getLogger().severe("ERROR: bomb got dropped without being in a inventory. Check the Bomb Logic!");
-		}
-		bomb_loc.remove();
-		bomb_loc = new DroppedBomb(item);
-
-		item.setGlowing(true);
-		item.setInvulnerable(true);
-	}
-
-	public void give_bomb(PlayerInventory inv) {
-		// some sanity checks
-		if (bomb_loc instanceof InvItemBomb || bomb_loc instanceof PlacedBomb) {
-			// bomb was in a invalid state
-			Bukkit.getLogger().severe("ERROR: bomb got given while already placed or in inv. Check the Bomb Logic!");
-		}
-
-		if (bomb_loc != null) {
-			bomb_loc.remove();
-		}
-		inv.addItem(bomb_item());
-		bomb_loc = new InvItemBomb(inv);
-	}
-
-	public String toString() {
-		return "\nbreakdown of the bomb:\nbomb_state: " + bomb_loc.getClass();
-	}
 }
 
-// represented a location that a bomb can be at
-interface BombLocation {
-	public void remove();
-}
-
-class DroppedBomb implements BombLocation {
-	Item item;
-
-	public DroppedBomb(Item item) {
-		this.item = item;
-	}
-
-	@Override
-	public void remove() {
-		item.remove();
-	}
-}
-
-class PlacedBomb implements BombLocation {
-	public Block block;
-
-	public boolean is_detonated = false;
-	public boolean is_broken = false;
-	public int timer = 0;
-
-	public PlacedBomb(Block block) {
-		this.block = block;
-	}
-
-	@Override
-	public void remove() {
-		block.setType(Material.AIR);
-	}
-}
-
-class InvItemBomb implements BombLocation {
+class InvItemBomb implements Bomb {
 	PlayerInventory p_inv;
 
 	public InvItemBomb(PlayerInventory p_inv) {
 		this.p_inv = p_inv;
+		p_inv.addItem(Bomb.bomb_item());
 	}
 
 	@Override
 	public void remove() {
 		p_inv.remove(Bomb.bomb_item());
+	}
+
+	public void place_bomb(Block bomb_block) {
+		remove();
+		Litestrike.getInstance().game_controller.bomb = new PlacedBomb(bomb_block);
+	}
+
+	public void drop_bomb(Item item) {
+		remove();
+		Litestrike.getInstance().game_controller.bomb = new DroppedBomb(item);
 	}
 }

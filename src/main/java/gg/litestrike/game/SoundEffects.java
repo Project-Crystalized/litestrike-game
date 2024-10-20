@@ -10,31 +10,25 @@ import net.kyori.adventure.sound.Sound;
 public class SoundEffects {
 	public static void round_start() {
 		new BukkitRunnable() {
-			int timer = 0;
 
 			@Override
 			public void run() {
-				switch (timer) {
-					case 0:
-					case 8:
-					case 16:
-						countdown_beep();
-						break;
-					case 24:
-					case 26:
-					case 28:
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.cow_bell"), Sound.Source.AMBIENT, 1f, 0.629961f));
-						Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1f, 0.5f));
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.snare"), Sound.Source.AMBIENT, 1f, 0.5f));
-				}
-				timer += 1;
-				if (timer > 30) {
+				GameController gc = Litestrike.getInstance().game_controller;
+				if (gc.round_state != RoundState.PreRound && gc.phase_timer > 6) {
 					cancel();
 				}
+				if (gc.phase_timer > 220 && gc.phase_timer % 20 == 0) {
+					countdown_beep();
+				}
+				if (gc.round_state == RoundState.Running && gc.phase_timer % 3 == 0) {
+					Bukkit.getServer()
+							.playSound(Sound.sound(Key.key("block.note_block.cow_bell"), Sound.Source.AMBIENT, 1f, 0.629961f));
+					Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1f, 0.5f));
+					Bukkit.getServer()
+							.playSound(Sound.sound(Key.key("block.note_block.snare"), Sound.Source.AMBIENT, 1f, 0.5f));
+				}
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 276, 2);
+		}.runTaskTimer(Litestrike.getInstance(), 150, 1);
 	}
 
 	public static void round_lost(Audience a) {

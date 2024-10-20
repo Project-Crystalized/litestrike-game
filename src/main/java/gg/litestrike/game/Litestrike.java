@@ -51,7 +51,6 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getCommand("mapdata").setExecutor(dc);
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
-		this.getCommand("bomb_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
 
 		new BukkitRunnable() {

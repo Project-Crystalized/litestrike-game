@@ -49,7 +49,7 @@ public class BossBarDisplay {
 		}
 		bar += "\uE201"; // green end tile
 
-		bar += "   " + get_current_timer() / 20 + "   ";
+		bar += "   " + ((get_current_timer() / 20) + 1) + "   ";
 
 		bar += "\uE206"; // red start tile
 		for (String name : gc.teams.get_initial_placers()) {
@@ -74,8 +74,8 @@ public class BossBarDisplay {
 	private int get_current_timer() {
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		if (gc.bomb.bomb_loc instanceof PlacedBomb) {
-			PlacedBomb pb = (PlacedBomb) gc.bomb.bomb_loc;
+		if (gc.bomb instanceof PlacedBomb) {
+			PlacedBomb pb = (PlacedBomb) gc.bomb;
 			return Bomb.DETONATION_TIME - pb.timer;
 		}
 

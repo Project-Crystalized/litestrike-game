@@ -28,8 +28,6 @@ public class DebugCommands implements CommandExecutor {
 				return run_player_info(args, commandSender);
 			case "force_start":
 				return run_force_start(args, commandSender);
-			case "bomb_info":
-				return run_bomb_info(args, commandSender);
 			case "soundd":
 				return run_sound_info(args, commandSender);
 			default:
@@ -66,17 +64,6 @@ public class DebugCommands implements CommandExecutor {
 				break;
 
 		}
-		return true;
-	}
-
-	private boolean run_bomb_info(String[] args, CommandSender commandSender) {
-		if (Litestrike.getInstance().game_controller == null) {
-			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
-			return true;
-		}
-
-		commandSender.sendMessage(Litestrike.getInstance().game_controller.bomb.toString());
-
 		return true;
 	}
 

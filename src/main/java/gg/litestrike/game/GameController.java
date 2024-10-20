@@ -35,7 +35,7 @@ enum RoundState {
 public class GameController {
 	public Teams teams = new Teams();
 	public List<PlayerData> playerDatas;
-	public Bomb bomb = new Bomb();
+	public Bomb bomb;
 
 	private int current_round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
@@ -65,9 +65,14 @@ public class GameController {
 
 		ScoreboardController.setup_scoreboard(teams);
 
-		next_round();
-
 		new BossBarDisplay();
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				next_round();
+			}
+		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
@@ -90,8 +95,23 @@ public class GameController {
 	private Boolean update_game_state() {
 		phase_timer += 1;
 
+		// end if a team is empty
 		if ((teams.get_placers().size() == 0 || teams.get_breakers().size() == 0)
 				&& round_state != RoundState.GameFinished) {
+			start_podium();
+		}
+
+		// end if a team has won
+		int placer_wins_amt = 0;
+		int breaker_wins_amt = 0;
+		for (gg.litestrike.game.Team w : round_results) {
+			if (w == gg.litestrike.game.Team.Placer) {
+				placer_wins_amt += 1;
+			} else {
+				breaker_wins_amt += 1;
+			}
+		}
+		if (placer_wins_amt == switch_round + 1 || breaker_wins_amt == switch_round + 1) {
 			start_podium();
 		}
 
@@ -162,8 +182,8 @@ public class GameController {
 	private void finish_round() {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
-		bomb.bomb_loc.remove();
-		bomb.bomb_loc = null;
+		bomb.remove();
+		bomb = null;
 		Team winner = determine_winner();
 
 		round_results.add(winner);
@@ -198,8 +218,8 @@ public class GameController {
 	private void start_podium() {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
-		bomb.bomb_loc.remove();
-		bomb.bomb_loc = null;
+		bomb.remove();
+		bomb = null;
 
 		Bukkit.getServer().sendMessage(text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
@@ -244,7 +264,7 @@ public class GameController {
 		// give bomb to a random player
 		// generate int between 0 and placer teams size
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
-		bomb.give_bomb(teams.get_placers().get(random).getInventory());
+		Bomb.give_bomb(teams.get_placers().get(random).getInventory());
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			getPlayerData(p).addMoney(1000, "");
@@ -257,8 +277,8 @@ public class GameController {
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
 	private Team determine_winner() {
-		if (bomb.bomb_loc instanceof PlacedBomb) {
-			PlacedBomb pb = (PlacedBomb) bomb.bomb_loc;
+		if (bomb instanceof PlacedBomb) {
+			PlacedBomb pb = (PlacedBomb) bomb;
 			if (pb.is_detonated) {
 				return Team.Placer;
 			}
@@ -281,7 +301,7 @@ public class GameController {
 		}
 
 		// if the bomb is Placed we skip the rest of the checks
-		if (bomb.bomb_loc instanceof PlacedBomb) {
+		if (bomb instanceof PlacedBomb) {
 			return null;
 		}
 

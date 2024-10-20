@@ -55,6 +55,10 @@ public class PlayerListener implements Listener {
 			p.setGameMode(GameMode.SPECTATOR);
 
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
+
+			// give player the scoreboard and bossbar again
+			ScoreboardController.give_player_scoreboard(p, should_be_team, Litestrike.getInstance().game_controller.teams);
+
 			if (should_be_team == null) {
 				p.kick(text("a fatal logic error occured, pls report this as a bug"));
 				Bukkit.getLogger().severe("fatal logic error occured:" +
@@ -115,7 +119,6 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		e.setCancelled(true);
-		e.deathMessage(null);
 		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
 			return;
 		}
@@ -139,10 +142,10 @@ public class PlayerListener implements Listener {
 
 		// send message
 		Component death_message = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)))
-			.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
+				.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
 		if (killer != null) {
 			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
-				.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
+					.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
 		}
 		Bukkit.getServer().sendMessage(death_message);
 

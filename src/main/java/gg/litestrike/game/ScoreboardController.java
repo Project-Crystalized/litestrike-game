@@ -20,25 +20,31 @@ import net.kyori.adventure.text.format.TextDecoration;
 public class ScoreboardController {
 	public static void setup_scoreboard(Teams t) {
 		for (Player p : t.get_placers()) {
-			give_player_scoreboard(p, gg.litestrike.game.Team.Placer);
+			give_player_scoreboard(p, gg.litestrike.game.Team.Placer, t);
 		}
 		for (Player p : t.get_breakers()) {
-			give_player_scoreboard(p, gg.litestrike.game.Team.Breaker);
+			give_player_scoreboard(p, gg.litestrike.game.Team.Breaker, t);
 		}
 	}
 
-	private static void give_player_scoreboard(Player p, gg.litestrike.game.Team t) {
+	public static void give_player_scoreboard(Player p, gg.litestrike.game.Team t, Teams teams) {
 		Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
 
 		Team placers = sb.registerNewTeam("placers");
 		placers.color(NamedTextColor.RED);
 		placers.setAllowFriendlyFire(false);
 		placers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+		for (Player player : teams.get_placers()) {
+			placers.addPlayer(player);
+		}
 
 		Team breakers = sb.registerNewTeam("breakers");
 		breakers.color(NamedTextColor.GREEN);
 		breakers.setAllowFriendlyFire(false);
 		placers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+		for (Player player : teams.get_breakers()) {
+			breakers.addPlayer(player);
+		}
 
 		Component title = Component.text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
@@ -46,7 +52,7 @@ public class ScoreboardController {
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
 		obj.getScore("9").setScore(9);
-		obj.getScore("9").customName(Component.text(""));
+		obj.getScore("9").customName(Component.text("").color(NamedTextColor.GREEN));
 
 		if (t == gg.litestrike.game.Team.Breaker) {
 			obj.getScore("8").customName(Component.text("ᴛᴇᴀᴍ: ").append(Litestrike.BREAKER_TEXT));
@@ -57,28 +63,28 @@ public class ScoreboardController {
 			// obj.getScore("ᴛᴇᴀᴍ: " + Litestrike.PLACER_TEXT).setScore(8);
 		}
 		obj.getScore("7").setScore(7);
-		obj.getScore("7").customName(Component.text(""));
+		obj.getScore("7").customName(Component.text("").color(NamedTextColor.RED));
 
 		obj.getScore("6").setScore(6);
-		obj.getScore("6").customName(Component.text(""));
+		obj.getScore("6").customName(Component.text("").color(NamedTextColor.DARK_RED));
 
 		obj.getScore("5").setScore(5);
-		obj.getScore("5").customName(Component.text(""));
+		obj.getScore("5").customName(Component.text("").color(NamedTextColor.DARK_BLUE));
 
 		obj.getScore("4").setScore(4);
 		obj.getScore("4").customName(Component.text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
-		obj.getScore("3").customName(Component.text(""));
+		obj.getScore("3").customName(Component.text("").color(NamedTextColor.AQUA));
 
 		obj.getScore("2").setScore(2);
-		obj.getScore("2").customName(Component.text(""));
+		obj.getScore("2").customName(Component.text("").color(NamedTextColor.DARK_GREEN));
 
 		obj.getScore("1").setScore(1);
-		obj.getScore("1").customName(Component.text(""));
+		obj.getScore("1").customName(Component.text("").color(NamedTextColor.DARK_PURPLE));
 
 		obj.getScore("0").setScore(0);
-		obj.getScore("0").customName(Component.text(""));
+		obj.getScore("0").customName(Component.text("").color(NamedTextColor.YELLOW));
 
 		Team money_count = sb.registerNewTeam("money_count");
 		money_count.addEntry("7");
