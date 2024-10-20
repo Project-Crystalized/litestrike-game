@@ -15,9 +15,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 import io.papermc.paper.entity.LookAnchor;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+
+import static net.kyori.adventure.text.Component.text;
 
 public class PlayerListener implements Listener {
 
@@ -31,8 +31,8 @@ public class PlayerListener implements Listener {
 		// the if condition checks if the player is rejoining
 		if (gc.teams.wasInitialPlayer(event.getPlayer().getName()) == null) {
 			// player isnt rejoining, so we dont allow join
-			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A game is already in Progress.\n")
-					.append(Component.text("If you see this message, it is likely a bug, pls report it to the admins")));
+			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, text("A game is already in Progress.\n")
+					.append(text("If you see this message, it is likely a bug, pls report it to the admins")));
 		}
 	}
 
@@ -56,7 +56,7 @@ public class PlayerListener implements Listener {
 
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 			if (should_be_team == null) {
-				p.kick(Component.text("a fatal logic error occured, pls report this as a bug"));
+				p.kick(text("a fatal logic error occured, pls report this as a bug"));
 				Bukkit.getLogger().severe("fatal logic error occured:" +
 						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
 			}
@@ -76,20 +76,20 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		// if (!(e.getDamager() instanceof Player)) {
-		// return;
-		// }
-		// if (!(e.getEntity() instanceof Player)) {
-		// return;
-		// }
+		if (!(e.getDamager() instanceof Player)) {
+			return;
+		}
+		if (!(e.getEntity() instanceof Player)) {
+			return;
+		}
 
-		// Player damager = (Player) e.getDamager();
-		// Player damage_receiver = (Player) e.getEntity();
+		Player damager = (Player) e.getDamager();
+		Player damage_receiver = (Player) e.getEntity();
 
 		// if both players arent in same team, cancel damage
-		// if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
-		// e.setCancelled(true);
-		// }
+		if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
+			e.setCancelled(true);
+		}
 	}
 
 	@EventHandler
@@ -138,18 +138,20 @@ public class PlayerListener implements Listener {
 		Team killed_team = gc.teams.get_team(p);
 
 		// send message
-		Component death_message = Component.text(p.getName() + " was killed ");
+		Component death_message = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)))
+			.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
 		if (killer != null) {
-			death_message.append(Component.text("by " + killer.getName()));
+			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
+				.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
 		}
 		Bukkit.getServer().sendMessage(death_message);
 
 		// play sound
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (gc.teams.get_team(player) == killed_team) {
-				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.2f, 1f));
+				SoundEffects.ally_death(player);
 			} else {
-				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.5f, 1f));
+				SoundEffects.enemy_death(player);
 			}
 		}
 

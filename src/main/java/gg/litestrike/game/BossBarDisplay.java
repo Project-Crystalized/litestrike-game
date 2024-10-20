@@ -20,6 +20,7 @@ public class BossBarDisplay {
 				if (Litestrike.getInstance().game_controller == null) {
 					Bukkit.getServer().hideBossBar(bb);
 					cancel();
+					return;
 				}
 
 				bb.name(Component.text(renderBossBar()));
@@ -74,7 +75,8 @@ public class BossBarDisplay {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		if (gc.bomb.bomb_loc instanceof PlacedBomb) {
-			return Bomb.DETONATION_TIME - gc.bomb.timer;
+			PlacedBomb pb = (PlacedBomb) gc.bomb.bomb_loc;
+			return Bomb.DETONATION_TIME - pb.timer;
 		}
 
 		switch (gc.round_state) {

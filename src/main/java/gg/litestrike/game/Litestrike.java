@@ -32,9 +32,9 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	public boolean is_force_starting = false;
 
 	// constants for Placer and breaker text
-	public static final Component PLACER_TEXT = Component.text("Placer").color(TextColor.color(0xe31724))
+	public static final Component PLACER_TEXT = Component.text("Placer").color(Teams.PLACER_RED)
 			.decoration(TextDecoration.BOLD, true);
-	public static final Component BREAKER_TEXT = Component.text("Breaker").color(TextColor.color(0x0f9415))
+	public static final Component BREAKER_TEXT = Component.text("Breaker").color(Teams.BREAKER_GREEN)
 			.decoration(TextDecoration.BOLD, true);
 
 	public static TextColor YELLOW = TextColor.color(0xfbea85);
@@ -66,7 +66,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 				}
 
 				// if more then 6 players online, count down, else reset countdown
-				if (Bukkit.getOnlinePlayers().size() >= 6 || is_force_starting) {
+				if (Bukkit.getOnlinePlayers().size() >= 100 || is_force_starting) {
 					countdown -= 1;
 					count_down_animation(countdown);
 				} else {

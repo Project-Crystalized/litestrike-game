@@ -90,6 +90,11 @@ public class GameController {
 	private Boolean update_game_state() {
 		phase_timer += 1;
 
+		if ((teams.get_placers().size() == 0 || teams.get_breakers().size() == 0)
+				&& round_state != RoundState.GameFinished) {
+			start_podium();
+		}
+
 		// this is like a state-machine, it will check the current state, check a
 		// condition, and
 		// if the condition is met, call a method to advance to the next state
@@ -108,9 +113,6 @@ public class GameController {
 				break;
 			case RoundState.PostRound: {
 				if (phase_timer == POST_ROUND_TIME) {
-					if (teams.get_placers().size() == 0 || teams.get_breakers().size() == 0) {
-						finish_round();
-					}
 					if (current_round_number == switch_round * 2) {
 						start_podium();
 					} else {
@@ -160,7 +162,8 @@ public class GameController {
 	private void finish_round() {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
-		bomb.reset_bomb();
+		bomb.bomb_loc.remove();
+		bomb.bomb_loc = null;
 		Team winner = determine_winner();
 
 		round_results.add(winner);
@@ -195,7 +198,8 @@ public class GameController {
 	private void start_podium() {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
-		bomb.reset_bomb();
+		bomb.bomb_loc.remove();
+		bomb.bomb_loc = null;
 
 		Bukkit.getServer().sendMessage(text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
@@ -253,11 +257,15 @@ public class GameController {
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
 	private Team determine_winner() {
-		if (bomb.is_detonated) {
-			return Team.Placer;
-		}
-		if (bomb.is_broken) {
-			return Team.Breaker;
+		if (bomb.bomb_loc instanceof PlacedBomb) {
+			PlacedBomb pb = (PlacedBomb) bomb.bomb_loc;
+			if (pb.is_detonated) {
+				return Team.Placer;
+			}
+			if (pb.is_broken) {
+				return Team.Breaker;
+			}
+
 		}
 
 		boolean all_breakers_dead = true;

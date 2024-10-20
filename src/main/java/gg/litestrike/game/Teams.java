@@ -6,6 +6,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.format.TextColor;
+
 import java.util.logging.Level;
 import java.lang.Exception;
 
@@ -13,6 +15,9 @@ public class Teams {
 	// these are the names of the players that where in the game when it started.
 	private List<String> placers;
 	private List<String> breakers;
+
+	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
+	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 
 	public Teams() {
 		List<String> list = new ArrayList<>();
@@ -101,4 +106,11 @@ public class Teams {
 		throw new RuntimeException(new Exception("player is in no team"));
 	}
 
+	public static TextColor get_team_color(Team t) {
+		if (t == Team.Breaker) {
+			return BREAKER_GREEN;
+		} else {
+			return PLACER_RED;
+		}
+	}
 }

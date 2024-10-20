@@ -125,7 +125,7 @@ public class SoundEffects {
 		}.runTaskTimer(Litestrike.getInstance(), 1, 2);
 	}
 
-	public static void bomb_plant_start() {
+	public static void bomb_plant_finish() {
 		new BukkitRunnable() {
 			int timer = 0;
 
@@ -163,11 +163,83 @@ public class SoundEffects {
 		// Bukkit.getServer().sendMessage(text(Bukkit.getWorld("world").getFullTime()));
 	}
 
+	public static void ally_death(Audience a) {
+		Sound sound1 = Sound.sound(Key.key("block.note_block.didgeridoo"), Sound.Source.AMBIENT, 2f, 0.5f);
+		Sound sound2 = Sound.sound(Key.key("block.note_block.snare"), Sound.Source.AMBIENT, 2f, 0.5f);
+		a.playSound(sound1);
+		a.playSound(sound2);
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				a.playSound(sound1);
+				a.playSound(sound2);
+			}
+		}.runTaskLater(Litestrike.getInstance(), 3);
+	}
+
+	public static void enemy_death(Audience a) {
+		a.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 2f, 1f));
+		a.playSound(Sound.sound(Key.key("block.note_block.basedrum"), Sound.Source.AMBIENT, 2f, 1f));
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				a.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 2f, 1.498307f));
+				a.playSound(Sound.sound(Key.key("block.note_block.basedrum"), Sound.Source.AMBIENT, 2f, 1.498307f));
+			}
+		}.runTaskLater(Litestrike.getInstance(), 2);
+	}
+
 	public static void countdown_beep() {
 		Bukkit.getServer()
 				.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1f, 1.681793f));
 		Bukkit.getServer()
 				.playSound(Sound.sound(Key.key("block.note_block.bass"), Sound.Source.AMBIENT, 1f, 0.594604f));
+	}
+
+	public static void start_planting(int x, int y, int z) {
+		new BukkitRunnable() {
+			int timer = 1;
+
+			@Override
+			public void run() {
+				Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 0.1f * timer);
+				Bukkit.getServer().playSound(sound, x, y, z);
+
+				if (timer % 3 == 0) {
+					Sound sound_bass = Sound.sound(Key.key("block.note_block.basedrum"), Sound.Source.AMBIENT, 1.9f, 1f);
+					Bukkit.getServer().playSound(sound_bass, x, y, z);
+				}
+
+				timer++;
+				if (timer > 11) {
+					cancel();
+				}
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
+	}
+
+	public static void stop_planting(int x, int y, int z) {
+		new BukkitRunnable() {
+			int timer = 11;
+
+			@Override
+			public void run() {
+				Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 0.1f * timer);
+				Bukkit.getServer().playSound(sound, x, y, z);
+
+				if (timer % 3 == 0) {
+					Sound sound_bass = Sound.sound(Key.key("block.note_block.basedrum"), Sound.Source.AMBIENT, 1.9f, 1f);
+					Bukkit.getServer().playSound(sound_bass, x, y, z);
+				}
+
+				timer--;
+				if (timer < 1) {
+					cancel();
+				}
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 
 }

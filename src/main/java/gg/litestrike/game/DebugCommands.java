@@ -52,11 +52,17 @@ public class DebugCommands implements CommandExecutor {
 				SoundEffects.round_won(Bukkit.getServer());
 				break;
 			case "bomb_start":
-				SoundEffects.bomb_plant_start();
+				SoundEffects.bomb_plant_finish();
 				break;
 			case "bomb_beep":
 				MapData md = Litestrike.getInstance().mapdata;
 				SoundEffects.bomb_beep((int) md.que_spawn[0], (int) md.que_spawn[1], (int) md.que_spawn[2]);
+				break;
+			case "ally_death":
+				SoundEffects.ally_death(Bukkit.getServer());
+				break;
+			case "enemy_death":
+				SoundEffects.enemy_death(Bukkit.getServer());
 				break;
 
 		}
@@ -64,10 +70,6 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_bomb_info(String[] args, CommandSender commandSender) {
-		if (args[0] != null) {
-			int i = Integer.parseInt(args[0]);
-			Bukkit.getServer().sendMessage(Component.text(ScoreboardController.render_win_display(i)));
-		}
 		if (Litestrike.getInstance().game_controller == null) {
 			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
 			return true;
