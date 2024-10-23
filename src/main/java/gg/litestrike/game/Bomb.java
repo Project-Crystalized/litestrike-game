@@ -6,7 +6,9 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +28,7 @@ public interface Bomb {
 	static final int DETONATION_TIME = (20 * 40);
 
 	public static ItemStack bomb_item() {
-		ItemStack item = new ItemStack(Material.POPPED_CHORUS_FRUIT);
+		ItemStack item = new ItemStack(Material.CHARCOAL);
 		ItemMeta im = item.getItemMeta();
 
 		// set item lore
@@ -37,7 +39,7 @@ public interface Bomb {
 				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
-		im.setCustomModelData(3); // edit
+		im.setCustomModelData(29);
 
 		im.displayName(text("The Bomb!!"));
 
@@ -85,6 +87,7 @@ class DroppedBomb implements Bomb {
 
 class PlacedBomb implements Bomb {
 	public Block block;
+	private ArmorStand as;
 
 	public boolean is_detonated = false;
 	public boolean is_broken = false;
@@ -97,11 +100,24 @@ class PlacedBomb implements Bomb {
 		block.setType(Material.BARRIER);
 		Bukkit.getServer().showTitle(Title.title(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
+
+		as = (ArmorStand) block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), ArmorStand.class);
+		as.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
+		as.setGravity(false);
+		as.setCanPickupItems(false);
+		as.setVisible(false);
+
+		ItemStack item = Bomb.bomb_item();
+		ItemMeta im = item.getItemMeta();
+		im.setCustomModelData(30);
+		item.setItemMeta(im);
+		as.getEquipment().setHelmet(item);
 	}
 
 	@Override
 	public void remove() {
 		block.setType(Material.AIR);
+		as.remove();
 	}
 
 	private void start_explosion_timer() {
@@ -134,8 +150,9 @@ class PlacedBomb implements Bomb {
 	}
 
 	private void explode() {
-		remove();
 		is_detonated = true;
+		ItemMeta im = as.getEquipment().getHelmet().getItemMeta();
+		im.setCustomModelData(31);
 
 		// the explosion animation
 		new BukkitRunnable() {
@@ -143,9 +160,11 @@ class PlacedBomb implements Bomb {
 
 			@Override
 			public void run() {
-				block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, block.getLocation(), 5);
-				block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
-						block.getX(), block.getY(), block.getZ());
+				if (i % 10 == 0) {
+					block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, block.getLocation(), 5);
+					block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
+							block.getX(), block.getY(), block.getZ());
+				}
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					double distance = p.getLocation().distance(block.getLocation());
 					if (distance < 15) {
@@ -157,6 +176,8 @@ class PlacedBomb implements Bomb {
 				}
 				i += 1;
 				if (i == (20 * 4)) {
+
+					remove();
 					cancel();
 				}
 			}

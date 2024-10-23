@@ -28,6 +28,8 @@ public final class Litestrike extends JavaPlugin implements Listener {
 
 	public GameController game_controller;
 
+	public BossBarDisplay bbd;
+
 	// this is set by the /force_start command
 	public boolean is_force_starting = false;
 
@@ -44,14 +46,15 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(this, this);
+		this.getServer().getPluginManager().registerEvents(new BombListener(), this);
+
 		DebugCommands dc = new DebugCommands();
-
-		Bukkit.getServer().getPluginManager().registerEvents(new BombListener(), this);
-
 		this.getCommand("mapdata").setExecutor(dc);
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
+
+		bbd = new BossBarDisplay();
 
 		new BukkitRunnable() {
 			int countdown = 11;

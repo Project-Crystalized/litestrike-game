@@ -14,8 +14,10 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -23,6 +25,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -35,7 +39,7 @@ public class BombListener implements Listener {
 	// 7 seconds to break
 	final static int BREAK_TIME = (20 * 7);
 
-	int is_planting = -1;
+	int is_planting = 0;
 
 	int planting_counter = 0;
 	int breaking_counter = 0;
@@ -46,28 +50,33 @@ public class BombListener implements Listener {
 
 	List<MiningPlayer> mining_players = new ArrayList<>();
 
+	BombModel bm = new BombModel();
+
 	public BombListener() {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc == null || last_planting_block == null) {
+				if (gc == null) {
 					return;
 				}
 
 				if (is_planting > 0) {
 					// as long as we are placing/breaking, advance timer
 					planting_counter += 1;
+					rising_model.getLocation().add(0, 1 / PLANT_TIME, 0);
 					if (planting_counter == PLANT_TIME) {
-						reset();
 						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
 						pb.place_bomb(last_planting_block.getRelative(planting_face));
+						reset();
 					}
-				} else if (is_planting == 0) {
-					// else reset the timer
+				} else {
+					if (planting_counter > 1) {
+						Block bomb_block = last_planting_block.getRelative(planting_face);
+						SoundEffects.stop_planting(bomb_block.getX(), bomb_block.getY(), bomb_block.getZ());
+						rising_model.remove();
+					}
 					planting_counter = 0;
-					Block bomb_block = last_planting_block.getRelative(planting_face);
-					SoundEffects.stop_planting(bomb_block.getX(), bomb_block.getY(), bomb_block.getZ());
 				}
 
 				// always decrease timer
@@ -147,12 +156,12 @@ public class BombListener implements Listener {
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				mp.timer = 2;
+				// TODO make pretty
+				e.getPlayer().sendActionBar(text("Breaking progress: " + breaking_counter / 20));
 				break;
 			}
 		}
 
-		// TODO make pretty
-		e.getPlayer().sendActionBar(text("Breaking progress: " + breaking_counter / 20));
 	}
 
 	@EventHandler
@@ -189,8 +198,24 @@ public class BombListener implements Listener {
 		if (is_planting < 0) {
 			Block lpb = e.getClickedBlock();
 			SoundEffects.start_planting(lpb.getX(), lpb.getY(), lpb.getZ());
+
+			// summon model
+			if (rising_model != null) {
+				rising_model.remove();
+			}
+			rising_model = (ArmorStand) lpb.getWorld().spawn(lpb.getLocation().add(0.5, 0, 0.5), ArmorStand.class);
+			rising_model.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
+			rising_model.setGravity(false);
+			rising_model.setCanPickupItems(false);
+			rising_model.setVisible(false);
+
+			ItemStack item = Bomb.bomb_item();
+			ItemMeta im = item.getItemMeta();
+			im.setCustomModelData(30);
+			item.setItemMeta(im);
+			rising_model.getEquipment().setHelmet(item);
 		}
-		is_planting = 4;
+		is_planting = 6;
 		// Bukkit.getServer().sendMessage(text("planting = 4"));
 
 		// TODO make pretty
@@ -198,9 +223,8 @@ public class BombListener implements Listener {
 
 		// if player starts looking at a different block, reset planting progress
 		if (!e.getClickedBlock().equals(last_planting_block)) {
-			planting_counter = 0;
+			reset();
 			last_planting_block = e.getClickedBlock();
-			SoundEffects.start_planting(last_planting_block.getX(), last_planting_block.getY(), last_planting_block.getZ());
 		}
 		planting_face = e.getBlockFace();
 	}
@@ -249,8 +273,12 @@ public class BombListener implements Listener {
 	private void reset() {
 		is_planting = 0;
 		planting_counter = 0;
+		if (rising_model != null) {
+			rising_model.remove();
+		}
 		breaking_counter = 0;
 		mining_players.clear();
+		last_planting_block = null;
 	}
 }
 

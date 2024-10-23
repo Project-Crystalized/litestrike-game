@@ -41,7 +41,7 @@ public class ScoreboardController {
 		Team breakers = sb.registerNewTeam("breakers");
 		breakers.color(NamedTextColor.GREEN);
 		breakers.setAllowFriendlyFire(false);
-		placers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+		breakers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
 		for (Player player : teams.get_breakers()) {
 			breakers.addPlayer(player);
 		}

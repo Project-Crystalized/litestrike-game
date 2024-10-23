@@ -9,23 +9,26 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 
 public class BossBarDisplay {
+	BossBar bb;
 
 	public BossBarDisplay() {
-		BossBar bb = BossBar.bossBar(Component.text(), 0f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
-		Bukkit.getServer().showBossBar(bb);
+		bb = BossBar.bossBar(Component.text(), 0f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				if (Litestrike.getInstance().game_controller == null) {
 					Bukkit.getServer().hideBossBar(bb);
-					cancel();
 					return;
 				}
 
 				bb.name(Component.text(renderBossBar()));
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 1, 4);
+		}.runTaskTimer(Litestrike.getInstance(), 5, 4);
+	}
+
+	public void showBossBar() {
+		Bukkit.getServer().showBossBar(bb);
 	}
 
 	public String renderBossBar() {

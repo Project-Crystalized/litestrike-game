@@ -63,9 +63,9 @@ public class GameController {
 			playerDatas.add(p);
 		}
 
+		// setup scoreboard and bossbar
 		ScoreboardController.setup_scoreboard(teams);
-
-		new BossBarDisplay();
+		Litestrike.getInstance().bbd.showBossBar();
 
 		new BukkitRunnable() {
 			@Override

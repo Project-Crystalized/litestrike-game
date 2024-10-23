@@ -13,6 +13,8 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import io.papermc.paper.entity.LookAnchor;
 import net.kyori.adventure.text.Component;
@@ -47,6 +49,7 @@ public class PlayerListener implements Listener {
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
 		p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, false));
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
@@ -58,6 +61,7 @@ public class PlayerListener implements Listener {
 
 			// give player the scoreboard and bossbar again
 			ScoreboardController.give_player_scoreboard(p, should_be_team, Litestrike.getInstance().game_controller.teams);
+			Litestrike.getInstance().bbd.showBossBar();
 
 			if (should_be_team == null) {
 				p.kick(text("a fatal logic error occured, pls report this as a bug"));
@@ -79,20 +83,6 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			e.setCancelled(true);
 			return;
-		}
-		if (!(e.getDamager() instanceof Player)) {
-			return;
-		}
-		if (!(e.getEntity() instanceof Player)) {
-			return;
-		}
-
-		Player damager = (Player) e.getDamager();
-		Player damage_receiver = (Player) e.getEntity();
-
-		// if both players arent in same team, cancel damage
-		if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
-			e.setCancelled(true);
 		}
 	}
 
