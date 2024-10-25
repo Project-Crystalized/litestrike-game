@@ -6,9 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -87,37 +85,27 @@ class DroppedBomb implements Bomb {
 
 class PlacedBomb implements Bomb {
 	public Block block;
-	private ArmorStand as;
+	private BombModel bomb_model;
 
 	public boolean is_detonated = false;
 	public boolean is_broken = false;
 	public int timer = 0;
 
-	public PlacedBomb(Block block) {
+	public PlacedBomb(Block block, BombModel bm) {
 		this.block = block;
+		this.bomb_model = bm;
 
 		SoundEffects.bomb_plant_finish();
 		block.setType(Material.BARRIER);
 		Bukkit.getServer().showTitle(Title.title(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
-
-		as = (ArmorStand) block.getWorld().spawn(block.getLocation().add(0.5, 0, 0.5), ArmorStand.class);
-		as.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
-		as.setGravity(false);
-		as.setCanPickupItems(false);
-		as.setVisible(false);
-
-		ItemStack item = Bomb.bomb_item();
-		ItemMeta im = item.getItemMeta();
-		im.setCustomModelData(30);
-		item.setItemMeta(im);
-		as.getEquipment().setHelmet(item);
+		bomb_model.bomb_plant(block.getLocation());
 	}
 
 	@Override
 	public void remove() {
 		block.setType(Material.AIR);
-		as.remove();
+		bomb_model.remove();
 	}
 
 	private void start_explosion_timer() {
@@ -142,6 +130,7 @@ class PlacedBomb implements Bomb {
 				}
 
 				if (timer == DETONATION_TIME) {
+					bomb_model.bomb_exploded();
 					explode();
 					cancel();
 				}
@@ -151,8 +140,6 @@ class PlacedBomb implements Bomb {
 
 	private void explode() {
 		is_detonated = true;
-		ItemMeta im = as.getEquipment().getHelmet().getItemMeta();
-		im.setCustomModelData(31);
 
 		// the explosion animation
 		new BukkitRunnable() {
@@ -199,9 +186,9 @@ class InvItemBomb implements Bomb {
 		p_inv.remove(Bomb.bomb_item());
 	}
 
-	public void place_bomb(Block bomb_block) {
+	public void place_bomb(Block bomb_block, BombModel bm) {
 		remove();
-		Litestrike.getInstance().game_controller.bomb = new PlacedBomb(bomb_block);
+		Litestrike.getInstance().game_controller.bomb = new PlacedBomb(bomb_block, bm);
 	}
 
 	public void drop_bomb(Item item) {

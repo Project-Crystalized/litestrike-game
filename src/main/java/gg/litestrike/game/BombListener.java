@@ -14,10 +14,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -25,8 +23,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -50,7 +46,7 @@ public class BombListener implements Listener {
 
 	List<MiningPlayer> mining_players = new ArrayList<>();
 
-	BombModel bm = new BombModel();
+	BombModel bomb_model = new BombModel();
 
 	public BombListener() {
 		new BukkitRunnable() {
@@ -62,19 +58,19 @@ public class BombListener implements Listener {
 				}
 
 				if (is_planting > 0) {
-					// as long as we are placing/breaking, advance timer
+					// as long as we are placing, advance timer
 					planting_counter += 1;
-					rising_model.getLocation().add(0, 1 / PLANT_TIME, 0);
+					bomb_model.raise_bomb(planting_counter);
 					if (planting_counter == PLANT_TIME) {
 						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
-						pb.place_bomb(last_planting_block.getRelative(planting_face));
+						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model);
 						reset();
 					}
 				} else {
 					if (planting_counter > 1) {
 						Block bomb_block = last_planting_block.getRelative(planting_face);
 						SoundEffects.stop_planting(bomb_block.getX(), bomb_block.getY(), bomb_block.getZ());
-						rising_model.remove();
+						bomb_model.remove();
 					}
 					planting_counter = 0;
 				}
@@ -92,6 +88,9 @@ public class BombListener implements Listener {
 					}
 				}
 				mining_players.removeAll(remove_list);
+				if (mining_players.size() == 0 && remove_list.size() != 0) {
+					bomb_model.stop_bomb_mining();
+				}
 
 				if (mining_players.size() > 0) {
 					breaking_counter += 1;
@@ -135,6 +134,7 @@ public class BombListener implements Listener {
 
 		// TODO play a start break sound effect
 		mining_players.add(new MiningPlayer(e.getPlayer()));
+		bomb_model.bomb_mining();
 	}
 
 	@EventHandler
@@ -148,6 +148,9 @@ public class BombListener implements Listener {
 		}
 		if (to_remove != null) {
 			mining_players.remove(to_remove);
+			if (mining_players.size() == 0) {
+				bomb_model.stop_bomb_mining();
+			}
 		}
 	}
 
@@ -198,25 +201,9 @@ public class BombListener implements Listener {
 		if (is_planting < 0) {
 			Block lpb = e.getClickedBlock();
 			SoundEffects.start_planting(lpb.getX(), lpb.getY(), lpb.getZ());
-
-			// summon model
-			if (rising_model != null) {
-				rising_model.remove();
-			}
-			rising_model = (ArmorStand) lpb.getWorld().spawn(lpb.getLocation().add(0.5, 0, 0.5), ArmorStand.class);
-			rising_model.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
-			rising_model.setGravity(false);
-			rising_model.setCanPickupItems(false);
-			rising_model.setVisible(false);
-
-			ItemStack item = Bomb.bomb_item();
-			ItemMeta im = item.getItemMeta();
-			im.setCustomModelData(30);
-			item.setItemMeta(im);
-			rising_model.getEquipment().setHelmet(item);
+			bomb_model.spawn_model(lpb.getLocation());
 		}
 		is_planting = 6;
-		// Bukkit.getServer().sendMessage(text("planting = 4"));
 
 		// TODO make pretty
 		e.getPlayer().sendActionBar(text("Placing progress: " + planting_counter / 20));
@@ -273,9 +260,6 @@ public class BombListener implements Listener {
 	private void reset() {
 		is_planting = 0;
 		planting_counter = 0;
-		if (rising_model != null) {
-			rising_model.remove();
-		}
 		breaking_counter = 0;
 		mining_players.clear();
 		last_planting_block = null;
