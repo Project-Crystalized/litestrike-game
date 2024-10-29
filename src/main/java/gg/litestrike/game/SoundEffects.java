@@ -1,6 +1,8 @@
 package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kyori.adventure.audience.Audience;
@@ -119,7 +121,7 @@ public class SoundEffects {
 		}.runTaskTimer(Litestrike.getInstance(), 1, 2);
 	}
 
-	public static void bomb_plant_finish() {
+	public static void bomb_plant_finish(Location loc) {
 		new BukkitRunnable() {
 			int timer = 0;
 
@@ -135,10 +137,11 @@ public class SoundEffects {
 					case 12:
 					case 13:
 					case 14:
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.AMBIENT, 1f, 0.5f));
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.chime"), Sound.Source.AMBIENT, 1f, 0.5f));
+					Bukkit.getServer()
+						.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.AMBIENT, 1f, 0.5f));
+					Bukkit.getServer()
+						.playSound(Sound.sound(Key.key("block.note_block.chime"), Sound.Source.AMBIENT, 1f, 0.5f));
+					bomb_particles(loc);
 				}
 				timer += 1;
 				if (timer > 20) {
@@ -148,13 +151,12 @@ public class SoundEffects {
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 
-	public static void bomb_beep(int x, int y, int z) {
-		Sound sound1 = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
-		Sound sound2 = Sound.sound(Key.key("block.note_block.xylophone"), Sound.Source.AMBIENT, 1.9f, 0.8f);
-		Bukkit.getServer().playSound(sound1, x, y, z);
-		Bukkit.getServer().playSound(sound2, x, y, z);
-
-		// Bukkit.getServer().sendMessage(text(Bukkit.getWorld("world").getFullTime()));
+	public static void bomb_particles(Location loc) {
+		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
+		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
+		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
+		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
+		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
 	}
 
 	public static void ally_death(Audience a) {
@@ -190,6 +192,22 @@ public class SoundEffects {
 				.playSound(Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1f, 1.681793f));
 		Bukkit.getServer()
 				.playSound(Sound.sound(Key.key("block.note_block.bass"), Sound.Source.AMBIENT, 1f, 0.594604f));
+	}
+
+	public static void start_breaking(int x, int y, int z) {
+		Sound sound = Sound.sound(Key.key("block.note_block.xylophone"), Sound.Source.AMBIENT, 1.9f, 1f);
+		Bukkit.getServer().playSound(sound, x, y, z);
+
+		new BukkitRunnable() {
+			public void run() {
+				Bukkit.getServer().playSound(sound, x, y, z);
+			};
+		}.runTaskLater(Litestrike.getInstance(), 2);
+		new BukkitRunnable() {
+			public void run() {
+				Bukkit.getServer().playSound(sound, x, y, z);
+			};
+		}.runTaskLater(Litestrike.getInstance(), 3);
 	}
 
 	public static void start_planting(int x, int y, int z) {

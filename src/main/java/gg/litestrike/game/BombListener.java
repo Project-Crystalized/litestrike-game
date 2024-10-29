@@ -60,10 +60,10 @@ public class BombListener implements Listener {
 				if (is_planting > 0) {
 					// as long as we are placing, advance timer
 					planting_counter += 1;
-					bomb_model.raise_bomb(planting_counter);
+					bomb_model.raise_bomb(planting_counter, planting_face);
 					if (planting_counter == PLANT_TIME) {
 						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
-						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model);
+						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
 						reset();
 					}
 				} else {
@@ -119,7 +119,7 @@ public class BombListener implements Listener {
 			return;
 		}
 
-		// if that player was already mining return
+		// if that player was already mining, return
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				return;
@@ -132,9 +132,9 @@ public class BombListener implements Listener {
 			return;
 		}
 
-		// TODO play a start break sound effect
 		mining_players.add(new MiningPlayer(e.getPlayer()));
 		bomb_model.bomb_mining();
+		SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
 	}
 
 	@EventHandler

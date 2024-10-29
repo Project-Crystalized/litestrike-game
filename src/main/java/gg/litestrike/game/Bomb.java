@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -91,15 +92,15 @@ class PlacedBomb implements Bomb {
 	public boolean is_broken = false;
 	public int timer = 0;
 
-	public PlacedBomb(Block block, BombModel bm) {
+	public PlacedBomb(Block block, BombModel bm, BlockFace bf) {
 		this.block = block;
 		this.bomb_model = bm;
 
-		SoundEffects.bomb_plant_finish();
+		SoundEffects.bomb_plant_finish(block.getLocation());
 		block.setType(Material.BARRIER);
 		Bukkit.getServer().showTitle(Title.title(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
-		bomb_model.bomb_plant(block.getLocation());
+		bomb_model.bomb_plant(block.getLocation(), bf);
 	}
 
 	@Override
@@ -127,6 +128,9 @@ class PlacedBomb implements Bomb {
 
 					Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
 					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
+					if (timer > Bomb.DETONATION_TIME - (20 * 7)) {
+						SoundEffects.bomb_particles(block.getLocation());
+					}
 				}
 
 				if (timer == DETONATION_TIME) {
@@ -147,8 +151,8 @@ class PlacedBomb implements Bomb {
 
 			@Override
 			public void run() {
+				block.getWorld().spawnParticle(Particle.FLASH, block.getLocation(), 2, 5, 5, 5);
 				if (i % 10 == 0) {
-					block.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, block.getLocation(), 5);
 					block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
 							block.getX(), block.getY(), block.getZ());
 				}
@@ -163,7 +167,6 @@ class PlacedBomb implements Bomb {
 				}
 				i += 1;
 				if (i == (20 * 4)) {
-
 					remove();
 					cancel();
 				}
@@ -186,9 +189,9 @@ class InvItemBomb implements Bomb {
 		p_inv.remove(Bomb.bomb_item());
 	}
 
-	public void place_bomb(Block bomb_block, BombModel bm) {
+	public void place_bomb(Block bomb_block, BombModel bm, BlockFace bf) {
 		remove();
-		Litestrike.getInstance().game_controller.bomb = new PlacedBomb(bomb_block, bm);
+		Litestrike.getInstance().game_controller.bomb = new PlacedBomb(bomb_block, bm, bf);
 	}
 
 	public void drop_bomb(Item item) {

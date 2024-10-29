@@ -49,13 +49,6 @@ public class DebugCommands implements CommandExecutor {
 			case "round_won":
 				SoundEffects.round_won(Bukkit.getServer());
 				break;
-			case "bomb_start":
-				SoundEffects.bomb_plant_finish();
-				break;
-			case "bomb_beep":
-				MapData md = Litestrike.getInstance().mapdata;
-				SoundEffects.bomb_beep((int) md.que_spawn[0], (int) md.que_spawn[1], (int) md.que_spawn[2]);
-				break;
 			case "ally_death":
 				SoundEffects.ally_death(Bukkit.getServer());
 				break;

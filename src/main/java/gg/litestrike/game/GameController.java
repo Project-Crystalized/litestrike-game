@@ -285,7 +285,6 @@ public class GameController {
 			if (pb.is_broken) {
 				return Team.Breaker;
 			}
-
 		}
 
 		boolean all_breakers_dead = true;
