@@ -11,8 +11,8 @@ import java.lang.Exception;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
-	private List<String> placers;
-	private List<String> breakers;
+	private static List<String> placers;
+	private static List<String> breakers;
 
 	public Teams() {
 		List<String> list = new ArrayList<>();
@@ -27,7 +27,7 @@ public class Teams {
 		placers = list.subList(middle, list.size());
 	}
 
-	public List<Player> get_placers() {
+	public static List<Player> get_placers() {
 		List<Player> placer_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (placers.contains(p.getName())) {
@@ -37,7 +37,7 @@ public class Teams {
 		return placer_list;
 	}
 
-	public List<Player> get_breakers() {
+	public static List<Player> get_breakers() {
 		List<Player> breaker_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (breakers.contains(p.getName())) {
@@ -59,7 +59,7 @@ public class Teams {
 		return null;
 	}
 
-	public Team get_team(Player p) {
+	public static Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
 		}

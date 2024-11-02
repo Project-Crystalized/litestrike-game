@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import java.util.logging.Level;
 
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -17,13 +18,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import org.jetbrains.annotations.NotNull;
 
 enum Team {
 	Placer,
 	Breaker,
 }
 
-public final class Litestrike extends JavaPlugin implements Listener {
+public final class Litestrike extends JavaPlugin implements Listener{
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -43,7 +45,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(this, this);
-		this.getServer().getPluginManager().registerEvents(new Shop(null), this);
+		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
 		DebugCommands dc = new DebugCommands();
 
 		Bukkit.getServer().getPluginManager().registerEvents(new BombListener(), this);
@@ -131,7 +133,6 @@ public final class Litestrike extends JavaPlugin implements Listener {
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 		}
 		 */
-
 	}
 
 }

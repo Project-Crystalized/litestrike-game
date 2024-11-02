@@ -54,12 +54,18 @@ public class GameController {
 	// TODO store round winners
 
 	public GameController() {
-		next_round();
+		new BukkitRunnable() {
+			@Override
+			public void run(){
+				next_round();
+			}
+		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		playerDatas = new ArrayList<PlayerData>();
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			PlayerData p = new PlayerData(player);
 			playerDatas.add(p);
+			Shop.giveDefaultArmor(player);
 		}
 
 		// This just calls update_game_state() once every second
@@ -137,7 +143,9 @@ public class GameController {
 		// remove the border
 		Litestrike.getInstance().mapdata.lowerBorder(Bukkit.getWorld("world"));
 
-		// TODO remove shop item
+		for(Player p : Bukkit.getOnlinePlayers()){
+			Shop.removeShop(p);
+		}
 	}
 
 	// this is called when we switch from Running to PostRound
@@ -206,13 +214,12 @@ public class GameController {
 
 		// heal and set everyone to survival
 		for (Player p : Bukkit.getOnlinePlayers()) {
+			if(p.getGameMode() == GameMode.SPECTATOR){
+				Shop.giveDefaultArmor(p);
+			}
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue());
 		}
-
-
-		// TODO give armor and weapons
-		tmp_give_default_armor();
 
 		// give bomb to a random player
 		// generate int between 0 and placer teams size
@@ -276,37 +283,6 @@ public class GameController {
 		}
 
 		return null;
-	}
-
-	// this gives everyone default armor for now
-	// TODO remove this once shop system is implemented
-	private void tmp_give_default_armor() {
-		for (Player p : teams.get_placers()) {
-			PlayerInventory inv = p.getInventory();
-			inv.setHelmet(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_HELMET)));
-			inv.setChestplate(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
-			inv.setLeggings(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_LEGGINGS)));
-			inv.setBoots(tmp_color_armor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_BOOTS)));
-			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
-		}
-
-		for (Player p : teams.get_breakers()) {
-			PlayerInventory inv = p.getInventory();
-			inv.setHelmet(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_HELMET)));
-			inv.setChestplate(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
-			inv.setLeggings(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
-			inv.setBoots(tmp_color_armor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
-			inv.addItem(new ItemStack(Material.STONE_SWORD));
-			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
-		}
-	}
-
-	// TODO remove this once shop is implemented
-	private ItemStack tmp_color_armor(Color c, ItemStack i) {
-		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
-		lam.setColor(c);
-		i.setItemMeta(lam);
-		return i;
 	}
 
 	public PlayerData getPlayerData(Player p) {

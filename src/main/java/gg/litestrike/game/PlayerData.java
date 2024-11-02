@@ -27,7 +27,7 @@ public class PlayerData {
 	// returns false if not enought money was available
 	// returns true if the money was successfully subtracted
 	public boolean removeMoney(int amt) {
-		if (amt >= money) {
+		if (amt > money) {
 			return false;
 		} else {
 			money -= amt;
