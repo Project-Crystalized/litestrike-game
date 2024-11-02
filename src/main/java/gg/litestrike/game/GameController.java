@@ -66,6 +66,7 @@ public class GameController {
 			PlayerData p = new PlayerData(player);
 			playerDatas.add(p);
 			Shop.giveDefaultArmor(player);
+			Shop.createShop(player);
 		}
 
 		// This just calls update_game_state() once every second

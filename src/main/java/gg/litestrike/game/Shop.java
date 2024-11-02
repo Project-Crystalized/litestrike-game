@@ -13,56 +13,65 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
+import static org.bukkit.Bukkit.getName;
 import static org.bukkit.Material.EMERALD;
 
 public class Shop implements InventoryHolder {
-    public static List<LSItem> shopItems;
-    public static Inventory shopInv;
+    public List<LSItem> shopItems;
+    public Inventory currentView;
+    public static Player player;
+    public static HashMap<String, Shop> shopList = new HashMap<>();
 
     public Shop(Player p) {
         if(p == null){
             return;
         }
-        if(shopItems == null){
-            shopItems = LSItem.createItems();
-        }
-        shopInv = Bukkit.getServer().createInventory(this, 54, title(p));
-
-        for(LSItem item : shopItems) {
-            LSItem.updateDescription(p, item);
-        }
+        shopItems = LSItem.createItems();
+        player = p;
+        currentView = Bukkit.getServer().createInventory(this, 54, title(p));
             //TODO make the Shop its own item
     }
 
+    public static Shop getShop(Player p){
+        return shopList.get(p.getName());
+    }
 
-    public static void setItems(){
-        for(LSItem item : shopItems) {
-            switch(item.item.getType()){
-                case Material.DIAMOND_CHESTPLATE:{
-                    Shop.shopInv.setItem(31, item.displayItem);
+    public static void setItems(Player p, List<LSItem> ware){
+        for(LSItem i : ware) {
+            LSItem.updateDescription(p, i);
+        }
+        Shop s = getShop(p);
+        Inventory i = s.currentView;
+        for (LSItem item : ware) {
+            switch (item.item.getType()) {
+                case Material.DIAMOND_CHESTPLATE: {
+                    i.setItem(31, item.displayItem);
                 }
-                case Material.IRON_SWORD:{
-                    Shop.shopInv.setItem(0, item.displayItem);
+                case Material.IRON_SWORD: {
+                    i.setItem(0, item.displayItem);
                 }
-                case Material.IRON_AXE:{
-                    Shop.shopInv.setItem(2, item.displayItem);
+                case Material.IRON_AXE: {
+                    i.setItem(2, item.displayItem);
                 }
-                case Material.ARROW:{
-                    Shop.shopInv.setItem(50, item.displayItem);
+                case Material.ARROW: {
+                    i.setItem(50, item.displayItem);
                 }
-                case Material.GOLDEN_APPLE:{
-                    Shop.shopInv.setItem(49, item.displayItem);
+                case Material.GOLDEN_APPLE: {
+                    i.setItem(49, item.displayItem);
                 }
-                case Material.IRON_CHESTPLATE:{
-                    Shop.shopInv.setItem(40, item.displayItem);
+                case Material.IRON_CHESTPLATE: {
+                    i.setItem(40, item.displayItem);
                 }
-                case Material.CROSSBOW:{
-                    Shop.shopInv.setItem(26, item.displayItem);
+                case Material.CROSSBOW: {
+                    i.setItem(26, item.displayItem);
                 }
             }
         }
@@ -70,13 +79,14 @@ public class Shop implements InventoryHolder {
 
     public static void setDefuser(Player p){
         if(Teams.get_team(p) == Team.Breaker){
-            Shop.shopInv.setItem(42, shopItems.get(6).displayItem);
+            Shop s = getShop(p);
+            s.currentView.setItem(22, s.shopItems.get(6).displayItem);
         }
     }
 
     @Override
     public @NotNull Inventory getInventory() {
-        return Shop.shopInv;
+        return Bukkit.getServer().createInventory(this, 1);
     }
 
 
@@ -86,19 +96,23 @@ public class Shop implements InventoryHolder {
             return Component.text("\uA000" + "\uA001" +"\uE104"+ pd.getMoney()).color(WHITE);
     }
 
-    public static void updateTitle(Player p){
-        shopInv.close();
-        new Shop(p);
-        p.openInventory(Shop.shopInv);
-        setItems();
+    public void updateTitle(Player p){
+        Shop s = Shop.getShop(p);
+        s.currentView.close();
+        s.currentView = Bukkit.getServer().createInventory(this, 54, title(p));
+        p.openInventory(s.currentView);
+        setItems(p, s.shopItems);
         setDefuser(p);
     }
 
     public static void giveShop(){
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.getInventory().addItem(new ItemStack(EMERALD));
-            new Shop(p);
         }
+    }
+
+    public static void createShop(Player p){
+        shopList.put(p.getName(), new Shop(p));
     }
 
     public static int findInvIndex(Player p, LSItem item){
@@ -160,6 +174,7 @@ public class Shop implements InventoryHolder {
 
     public static void removeShop(Player p){
         Inventory inv = p.getInventory();
+        Shop s = getShop(p);
         for (int i = 0; i <= 40; i++) {
             ItemStack it = p.getInventory().getItem(i);
             if (it == null) {
@@ -167,7 +182,7 @@ public class Shop implements InventoryHolder {
             }
             if (it.getType() == Material.EMERALD){
                 inv.clear(i);
-                shopInv.close();
+                s.currentView.close();
             }
         }
     }
