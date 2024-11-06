@@ -159,12 +159,10 @@ public class BombListener implements Listener {
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				mp.timer = 2;
-				// TODO make pretty
-				e.getPlayer().sendActionBar(text("Breaking progress: " + breaking_counter / 20));
+				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
 				break;
 			}
 		}
-
 	}
 
 	@EventHandler
@@ -205,8 +203,7 @@ public class BombListener implements Listener {
 		}
 		is_planting = 6;
 
-		// TODO make pretty
-		e.getPlayer().sendActionBar(text("Placing progress: " + planting_counter / 20));
+		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
 
 		// if player starts looking at a different block, reset planting progress
 		if (!e.getClickedBlock().equals(last_planting_block)) {
@@ -255,6 +252,47 @@ public class BombListener implements Listener {
 			Player p = (Player) e.getEntity();
 			Bomb.give_bomb(p.getInventory());
 		}
+	}
+
+	// renders the breakingprogres for the action bar
+	private String renderBreakingProgress() {
+		double percentage = (double) breaking_counter / (double) BREAK_TIME;
+		String s = "[";
+		boolean b = false;
+		for (double i = 0.1; i < 1; i+=0.1) {
+			if (b) {
+				s += " ";
+				continue;
+			}
+			if (i < percentage) {
+				s += "=";
+				continue;
+			}
+			s += ">";
+			b = true;
+		}
+		s += "]";
+		return s;
+	}
+
+	private String renderPlacingProgress() {
+		double percentage = (double) planting_counter / (double) PLANT_TIME;
+		String s = "[";
+		boolean b = false;
+		for (double i = 0.1; i < 1; i+=0.1) {
+			if (b) {
+				s += " ";
+				continue;
+			}
+			if (i < percentage) {
+				s += "=";
+				continue;
+			}
+			s += ">";
+			b = true;
+		}
+		s += "]";
+		return s;
 	}
 
 	private void reset() {

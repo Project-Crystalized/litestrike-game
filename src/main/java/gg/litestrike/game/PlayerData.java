@@ -18,6 +18,11 @@ public class PlayerData {
 		player = p.getName();
 	}
 
+	// used for reseting money when switching teams
+	public void removeMoney() {
+		money = 0;
+	}
+
 	public void addMoney(int amt, String reason) {
 		Player p = Bukkit.getPlayer(player);
 		if (p == null) {

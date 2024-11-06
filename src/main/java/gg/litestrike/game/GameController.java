@@ -40,7 +40,7 @@ public class GameController {
 	private int current_round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
 
-	private List<Team> round_results = new ArrayList<>();
+	public List<Team> round_results = new ArrayList<>();
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -127,7 +127,7 @@ public class GameController {
 				break;
 			case RoundState.Running: {
 				if (determine_winner() != null) {
-					finish_round();
+					finish_round(determine_winner());
 				}
 			}
 				break;
@@ -179,12 +179,14 @@ public class GameController {
 	}
 
 	// this is called when we switch from Running to PostRound
-	private void finish_round() {
+	private void finish_round(Team winner) {
+		if (winner == null) {
+			Bukkit.getLogger().severe("critical error: finish_round() was called with null as input");
+		}
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
 		bomb.remove();
 		bomb = null;
-		Team winner = determine_winner();
 
 		round_results.add(winner);
 
@@ -218,8 +220,10 @@ public class GameController {
 	private void start_podium() {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
-		bomb.remove();
-		bomb = null;
+		if (bomb != null) {
+			bomb.remove();
+			bomb = null;
+		}
 
 		Bukkit.getServer().sendMessage(text("The Podium would start now, but it isnt implemented yet"));
 		// TODO
@@ -235,6 +239,24 @@ public class GameController {
 		World w = Bukkit.getWorld("world");
 		Location placer_spawn = Litestrike.getInstance().mapdata.get_placer_spawn(w);
 		Location breaker_spawn = Litestrike.getInstance().mapdata.get_breaker_spawn(w);
+
+		if (current_round_number == switch_round + 1) {
+			Bukkit.getServer().sendMessage(text("ꜱᴡɪᴛᴄʜɪɴɢ ꜱɪᴅᴇꜱ!!").color(Litestrike.YELLOW));
+			teams.switch_teams();
+			for (PlayerData pd : playerDatas) {
+				pd.removeMoney();
+			}
+			for (int i = 0; i < round_results.size(); i++) {
+				if (round_results.get(i) == Team.Placer) {
+					round_results.set(i, Team.Breaker);
+				} else {
+					round_results.set(i, Team.Placer);
+				}
+			}
+			ScoreboardController.setup_scoreboard(teams);
+			ScoreboardController.set_win_display(round_results);
+			// TODO shop clear inventory
+		}
 
 		// raise border
 		Litestrike.getInstance().mapdata.raiseBorder(w);
@@ -305,7 +327,7 @@ public class GameController {
 		}
 
 		if (phase_timer == RUNNING_TIME) {
-			return Team.Placer;
+			return Team.Breaker;
 		}
 
 		// check if all placers are alive

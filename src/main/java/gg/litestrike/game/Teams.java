@@ -32,6 +32,12 @@ public class Teams {
 		placers = list.subList(middle, list.size());
 	}
 
+	public void switch_teams() {
+		List<String> temporary = placers;
+		placers = breakers;
+		breakers = temporary;
+	}
+
 	public List<Player> get_placers() {
 		List<Player> placer_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {

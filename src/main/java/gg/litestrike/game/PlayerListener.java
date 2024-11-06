@@ -49,7 +49,7 @@ public class PlayerListener implements Listener {
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
 		p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, false));
+		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, true));
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
