@@ -111,7 +111,8 @@ public class GameController {
 				breaker_wins_amt += 1;
 			}
 		}
-		if (placer_wins_amt == switch_round + 1 || breaker_wins_amt == switch_round + 1) {
+		// end if a team has reached the required wins
+		if ((placer_wins_amt == switch_round + 1 || breaker_wins_amt == switch_round + 1) && round_state != RoundState.GameFinished) {
 			start_podium();
 		}
 
@@ -133,11 +134,7 @@ public class GameController {
 				break;
 			case RoundState.PostRound: {
 				if (phase_timer == POST_ROUND_TIME) {
-					if (current_round_number == switch_round * 2) {
-						start_podium();
-					} else {
-						next_round();
-					}
+					next_round();
 				}
 			}
 				break;
@@ -225,8 +222,19 @@ public class GameController {
 			bomb = null;
 		}
 
-		Bukkit.getServer().sendMessage(text("The Podium would start now, but it isnt implemented yet"));
-		// TODO
+		World w = Bukkit.getWorld("world");
+
+		print_result_table();
+		teleport_players(w);
+		SoundEffects.round_end_sound();
+
+		// summon fireworks after 5 secs
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				// summon firework
+			}
+		}.runTaskLater(Litestrike.getInstance(), (20 * 5));
 	};
 
 	// this is called when we go from PostRound to PreRound and when the first round
@@ -392,5 +400,9 @@ public class GameController {
 		}
 
 		return null;
+	}
+
+	private void print_result_table() {
+
 	}
 }
