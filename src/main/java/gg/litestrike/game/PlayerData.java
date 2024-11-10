@@ -23,7 +23,13 @@ public class PlayerData {
 		p.sendMessage("You received " + amt + "g. " + reason);
 		money += amt;
 	}
-
+	public static void addMoney(int amt, Player p){
+		if (p == null) {
+			return;
+		}
+		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		pd.money += amt;
+	}
 	// returns false if not enought money was available
 	// returns true if the money was successfully subtracted
 	public boolean removeMoney(int amt) {

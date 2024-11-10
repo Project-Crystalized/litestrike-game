@@ -3,7 +3,7 @@ package gg.litestrike.game;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,11 +11,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
@@ -38,21 +38,35 @@ public class ShopListener implements Listener {
     }
     @EventHandler
     public void buyItem(InventoryClickEvent event){
-        if(event.getView().title().equals(Shop.title((Player) event.getWhoClicked()))) {
+        Player p = (Player) event.getWhoClicked();
+        Shop s = Shop.getShop(p);
+        Inventory v = s.currentView;
+        /*
+        if(event.getInventory() == v && event.getView().getBottomInventory() == p.getInventory()){
+            event.setCancelled(true);
+            undoBuy(event.getCurrentItem(), p, event.getSlot());
+            return;
+        }
+
+         */
+        if(event.getInventory() == v){
             event.setCancelled(true);
             String mess = "Can't afford item";
             String mess2 = "You already have this item";
-            Player p = (Player) event.getWhoClicked();
             PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) event.getWhoClicked());
-            Shop s = Shop.getShop(p);
-            switch (Objects.requireNonNull(event.getCurrentItem()).getType()) {
+            Component itemDisplayName = Objects.requireNonNull(event.getCurrentItem()).displayName();
+            PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
+            String itemName = plainSerializer.serialize(itemDisplayName);
 
-                case Material.DIAMOND_CHESTPLATE: {
+            switch (itemName) {
+
+                case "[Diamond Chestplate]": {
                     if (!Shop.alreadyHasThis(p, s.shopItems.get(0).item)) {
                         if (pd.removeMoney(s.shopItems.get(0).price)) {
                             event.getWhoClicked().getInventory().setChestplate(s.shopItems.get(0).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(0));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -63,12 +77,13 @@ public class ShopListener implements Listener {
                     }
                     return;
                 }
-                case Material.IRON_CHESTPLATE: {
+                case "[Iron Chestplate]": {
                     if (!Shop.alreadyHasThis(p, s.shopItems.get(9).item)) {
                         if (pd.removeMoney(s.shopItems.get(9).price)) {
                             event.getWhoClicked().getInventory().setChestplate(s.shopItems.get(9).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(9));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -79,7 +94,7 @@ public class ShopListener implements Listener {
                     }
                     return;
                 }
-                case Material.IRON_SWORD: {
+                case "[Iron Sword]": {
                     if (!Shop.alreadyHasThis(p, s.shopItems.get(1).item)) {
                         if (pd.removeMoney(s.shopItems.get(1).price)) {
                             if (Shop.findInvIndex(p, s.shopItems.get(1)) == -1) {
@@ -90,6 +105,7 @@ public class ShopListener implements Listener {
                             event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(1)), s.shopItems.get(1).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(1));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -101,7 +117,7 @@ public class ShopListener implements Listener {
                     return;
                 }
 
-                case Material.IRON_AXE: {
+                case "[Iron Axe]": {
                     if (!Shop.alreadyHasThis(p, s.shopItems.get(3).item)) {
                         if (pd.removeMoney(s.shopItems.get(3).price)) {
                             if (Shop.findInvIndex(p, s.shopItems.get(3)) == -1) {
@@ -112,6 +128,7 @@ public class ShopListener implements Listener {
                             event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(3)), s.shopItems.get(3).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(3));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -123,18 +140,19 @@ public class ShopListener implements Listener {
                     return;
                 }
 
-                case Material.ARROW: {
+                case "[Arrow]": {
                     if (pd.removeMoney(s.shopItems.get(5).price)) {
                         event.getWhoClicked().getInventory().addItem(s.shopItems.get(5).item);
                         p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                         s.updateTitle(p);
+                        s.buyHistory.add(s.shopItems.get(5));
                     } else {
                         p.sendMessage(Component.text(mess).color(RED));
                         p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
                     }
                     return;
                 }
-                case Material.IRON_PICKAXE: {
+                case "[Iron Pickaxe]": {
                     if(!Shop.alreadyHasThis(p, s.shopItems.get(6).item)) {
                         if (pd.removeMoney(s.shopItems.get(6).price)) {
                             if (Shop.findInvIndex(p, s.shopItems.get(6)) == -1) {
@@ -145,6 +163,7 @@ public class ShopListener implements Listener {
                             event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(6)), s.shopItems.get(6).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(6));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -155,18 +174,19 @@ public class ShopListener implements Listener {
                     }
                     return;
                 }
-                case Material.GOLDEN_APPLE: {
+                case "[Golden Apple]": {
                     if (pd.removeMoney(s.shopItems.get(8).price)) {
                         event.getWhoClicked().getInventory().addItem(s.shopItems.get(8).item);
                         p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                         s.updateTitle(p);
+                        s.buyHistory.add(s.shopItems.get(8));
                     } else {
                         p.sendMessage(Component.text(mess).color(RED));
                         p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
                     }
                     return;
                 }
-                case Material.CROSSBOW: {
+                case "[Crossbow]": {
                     if (!Shop.alreadyHasThis(p, s.shopItems.get(10).item)) {
                         if (pd.removeMoney(s.shopItems.get(10).price)) {
                             if (Shop.findInvIndex(p, s.shopItems.get(10)) == -1) {
@@ -177,6 +197,7 @@ public class ShopListener implements Listener {
                             event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(10)), s.shopItems.get(10).item);
                             p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
                             s.updateTitle(p);
+                            s.buyHistory.add(s.shopItems.get(10));
                         } else {
                             p.sendMessage(Component.text(mess).color(RED));
                             p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -189,6 +210,56 @@ public class ShopListener implements Listener {
                 }
             }
 
+            }
+        }
+
+        public void undoBuy(ItemStack item, Player p, int slot){
+            String cate = LSItem.getItemCategory(item);
+            Shop s = Shop.getShop(p);
+            List<LSItem> h= s.buyHistory;
+            switch(cate){
+                case "Melee":{
+                    for(int i = h.size(); i == 0; i--){
+                        if(LSItem.getItemCategory(h.get(i).item).equals("Melee")){
+                            if(item.getType() == Material.STONE_SWORD) {
+                                return;
+                            }
+                            p.getInventory().setItem(slot, h.get(i).item);
+                            PlayerData.addMoney(h.get(i).price, p);
+                            s.updateTitle(p);
+                            h.remove(i);
+                            return;
+                        }
+                    }
+                }
+                case "Range":{
+                    for(int i = h.size(); i == 0; i--){
+                        if(LSItem.getItemCategory(h.get(i).item).equals("Range")){
+                            if(item.getType() == Material.BOW && item.getEnchantments().isEmpty()) {
+                                return;
+                            }
+                            p.getInventory().setItem(slot, h.get(i).item);
+                            PlayerData.addMoney(h.get(i).price, p);
+                            s.updateTitle(p);
+                            h.remove(i);
+                            return;
+                        }
+                    }
+                }
+                case "Ammunition":{
+                    for(int i = h.size(); i == 0; i--){
+                        if(LSItem.getItemCategory(h.get(i).item).equals("Ammunition")){
+                            if(item.getType() == Material.ARROW && !(item.hasItemMeta()) && item.getAmount() == 6) {
+                                return;
+                            }
+                            ItemStack n = new ItemStack(h.get(i).item.getType(), p.getInventory().getItem(slot).getAmount() - h.get(i).item.getAmount());
+                            p.getInventory().setItem(slot, n);
+                            PlayerData.addMoney(h.get(i).price, p);
+                            s.updateTitle(p);
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

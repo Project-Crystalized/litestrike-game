@@ -56,8 +56,9 @@ public class LSItem {
         LSItem defuser = new LSItem(new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.IRON_PICKAXE), 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser);
         LSItem pickaxe = new LSItem(new ItemStack(Material.STONE_PICKAXE), new ItemStack(Material.STONE_PICKAXE), 0, null, ItemCategory.Defuser);
         LSItem gapple = new LSItem(new ItemStack(Material.GOLDEN_APPLE), new ItemStack(Material.GOLDEN_APPLE), 500, null, ItemCategory.Consumable);
-        LSItem ironChestplate = new LSItem(new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), 500, null, ItemCategory.Armor);
+        LSItem ironChestplate = new LSItem(new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE), 250, null, ItemCategory.Armor);
         LSItem crossbow = new LSItem(new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), 1000, null, ItemCategory.Range);
+
         nameItem(defuser.item);
         nameItem(defuser.displayItem);
         List<LSItem> lsItems = new ArrayList<>();

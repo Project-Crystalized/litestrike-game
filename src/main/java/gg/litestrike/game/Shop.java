@@ -1,8 +1,7 @@
 package gg.litestrike.game;
 
-import com.destroystokyo.paper.MaterialSetTag;
 import net.kyori.adventure.text.Component;
-import net.md_5.bungee.api.ChatColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -14,6 +13,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +21,13 @@ import java.util.Objects;
 import java.util.logging.Level;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
-import static org.bukkit.Bukkit.getName;
 import static org.bukkit.Material.EMERALD;
 
 public class Shop implements InventoryHolder {
     public List<LSItem> shopItems;
     public Inventory currentView;
-    public static Player player;
+    public Player player;
+    public List<LSItem> buyHistory;
     public static HashMap<String, Shop> shopList = new HashMap<>();
 
     public Shop(Player p) {
@@ -37,6 +37,7 @@ public class Shop implements InventoryHolder {
         shopItems = LSItem.createItems();
         player = p;
         currentView = Bukkit.getServer().createInventory(this, 54, title(p));
+        buyHistory = new ArrayList<>();
             //TODO make the Shop its own item
     }
 
@@ -51,26 +52,29 @@ public class Shop implements InventoryHolder {
         Shop s = getShop(p);
         Inventory i = s.currentView;
         for (LSItem item : ware) {
-            switch (item.item.getType()) {
-                case Material.DIAMOND_CHESTPLATE: {
+            Component itemDisplayName = item.item.displayName();
+            PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
+            String itemName = plainSerializer.serialize(itemDisplayName);
+            switch (itemName) {
+                case "[Diamond Chestplate]": {
                     i.setItem(31, item.displayItem);
                 }
-                case Material.IRON_SWORD: {
+                case "[Iron Sword]": {
                     i.setItem(0, item.displayItem);
                 }
-                case Material.IRON_AXE: {
+                case "[Iron Axe]": {
                     i.setItem(2, item.displayItem);
                 }
-                case Material.ARROW: {
+                case "[Arrow]": {
                     i.setItem(50, item.displayItem);
                 }
-                case Material.GOLDEN_APPLE: {
+                case "[Golden Apple]": {
                     i.setItem(49, item.displayItem);
                 }
-                case Material.IRON_CHESTPLATE: {
+                case "[Iron Chestplate]": {
                     i.setItem(40, item.displayItem);
                 }
-                case Material.CROSSBOW: {
+                case "[Crossbow]": {
                     i.setItem(26, item.displayItem);
                 }
             }

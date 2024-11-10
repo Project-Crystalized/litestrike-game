@@ -57,17 +57,18 @@ public class GameController {
 		new BukkitRunnable() {
 			@Override
 			public void run(){
+				playerDatas = new ArrayList<PlayerData>();
+				for (Player player : Bukkit.getOnlinePlayers()) {
+					PlayerData p = new PlayerData(player);
+					playerDatas.add(p);
+					Shop.giveDefaultArmor(player);
+					Shop.createShop(player);
+				}
 				next_round();
 			}
 		}.runTaskLater(Litestrike.getInstance(), 1);
 
-		playerDatas = new ArrayList<PlayerData>();
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			PlayerData p = new PlayerData(player);
-			playerDatas.add(p);
-			Shop.giveDefaultArmor(player);
-			Shop.createShop(player);
-		}
+
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
@@ -176,6 +177,10 @@ public class GameController {
 			} else {
 				getPlayerData(p).addMoney(1200, "For loosing the round.");
 			}
+			Shop s = Shop.getShop(p);
+			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
+			Shop.setItems(p, s.shopItems);
+			Shop.setDefuser(p);
 		}
 	}
 
