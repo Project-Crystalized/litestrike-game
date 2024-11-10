@@ -28,23 +28,39 @@ public class DebugCommands implements CommandExecutor {
 				return run_player_info(args, commandSender);
 			case "force_start":
 				return run_force_start(args, commandSender);
-			case "bomb_info":
-				return run_bomb_info(args, commandSender);
+
 			case "give_money":
 				return give_money(args, commandSender);
+
+			case "soundd":
+				return run_sound_info(args, commandSender);
 			default:
 				return false;
 		}
 	}
 
-	private boolean run_bomb_info(String[] args, CommandSender commandSender) {
-		if (Litestrike.getInstance().game_controller == null) {
-			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
-			return true;
+	private boolean run_sound_info(String[] args, CommandSender commandSender) {
+		if (args.length == 0) {
+			return false;
 		}
+		switch (args[0]) {
+			case "start_round":
+				SoundEffects.round_start();
+				break;
+			case "round_lost":
+				SoundEffects.round_lost(Bukkit.getServer());
+				break;
+			case "round_won":
+				SoundEffects.round_won(Bukkit.getServer());
+				break;
+			case "ally_death":
+				SoundEffects.ally_death(Bukkit.getServer());
+				break;
+			case "enemy_death":
+				SoundEffects.enemy_death(Bukkit.getServer());
+				break;
 
-		commandSender.sendMessage(Litestrike.getInstance().game_controller.bomb.toString());
-
+		}
 		return true;
 	}
 

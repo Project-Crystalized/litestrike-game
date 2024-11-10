@@ -13,11 +13,13 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import io.papermc.paper.entity.LookAnchor;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+
+import static net.kyori.adventure.text.Component.text;
 
 public class PlayerListener implements Listener {
 
@@ -31,8 +33,8 @@ public class PlayerListener implements Listener {
 		// the if condition checks if the player is rejoining
 		if (gc.teams.wasInitialPlayer(event.getPlayer().getName()) == null) {
 			// player isnt rejoining, so we dont allow join
-			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, Component.text("A game is already in Progress.\n")
-					.append(Component.text("If you see this message, it is likely a bug, pls report it to the admins")));
+			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, text("A game is already in Progress.\n")
+					.append(text("If you see this message, it is likely a bug, pls report it to the admins")));
 		}
 	}
 
@@ -46,6 +48,8 @@ public class PlayerListener implements Listener {
 		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
+		p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, true));
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
@@ -54,8 +58,13 @@ public class PlayerListener implements Listener {
 			p.setGameMode(GameMode.SPECTATOR);
 
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
+
+			// give player the scoreboard and bossbar again
+			ScoreboardController.give_player_scoreboard(p, should_be_team, Litestrike.getInstance().game_controller.teams);
+			Litestrike.getInstance().bbd.showBossBar();
+
 			if (should_be_team == null) {
-				p.kick(Component.text("a fatal logic error occured, pls report this as a bug"));
+				p.kick(text("a fatal logic error occured, pls report this as a bug"));
 				Bukkit.getLogger().severe("fatal logic error occured:" +
 						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
 			}
@@ -74,19 +83,6 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			e.setCancelled(true);
 			return;
-		}
-		if (!(e.getDamager() instanceof Player)) {
-			return;
-		}
-		if (!(e.getEntity() instanceof Player)) {
-			return;
-		}
-		Player damager = (Player) e.getDamager();
-		Player damage_receiver = (Player) e.getEntity();
-
-		// if both players arent in same team, cancel damage
-		if (gc.teams.get_team(damager) == gc.teams.get_team(damage_receiver)) {
-			e.setCancelled(true);
 		}
 	}
 
@@ -113,6 +109,9 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		e.setCancelled(true);
+		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+			return;
+		}
 		Player p = e.getPlayer();
 		// i have no idea if this cast is safe, we will see through playtesting
 		Player killer = (Player) e.getDamageSource().getCausingEntity();
@@ -126,24 +125,26 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(p).deaths += 1;
 		if (killer != null) {
 			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).addMoney(500, "For killing " + p.getName());
+			gc.getPlayerData(killer).addMoney(500, "ғᴏʀ ᴋɪʟʟɪɴɢ " + p.getName());
 		}
 
 		Team killed_team = gc.teams.get_team(p);
 
 		// send message
-		Component death_message = Component.text(p.getName() + " was killed");
+		Component death_message = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)))
+				.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
 		if (killer != null) {
-			death_message.append(Component.text("by " + killer.getName()));
+			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
+					.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
 		}
 		Bukkit.getServer().sendMessage(death_message);
 
 		// play sound
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (gc.teams.get_team(player) == killed_team) {
-				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.2f, 1f));
+				SoundEffects.ally_death(player);
 			} else {
-				player.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 0.5f, 1f));
+				SoundEffects.enemy_death(player);
 			}
 		}
 

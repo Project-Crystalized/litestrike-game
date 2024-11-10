@@ -6,6 +6,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 
+import static net.kyori.adventure.text.Component.text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,15 +15,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
-import net.kyori.adventure.text.Component;
 
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -29,38 +33,80 @@ import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 public class BombListener implements Listener {
 
 	// 5 seconds to place
-	final static int PLACE_TIME = (20 * 5);
+	final static int PLANT_TIME = (20 * 5);
 
 	// 7 seconds to break
 	final static int BREAK_TIME = (20 * 7);
 
-	int is_placing = 0;
+	int is_planting = 0;
 
-	int placing_counter = 0;
+	int planting_counter = 0;
 	int breaking_counter = 0;
 
 	Block last_planting_block;
 
-	List<Player> mining_players = new ArrayList<>();
+	BlockFace planting_face;
+
+	List<MiningPlayer> mining_players = new ArrayList<>();
+
+	BombModel bomb_model = new BombModel();
+
+	Player last_planting_player;
 
 	public BombListener() {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (is_placing > 0) {
-					// as long as we are placing/breaking, advance timer
-					placing_counter += 1;
+				GameController gc = Litestrike.getInstance().game_controller;
+				if (gc == null) {
+					return;
+				}
+
+				if (is_planting > 0) {
+					// as long as we are placing, advance timer
+					planting_counter += 1;
+					bomb_model.raise_bomb(planting_counter, planting_face);
+					if (planting_counter == PLANT_TIME) {
+						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
+						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
+						reset();
+						Litestrike.getInstance().game_controller.getPlayerData(last_planting_player).add_plant();
+					}
 				} else {
-					// else reset the timer
-					placing_counter = 0;
+					if (planting_counter > 1) {
+						Block bomb_block = last_planting_block.getRelative(planting_face);
+						SoundEffects.stop_planting(bomb_block.getX(), bomb_block.getY(), bomb_block.getZ());
+						bomb_model.remove();
+					}
+					planting_counter = 0;
 				}
 
 				// always decrease timer
-				is_placing -= 1;
+				is_planting -= 1;
+
+				////// BReaking from here ///////
+
+				List<MiningPlayer> remove_list = new ArrayList<>();
+				for (MiningPlayer mp : mining_players) {
+					mp.timer -= 1;
+					if (mp.timer == 0) {
+						remove_list.add(mp);
+					}
+				}
+				mining_players.removeAll(remove_list);
+				if (mining_players.size() == 0 && remove_list.size() != 0) {
+					bomb_model.stop_bomb_mining();
+				}
 
 				if (mining_players.size() > 0) {
-					Bukkit.getServer().sendMessage(Component.text("a player is mining"));
 					breaking_counter += 1;
+					if (breaking_counter == BREAK_TIME) {
+						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
+						b.is_broken = true;
+						Bukkit.getServer().sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
+						reset();
+						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
+					}
 				} else {
 					breaking_counter = 0;
 				}
@@ -70,68 +116,77 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent e) {
-		Bukkit.getServer().sendMessage(Component.text("received event"));
-
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (mining_players.contains(e.getPlayer()) ||
-				gc == null ||
+		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
+		if (gc == null ||
 				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
-				!(gc.bomb.bomb_loc instanceof PlacedBomb) ||
+				!(gc.bomb instanceof PlacedBomb) ||
+				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
 			return;
 		}
 
-		Bukkit.getServer().sendMessage(Component.text("got here"));
-
-		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
-		if (!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE)) {
-			return;
+		// if that player was already mining, return
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				return;
+			}
 		}
 
-		PlacedBomb pb = (PlacedBomb) gc.bomb.bomb_loc;
+		// if not mining the bomb, return
+		PlacedBomb pb = (PlacedBomb) gc.bomb;
 		if (!pb.block.equals(e.getBlock())) {
 			return;
 		}
 
-		mining_players.add(e.getPlayer());
+		mining_players.add(new MiningPlayer(e.getPlayer()));
+		bomb_model.bomb_mining();
+		SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
 	}
 
 	@EventHandler
 	public void onDamageAbort(BlockDamageAbortEvent e) {
-		mining_players.remove(e.getPlayer());
+		MiningPlayer to_remove = null;
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				to_remove = mp;
+				break;
+			}
+		}
+		if (to_remove != null) {
+			mining_players.remove(to_remove);
+			if (mining_players.size() == 0) {
+				bomb_model.stop_bomb_mining();
+			}
+		}
 	}
 
 	@EventHandler
 	public void onSwingArm(PlayerArmSwingEvent e) {
-		if (!mining_players.contains(e.getPlayer())) {
-			return;
-		}
-
-		e.getPlayer().sendActionBar(Component.text("Breaking progress: " + breaking_counter / 20));
-
-		if (breaking_counter == BREAK_TIME) {
-			Bomb b = Litestrike.getInstance().game_controller.bomb;
-			b.is_broken = true;
-
-			Bukkit.getServer().sendMessage(Component.text("The BOMB has been broken"));
-
-			reset();
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == e.getPlayer()) {
+				mp.timer = 2;
+				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
+				break;
+			}
 		}
 	}
 
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
-		Player p = e.getPlayer();
-		e.setCancelled(true);
+
+		if (e.getClickedBlock() != null) {
+			e.setCancelled(true);
+		}
+
 		if (Litestrike.getInstance().game_controller == null) {
 			return;
 		}
 
 		// uncancel the event when bomb is mined, so we get the BlockDamageEvent
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		if (b.bomb_loc instanceof PlacedBomb) {
-			PlacedBomb pb = (PlacedBomb) b.bomb_loc;
-			if (e.getClickedBlock() != null && e.getClickedBlock().equals(pb.block)) {
+		if (b instanceof PlacedBomb) {
+			if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb) b).block)) {
 				e.setCancelled(false);
 			}
 		}
@@ -140,7 +195,7 @@ public class BombListener implements Listener {
 				!e.getItem().equals(Bomb.bomb_item()) ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
 				e.getClickedBlock().getType() != Material.TERRACOTTA ||
-				!(Litestrike.getInstance().game_controller.bomb.bomb_loc instanceof InvItemBomb)) {
+				!(Litestrike.getInstance().game_controller.bomb instanceof InvItemBomb)) {
 			return;
 		}
 
@@ -149,20 +204,22 @@ public class BombListener implements Listener {
 			Bukkit.getLogger().severe("ERROR: A Breaker planted the bomb!");
 		}
 
-		is_placing = 4;
-		e.getPlayer().sendActionBar(Component.text("Placing progress: " + placing_counter / 20));
+		if (is_planting < 0) {
+			Block lpb = e.getClickedBlock();
+			SoundEffects.start_planting(lpb.getX(), lpb.getY(), lpb.getZ());
+			bomb_model.spawn_model(lpb.getLocation());
+		}
+		is_planting = 6;
+
+		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
+		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
 		if (!e.getClickedBlock().equals(last_planting_block)) {
-			placing_counter = 0;
+			reset();
 			last_planting_block = e.getClickedBlock();
 		}
-
-		if (placing_counter == PLACE_TIME) {
-			reset();
-			Block bomb_block = e.getClickedBlock().getRelative(e.getBlockFace());
-			Litestrike.getInstance().game_controller.bomb.place_bomb(bomb_block);
-		}
+		planting_face = e.getBlockFace();
 	}
 
 	@EventHandler
@@ -179,8 +236,17 @@ public class BombListener implements Listener {
 			return;
 		}
 		reset();
+		InvItemBomb ib = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
+		ib.drop_bomb(e.getItemDrop());
+	}
+
+	@EventHandler
+	public void onDeath(PlayerDeathEvent e) {
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		b.drop_bomb(e.getItemDrop());
+		if (b instanceof InvItemBomb && ((InvItemBomb) b).p_inv == e.getPlayer().getInventory()) {
+			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
+			((InvItemBomb) b).drop_bomb(i);
+		}
 	}
 
 	@EventHandler
@@ -192,16 +258,66 @@ public class BombListener implements Listener {
 		if (e.getEntity() instanceof Player
 				&& Litestrike.getInstance().game_controller.teams.get_team(e.getEntity().getName()) == Team.Placer) {
 			// if it got picked up by a player and that player is placer, then proceed
-			Bomb b = Litestrike.getInstance().game_controller.bomb;
 			Player p = (Player) e.getEntity();
-			b.give_bomb(p.getInventory());
+			Bomb.give_bomb(p.getInventory());
 		}
 	}
 
+	// renders the breakingprogres for the action bar
+	private String renderBreakingProgress() {
+		double percentage = (double) breaking_counter / (double) BREAK_TIME;
+		String s = "[";
+		boolean b = false;
+		for (double i = 0.1; i < 1; i += 0.1) {
+			if (b) {
+				s += " ";
+				continue;
+			}
+			if (i < percentage) {
+				s += "=";
+				continue;
+			}
+			s += ">";
+			b = true;
+		}
+		s += "]";
+		return s;
+	}
+
+	private String renderPlacingProgress() {
+		double percentage = (double) planting_counter / (double) PLANT_TIME;
+		String s = "[";
+		boolean b = false;
+		for (double i = 0.1; i < 1; i += 0.1) {
+			if (b) {
+				s += " ";
+				continue;
+			}
+			if (i < percentage) {
+				s += "=";
+				continue;
+			}
+			s += ">";
+			b = true;
+		}
+		s += "]";
+		return s;
+	}
+
 	private void reset() {
-		is_placing = 0;
-		placing_counter = 0;
+		is_planting = 0;
+		planting_counter = 0;
 		breaking_counter = 0;
 		mining_players.clear();
+		last_planting_block = null;
+	}
+}
+
+class MiningPlayer {
+	Player p;
+	int timer = 2;
+
+	public MiningPlayer(Player p) {
+		this.p = p;
 	}
 }

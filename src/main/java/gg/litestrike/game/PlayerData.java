@@ -1,7 +1,12 @@
 package gg.litestrike.game;
 
+import java.util.Comparator;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 
 public class PlayerData {
 
@@ -10,9 +15,26 @@ public class PlayerData {
 	public int kills = 0;
 	public int deaths = 0;
 	public int assists = 0;
+	private int total_money = 0;
+	private int plants = 0;
+	private int breaks = 0;
 
 	public PlayerData(Player p) {
 		player = p.getName();
+	}
+
+	public void add_break() {
+		breaks += 1;
+	}
+
+	public void add_plant() {
+		plants += 1;
+	}
+
+	// used for reseting money when switching teams
+	public void removeMoney() {
+		money = 0;
+		ScoreboardController.set_player_money(player, money);
 	}
 
 	public void addMoney(int amt, String reason) {
@@ -20,8 +42,13 @@ public class PlayerData {
 		if (p == null) {
 			return;
 		}
-		p.sendMessage("You received " + amt + "g. " + reason);
+		p.sendMessage(Component.text("ʏᴏᴜ ʀᴇᴄᴇɪᴠᴇᴅ ").color(Litestrike.YELLOW)
+				.append(Component.text(amt + "\uE104").color(TextColor.color(0x0ab1c4)))
+				.append(Component.text(" " + reason).color(Litestrike.YELLOW)));
 		money += amt;
+		total_money += amt;
+
+		ScoreboardController.set_player_money(player, money);
 	}
 	public static void addMoney(int amt, Player p){
 		if (p == null) {
@@ -37,6 +64,7 @@ public class PlayerData {
 			return false;
 		} else {
 			money -= amt;
+			ScoreboardController.set_player_money(player, money);
 			return true;
 		}
 	}
@@ -53,4 +81,14 @@ public class PlayerData {
 				"\n assists: " + assists;
 	}
 
+	public int calc_player_score() {
+		return 2 * kills + 3 * breaks + 3 * plants + assists;
+	}
+}
+
+class PlayerDataComparator implements Comparator<PlayerData> {
+	@Override
+	public int compare(PlayerData arg0, PlayerData arg1) {
+		return arg0.calc_player_score() - arg1.calc_player_score();
+	}
 }

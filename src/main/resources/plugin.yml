@@ -26,9 +26,9 @@ commands:
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
 
-  bomb_info:
-    description: "For debugging purposes, get all info about the bomb"
-    usage: "/bomb_info"
+  soundd:
+    description: "For debugging purposes, play a sound effect"
+    usage: "/soundd"
     aliases: []
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"

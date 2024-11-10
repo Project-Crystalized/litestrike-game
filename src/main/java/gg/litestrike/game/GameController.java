@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
@@ -10,6 +11,7 @@ import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -20,9 +22,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+
+import static net.kyori.adventure.text.Component.text;
 
 enum RoundState {
 	PreRound,
@@ -36,24 +40,29 @@ enum RoundState {
 public class GameController {
 	public Teams teams = new Teams();
 	public List<PlayerData> playerDatas;
+	public Bomb bomb;
 
 	private int current_round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
+
+	public List<Team> round_results = new ArrayList<>();
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
 	// determined its reset to 0 and counts until (5 * 20) for the postround time.
 	// then the next round starts and it counts from 0 again
-	private int phase_timer = 0;
+	public int phase_timer = 0;
 
 	// after this round, the sides get switched
-	private int switch_round = 4;
+	public final static int switch_round = 4;
 
-	public Bomb bomb = new Bomb();
-
-	// TODO store round winners
+	public final static int PRE_ROUND_TIME = (15 * 20);
+	public final static int RUNNING_TIME = (180 * 20);
+	public final static int POST_ROUND_TIME = (5 * 20);
+	public final static int FINISH_TIME = (20 * 20);
 
 	public GameController() {
+
 		new BukkitRunnable() {
 			@Override
 			public void run(){
@@ -68,14 +77,27 @@ public class GameController {
 			}
 		}.runTaskLater(Litestrike.getInstance(), 1);
 
+		// setup scoreboard and bossbar
+		ScoreboardController.setup_scoreboard(teams);
+		Litestrike.getInstance().bbd.showBossBar();
 
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				next_round();
+			}
+		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				Boolean game_over = update_game_state();
+				boolean game_over = update_game_state();
 				if (game_over) {
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						p.kick();
+					}
+					Litestrike.getInstance().game_controller = null;
 					cancel();
 				}
 			}
@@ -84,38 +106,38 @@ public class GameController {
 	}
 
 	// This is run every tick
-	private Boolean update_game_state() {
+	private boolean update_game_state() {
 		phase_timer += 1;
+
+		// if round_state is GameFinished then the podium is already running
+		if (check_if_podium_start() != null) {
+			start_podium(check_if_podium_start());
+		}
 
 		// this is like a state-machine, it will check the current state, check a
 		// condition, and
 		// if the condition is met, call a method to advance to the next state
 		switch (round_state) {
 			case RoundState.PreRound: {
-				if (phase_timer == (15 * 20)) {
+				if (phase_timer == PRE_ROUND_TIME) {
 					start_round();
 				}
 			}
 				break;
 			case RoundState.Running: {
 				if (determine_winner() != null) {
-					finish_round();
+					finish_round(determine_winner());
 				}
 			}
 				break;
 			case RoundState.PostRound: {
-				if (phase_timer == (5 * 20)) {
-					if (current_round_number == switch_round * 2) {
-						start_podium();
-					} else {
-						next_round();
-					}
+				if (phase_timer == POST_ROUND_TIME) {
+					next_round();
 				}
 			}
 				break;
 			case RoundState.GameFinished: {
-				if (phase_timer == (20 * 20)) {
-					finish_game();
+				if (phase_timer == FINISH_TIME) {
 					return true; // remove the update_game_state task
 				}
 			}
@@ -124,22 +146,56 @@ public class GameController {
 		return false;
 	}
 
+	// this checks if the podium should start
+	private Team check_if_podium_start() {
+
+		// if round_state is GameFinished then podium is already started
+		if  (round_state == RoundState.GameFinished) {
+			return null;
+		}
+
+		// end if a team has won
+		int placer_wins_amt = 0;
+		int breaker_wins_amt = 0;
+		for (gg.litestrike.game.Team w : round_results) {
+			if (w == gg.litestrike.game.Team.Placer) {
+				placer_wins_amt += 1;
+			} else {
+				breaker_wins_amt += 1;
+			}
+		}
+		
+		// if the enemy team is empty, or if the team has reached the required rounds, win
+		if (teams.get_placers().size() == 0 || breaker_wins_amt == switch_round + 1) {
+			return Team.Breaker;
+		}
+		if (teams.get_breakers().size() == 0 || placer_wins_amt == switch_round + 1) {
+			return Team.Placer;
+		}
+
+		// end if a team has reached the required wins
+		return null;
+	}
+
 	// this is called when we switch from PreRound to Running
 	private void start_round() {
 		round_state = RoundState.Running;
 		phase_timer = 0;
 
-		// play a sound and send messages to the teams
-		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
+		// send messages to the teams
 		if (current_round_number == 1) {
-			Audience.audience(teams.get_placers()).sendMessage(Component.text("You are a ")
-					.append(Litestrike.PLACER_TEXT)
-					.append(Component.text(
-							"\nGo with your team and place the bomb at one of the designated bomb sites!!\n Or kill the enemy Team!")));
-			Audience.audience(teams.get_breakers()).sendMessage(Component.text("You are a ")
+			for (Player p : teams.get_placers()) {
+				p.sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
+						.append(Litestrike.PLACER_TEXT)
+						.append(text(
+								"\n ɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n ᴏʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
+								.color(Litestrike.YELLOW)));
+			}
+			Audience.audience(teams.get_breakers()).sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
-					.append(Component.text(
-							"\nKill the Enemy team and prevent them from placing the bomb!\n If they place the bomb, break it.")));
+					.append(text(
+							"\n ᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
+							.color(Litestrike.YELLOW)));
 		}
 
 		// remove the border
@@ -151,14 +207,18 @@ public class GameController {
 	}
 
 	// this is called when we switch from Running to PostRound
-	private void finish_round() {
+	private void finish_round(Team winner) {
+		if (winner == null) {
+			Bukkit.getLogger().severe("critical error: finish_round() was called with null as input");
+		}
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
-		bomb.reset_bomb();
-		Team winner = determine_winner();
+		bomb.remove();
+		bomb = null;
 
-		// play sound
-		Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1));
+		round_results.add(winner);
+
+		ScoreboardController.set_win_display(round_results);
 
 		// announce winner
 		Component winner_component;
@@ -168,14 +228,18 @@ public class GameController {
 			winner_component = Litestrike.BREAKER_TEXT;
 		}
 		Bukkit.getServer()
-				.sendMessage(Component.text("The winner was the ").append(winner_component).append(Component.text(" team!")));
+				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
+						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(current_round_number))
+						.append(text("!\n").color(Litestrike.YELLOW)));
 
-		// give money
+		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(2000, "For winning the round!");
+				getPlayerData(p).addMoney(1000, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(1200, "For loosing the round.");
+				getPlayerData(p).addMoney(200, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
 			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
@@ -185,13 +249,28 @@ public class GameController {
 	}
 
 	// this is called when the last round is over and the podium should begin
-	private void start_podium() {
+	private void start_podium(Team team) {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
-		bomb.reset_bomb();
+		if (bomb != null) {
+			bomb.remove();
+			bomb = null;
+		}
 
-		Bukkit.getServer().sendMessage(Component.text("The Podium would start now, but it isnt implemented yet"));
+		World w = Bukkit.getWorld("world");
+
+		print_result_table(team);
+		teleport_players_podium(w);
 		// TODO
+		// SoundEffects.round_end_sound();
+
+		// summon fireworks after 5 secs
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				// summon firework
+			}
+		}.runTaskLater(Litestrike.getInstance(), (20 * 5));
 	};
 
 	// this is called when we go from PostRound to PreRound and when the first round
@@ -204,6 +283,24 @@ public class GameController {
 		World w = Bukkit.getWorld("world");
 		Location placer_spawn = Litestrike.getInstance().mapdata.get_placer_spawn(w);
 		Location breaker_spawn = Litestrike.getInstance().mapdata.get_breaker_spawn(w);
+
+		if (current_round_number == switch_round + 1) {
+			Bukkit.getServer().sendMessage(text("ꜱᴡɪᴛᴄʜɪɴɢ ꜱɪᴅᴇꜱ!!").color(Litestrike.YELLOW));
+			teams.switch_teams();
+			for (PlayerData pd : playerDatas) {
+				pd.removeMoney();
+			}
+			for (int i = 0; i < round_results.size(); i++) {
+				if (round_results.get(i) == Team.Placer) {
+					round_results.set(i, Team.Breaker);
+				} else {
+					round_results.set(i, Team.Placer);
+				}
+			}
+			ScoreboardController.setup_scoreboard(teams);
+			ScoreboardController.set_win_display(round_results);
+			// TODO shop clear inventory
+		}
 
 		// raise border
 		Litestrike.getInstance().mapdata.raiseBorder(w);
@@ -227,31 +324,33 @@ public class GameController {
 			p.setHealth(Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue());
 		}
 
+		// sound effect has a cooldown, so we call it here instead of in round_start
+		SoundEffects.round_start();
+
 		// give bomb to a random player
 		// generate int between 0 and placer teams size
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
-		bomb.give_bomb(teams.get_placers().get(random).getInventory());
+		Bomb.give_bomb(teams.get_placers().get(random).getInventory());
+
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			getPlayerData(p).addMoney(1000, "");
+		}
 
 		Shop.giveShop();
 
 	}
 
-	// is called when the game will be finished after the podium
-	private void finish_game() {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.kick();
-		}
-		Litestrike.getInstance().game_controller = null;
-	}
-
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
 	private Team determine_winner() {
-		if (bomb.is_detonated) {
-			return Team.Placer;
-		}
-		if (bomb.is_broken) {
-			return Team.Breaker;
+		if (bomb instanceof PlacedBomb) {
+			PlacedBomb pb = (PlacedBomb) bomb;
+			if (pb.is_detonated) {
+				return Team.Placer;
+			}
+			if (pb.is_broken) {
+				return Team.Breaker;
+			}
 		}
 
 		boolean all_breakers_dead = true;
@@ -267,12 +366,12 @@ public class GameController {
 		}
 
 		// if the bomb is Placed we skip the rest of the checks
-		if (bomb.bomb_loc instanceof PlacedBomb) {
+		if (bomb instanceof PlacedBomb) {
 			return null;
 		}
 
-		if (phase_timer == (120 * 20)) {
-			return Team.Placer;
+		if (phase_timer == RUNNING_TIME) {
+			return Team.Breaker;
 		}
 
 		// check if all placers are alive
@@ -297,7 +396,7 @@ public class GameController {
 				return pd;
 			}
 		}
-		Bukkit.getServer().sendMessage(Component.text("error occured, a player didnt have associated data"));
+		Bukkit.getServer().sendMessage(text("error occured, a player didnt have associated data"));
 		Bukkit.getLogger().warning("player name: " + p.getName());
 		Bukkit.getLogger().warning("known names: ");
 
@@ -306,5 +405,51 @@ public class GameController {
 		}
 
 		return null;
+	}
+
+	private void print_result_table(Team winner) {
+		Server s = Bukkit.getServer();
+		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
+		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ \uE100").color(NamedTextColor.GREEN));
+		Component winner_text = text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
+		if (winner == Team.Placer) {
+			s.sendMessage(winner_text.append(Litestrike.PLACER_TEXT));
+		} else {
+			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
+		}
+		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
+		
+		Collections.sort(playerDatas, new PlayerDataComparator());
+		s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
+			.append(text(playerDatas.get(0).player)).append(text())));
+		// TODO
+	}
+
+	// teleports players to the podium
+	private void teleport_players_podium(World w) {
+		MapData md = Litestrike.getInstance().mapdata;
+
+		if (md.podium == null) {
+			// dont teleport if there are no podium coordinates
+			return;
+		}
+		Collections.sort(playerDatas, new PlayerDataComparator());
+		for (int i = 0; i < playerDatas.size(); i++) {
+			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
+			switch (i) {
+				case 0:
+					p.teleport(md.podium.get_first(w));
+					break;
+				case 1:
+					p.teleport(md.podium.get_second(w));
+					break;
+				case 2:
+					p.teleport(md.podium.get_third(w));
+					break;
+				default:
+					p.teleport(md.podium.get_spawn(w));
+			}
+		}
+		
 	}
 }

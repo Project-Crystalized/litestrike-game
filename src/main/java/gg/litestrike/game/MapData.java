@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.block.Block;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -37,13 +38,14 @@ public class MapData implements Listener {
 	public final int border_height;
 
 	// toggelable map-specific features
-	public final Boolean jump_pads;
-	public final Boolean openable_doors;
+	public final boolean jump_pads;
+	public final boolean openable_doors;
 
 	// border gets placed 1 block above this block type
 	public final Material border_marker;
-
 	public final Material border_block_type;
+
+	public final PodiumData podium;
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
 
@@ -59,8 +61,8 @@ public class MapData implements Listener {
 		if (m.isBlock()) {
 			for (int[] b : border_blocks) {
 				for (int i = 0; i < border_height; i++) { // go until border_height
-					Block block = w.getBlockAt(b[0], b[1]+2+i, b[2]);
-					if (block.isEmpty() || block.getType() == border_block_type) {	// only replace empty, or border_block_type
+					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
+					if (block.isEmpty() || block.getType() == border_block_type) { // only replace empty, or border_block_type
 						block.setType(m);
 					}
 				}
@@ -102,6 +104,11 @@ public class MapData implements Listener {
 			String file_content = Files.readString(Paths.get("./world/map_config.json"));
 			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
 
+			JsonElement v = json.get("version");
+			if (v != null && v.getAsInt() != 2) {
+				throw new Exception("incorrect map_config.java file version, please update your map_config.json");
+			}
+
 			// pitch and yaw are not needed, as we just make players look at enemy spawn
 			JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();
 			this.placer_spawn = new double[] { p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(),
@@ -134,8 +141,15 @@ public class MapData implements Listener {
 			this.jump_pads = json.get("enable_jump_pads") != null;
 			this.openable_doors = json.get("enable_openable_doors") != null;
 
+			JsonObject jo_podium = json.getAsJsonObject("podium");
+			if (jo_podium != null) {
+				this.podium = new PodiumData(jo_podium);
+			} else {
+				this.podium = null;
+			}
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
+			e.printStackTrace();
 			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
 			// disable plugin when failure
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
@@ -164,7 +178,11 @@ public class MapData implements Listener {
 				"\nborder_block_type: " + this.border_block_type +
 				"\nenable_jump_pads: " + this.jump_pads +
 				"\nenable_openable_doors: " + this.openable_doors +
-				"\namount of known border blocks: " + this.border_blocks.size();
+				"\namount of known border blocks: " + this.border_blocks.size() +
+				"\n\npodium:\nspawn:" + Arrays.toString(this.podium.spawn) +
+				"\nfirst:" + Arrays.toString(this.podium.first) +
+				"\nsecond:" + Arrays.toString(this.podium.second) +
+				"\nthird:" + Arrays.toString(this.podium.third);
 	}
 
 	// if this returns true for a chunk, the chunk is searched for border blocks.
@@ -196,4 +214,45 @@ public class MapData implements Listener {
 		// if not in range of either, return false
 		return false;
 	};
+}
+
+class PodiumData {
+	public final double[] spawn;
+	public final double[] first;
+	public final double[] second;
+	public final double[] third;
+
+	public PodiumData(JsonObject jo) {
+		JsonArray j_spawn = jo.get("spawn").getAsJsonArray();
+		this.spawn = new double[] { j_spawn.get(0).getAsDouble(), j_spawn.get(1).getAsDouble(),
+				j_spawn.get(2).getAsDouble() };
+
+		JsonArray j_first = jo.get("first").getAsJsonArray();
+		this.first = new double[] { j_first.get(0).getAsDouble(), j_first.get(1).getAsDouble(),
+				j_first.get(2).getAsDouble() };
+
+		JsonArray j_second = jo.get("second").getAsJsonArray();
+		this.second = new double[] { j_second.get(0).getAsDouble(), j_second.get(1).getAsDouble(),
+				j_second.get(2).getAsDouble() };
+
+		JsonArray j_third = jo.get("third").getAsJsonArray();
+		this.third = new double[] { j_third.get(0).getAsDouble(), j_third.get(1).getAsDouble(),
+				j_third.get(2).getAsDouble() };
+	}
+
+	public Location get_spawn(World w) {
+		return new Location(w, spawn[0], spawn[1], spawn[2]);
+	}
+
+	public Location get_first(World w) {
+		return new Location(w, first[0], first[1], first[2]);
+	}
+
+	public Location get_second(World w) {
+		return new Location(w, second[0], second[1], second[2]);
+	}
+
+	public Location get_third(World w) {
+		return new Location(w, third[0], third[1], third[2]);
+	}
 }
