@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -9,6 +10,7 @@ import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -20,6 +22,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import io.papermc.paper.entity.LookAnchor;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -78,7 +82,7 @@ public class GameController {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				Boolean game_over = update_game_state();
+				boolean game_over = update_game_state();
 				if (game_over) {
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.kick();
@@ -92,28 +96,12 @@ public class GameController {
 	}
 
 	// This is run every tick
-	private Boolean update_game_state() {
+	private boolean update_game_state() {
 		phase_timer += 1;
 
-		// end if a team is empty
-		if ((teams.get_placers().size() == 0 || teams.get_breakers().size() == 0)
-				&& round_state != RoundState.GameFinished) {
-			start_podium();
-		}
-
-		// end if a team has won
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : round_results) {
-			if (w == gg.litestrike.game.Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
-		// end if a team has reached the required wins
-		if ((placer_wins_amt == switch_round + 1 || breaker_wins_amt == switch_round + 1) && round_state != RoundState.GameFinished) {
-			start_podium();
+		// if round_state is GameFinished then the podium is already running
+		if (check_if_podium_start() != null) {
+			start_podium(check_if_podium_start());
 		}
 
 		// this is like a state-machine, it will check the current state, check a
@@ -146,6 +134,37 @@ public class GameController {
 				break;
 		}
 		return false;
+	}
+
+	// this checks if the podium should start
+	private Team check_if_podium_start() {
+
+		// if round_state is GameFinished then podium is already started
+		if  (round_state == RoundState.GameFinished) {
+			return null;
+		}
+
+		// end if a team has won
+		int placer_wins_amt = 0;
+		int breaker_wins_amt = 0;
+		for (gg.litestrike.game.Team w : round_results) {
+			if (w == gg.litestrike.game.Team.Placer) {
+				placer_wins_amt += 1;
+			} else {
+				breaker_wins_amt += 1;
+			}
+		}
+		
+		// if the enemy team is empty, or if the team has reached the required rounds, win
+		if (teams.get_placers().size() == 0 || breaker_wins_amt == switch_round + 1) {
+			return Team.Breaker;
+		}
+		if (teams.get_breakers().size() == 0 || placer_wins_amt == switch_round + 1) {
+			return Team.Placer;
+		}
+
+		// end if a team has reached the required wins
+		return null;
 	}
 
 	// this is called when we switch from PreRound to Running
@@ -214,7 +233,7 @@ public class GameController {
 	}
 
 	// this is called when the last round is over and the podium should begin
-	private void start_podium() {
+	private void start_podium(Team team) {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
 		if (bomb != null) {
@@ -224,9 +243,10 @@ public class GameController {
 
 		World w = Bukkit.getWorld("world");
 
-		print_result_table();
-		teleport_players(w);
-		SoundEffects.round_end_sound();
+		print_result_table(team);
+		teleport_players_podium(w);
+		// TODO
+		// SoundEffects.round_end_sound();
 
 		// summon fireworks after 5 secs
 		new BukkitRunnable() {
@@ -402,7 +422,49 @@ public class GameController {
 		return null;
 	}
 
-	private void print_result_table() {
+	private void print_result_table(Team winner) {
+		Server s = Bukkit.getServer();
+		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
+		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ \uE100").color(NamedTextColor.GREEN));
+		Component winner_text = text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
+		if (winner == Team.Placer) {
+			s.sendMessage(winner_text.append(Litestrike.PLACER_TEXT));
+		} else {
+			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
+		}
+		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
+		
+		Collections.sort(playerDatas, new PlayerDataComparator());
+		s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
+			.append(text(playerDatas.get(0).player)).append(text())));
+		// TODO
+	}
 
+	// teleports players to the podium
+	private void teleport_players_podium(World w) {
+		MapData md = Litestrike.getInstance().mapdata;
+
+		if (md.podium == null) {
+			// dont teleport if there are no podium coordinates
+			return;
+		}
+		Collections.sort(playerDatas, new PlayerDataComparator());
+		for (int i = 0; i < playerDatas.size(); i++) {
+			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
+			switch (i) {
+				case 0:
+					p.teleport(md.podium.get_first(w));
+					break;
+				case 1:
+					p.teleport(md.podium.get_second(w));
+					break;
+				case 2:
+					p.teleport(md.podium.get_third(w));
+					break;
+				default:
+					p.teleport(md.podium.get_spawn(w));
+			}
+		}
+		
 	}
 }

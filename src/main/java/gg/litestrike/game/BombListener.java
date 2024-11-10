@@ -48,6 +48,8 @@ public class BombListener implements Listener {
 
 	BombModel bomb_model = new BombModel();
 
+	Player last_planting_player;
+
 	public BombListener() {
 		new BukkitRunnable() {
 			@Override
@@ -65,6 +67,7 @@ public class BombListener implements Listener {
 						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
 						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
 						reset();
+						Litestrike.getInstance().game_controller.getPlayerData(last_planting_player).add_plant();
 					}
 				} else {
 					if (planting_counter > 1) {
@@ -99,6 +102,7 @@ public class BombListener implements Listener {
 						b.is_broken = true;
 						Bukkit.getServer().sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
 						reset();
+						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
 					}
 				} else {
 					breaking_counter = 0;
@@ -204,6 +208,7 @@ public class BombListener implements Listener {
 		is_planting = 6;
 
 		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
+		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
 		if (!e.getClickedBlock().equals(last_planting_block)) {
@@ -259,7 +264,7 @@ public class BombListener implements Listener {
 		double percentage = (double) breaking_counter / (double) BREAK_TIME;
 		String s = "[";
 		boolean b = false;
-		for (double i = 0.1; i < 1; i+=0.1) {
+		for (double i = 0.1; i < 1; i += 0.1) {
 			if (b) {
 				s += " ";
 				continue;
@@ -279,7 +284,7 @@ public class BombListener implements Listener {
 		double percentage = (double) planting_counter / (double) PLANT_TIME;
 		String s = "[";
 		boolean b = false;
-		for (double i = 0.1; i < 1; i+=0.1) {
+		for (double i = 0.1; i < 1; i += 0.1) {
 			if (b) {
 				s += " ";
 				continue;

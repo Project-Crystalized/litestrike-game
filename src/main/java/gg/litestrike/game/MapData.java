@@ -38,8 +38,8 @@ public class MapData implements Listener {
 	public final int border_height;
 
 	// toggelable map-specific features
-	public final Boolean jump_pads;
-	public final Boolean openable_doors;
+	public final boolean jump_pads;
+	public final boolean openable_doors;
 
 	// border gets placed 1 block above this block type
 	public final Material border_marker;
