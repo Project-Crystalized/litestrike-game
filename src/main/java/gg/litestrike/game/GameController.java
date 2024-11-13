@@ -7,17 +7,12 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -45,7 +40,7 @@ public class GameController {
 	private int current_round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
 
-	public List<Team> round_results = new ArrayList<>();
+	public List<Team> round_results = new ArrayList<Team>();
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -65,7 +60,7 @@ public class GameController {
 
 		new BukkitRunnable() {
 			@Override
-			public void run(){
+			public void run() {
 				playerDatas = new ArrayList<PlayerData>();
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					PlayerData p = new PlayerData(player);
@@ -150,7 +145,7 @@ public class GameController {
 	private Team check_if_podium_start() {
 
 		// if round_state is GameFinished then podium is already started
-		if  (round_state == RoundState.GameFinished) {
+		if (round_state == RoundState.GameFinished) {
 			return null;
 		}
 
@@ -164,8 +159,9 @@ public class GameController {
 				breaker_wins_amt += 1;
 			}
 		}
-		
-		// if the enemy team is empty, or if the team has reached the required rounds, win
+
+		// if the enemy team is empty, or if the team has reached the required rounds,
+		// win
 		if (teams.get_placers().size() == 0 || breaker_wins_amt == switch_round + 1) {
 			return Team.Breaker;
 		}
@@ -201,7 +197,7 @@ public class GameController {
 		// remove the border
 		Litestrike.getInstance().mapdata.lowerBorder(Bukkit.getWorld("world"));
 
-		for(Player p : Bukkit.getOnlinePlayers()){
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop.removeShop(p);
 		}
 	}
@@ -261,8 +257,7 @@ public class GameController {
 
 		print_result_table(team);
 		teleport_players_podium(w);
-		// TODO
-		// SoundEffects.round_end_sound();
+		SoundEffects.round_end_sound();
 
 		// summon fireworks after 5 secs
 		new BukkitRunnable() {
@@ -317,7 +312,7 @@ public class GameController {
 
 		// heal and set everyone to survival
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if(p.getGameMode() == GameMode.SPECTATOR){
+			if (p.getGameMode() == GameMode.SPECTATOR) {
 				Shop.giveDefaultArmor(p);
 			}
 			p.setGameMode(GameMode.SURVIVAL);
@@ -418,11 +413,21 @@ public class GameController {
 			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
 		}
 		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
-		
+
 		Collections.sort(playerDatas, new PlayerDataComparator());
+		PlayerData first = playerDatas.get(0);
 		s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
-			.append(text(playerDatas.get(0).player)).append(text())));
-		// TODO
+				.append(text(first.player)).append(text(" ".repeat(20 - first.player.length())))
+				.append(text(first.kills + " / " + first.deaths + " / " + first.assists))));
+		PlayerData second = playerDatas.get(1);
+		s.sendMessage(text("   2nd. ").color(NamedTextColor.YELLOW)
+				.append(text(second.player)).append(text(" ".repeat(20 - second.player.length())))
+				.append(text(second.kills + " / " + second.deaths + " / " + second.assists)));
+		PlayerData third = playerDatas.get(2);
+		s.sendMessage(text("   3rd. ").color(NamedTextColor.YELLOW)
+				.append(text(third.player)).append(text(" ".repeat(20 - third.player.length())))
+				.append(text(third.kills + " / " + third.deaths + " / " + third.assists)));
+		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
 	}
 
 	// teleports players to the podium
@@ -450,6 +455,6 @@ public class GameController {
 					p.teleport(md.podium.get_spawn(w));
 			}
 		}
-		
+
 	}
 }

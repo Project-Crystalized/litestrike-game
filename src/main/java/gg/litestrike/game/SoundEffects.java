@@ -137,11 +137,11 @@ public class SoundEffects {
 					case 12:
 					case 13:
 					case 14:
-					Bukkit.getServer()
-						.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.AMBIENT, 1f, 0.5f));
-					Bukkit.getServer()
-						.playSound(Sound.sound(Key.key("block.note_block.chime"), Sound.Source.AMBIENT, 1f, 0.5f));
-					bomb_particles(loc);
+						Bukkit.getServer()
+								.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.AMBIENT, 1f, 0.5f));
+						Bukkit.getServer()
+								.playSound(Sound.sound(Key.key("block.note_block.chime"), Sound.Source.AMBIENT, 1f, 0.5f));
+						bomb_particles(loc);
 				}
 				timer += 1;
 				if (timer > 20) {
@@ -252,6 +252,10 @@ public class SoundEffects {
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
+	}
+
+	public static void round_end_sound() {
+		// TODO maybe a trumped sound similar to tubnet
 	}
 
 }

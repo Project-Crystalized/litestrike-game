@@ -49,7 +49,7 @@ public class Teams {
 		return placer_list;
 	}
 
-	public static List<Player> get_breakers() {
+	public List<Player> get_breakers() {
 		List<Player> breaker_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (breakers.contains(p.getName()) && p.isConnected()) {
@@ -79,7 +79,7 @@ public class Teams {
 		return null;
 	}
 
-	public static Team get_team(Player p) {
+	public Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
 		}
