@@ -1,8 +1,5 @@
 package gg.litestrike.game;
 
-import java.util.logging.Level;
-
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -16,14 +13,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
-import org.jetbrains.annotations.NotNull;
 
 enum Team {
 	Placer,
 	Breaker,
 }
 
-public final class Litestrike extends JavaPlugin implements Listener{
+public final class Litestrike extends JavaPlugin implements Listener {
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -123,19 +119,22 @@ public final class Litestrike extends JavaPlugin implements Listener{
 		w.setGameRule(GameRule.MOB_GRIEFING, false);
 		w.setGameRule(GameRule.DO_FIRE_TICK, false);
 		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 
 		// /gamerule spawnChunkRadius needs to be set to 0 before world load,
 		// otherwise the border detection can fail.
 		// so we set it to 0 and disable the plugin if it wasnt at 0 already
 		/*
-		if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
-			Bukkit.getLogger().log(Level.SEVERE,
-					"LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!");
-			Bukkit.getLogger().log(Level.SEVERE,
-					"LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs.");
-			w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
-			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-		}
+		 * if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
+		 * Bukkit.getLogger().log(Level.SEVERE,
+		 * "LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!"
+		 * );
+		 * Bukkit.getLogger().log(Level.SEVERE,
+		 * "LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs."
+		 * );
+		 * w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+		 * Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+		 * }
 		 */
 	}
 }

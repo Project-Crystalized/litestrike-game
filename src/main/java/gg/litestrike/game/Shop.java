@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
-import static org.bukkit.Material.EMERALD;
 
 public class Shop implements InventoryHolder {
 	public List<LSItem> shopItems;
@@ -32,6 +31,8 @@ public class Shop implements InventoryHolder {
 		if (p == null) {
 			return;
 		}
+
+		shopList.put(p.getName(), this);
 		shopItems = LSItem.createItems();
 		player = p;
 		currentView = Bukkit.getServer().createInventory(this, 54, title(p));
@@ -72,8 +73,24 @@ public class Shop implements InventoryHolder {
 				case "[Iron Chestplate]": {
 					i.setItem(40, item.displayItem);
 				}
-				case "[Crossbow]": {
+				case "[Quickdraw Crossbow]": {
+					i.setItem(24, item.displayItem);
+				}
+				case "[Pufferfish Sword]": {
+					i.setItem(18, item.displayItem);
+				}
+				case "[Slime Sword]": {
+					i.setItem(20, item.displayItem);
+				}
+				case "[Multishot Crossbow]": {
+					p.sendMessage("set multishot crossbow");
 					i.setItem(26, item.displayItem);
+				}
+				case "[Marksman Bow]": {
+					i.setItem(6, item.displayItem);
+				}
+				case "[Ricochet Bow]": {
+					i.setItem(20, item.displayItem);
 				}
 			}
 		}
@@ -107,12 +124,8 @@ public class Shop implements InventoryHolder {
 
 	public static void giveShop() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.getInventory().addItem(new ItemStack(EMERALD));
+			p.getInventory().addItem(new ItemStack(Material.EMERALD, 1));
 		}
-	}
-
-	public static void createShop(Player p) {
-		shopList.put(p.getName(), new Shop(p));
 	}
 
 	public static int findInvIndex(Player p, LSItem item) {
@@ -162,11 +175,15 @@ public class Shop implements InventoryHolder {
 
 	public static boolean alreadyHasThis(Player p, ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
-			ItemStack it = p.getInventory().getItem(i);
+			Component it = p.getInventory().getItem(i).displayName();
 			if (it == null) {
 				continue;
 			}
-			if (it.getType() == item.getType()) {
+			Component ite = item.displayName();
+			PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
+			String itName = plainSerializer.serialize(it);
+			String iteName = plainSerializer.serialize(ite);
+			if (itName.equals(iteName)) {
 				return true;
 			}
 		}

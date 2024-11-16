@@ -120,6 +120,7 @@ public class PlayerListener implements Listener {
 		// reset killed player
 		p.setGameMode(GameMode.SPECTATOR);
 		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		p.getInventory().clear();
 
 		// give death/kill and money
 		gc.getPlayerData(p).deaths += 1;

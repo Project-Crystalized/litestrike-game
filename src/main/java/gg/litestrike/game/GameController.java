@@ -66,7 +66,7 @@ public class GameController {
 					PlayerData p = new PlayerData(player);
 					playerDatas.add(p);
 					Shop.giveDefaultArmor(player);
-					Shop.createShop(player);
+					new Shop(player);
 				}
 				next_round();
 			}
@@ -75,13 +75,6 @@ public class GameController {
 		// setup scoreboard and bossbar
 		ScoreboardController.setup_scoreboard(teams);
 		Litestrike.getInstance().bbd.showBossBar();
-
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				next_round();
-			}
-		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		// This just calls update_game_state() once every second
 		new BukkitRunnable() {

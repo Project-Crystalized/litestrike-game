@@ -57,6 +57,9 @@ public interface Bomb {
 		if (b instanceof InvItemBomb || b instanceof PlacedBomb) {
 			// bomb was in a invalid state
 			Bukkit.getLogger().severe("ERROR: bomb got given while already placed or in inv. Check the Bomb Logic!");
+			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+				Bukkit.getLogger().severe(ste.toString());
+			}
 		}
 
 		if (b != null) {
