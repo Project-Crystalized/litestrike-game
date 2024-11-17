@@ -22,9 +22,10 @@ public class LSItem {
 	public final int price;
 	public final String name;
 	public final Integer model;
+	public final Integer slot;
 
 	public final Enchantment enchant;
-	public final Integer pow;
+	private final Integer pow;
 
 	public enum ItemCategory {
 		Melee,
@@ -37,8 +38,8 @@ public class LSItem {
 
 	public final ItemCategory categ;
 
-	public LSItem(ItemStack item, ItemStack displayItem, int price, String description, ItemCategory cate, String name,
-			Enchantment enchant, Integer pow, Integer model) {
+	public LSItem(ItemStack item, ItemStack displayItem, int price, String description, ItemCategory cate, String name, Enchantment enchant,
+		Integer pow, Integer model, Integer slot) {
 		this.item = item;
 		this.displayItem = displayItem;
 		this.price = price;
@@ -48,6 +49,7 @@ public class LSItem {
 		this.enchant = enchant;
 		this.pow = pow;
 		this.model = model;
+		this.slot = slot;
 	}
 
 	public static List<LSItem> createItems() {
@@ -61,37 +63,37 @@ public class LSItem {
 		 */
 
 		LSItem diamondChestplate = new LSItem(new ItemStack(Material.DIAMOND_CHESTPLATE),
-				new ItemStack(Material.DIAMOND_CHESTPLATE), 500, null, ItemCategory.Armor, null, PROTECTION, 1, null);
+				new ItemStack(Material.DIAMOND_CHESTPLATE), 500, null, ItemCategory.Armor, null, PROTECTION, 1, null, 31);
 		LSItem ironSword = new LSItem(new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD), 750,
-				"stab stab", ItemCategory.Melee, null, null, null, null);
+				"stab stab", ItemCategory.Melee, null, null, null, null, 0);
 		LSItem stoneSword = new LSItem(new ItemStack(Material.STONE_SWORD), new ItemStack(Material.IRON_SWORD), 0, null,
-				ItemCategory.Melee, null, null, null, null);
+				ItemCategory.Melee, null, null, null, null, null);
 		LSItem ironAxe = new LSItem(new ItemStack(Material.IRON_AXE), new ItemStack(Material.IRON_AXE), 1750, null,
-				ItemCategory.Melee, null, null, null, null);
+				ItemCategory.Melee, null, null, null, null, 2);
 		LSItem bow = new LSItem(new ItemStack(Material.BOW), new ItemStack(Material.BOW), 0, null, ItemCategory.Range, null,
-				null, null, null);
+				null, null, null, null);
 		LSItem arrow = new LSItem(new ItemStack(Material.ARROW, 6), new ItemStack(Material.ARROW, 6), 100, null,
-				ItemCategory.Ammunition, null, null, null, null);
+				ItemCategory.Ammunition, null, null, null, null, 50);
 		LSItem defuser = new LSItem(new ItemStack(Material.IRON_PICKAXE), new ItemStack(Material.IRON_PICKAXE), 100,
-				"Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser, "Defuser", null, null, null);
+				"Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser, "Defuser", null, null, null, null);
 		LSItem pickaxe = new LSItem(new ItemStack(Material.STONE_PICKAXE), new ItemStack(Material.STONE_PICKAXE), 0, null,
-				ItemCategory.Defuser, null, null, null, null);
+				ItemCategory.Defuser, null, null, null, null, null);
 		LSItem gapple = new LSItem(new ItemStack(Material.GOLDEN_APPLE), new ItemStack(Material.GOLDEN_APPLE), 500, null,
-				ItemCategory.Consumable, null, null, null, null);
+				ItemCategory.Consumable, null, null, null, null, 49);
 		LSItem ironChestplate = new LSItem(new ItemStack(Material.IRON_CHESTPLATE), new ItemStack(Material.IRON_CHESTPLATE),
-				250, null, ItemCategory.Armor, null, PROTECTION, 1, null);
+				250, null, ItemCategory.Armor, null, PROTECTION, 1, null, 40);
 		LSItem quickdraw = new LSItem(new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), 2000,
-				"A crossbow that draws lightning fast.", ItemCategory.Range, "Quickdraw Crossbow", QUICK_CHARGE, 1, 2);
+				"A crossbow that draws lightning fast.", ItemCategory.Range, "Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
 		LSItem pufferFish = new LSItem(new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD), 1250,
-				"Adds poison 1 to the player when hit.", ItemCategory.Melee, "Pufferfish Sword", null, null, 2);
+				"Adds poison 1 to the player when hit.", ItemCategory.Melee, "Pufferfish Sword", null, null, 2, 18);
 		LSItem slimeSword = new LSItem(new ItemStack(Material.IRON_SWORD), new ItemStack(Material.IRON_SWORD), 1000,
-				"Adds slowness 1 to the player when hit.", ItemCategory.Melee, "Slime Sword", KNOCKBACK, 1, 1);
+				"Adds slowness 1 to the player when hit.", ItemCategory.Melee, "Slime Sword", KNOCKBACK, 1, 1, 20);
 		LSItem marksman = new LSItem(new ItemStack(Material.BOW), new ItemStack(Material.BOW), 750, null,
-				ItemCategory.Range, "Marksman Bow", POWER, 1, 1);
+				ItemCategory.Range, "Marksman Bow", POWER, 1, 1, 6);
 		LSItem ricochet = new LSItem(new ItemStack(Material.BOW), new ItemStack(Material.BOW), 1500,
-				"A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow", PUNCH, 1, 2);
+				"A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow", PUNCH, 1, 2, 8);
 		LSItem multishot = new LSItem(new ItemStack(Material.CROSSBOW), new ItemStack(Material.CROSSBOW), 2000,
-				"A crossbow that shoots multiple arrows.", ItemCategory.Range, "Multishot Crossbow", MULTISHOT, 1, 1);
+				"A crossbow that shoots multiple arrows.", ItemCategory.Range, "Multishot Crossbow", MULTISHOT, 1, 1, 26);
 
 		List<LSItem> lsItems = new ArrayList<>();
 

@@ -177,6 +177,9 @@ public class ScoreboardController {
 
 	public static void set_player_money(String player, int money) {
 		Player p = Bukkit.getPlayer(player);
+		if (p == null) {
+			return;
+		}
 		Scoreboard sb = p.getScoreboard();
 		Team money_count = sb.getTeam("money_count");
 		if (money_count == null) {

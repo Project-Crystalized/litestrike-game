@@ -202,8 +202,10 @@ public class GameController {
 		}
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
-		bomb.remove();
-		bomb = null;
+		if (bomb != null) {
+			bomb.remove();
+			bomb = null;
+		}
 
 		round_results.add(winner);
 
@@ -408,19 +410,25 @@ public class GameController {
 		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
 
 		Collections.sort(playerDatas, new PlayerDataComparator());
-		PlayerData first = playerDatas.get(0);
-		s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
-				.append(text(first.player)).append(text(" ".repeat(20 - first.player.length())))
-				.append(text(first.kills + " / " + first.deaths + " / " + first.assists))));
-		PlayerData second = playerDatas.get(1);
-		s.sendMessage(text("   2nd. ").color(NamedTextColor.YELLOW)
-				.append(text(second.player)).append(text(" ".repeat(20 - second.player.length())))
-				.append(text(second.kills + " / " + second.deaths + " / " + second.assists)));
-		PlayerData third = playerDatas.get(2);
-		s.sendMessage(text("   3rd. ").color(NamedTextColor.YELLOW)
-				.append(text(third.player)).append(text(" ".repeat(20 - third.player.length())))
-				.append(text(third.kills + " / " + third.deaths + " / " + third.assists)));
-		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
+		if (playerDatas.size() > 0) {
+			PlayerData first = playerDatas.get(0);
+			s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
+					.append(text(first.player)).append(text(" ".repeat(20 - first.player.length())))
+					.append(text(first.kills + " / " + first.deaths + " / " + first.assists))));
+		}
+		if (playerDatas.size() > 1) {
+			PlayerData second = playerDatas.get(1);
+			s.sendMessage(text("   2nd. ").color(NamedTextColor.YELLOW)
+					.append(text(second.player)).append(text(" ".repeat(20 - second.player.length())))
+					.append(text(second.kills + " / " + second.deaths + " / " + second.assists)));
+		}
+		if (playerDatas.size() > 2) {
+			PlayerData third = playerDatas.get(2);
+			s.sendMessage(text("   3rd. ").color(NamedTextColor.YELLOW)
+					.append(text(third.player)).append(text(" ".repeat(20 - third.player.length())))
+					.append(text(third.kills + " / " + third.deaths + " / " + third.assists)));
+			s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
+		}
 	}
 
 	// teleports players to the podium

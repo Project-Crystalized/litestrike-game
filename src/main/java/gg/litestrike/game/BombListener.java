@@ -101,8 +101,8 @@ public class BombListener implements Listener {
 						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
 						b.is_broken = true;
 						Bukkit.getServer().sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
-						reset();
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
+						reset();
 					}
 				} else {
 					breaking_counter = 0;
@@ -172,7 +172,7 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
 
-		if (e.getClickedBlock() != null) {
+		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
 			e.setCancelled(true);
 		}
 

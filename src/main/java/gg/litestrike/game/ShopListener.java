@@ -3,14 +3,13 @@ package gg.litestrike.game;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -23,7 +22,6 @@ public class ShopListener implements Listener {
 
 	@EventHandler
 	public void openShop(PlayerInteractEvent event) {
-		event.setCancelled(false);
 		Player p = event.getPlayer();
 		Shop s = Shop.getShop(p);
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
@@ -39,294 +37,46 @@ public class ShopListener implements Listener {
 	public void buyItem(InventoryClickEvent event) {
 		Player p = (Player) event.getWhoClicked();
 		Shop s = Shop.getShop(p);
-		Inventory v = s.currentView;
 		if (event.getCurrentItem() == null) {
 			return;
 		}
-		/*
-		 * if(event.getInventory() == v && event.getView().getBottomInventory() ==
-		 * p.getInventory()){
-		 * event.setCancelled(true);
-		 * undoBuy(event.getCurrentItem(), p, event.getSlot());
-		 * return;
-		 * }
-		 *
-		 */
-		if (event.getInventory() == v) {
-			event.setCancelled(true);
-			String mess = "Can't afford item";
-			String mess2 = "You already have this item";
-			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
-			Component itemDisplayName = event.getCurrentItem().displayName();
-			PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
-			String itemName = plainSerializer.serialize(itemDisplayName);
+		if (event.getInventory() != s.currentView) {
+			return;
+		}
+		event.setCancelled(true);
+		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 
-			switch (itemName) {
-
-				case "[Diamond Chestplate]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(0).item)) {
-						if (pd.removeMoney(s.shopItems.get(0).price)) {
-							event.getWhoClicked().getInventory().setChestplate(s.shopItems.get(0).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(0));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Iron Chestplate]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(9).item)) {
-						if (pd.removeMoney(s.shopItems.get(9).price)) {
-							event.getWhoClicked().getInventory().setChestplate(s.shopItems.get(9).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(9));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Iron Sword]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(1).item)) {
-						if (pd.removeMoney(s.shopItems.get(1).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(1)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(1).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(1)),
-									s.shopItems.get(1).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(1));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-
-				case "[Iron Axe]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(3).item)) {
-						if (pd.removeMoney(s.shopItems.get(3).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(3)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(3).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(3)),
-									s.shopItems.get(3).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(3));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-
-				case "[Arrow]": {
-					if (pd.removeMoney(s.shopItems.get(5).price)) {
-						event.getWhoClicked().getInventory().addItem(s.shopItems.get(5).item);
-						p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-						s.updateTitle(p);
-						s.buyHistory.add(s.shopItems.get(5));
-					} else {
-						p.sendMessage(Component.text(mess).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Iron Pickaxe]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(6).item)) {
-						if (pd.removeMoney(s.shopItems.get(6).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(6)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(6).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(6)),
-									s.shopItems.get(6).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(6));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Golden Apple]": {
-					if (pd.removeMoney(s.shopItems.get(8).price)) {
-						event.getWhoClicked().getInventory().addItem(s.shopItems.get(8).item);
-						p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-						s.updateTitle(p);
-						s.buyHistory.add(s.shopItems.get(8));
-					} else {
-						p.sendMessage(Component.text(mess).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Quickdraw Crossbow]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(10).item)) {
-						if (pd.removeMoney(s.shopItems.get(10).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(10)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(10).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(10)),
-									s.shopItems.get(10).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(10));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Pufferfish Sword]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(11).item)) {
-						if (pd.removeMoney(s.shopItems.get(11).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(11)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(11).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(11)), s.shopItems.get(11).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(11));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Slime Sword]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(12).item)) {
-						if (pd.removeMoney(s.shopItems.get(12).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(12)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(12).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(12)), s.shopItems.get(12).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(12));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Multishot Crossbow]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(15).item)) {
-						if (pd.removeMoney(s.shopItems.get(15).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(15)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(15).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(15)), s.shopItems.get(15).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(15));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Marksman Bow]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(13).item)) {
-						if (pd.removeMoney(s.shopItems.get(13).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(13)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(13).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(13)), s.shopItems.get(13).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(13));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
-				case "[Ricochet Bow]": {
-					if (!Shop.alreadyHasThis(p, s.shopItems.get(14).item)) {
-						if (pd.removeMoney(s.shopItems.get(14).price)) {
-							if (Shop.findInvIndex(p, s.shopItems.get(14)) == -1) {
-								p.getInventory().addItem(s.shopItems.get(14).item);
-								p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-								return;
-							}
-							event.getWhoClicked().getInventory().setItem(Shop.findInvIndex(p, s.shopItems.get(14)), s.shopItems.get(14).item);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-							s.updateTitle(p);
-							s.buyHistory.add(s.shopItems.get(14));
-						} else {
-							p.sendMessage(Component.text(mess).color(RED));
-							p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-						}
-					} else {
-						p.sendMessage(Component.text(mess2).color(RED));
-						p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
-					}
-					return;
-				}
+		for (LSItem lsitem : s.shopItems) {
+			if (lsitem.slot == null || lsitem.slot != event.getSlot()) {
+				continue;
 			}
 
+			// if the item is not ammuntion and also not a consumable and we already have
+			// it, then we cant but it
+			if (lsitem.categ != LSItem.ItemCategory.Ammunition && lsitem.categ != LSItem.ItemCategory.Consumable
+					&& Shop.alreadyHasThis(p, lsitem.item)) {
+				p.sendMessage(Component.text("You already have this item").color(RED));
+				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+				return;
+			}
+			// check that we have enough money
+			if (!pd.removeMoney(lsitem.price)) {
+				p.sendMessage(Component.text("Cant afford this").color(RED));
+				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+				return;
+			}
+
+			if (lsitem.categ == LSItem.ItemCategory.Armor) {
+				p.getInventory().setChestplate(lsitem.item);
+			} else if (Shop.findInvIndex(p, lsitem) == -1) {
+				p.getInventory().addItem(lsitem.item);
+			} else {
+				p.getInventory().setItem(Shop.findInvIndex(p, lsitem), lsitem.item);
+			}
+			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
+			s.updateTitle(p);
+			s.buyHistory.add(lsitem);
+			return;
 		}
 	}
 

@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
@@ -51,47 +50,8 @@ public class Shop implements InventoryHolder {
 		Shop s = getShop(p);
 		Inventory i = s.currentView;
 		for (LSItem item : ware) {
-			Component itemDisplayName = item.item.displayName();
-			PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
-			String itemName = plainSerializer.serialize(itemDisplayName);
-			switch (itemName) {
-				case "[Diamond Chestplate]": {
-					i.setItem(31, item.displayItem);
-				}
-				case "[Iron Sword]": {
-					i.setItem(0, item.displayItem);
-				}
-				case "[Iron Axe]": {
-					i.setItem(2, item.displayItem);
-				}
-				case "[Arrow]": {
-					i.setItem(50, item.displayItem);
-				}
-				case "[Golden Apple]": {
-					i.setItem(49, item.displayItem);
-				}
-				case "[Iron Chestplate]": {
-					i.setItem(40, item.displayItem);
-				}
-				case "[Quickdraw Crossbow]": {
-					i.setItem(24, item.displayItem);
-				}
-				case "[Pufferfish Sword]": {
-					i.setItem(18, item.displayItem);
-				}
-				case "[Slime Sword]": {
-					i.setItem(20, item.displayItem);
-				}
-				case "[Multishot Crossbow]": {
-					p.sendMessage("set multishot crossbow");
-					i.setItem(26, item.displayItem);
-				}
-				case "[Marksman Bow]": {
-					i.setItem(6, item.displayItem);
-				}
-				case "[Ricochet Bow]": {
-					i.setItem(20, item.displayItem);
-				}
+			if (item.slot != null) {
+				i.setItem(item.slot, item.displayItem);
 			}
 		}
 	}
@@ -135,7 +95,7 @@ public class Shop implements InventoryHolder {
 			if (it == null) {
 				continue;
 			}
-			if (Objects.equals(LSItem.getItemCategory(it), cate)) {
+			if (LSItem.getItemCategory(it).equals(cate)) {
 				return i;
 			}
 		}
@@ -175,6 +135,9 @@ public class Shop implements InventoryHolder {
 
 	public static boolean alreadyHasThis(Player p, ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
+			if (p.getInventory().getItem(i) == null) {
+				continue;
+			}
 			Component it = p.getInventory().getItem(i).displayName();
 			if (it == null) {
 				continue;
