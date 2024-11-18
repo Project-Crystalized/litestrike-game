@@ -16,7 +16,6 @@ import net.kyori.adventure.text.Component;
 
 public class DebugCommands implements CommandExecutor {
 
-	// This handles the /mapdata command
 	@Override
 	public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
 			@NotNull String[] args) {
@@ -28,10 +27,6 @@ public class DebugCommands implements CommandExecutor {
 				return run_player_info(args, commandSender);
 			case "force_start":
 				return run_force_start(args, commandSender);
-
-			case "give_money":
-				return give_money(args, commandSender);
-
 			case "soundd":
 				return run_sound_info(args, commandSender);
 			default:
@@ -40,9 +35,14 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_sound_info(String[] args, CommandSender commandSender) {
+		Shop s = Shop.getShop((Player) commandSender);
+		for (LSItem lsi : s.buyHistory) {
+			Bukkit.getServer().sendMessage(lsi.displayItem.displayName());
+		}
 		if (args.length == 0) {
 			return false;
 		}
+
 		switch (args[0]) {
 			case "start_round":
 				SoundEffects.round_start();
@@ -128,12 +128,4 @@ public class DebugCommands implements CommandExecutor {
 		return true;
 
 	}
-	private boolean give_money(String[] args, CommandSender commandsender){
-		if(commandsender instanceof Player){
-			Player p = (Player) commandsender;
-			Litestrike.getInstance().game_controller.getPlayerData(p).addMoney(1000, "debuging");
-		}
-		return true;
-	}
-
 }

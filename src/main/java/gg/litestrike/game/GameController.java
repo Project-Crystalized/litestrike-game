@@ -234,13 +234,14 @@ public class GameController {
 			}
 			Shop s = Shop.getShop(p);
 			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
-			Shop.setItems(p, s.shopItems);
-			Shop.setDefuser(p);
+			s.setItems(s.shopItems);
+			s.setDefuser();
+			s.shopItems.add(null);
 		}
 	}
 
 	// this is called when the last round is over and the podium should begin
-	private void start_podium(Team team) {
+	private void start_podium(Team winner) {
 		round_state = RoundState.GameFinished;
 		phase_timer = 0;
 		if (bomb != null) {
@@ -250,9 +251,10 @@ public class GameController {
 
 		World w = Bukkit.getWorld("world");
 
-		print_result_table(team);
+		print_result_table(winner);
 		teleport_players_podium(w);
 		SoundEffects.round_end_sound();
+		LsDatabase.save_game(winner);
 
 		// summon fireworks after 5 secs
 		new BukkitRunnable() {

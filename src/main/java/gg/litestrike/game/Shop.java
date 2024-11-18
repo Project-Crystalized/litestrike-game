@@ -43,23 +43,22 @@ public class Shop implements InventoryHolder {
 		return shopList.get(p.getName());
 	}
 
-	public static void setItems(Player p, List<LSItem> ware) {
-		for (LSItem i : ware) {
-			LSItem.updateDescription(p, i);
-		}
-		Shop s = getShop(p);
-		Inventory i = s.currentView;
+	public void setItems(List<LSItem> ware) {
+		Inventory i = currentView;
 		for (LSItem item : ware) {
+			if (item == null) {
+				continue;
+			}
+			LSItem.updateDescription(player, item);
 			if (item.slot != null) {
 				i.setItem(item.slot, item.displayItem);
 			}
 		}
 	}
 
-	public static void setDefuser(Player p) {
-		if (Litestrike.getInstance().game_controller.teams.get_team(p) == Team.Breaker) {
-			Shop s = getShop(p);
-			s.currentView.setItem(22, s.shopItems.get(6).displayItem);
+	public void setDefuser() {
+		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Breaker) {
+			currentView.setItem(22, shopItems.get(6).displayItem);
 		}
 	}
 
@@ -73,13 +72,12 @@ public class Shop implements InventoryHolder {
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
-	public void updateTitle(Player p) {
-		Shop s = Shop.getShop(p);
-		s.currentView.close();
-		s.currentView = Bukkit.getServer().createInventory(this, 54, title(p));
-		p.openInventory(s.currentView);
-		setItems(p, s.shopItems);
-		setDefuser(p);
+	public void updateTitle() {
+		currentView.close();
+		currentView = Bukkit.getServer().createInventory(this, 54, title(player));
+		player.openInventory(currentView);
+		setItems(shopItems);
+		setDefuser();
 	}
 
 	public static void giveShop() {

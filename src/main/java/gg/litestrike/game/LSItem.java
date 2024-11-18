@@ -38,8 +38,8 @@ public class LSItem {
 
 	public final ItemCategory categ;
 
-	public LSItem(ItemStack item, ItemStack displayItem, int price, String description, ItemCategory cate, String name, Enchantment enchant,
-		Integer pow, Integer model, Integer slot) {
+	public LSItem(ItemStack item, ItemStack displayItem, int price, String description, ItemCategory cate, String name,
+			Enchantment enchant, Integer pow, Integer model, Integer slot) {
 		this.item = item;
 		this.displayItem = displayItem;
 		this.price = price;
@@ -57,9 +57,7 @@ public class LSItem {
 		 * To-Do List for hard coding new items:
 		 * 1. create new LSItem object
 		 * 2. add the new LSItem object to the lsItems list
-		 * 3. code a new branch to the switch in setItems()
-		 * 4. code a new branch to the switch in getItemCategory()
-		 * 5. code a new branch to the switch in buyItem()
+		 * 3. code a new branch to the switch in getItemCategory()
 		 */
 
 		LSItem diamondChestplate = new LSItem(new ItemStack(Material.DIAMOND_CHESTPLATE),

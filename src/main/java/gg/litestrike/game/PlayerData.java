@@ -15,7 +15,8 @@ public class PlayerData {
 	public int kills = 0;
 	public int deaths = 0;
 	public int assists = 0;
-	private int total_money = 0;
+	private int total_money_gained = 0;
+	private int total_money_spent = 0;
 	private int plants = 0;
 	private int breaks = 0;
 
@@ -46,17 +47,17 @@ public class PlayerData {
 				.append(Component.text(amt + "\uE104").color(TextColor.color(0x0ab1c4)))
 				.append(Component.text(" " + reason).color(Litestrike.YELLOW)));
 		money += amt;
-		total_money += amt;
+		total_money_gained += amt;
 
 		ScoreboardController.set_player_money(player, money);
 	}
-	public static void addMoney(int amt, Player p){
-		if (p == null) {
-			return;
-		}
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
-		pd.money += amt;
+
+	public void giveMoneyBack(int amt) {
+		total_money_gained -= amt;
+		total_money_spent -= amt;
+		addMoney(amt, "for selling a item.");
 	}
+
 	// returns false if not enought money was available
 	// returns true if the money was successfully subtracted
 	public boolean removeMoney(int amt) {
@@ -64,12 +65,13 @@ public class PlayerData {
 			return false;
 		} else {
 			money -= amt;
+			total_money_spent += amt;
 			ScoreboardController.set_player_money(player, money);
 			return true;
 		}
 	}
 
-	public int getMoney(){
+	public int getMoney() {
 		return this.money;
 	}
 
@@ -83,6 +85,22 @@ public class PlayerData {
 
 	public int calc_player_score() {
 		return 2 * kills + 3 * breaks + 3 * plants + assists;
+	}
+
+	public int getTotalMoneyGained() {
+		return total_money_gained;
+	}
+
+	public int getTotalMoneySpent() {
+		return total_money_spent;
+	}
+
+	public int getPlaced() {
+		return plants;
+	}
+
+	public int getBroken() {
+		return breaks;
 	}
 }
 

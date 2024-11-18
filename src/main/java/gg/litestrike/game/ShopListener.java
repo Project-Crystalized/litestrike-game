@@ -27,8 +27,8 @@ public class ShopListener implements Listener {
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
 			if (p.getInventory().getItemInMainHand().getType() == Material.EMERALD) {
 				p.openInventory(s.currentView);
-				Shop.setItems(p, s.shopItems);
-				Shop.setDefuser(p);
+				s.setItems(s.shopItems);
+				s.setDefuser();
 			}
 		}
 	}
@@ -74,7 +74,7 @@ public class ShopListener implements Listener {
 				p.getInventory().setItem(Shop.findInvIndex(p, lsitem), lsitem.item);
 			}
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-			s.updateTitle(p);
+			s.updateTitle();
 			s.buyHistory.add(lsitem);
 			return;
 		}
@@ -92,8 +92,8 @@ public class ShopListener implements Listener {
 							return;
 						}
 						p.getInventory().setItem(slot, h.get(i).item);
-						PlayerData.addMoney(h.get(i).price, p);
-						s.updateTitle(p);
+						Litestrike.getInstance().game_controller.getPlayerData(p).giveMoneyBack(h.get(i).price);
+						s.updateTitle();
 						h.remove(i);
 						return;
 					}
@@ -106,8 +106,8 @@ public class ShopListener implements Listener {
 							return;
 						}
 						p.getInventory().setItem(slot, h.get(i).item);
-						PlayerData.addMoney(h.get(i).price, p);
-						s.updateTitle(p);
+						Litestrike.getInstance().game_controller.getPlayerData(p).giveMoneyBack(h.get(i).price);
+						s.updateTitle();
 						h.remove(i);
 						return;
 					}
@@ -122,8 +122,8 @@ public class ShopListener implements Listener {
 						ItemStack n = new ItemStack(h.get(i).item.getType(),
 								p.getInventory().getItem(slot).getAmount() - h.get(i).item.getAmount());
 						p.getInventory().setItem(slot, n);
-						PlayerData.addMoney(h.get(i).price, p);
-						s.updateTitle(p);
+						Litestrike.getInstance().game_controller.getPlayerData(p).giveMoneyBack(h.get(i).price);
+						s.updateTitle();
 						return;
 					}
 				}

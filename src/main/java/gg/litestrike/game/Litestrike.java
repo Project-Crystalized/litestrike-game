@@ -83,6 +83,8 @@ public final class Litestrike extends JavaPlugin implements Listener {
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 20);
+
+		LsDatabase.setup_databases();
 	}
 
 	@Override
