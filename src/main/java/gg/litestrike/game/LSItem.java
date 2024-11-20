@@ -22,6 +22,9 @@ public class LSItem {
 	public final Integer price;
 	public final Integer slot;
 
+	private static byte creation_number = 1;
+	public final byte id;
+
 	public enum ItemCategory {
 		Melee,
 		Range,
@@ -39,6 +42,8 @@ public class LSItem {
 		this.description = description;
 		this.categ = cate;
 		this.slot = slot;
+		this.id = creation_number;
+		creation_number++;
 
 		this.item = new ItemStack(material);
 		if (material == ARROW) {
@@ -59,6 +64,8 @@ public class LSItem {
 		 * 3. code a new branch to the switch in getItemCategory()
 		 */
 
+		// IMPORTANT: the order in which the items are created must be preserved
+		// because it is used as a id in the database
 		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null, 31);
 		LSItem ironSword = new LSItem(IRON_SWORD, 750, "stab stab", ItemCategory.Melee, null, null, null, null, 0);
 		LSItem stoneSword = new LSItem(STONE_SWORD, null, null, ItemCategory.Melee, null, null, null, null, null);
@@ -94,6 +101,8 @@ public class LSItem {
 		lsItems.add(marksman); // 13
 		lsItems.add(ricochet);// 14
 		lsItems.add(multishot);// 15
+		
+		creation_number = 1; // reset id
 
 		return lsItems;
 	}

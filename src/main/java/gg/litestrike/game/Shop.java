@@ -49,9 +49,8 @@ public class Shop implements InventoryHolder {
 			if (item == null) {
 				continue;
 			}
-			ItemStack displayItem = item.buildDisplayItem(player);
 			if (item.slot != null) {
-				i.setItem(item.slot, displayItem);
+				i.setItem(item.slot, item.buildDisplayItem(player));
 			}
 		}
 	}

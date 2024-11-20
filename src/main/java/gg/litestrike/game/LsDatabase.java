@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
-	private static final String URL = "jdbc:sqlite:litesrike_db.sql";
+	private static final String URL = "jdbc:sqlite:litestrike_db.sql";
 
 	public static void setup_databases() {
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
@@ -63,10 +63,8 @@ public class LsDatabase {
 				breaker_wins_amt += 1;
 			}
 		}
-		int winner_int = 0;
-		if (winner == Team.Placer) {
-			winner_int = 1;
-		}
+		
+		int winner_int = winner == Team.Placer ? 1 : 0;
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			PreparedStatement game_stmt = conn.prepareStatement(save_game);
@@ -77,11 +75,13 @@ public class LsDatabase {
 			game_stmt.setInt(5, winner_int);
 			game_stmt.executeUpdate();
 
-			int game_id = conn.prepareStatement("SELECT last_inserted_rowid();").executeQuery().getInt("last_insert_rowid()");
+			int game_id = conn.prepareStatement("SELECT last_insert_rowid();").executeQuery().getInt("last_insert_rowid()");
 
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+				GameController gc = Litestrike.getInstance().game_controller;
+				PlayerData pd = gc.getPlayerData(p);
+				int is_winner = gc.teams.get_team(p) == winner ? 1 : 0;
 
 				player_stmt.setBytes(1, uuid_to_bytes(p));
 				player_stmt.setInt(2, game_id);
@@ -92,6 +92,8 @@ public class LsDatabase {
 				player_stmt.setInt(7, pd.getTotalMoneyGained());
 				player_stmt.setInt(8, pd.getTotalMoneySpent());
 				player_stmt.setBytes(9, get_bought_items(p));
+				player_stmt.setInt(10, is_winner);
+				player_stmt.executeUpdate();
 			}
 
 		} catch (SQLException e) {
@@ -99,15 +101,14 @@ public class LsDatabase {
 		}
 	}
 
-	// TODO rework this
 	private static byte[] get_bought_items(Player p) {
 		Shop s = Shop.getShop(p);
-		ByteBuffer bb = ByteBuffer.allocate(s.buyHistory.size() * 4);
+		ByteBuffer bb = ByteBuffer.allocate(s.buyHistory.size());
 		for (LSItem lsi : s.buyHistory) {
 			if (lsi == null) {
-				bb.putInt(0);
+				bb.put((byte) 0);
 			} else {
-				bb.putInt(lsi.name.hashCode());
+				bb.put(lsi.id);
 			}
 		}
 		return bb.array();

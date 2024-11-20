@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
@@ -236,7 +235,7 @@ public class GameController {
 			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
 			s.setItems(s.shopItems);
 			s.setDefuser();
-			s.shopItems.add(null);
+			s.buyHistory.add(null);
 		}
 	}
 
@@ -313,7 +312,7 @@ public class GameController {
 				Shop.giveDefaultArmor(p);
 			}
 			p.setGameMode(GameMode.SURVIVAL);
-			p.setHealth(Objects.requireNonNull(p.getAttribute(Attribute.GENERIC_MAX_HEALTH)).getValue());
+			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start
