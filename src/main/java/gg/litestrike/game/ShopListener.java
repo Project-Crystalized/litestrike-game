@@ -56,7 +56,7 @@ public class ShopListener implements Listener {
 			// if the item is not ammuntion and also not a consumable and we already have
 			// it, then we cant but it
 			if (lsitem.categ != LSItem.ItemCategory.Ammunition && lsitem.categ != LSItem.ItemCategory.Consumable
-					&& Shop.alreadyHasThis(p, lsitem.item)) {
+					&& s.alreadyHasThis(lsitem.item)) {
 				p.sendMessage(Component.text("You already have this item").color(RED));
 				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 				return;
@@ -68,12 +68,23 @@ public class ShopListener implements Listener {
 				return;
 			}
 
-			if (lsitem.categ == LSItem.ItemCategory.Armor) {
+			// remove items of same categ from inv
+			if (lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable) {
+				for (int i = 0; i <= 40; i++) {
+					ItemStack it = p.getInventory().getItem(i);
+					if (it == null) {
+						continue;
+					}
+					if (LSItem.getItemCategory(it) == lsitem.categ) {
+						p.getInventory().clear(i);
+					}
+				}
+			}
+
+			if (lsitem.categ == ItemCategory.Armor) {
 				p.getInventory().setChestplate(lsitem.item);
-			} else if (Shop.findInvIndex(p, lsitem) == -1) {
-				p.getInventory().addItem(lsitem.item);
 			} else {
-				p.getInventory().setItem(Shop.findInvIndex(p, lsitem), lsitem.item);
+				p.getInventory().addItem(lsitem.item);
 			}
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle();

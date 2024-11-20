@@ -11,7 +11,7 @@ import net.kyori.adventure.text.format.TextColor;
 public class PlayerData {
 
 	public String player;
-	private int money = 1000;
+	private int money = 0;
 	public int kills = 0;
 	public int deaths = 0;
 	public int assists = 0;

@@ -11,6 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -36,7 +38,7 @@ public class GameController {
 	public List<PlayerData> playerDatas;
 	public Bomb bomb;
 
-	private int current_round_number = 0;
+	public int round_number = 0;
 	public RoundState round_state = RoundState.PreRound;
 
 	public List<Team> round_results = new ArrayList<Team>();
@@ -171,7 +173,7 @@ public class GameController {
 		phase_timer = 0;
 
 		// send messages to the teams
-		if (current_round_number == 1) {
+		if (round_number == 1) {
 			for (Player p : teams.get_placers()) {
 				p.sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
 						.append(Litestrike.PLACER_TEXT)
@@ -210,6 +212,13 @@ public class GameController {
 
 		ScoreboardController.set_win_display(round_results);
 
+		// remove arrows
+		for (Entity e : Bukkit.getWorld("world").getEntities()) {
+			if (e instanceof Arrow) {
+				e.remove();
+			}
+		}
+
 		// announce winner
 		Component winner_component;
 		if (winner == Team.Placer) {
@@ -219,7 +228,7 @@ public class GameController {
 		}
 		Bukkit.getServer()
 				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
-						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(current_round_number))
+						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
 
 		// give money and play sound
@@ -269,13 +278,9 @@ public class GameController {
 	private void next_round() {
 		round_state = RoundState.PreRound;
 		phase_timer = 0;
-		current_round_number += 1;
+		round_number += 1;
 
-		World w = Bukkit.getWorld("world");
-		Location placer_spawn = Litestrike.getInstance().mapdata.get_placer_spawn(w);
-		Location breaker_spawn = Litestrike.getInstance().mapdata.get_breaker_spawn(w);
-
-		if (current_round_number == switch_round + 1) {
+		if (round_number == switch_round + 1) {
 			Bukkit.getServer().sendMessage(text("ꜱᴡɪᴛᴄʜɪɴɢ ꜱɪᴅᴇꜱ!!").color(Litestrike.YELLOW));
 			teams.switch_teams();
 			for (PlayerData pd : playerDatas) {
@@ -290,13 +295,14 @@ public class GameController {
 			}
 			ScoreboardController.setup_scoreboard(teams);
 			ScoreboardController.set_win_display(round_results);
-			// TODO shop clear inventory
 		}
 
-		// raise border
+		World w = Bukkit.getWorld("world");
 		Litestrike.getInstance().mapdata.raiseBorder(w);
 
 		// teleport everyone to spawn and make them look at enemy spawn
+		Location placer_spawn = Litestrike.getInstance().mapdata.get_placer_spawn(w);
+		Location breaker_spawn = Litestrike.getInstance().mapdata.get_breaker_spawn(w);
 		for (Player p : teams.get_breakers()) {
 			p.teleport(breaker_spawn);
 			p.lookAt(placer_spawn.x(), placer_spawn.y(), placer_spawn.z(), LookAnchor.EYES);
@@ -308,11 +314,10 @@ public class GameController {
 
 		// heal and set everyone to survival
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (p.getGameMode() == GameMode.SPECTATOR) {
-				Shop.giveDefaultArmor(p);
-			}
+			Shop.giveDefaultArmor(p);
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+			p.clearActivePotionEffects();
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start

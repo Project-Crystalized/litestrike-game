@@ -4,12 +4,14 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,6 +39,7 @@ public class Shop implements InventoryHolder {
 		currentView = Bukkit.getServer().createInventory(this, 54, title(p));
 		buyHistory = new ArrayList<>();
 		// TODO make the Shop its own item
+		// TODO i think its fine, no need to make shop its own item
 	}
 
 	public static Shop getShop(Player p) {
@@ -85,56 +88,57 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	public static int findInvIndex(Player p, LSItem item) {
-		for (int i = 0; i <= 40; i++) {
-			ItemStack it = p.getInventory().getItem(i);
-			if (it == null) {
-				continue;
-			}
-			if (LSItem.getItemCategory(it) == item.categ) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	public static void giveDefaultArmor(Player p) {
-		Team player_team = Litestrike.getInstance().game_controller.teams.get_team(p);
-		if (player_team == Team.Placer) {
-			PlayerInventory inv = p.getInventory();
-			inv.setHelmet(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_HELMET)));
-			inv.setChestplate(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
-			inv.setLeggings(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_LEGGINGS)));
-			inv.setBoots(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_BOOTS)));
+		GameController gc = Litestrike.getInstance().game_controller;
+		Team player_team = gc.teams.get_team(p);
+		PlayerInventory inv = p.getInventory();
+		if (p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 0
+				|| gc.round_number == GameController.switch_round + 1) {
+
+			inv.clear();
 			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 			inv.setItem(1, new ItemStack(Material.BOW));
 			inv.setItem(2, new ItemStack(Material.ARROW, 6));
-		} else if (player_team == Team.Breaker) {
-			PlayerInventory inv = p.getInventory();
-			inv.setHelmet(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_HELMET)));
-			inv.setChestplate(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
-			inv.setLeggings(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
-			inv.setBoots(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
-			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
-			inv.setItem(1, new ItemStack(Material.BOW));
-			inv.setItem(2, new ItemStack(Material.ARROW, 6));
-			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
+			if (player_team == Team.Placer) {
+				inv.setHelmet(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_HELMET)));
+				inv.setChestplate(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
+				inv.setLeggings(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_LEGGINGS)));
+				inv.setBoots(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_BOOTS)));
+			} else if (player_team == Team.Breaker) {
+				inv.setHelmet(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_HELMET)));
+				inv.setChestplate(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
+				inv.setLeggings(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
+				inv.setBoots(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
+				inv.addItem(new ItemStack(Material.STONE_PICKAXE));
+			}
+			// give unbreakable to all items
+			for (ItemStack is : inv.getContents()) {
+				if (is == null) {
+					continue;
+				}
+				if (is.getType().getMaxDurability() > 0) {
+					ItemMeta im = is.getItemMeta();
+					im.setUnbreakable(true);
+					is.setItemMeta(im);
+				}
+			}
+
 		}
 	}
 
-	public static ItemStack colorArmor(Color c, ItemStack i) {
+	private static ItemStack colorArmor(Color c, ItemStack i) {
 		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
 		lam.setColor(c);
 		i.setItemMeta(lam);
 		return i;
 	}
 
-	public static boolean alreadyHasThis(Player p, ItemStack item) {
+	public boolean alreadyHasThis(ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
-			if (p.getInventory().getItem(i) == null) {
+			if (player.getInventory().getItem(i) == null) {
 				continue;
 			}
-			Component it = p.getInventory().getItem(i).displayName();
+			Component it = player.getInventory().getItem(i).displayName();
 			if (it == null) {
 				continue;
 			}

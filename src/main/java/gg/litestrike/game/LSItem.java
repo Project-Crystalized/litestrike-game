@@ -51,9 +51,22 @@ public class LSItem {
 			item.setAmount(6);
 		}
 
-		this.enchantItem(enchant, pow);
-		this.nameItem(name);
-		this.setModel(model);
+		ItemMeta meta = item.getItemMeta();
+		if (item.getType().getMaxDurability() > 0) {
+			meta.setUnbreakable(true);
+		}
+
+		if (enchant != null && pow != null) {
+			meta.addEnchant(enchant, pow, true);
+		}
+		if (name != null) {
+			meta.itemName(Component.text(name));
+		}
+		if (model != null) {
+			meta.setCustomModelData(model);
+		}
+
+		item.setItemMeta(meta);
 	}
 
 	public static List<LSItem> createItems() {
@@ -66,22 +79,29 @@ public class LSItem {
 
 		// IMPORTANT: the order in which the items are created must be preserved
 		// because it is used as a id in the database
-		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null, 31);
+		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null,
+				31);
 		LSItem ironSword = new LSItem(IRON_SWORD, 750, "stab stab", ItemCategory.Melee, null, null, null, null, 0);
 		LSItem stoneSword = new LSItem(STONE_SWORD, null, null, ItemCategory.Melee, null, null, null, null, null);
 		LSItem ironAxe = new LSItem(IRON_AXE, 1750, null, ItemCategory.Melee, null, null, null, null, 2);
 		LSItem bow = new LSItem(BOW, null, null, ItemCategory.Range, null, null, null, null, null);
 		LSItem arrow = new LSItem(ARROW, 100, null, ItemCategory.Ammunition, null, null, null, null, 50);
-		LSItem defuser = new LSItem(IRON_PICKAXE, 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser, "Defuser", null, null, null, null);
+		LSItem defuser = new LSItem(IRON_PICKAXE, 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser,
+				"Defuser", null, null, null, null);
 		LSItem pickaxe = new LSItem(STONE_PICKAXE, null, null, ItemCategory.Defuser, null, null, null, null, null);
 		LSItem gapple = new LSItem(GOLDEN_APPLE, 500, null, ItemCategory.Consumable, null, null, null, null, 49);
 		LSItem ironChestplate = new LSItem(IRON_CHESTPLATE, 250, null, ItemCategory.Armor, null, PROTECTION, 1, null, 40);
-		LSItem quickdraw = new LSItem(CROSSBOW, 2000, "A crossbow that draws lightning fast.", ItemCategory.Range, "Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
-		LSItem pufferFish = new LSItem(IRON_SWORD, 1250, "Adds poison 1 to the player when hit.", ItemCategory.Melee, "Pufferfish Sword", null, null, 2, 18);
-		LSItem slimeSword = new LSItem(IRON_SWORD, 1000, "Adds slowness 1 to the player when hit.", ItemCategory.Melee, "Slime Sword", KNOCKBACK, 1, 1, 20);
+		LSItem quickdraw = new LSItem(CROSSBOW, 2000, "A crossbow that draws lightning fast.", ItemCategory.Range,
+				"Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
+		LSItem pufferFish = new LSItem(IRON_SWORD, 1250, "Adds poison 1 to the player when hit.", ItemCategory.Melee,
+				"Pufferfish Sword", null, null, 2, 18);
+		LSItem slimeSword = new LSItem(IRON_SWORD, 1000, "Adds slowness 1 to the player when hit.", ItemCategory.Melee,
+				"Slime Sword", KNOCKBACK, 1, 1, 20);
 		LSItem marksman = new LSItem(BOW, 750, null, ItemCategory.Range, "Marksman Bow", POWER, 1, 1, 6);
-		LSItem ricochet = new LSItem(BOW, 1500, "A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow", PUNCH, 1, 2, 8);
-		LSItem multishot = new LSItem(CROSSBOW, 2000, "A crossbow that shoots multiple arrows.", ItemCategory.Range, "Multishot Crossbow", MULTISHOT, 1, 1, 26);
+		LSItem ricochet = new LSItem(BOW, 1500, "A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow",
+				PUNCH, 1, 2, 8);
+		LSItem multishot = new LSItem(CROSSBOW, 2000, "A crossbow that shoots multiple arrows.", ItemCategory.Range,
+				"Multishot Crossbow", MULTISHOT, 1, 1, 26);
 
 		List<LSItem> lsItems = new ArrayList<>();
 
@@ -101,7 +121,7 @@ public class LSItem {
 		lsItems.add(marksman); // 13
 		lsItems.add(ricochet);// 14
 		lsItems.add(multishot);// 15
-		
+
 		creation_number = 1; // reset id
 
 		return lsItems;
@@ -126,38 +146,11 @@ public class LSItem {
 		return displayItem;
 	}
 
-	public void nameItem(String name) {
-		if (name == null) {
-			return;
-		}
-		ItemMeta meta = item.getItemMeta();
-		meta.itemName(Component.text(name));
-		item.setItemMeta(meta);
-	}
-
-	public void enchantItem(Enchantment enchant, Integer pow) {
-		if (enchant == null || pow == null) {
-			return;
-		}
-		ItemMeta meta = item.getItemMeta();
-		meta.addEnchant(enchant, pow, true);
-		item.setItemMeta(meta);
-	}
-
-	public void setModel(Integer model) {
-		if (model == null) {
-			return;
-		}
-		ItemMeta meta = item.getItemMeta();
-		meta.setCustomModelData(model);
-		item.setItemMeta(meta);
-	}
-
 	public static ItemCategory getItemCategory(ItemStack i) {
 		switch (i.getType()) {
 			case IRON_SWORD:
-			case IRON_AXE: 
-			case STONE_SWORD: 
+			case IRON_AXE:
+			case STONE_SWORD:
 				return ItemCategory.Melee;
 			case CROSSBOW:
 			case BOW:
@@ -179,4 +172,3 @@ public class LSItem {
 		}
 	}
 }
-

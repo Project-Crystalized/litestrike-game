@@ -50,9 +50,7 @@ public class LsDatabase {
 	}
 
 	public static void save_game(Team winner) {
-		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner) VALUES(?, ?, ?, ?, ?)";
-		String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner)"
-				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner) VALUES(?, ?, unixepoch(), ?, ?)";
 
 		int placer_wins_amt = 0;
 		int breaker_wins_amt = 0;
@@ -63,20 +61,21 @@ public class LsDatabase {
 				breaker_wins_amt += 1;
 			}
 		}
-		
 		int winner_int = winner == Team.Placer ? 1 : 0;
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			PreparedStatement game_stmt = conn.prepareStatement(save_game);
 			game_stmt.setInt(1, placer_wins_amt);
 			game_stmt.setInt(2, breaker_wins_amt);
-			game_stmt.setInt(3, (int) (System.currentTimeMillis() / 1000L));
-			game_stmt.setInt(4, Litestrike.getInstance().mapdata.map_name.hashCode());
-			game_stmt.setInt(5, winner_int);
+			game_stmt.setInt(3, Litestrike.getInstance().mapdata.map_name.hashCode());
+			game_stmt.setInt(4, winner_int);
 			game_stmt.executeUpdate();
 
 			int game_id = conn.prepareStatement("SELECT last_insert_rowid();").executeQuery().getInt("last_insert_rowid()");
 
+
+		String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner)"
+				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (Player p : Bukkit.getOnlinePlayers()) {
 				GameController gc = Litestrike.getInstance().game_controller;
