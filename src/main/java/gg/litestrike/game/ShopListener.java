@@ -12,6 +12,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import gg.litestrike.game.LSItem.ItemCategory;
+
 import java.util.List;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
@@ -80,15 +82,14 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	public void undoBuy(ItemStack item, Player p, int slot) {
-		String cate = LSItem.getItemCategory(item);
+	public void undoBuy(LSItem item, Player p, int slot) {
 		Shop s = Shop.getShop(p);
 		List<LSItem> h = s.buyHistory;
-		switch (cate) {
-			case "Melee": {
-				for (int i = h.size(); i == 0; i--) {
-					if (LSItem.getItemCategory(h.get(i).item).equals("Melee")) {
-						if (item.getType() == Material.STONE_SWORD) {
+		for (int i = h.size(); i == 0; i--) {
+			switch (item.categ) {
+				case ItemCategory.Melee: {
+					if (h.get(i).categ == ItemCategory.Melee) {
+						if (item.item.getType() == Material.STONE_SWORD) {
 							return;
 						}
 						p.getInventory().setItem(slot, h.get(i).item);
@@ -98,11 +99,9 @@ public class ShopListener implements Listener {
 						return;
 					}
 				}
-			}
-			case "Range": {
-				for (int i = h.size(); i == 0; i--) {
-					if (LSItem.getItemCategory(h.get(i).item).equals("Range")) {
-						if (item.getType() == Material.BOW && item.getEnchantments().isEmpty()) {
+				case ItemCategory.Range: {
+					if (h.get(i).categ == ItemCategory.Range) {
+						if (item.item.getType() == Material.BOW && item.item.getEnchantments().isEmpty()) {
 							return;
 						}
 						p.getInventory().setItem(slot, h.get(i).item);
@@ -112,11 +111,9 @@ public class ShopListener implements Listener {
 						return;
 					}
 				}
-			}
-			case "Ammunition": {
-				for (int i = h.size(); i == 0; i--) {
-					if (LSItem.getItemCategory(h.get(i).item).equals("Ammunition")) {
-						if (item.getType() == Material.ARROW && !(item.hasItemMeta()) && item.getAmount() == 6) {
+				case ItemCategory.Ammunition: {
+					if (h.get(i).categ == ItemCategory.Ammunition) {
+						if (item.item.getType() == Material.ARROW && !(item.item.hasItemMeta()) && item.item.getAmount() == 6) {
 							return;
 						}
 						ItemStack n = new ItemStack(h.get(i).item.getType(),

@@ -6,8 +6,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -54,7 +52,7 @@ public class LsDatabase {
 	public static void save_game(Team winner) {
 		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner) VALUES(?, ?, ?, ?, ?)";
 		String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner)"
-			+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		int placer_wins_amt = 0;
 		int breaker_wins_amt = 0;
@@ -116,10 +114,10 @@ public class LsDatabase {
 	}
 
 	private static byte[] uuid_to_bytes(Player p) {
-    ByteBuffer bb = ByteBuffer.allocate(16);
+		ByteBuffer bb = ByteBuffer.allocate(16);
 		UUID uuid = p.getUniqueId();
-    bb.putLong(uuid.getMostSignificantBits());
-    bb.putLong(uuid.getLeastSignificantBits());
-    return bb.array();
+		bb.putLong(uuid.getMostSignificantBits());
+		bb.putLong(uuid.getLeastSignificantBits());
+		return bb.array();
 	}
 }

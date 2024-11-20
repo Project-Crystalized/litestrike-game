@@ -49,16 +49,16 @@ public class Shop implements InventoryHolder {
 			if (item == null) {
 				continue;
 			}
-			LSItem.updateDescription(player, item);
+			ItemStack displayItem = item.buildDisplayItem(player);
 			if (item.slot != null) {
-				i.setItem(item.slot, item.displayItem);
+				i.setItem(item.slot, displayItem);
 			}
 		}
 	}
 
 	public void setDefuser() {
 		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Breaker) {
-			currentView.setItem(22, shopItems.get(6).displayItem);
+			currentView.setItem(22, shopItems.get(6).buildDisplayItem(player));
 		}
 	}
 
@@ -87,13 +87,12 @@ public class Shop implements InventoryHolder {
 	}
 
 	public static int findInvIndex(Player p, LSItem item) {
-		String cate = item.categ.toString();
 		for (int i = 0; i <= 40; i++) {
 			ItemStack it = p.getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
-			if (LSItem.getItemCategory(it).equals(cate)) {
+			if (LSItem.getItemCategory(it) == item.categ) {
 				return i;
 			}
 		}

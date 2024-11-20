@@ -35,10 +35,6 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_sound_info(String[] args, CommandSender commandSender) {
-		Shop s = Shop.getShop((Player) commandSender);
-		for (LSItem lsi : s.buyHistory) {
-			Bukkit.getServer().sendMessage(lsi.displayItem.displayName());
-		}
 		if (args.length == 0) {
 			return false;
 		}
