@@ -49,6 +49,8 @@ public class GameController {
 	// then the next round starts and it counts from 0 again
 	public int phase_timer = 0;
 
+	public final int game_id = ThreadLocalRandom.current().nextInt();
+
 	// after this round, the sides get switched
 	public final static int switch_round = 4;
 
@@ -66,7 +68,6 @@ public class GameController {
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					PlayerData p = new PlayerData(player);
 					playerDatas.add(p);
-					Shop.giveDefaultArmor(player);
 					new Shop(player);
 				}
 				next_round();
@@ -74,7 +75,7 @@ public class GameController {
 		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		// setup scoreboard and bossbar
-		ScoreboardController.setup_scoreboard(teams);
+		ScoreboardController.setup_scoreboard(teams, game_id);
 		Litestrike.getInstance().bbd.showBossBar();
 
 		// This just calls update_game_state() once every second
@@ -293,7 +294,7 @@ public class GameController {
 					round_results.set(i, Team.Placer);
 				}
 			}
-			ScoreboardController.setup_scoreboard(teams);
+			ScoreboardController.setup_scoreboard(teams, game_id);
 			ScoreboardController.set_win_display(round_results);
 		}
 
@@ -318,6 +319,7 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
+			getPlayerData(p).addMoney(1000, "");
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start
@@ -328,12 +330,7 @@ public class GameController {
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
 		Bomb.give_bomb(teams.get_placers().get(random).getInventory());
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			getPlayerData(p).addMoney(1000, "");
-		}
-
 		Shop.giveShop();
-
 	}
 
 	// this will determine the winner of the round and return it.

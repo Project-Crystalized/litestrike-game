@@ -30,16 +30,30 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	// this is set by the /force_start command
 	public boolean is_force_starting = false;
 
+	public QueScoreboard qsb;
+
+	// player amount required to autostart
+	public static final int PLAYERS_TO_START = 20;
+
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.text("Placer").color(Teams.PLACER_RED)
 			.decoration(TextDecoration.BOLD, true);
 	public static final Component BREAKER_TEXT = Component.text("Breaker").color(Teams.BREAKER_GREEN)
 			.decoration(TextDecoration.BOLD, true);
 
-	public static TextColor YELLOW = TextColor.color(0xfbea85);
+	public static final TextColor YELLOW = TextColor.color(0xfbea85);
 
 	@Override
 	public void onEnable() {
+
+		// the scoreboard has to be delayed until the first server tick to avoid a bug
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				qsb = new QueScoreboard();
+			}
+		}.runTask(this);
+
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(this, this);
@@ -65,8 +79,10 @@ public final class Litestrike extends JavaPlugin implements Listener {
 					return;
 				}
 
+				qsb.update_player_count();
+
 				// if more then 6 players online, count down, else reset countdown
-				if (Bukkit.getOnlinePlayers().size() >= 100 || is_force_starting) {
+				if (Bukkit.getOnlinePlayers().size() >= PLAYERS_TO_START || is_force_starting) {
 					countdown -= 1;
 					count_down_animation(countdown);
 				} else {
@@ -82,7 +98,7 @@ public final class Litestrike extends JavaPlugin implements Listener {
 					return;
 				}
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 1, 20);
+		}.runTaskTimer(this, 1, 20);
 
 		LsDatabase.setup_databases();
 	}

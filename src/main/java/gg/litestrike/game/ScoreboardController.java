@@ -17,17 +17,19 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import static net.kyori.adventure.text.Component.text;
+
 public class ScoreboardController {
-	public static void setup_scoreboard(Teams t) {
+	public static void setup_scoreboard(Teams t, int game_id) {
 		for (Player p : t.get_placers()) {
-			give_player_scoreboard(p, gg.litestrike.game.Team.Placer, t);
+			give_player_scoreboard(p, gg.litestrike.game.Team.Placer, t, game_id);
 		}
 		for (Player p : t.get_breakers()) {
-			give_player_scoreboard(p, gg.litestrike.game.Team.Breaker, t);
+			give_player_scoreboard(p, gg.litestrike.game.Team.Breaker, t, game_id);
 		}
 	}
 
-	public static void give_player_scoreboard(Player p, gg.litestrike.game.Team t, Teams teams) {
+	public static void give_player_scoreboard(Player p, gg.litestrike.game.Team t, Teams teams, int game_id) {
 		Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
 
 		Team placers = sb.registerNewTeam("placers");
@@ -46,74 +48,65 @@ public class ScoreboardController {
 			breakers.addPlayer(player);
 		}
 
-		Component title = Component.text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
+		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
 		obj.getScore("9").setScore(9);
-		obj.getScore("9").customName(Component.text("").color(NamedTextColor.GREEN));
+		obj.getScore("9").customName(text("").color(NamedTextColor.GREEN));
 
 		if (t == gg.litestrike.game.Team.Breaker) {
-			obj.getScore("8").customName(Component.text("ᴛᴇᴀᴍ: ").append(Litestrike.BREAKER_TEXT));
+			obj.getScore("8").customName(text("ᴛᴇᴀᴍ: ").append(Litestrike.BREAKER_TEXT));
 			obj.getScore("8").setScore(8);
 		} else {
-			obj.getScore("8").customName(Component.text("ᴛᴇᴀᴍ: ").append(Litestrike.PLACER_TEXT));
+			obj.getScore("8").customName(text("ᴛᴇᴀᴍ: ").append(Litestrike.PLACER_TEXT));
 			obj.getScore("8").setScore(8);
-			// obj.getScore("ᴛᴇᴀᴍ: " + Litestrike.PLACER_TEXT).setScore(8);
 		}
 		obj.getScore("7").setScore(7);
-		obj.getScore("7").customName(Component.text("").color(NamedTextColor.RED));
+		obj.getScore("7").customName(text("").color(NamedTextColor.RED));
 
 		obj.getScore("6").setScore(6);
-		obj.getScore("6").customName(Component.text("").color(NamedTextColor.DARK_RED));
+		obj.getScore("6").customName(text("").color(NamedTextColor.DARK_RED));
 
 		obj.getScore("5").setScore(5);
-		obj.getScore("5").customName(Component.text("").color(NamedTextColor.DARK_BLUE));
+		obj.getScore("5").customName(text("").color(NamedTextColor.DARK_BLUE));
 
 		obj.getScore("4").setScore(4);
-		obj.getScore("4").customName(Component.text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
+		obj.getScore("4").customName(text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
-		obj.getScore("3").customName(Component.text("").color(NamedTextColor.AQUA));
+		obj.getScore("3").customName(text("").color(NamedTextColor.AQUA));
 
 		obj.getScore("2").setScore(2);
-		obj.getScore("2").customName(Component.text("").color(NamedTextColor.DARK_GREEN));
+		obj.getScore("2").customName(text("").color(NamedTextColor.DARK_GREEN));
 
 		obj.getScore("1").setScore(1);
-		obj.getScore("1").customName(Component.text("").color(NamedTextColor.DARK_PURPLE));
+		obj.getScore("1").customName(text("").color(NamedTextColor.DARK_PURPLE));
 
 		obj.getScore("0").setScore(0);
-		obj.getScore("0").customName(Component.text("").color(NamedTextColor.YELLOW));
+		obj.getScore("0").customName(text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ ").color(TextColor.color(0xc4b50a))
+				.append(text("" + game_id).color(NamedTextColor.GRAY)));
 
 		Team money_count = sb.registerNewTeam("money_count");
 		money_count.addEntry("7");
-		money_count.prefix(Component.text("ᴍᴏɴᴇʏ: "));
-		// TODO this isnt initialized properly
-		money_count.suffix(Component.text("error"));
+		money_count.prefix(text("ᴍᴏɴᴇʏ: "));
+		money_count.suffix(text("error"));
 		obj.getScore("7").setScore(7);
 
 		Team wins_placers = sb.registerNewTeam("wins_placers");
 		wins_placers.addEntry("3");
-		wins_placers.prefix(Component.text("   "));
-		wins_placers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
+		wins_placers.prefix(text("   "));
+		wins_placers.suffix(text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
 		obj.getScore("3").setScore(3);
 
 		Team wins_breakers = sb.registerNewTeam("wins_breakers");
 		wins_breakers.addEntry("2");
-		wins_breakers.prefix(Component.text("   "));
-		wins_breakers.suffix(Component.text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
+		wins_breakers.prefix(text("   "));
+		wins_breakers.suffix(text("\uE105 \uE105 \uE105 \uE105 \uE107 (0)"));
 		obj.getScore("2").setScore(2);
 
-		Team footline = sb.registerNewTeam("footline");
-		footline.addEntry("0");
-		footline.prefix(Component.text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ ").color(TextColor.color(0xc4b50a)));
-		// TODO put in the game id here
-		footline.suffix(Component.text("TODO"));
-		obj.getScore("0").setScore(0);
-
 		p.setScoreboard(sb);
-
 	}
 
 	public static void set_win_display(List<gg.litestrike.game.Team> wins) {
@@ -127,8 +120,8 @@ public class ScoreboardController {
 			}
 		}
 
-		Component placer_text = Component.text(render_win_display(placer_wins_amt));
-		Component breaker_text = Component.text(render_win_display(breaker_wins_amt));
+		Component placer_text = text(render_win_display(placer_wins_amt));
+		Component breaker_text = text(render_win_display(breaker_wins_amt));
 		Teams t = Litestrike.getInstance().game_controller.teams;
 
 		for (Player p : t.get_placers()) {
@@ -137,7 +130,7 @@ public class ScoreboardController {
 			if (breakers == null || placers == null) {
 				continue;
 			}
-			placers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
+			placers.prefix(text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
@@ -149,14 +142,14 @@ public class ScoreboardController {
 			if (breakers == null || placers == null) {
 				continue;
 			}
-			breakers.prefix(Component.text("\uE109 ").decoration(TextDecoration.BOLD, true));
+			breakers.prefix(text("\uE109 ").decoration(TextDecoration.BOLD, true));
 
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
 		}
 	}
 
-	public static String render_win_display(int amt) {
+	private static String render_win_display(int amt) {
 		String s = "";
 		for (int i = 1; i <= GameController.switch_round; i++) {
 			if (i <= amt) {
@@ -185,7 +178,7 @@ public class ScoreboardController {
 		if (money_count == null) {
 			return;
 		}
-		money_count.suffix(Component.text(money).color(TextColor.color(0x0ab1c4)).append(Component.text("\uE104")));
+		money_count.suffix(text(money).color(TextColor.color(0x0ab1c4)).append(text("\uE104")));
 	}
 
 }

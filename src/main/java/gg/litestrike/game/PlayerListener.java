@@ -48,11 +48,12 @@ public class PlayerListener implements Listener {
 		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
-		p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, true));
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
+			Litestrike.getInstance().qsb.show_que_scoreboard(p);
+
 		} else {
 			// if we are here, it means the player is rejoining
 			p.setGameMode(GameMode.SPECTATOR);
@@ -60,7 +61,7 @@ public class PlayerListener implements Listener {
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 
 			// give player the scoreboard and bossbar again
-			ScoreboardController.give_player_scoreboard(p, should_be_team, Litestrike.getInstance().game_controller.teams);
+			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_id);
 			Litestrike.getInstance().bbd.showBossBar();
 
 			if (should_be_team == null) {

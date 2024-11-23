@@ -90,11 +90,11 @@ public class Shop implements InventoryHolder {
 
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		Team player_team = gc.teams.get_team(p);
 		PlayerInventory inv = p.getInventory();
-		if (p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 0
+		if (p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 				|| gc.round_number == GameController.switch_round + 1) {
 
+			Team player_team = gc.teams.get_team(p);
 			inv.clear();
 			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 			inv.setItem(1, new ItemStack(Material.BOW));
