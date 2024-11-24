@@ -15,6 +15,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -32,7 +33,9 @@ public interface Bomb {
 
 		// set item lore
 		List<Component> lore = new ArrayList<Component>();
-		lore.add(text("This is the bomb. place it at the bomb sites").color(NamedTextColor.GRAY)
+		lore.add(text("This is the bomb.").color(TextColor.color(0xf4d167))
+				.decoration(TextDecoration.ITALIC, false));
+		lore.add(text("Place it at the bomb sites!").color(TextColor.color(0xf4d167))
 				.decoration(TextDecoration.ITALIC, false));
 		lore.add(text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY)
 				.decoration(TextDecoration.ITALIC, false));
@@ -40,7 +43,8 @@ public interface Bomb {
 
 		im.setCustomModelData(29);
 
-		im.displayName(text("The Bomb!!"));
+		im.displayName(text("The Bomb!!").color(TextColor.color(0xe64cce))
+				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
 
 		// these apis are deprecated:
 		// Set<Material> can_place_set = new HashSet<Material>();
