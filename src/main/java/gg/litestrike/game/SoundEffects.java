@@ -19,7 +19,7 @@ public class SoundEffects {
 				if (gc.round_state != RoundState.PreRound && gc.phase_timer > 6) {
 					cancel();
 				}
-				if (gc.phase_timer > 220 && gc.phase_timer % 20 == 0) {
+				if (gc.phase_timer > GameController.PRE_ROUND_TIME - 80 && gc.phase_timer % 20 == 0) {
 					countdown_beep();
 				}
 				if (gc.round_state == RoundState.Running && gc.phase_timer % 3 == 0) {

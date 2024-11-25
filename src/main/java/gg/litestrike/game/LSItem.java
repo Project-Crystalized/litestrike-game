@@ -2,8 +2,6 @@ package gg.litestrike.game;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -11,14 +9,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
-import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
+import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.enchantments.Enchantment.*;
 import static org.bukkit.Material.*;
 
+import static net.kyori.adventure.text.format.NamedTextColor.*;
+import static net.kyori.adventure.text.format.TextDecoration.*;
+import static net.kyori.adventure.text.Component.text;
+
 public class LSItem {
 	public final ItemStack item;
-	public final String description;
+	public final List<Component> description;
 	public final Integer price;
 	public final Integer slot;
 
@@ -36,84 +37,131 @@ public class LSItem {
 
 	public final ItemCategory categ;
 
-	private LSItem(Material material, Integer price, String description, ItemCategory cate, String name,
-			Enchantment enchant, Integer pow, Integer model, Integer slot) {
+	private LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot) {
 		this.price = price;
 		this.description = description;
 		this.categ = cate;
+		this.item = item;
 		this.slot = slot;
 		this.id = creation_number;
 		creation_number++;
 
-		this.item = new ItemStack(material);
-		if (material == ARROW) {
-			// this is a special case for arrows
-			item.setAmount(6);
-		}
 
 		ItemMeta meta = item.getItemMeta();
 		if (item.getType().getMaxDurability() > 0) {
 			meta.setUnbreakable(true);
 		}
-
-		if (enchant != null && pow != null) {
-			meta.addEnchant(enchant, pow, true);
-		}
-		if (name != null) {
-			meta.itemName(Component.text(name));
-		}
-		if (model != null) {
-			meta.setCustomModelData(model);
-		}
-
 		item.setItemMeta(meta);
+		item.addItemFlags(HIDE_UNBREAKABLE);
 	}
 
 	public static List<LSItem> createItems() {
 		/*
 		 * To-Do List for hard coding new items:
 		 * 1. create new LSItem object
-		 * 2. add the new LSItem object to the lsItems list
 		 * 3. code a new branch to the switch in getItemCategory()
 		 */
+		List<LSItem> lsItems = new ArrayList<>();
 
 		// IMPORTANT: the order in which the items are created must be preserved
 		// because it is used as a id in the database, also better not remove items from the list
-		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null, 31);
-		LSItem ironSword = new LSItem(IRON_SWORD, 750, "stab stab", ItemCategory.Melee, null, null, null, null, 0);
-		LSItem stoneSword = new LSItem(STONE_SWORD, null, null, ItemCategory.Melee, null, null, null, null, null);
-		LSItem ironAxe = new LSItem(IRON_AXE, 1750, null, ItemCategory.Melee, null, null, null, null, 2);
-		LSItem bow = new LSItem(BOW, null, null, ItemCategory.Range, null, null, null, null, null);
-		LSItem arrow = new LSItem(ARROW, 150, null, ItemCategory.Ammunition, "Arrows", null, null, null, 50);
-		LSItem defuser = new LSItem(IRON_PICKAXE, 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser, "Defuser", null, null, null, null);
-		LSItem pickaxe = new LSItem(STONE_PICKAXE, null, null, ItemCategory.Defuser, null, null, null, null, null);
-		LSItem gapple = new LSItem(GOLDEN_APPLE, 750, null, ItemCategory.Consumable, null, null, null, null, 49);
-		LSItem ironChestplate = new LSItem(IRON_CHESTPLATE, 250, null, ItemCategory.Armor, null, PROTECTION, 1, null, 40);
-		LSItem quickdraw = new LSItem(CROSSBOW, 2000, "A crossbow that draws lightning fast.", ItemCategory.Range, "Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
-		LSItem pufferFish = new LSItem(STONE_SWORD, 1250, "Adds poison 1 to the player when hit.", ItemCategory.Melee, "Pufferfish Sword", null, null, 2, 18);
-		LSItem slimeSword = new LSItem(STONE_SWORD, 1000, "Adds slowness 1 to the player when hit.", ItemCategory.Melee, "Slime Sword", KNOCKBACK, 1, 1, 20);
-		LSItem marksman = new LSItem(BOW, 750, null, ItemCategory.Range, "Marksman Bow", null, null, 1, 6);
-		LSItem ricochet = new LSItem(BOW, 1500, "A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow", PUNCH, 1, 2, 8);
-		LSItem multishot = new LSItem(CROSSBOW, 2000, "A crossbow that shoots multiple arrows.", ItemCategory.Range, "Multishot Crossbow", MULTISHOT, 1, 1, 26);
+		ItemStack diamondChestplate = new ItemStack(DIAMOND_CHESTPLATE);
+		diamondChestplate.addEnchantment(PROTECTION, 1);
+		lsItems.add(new LSItem(diamondChestplate, 500, null, ItemCategory.Armor, 31));
 
-		List<LSItem> lsItems = new ArrayList<>();
+		ItemStack ironSword = new ItemStack(IRON_SWORD);
+		List<Component> ironSword_lore =  new ArrayList<>();
+		ironSword_lore.add(text("stab stab").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(ironSword, 750, ironSword_lore, ItemCategory.Melee, 0));
 
-		lsItems.add(diamondChestplate);// 0
-		lsItems.add(ironSword); // 1
-		lsItems.add(stoneSword);// 2
-		lsItems.add(ironAxe);// 3
-		lsItems.add(bow);// 4
-		lsItems.add(arrow);// 5
-		lsItems.add(defuser);// 6
-		lsItems.add(pickaxe);// 7
-		lsItems.add(gapple);// 8
-		lsItems.add(ironChestplate);// 19
-		lsItems.add(quickdraw);// 10
-		lsItems.add(pufferFish);// 11
-		lsItems.add(slimeSword);// 12
-		lsItems.add(marksman); // 13
-		lsItems.add(ricochet);// 14
-		lsItems.add(multishot);// 15
+		ItemStack stoneSword = new ItemStack(STONE_SWORD);
+		lsItems.add(new LSItem(stoneSword, null, null, ItemCategory.Melee, null));
+
+		ItemStack ironAxe = new ItemStack(IRON_AXE);
+		lsItems.add(new LSItem(ironAxe, 1750, null, ItemCategory.Melee, 2));
+
+		ItemStack bow = new ItemStack(BOW);
+		lsItems.add(new LSItem(bow, null, null, ItemCategory.Range, null));
+
+		ItemStack arrow = new ItemStack(ARROW, 6);
+		ItemMeta arrow_meta = arrow.getItemMeta();
+		arrow_meta.displayName(text("Arrows"));
+		arrow.setItemMeta(arrow_meta);
+		lsItems.add(new LSItem(arrow, 150, null, ItemCategory.Ammunition, 50));
+
+		ItemStack defuser = new ItemStack(IRON_PICKAXE);
+		ItemMeta defuser_meta = defuser.getItemMeta();
+		defuser_meta.displayName(text("Defuser"));
+		List<Component> defuser_lore =  new ArrayList<>();
+		defuser_lore.add(text("Don't be a loser buy a defuser -Tubbo").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, null));
+
+		ItemStack pickaxe = new ItemStack(STONE_PICKAXE);
+		lsItems.add(new LSItem(pickaxe, null, null, ItemCategory.Defuser, null));
+
+		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
+		lsItems.add(new LSItem(gapple, 750, null, ItemCategory.Consumable, 49));
+
+		ItemStack ironChestplate = new ItemStack(IRON_CHESTPLATE);
+		ironChestplate.addEnchantment(PROTECTION, 1);
+		lsItems.add(new LSItem(ironChestplate, 250, null, ItemCategory.Armor, 40));
+
+		ItemStack quickdraw = new ItemStack(CROSSBOW);
+		quickdraw.addEnchantment(QUICK_CHARGE, 1);
+		ItemMeta quickdraw_meta = quickdraw.getItemMeta();
+		quickdraw_meta.setCustomModelData(2);
+		quickdraw_meta.displayName(text("Quickdraw Crossbow"));
+		quickdraw.setItemMeta(quickdraw_meta);
+		List<Component> quickdraw_lore =  new ArrayList<>();
+		quickdraw_lore.add(text("A crossbow that draws lightning fast.").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24));
+
+		ItemStack pufferFish = new ItemStack(STONE_SWORD);
+		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
+		pufferFish_meta.setCustomModelData(2);
+		pufferFish_meta.displayName(text("Pufferfish Sword"));
+		pufferFish.setItemMeta(pufferFish_meta);
+		List<Component> pufferFish_lore =  new ArrayList<>();
+		pufferFish_lore.add(text("Adds poison 1 to the player when hit.").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, 18));
+
+		ItemStack slimeSword = new ItemStack(STONE_SWORD);
+		slimeSword.addEnchantment(KNOCKBACK, 1);
+		ItemMeta slimeSword_meta = slimeSword.getItemMeta();
+		slimeSword_meta.setCustomModelData(1);
+		slimeSword_meta.displayName(text("Slime Sword"));
+		slimeSword.setItemMeta(slimeSword_meta);
+		List<Component> slimeSword_lore =  new ArrayList<>();
+		slimeSword_lore.add(text("Adds slowness 1 to the player when hit.").color(WHITE).decoration(ITALIC, false));
+		// slimeSword.addItemFlags(HIDE_ENCHANTS);
+		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20));
+
+		ItemStack marksman = new ItemStack(BOW);
+		ItemMeta marksman_meta = marksman.getItemMeta();
+		marksman_meta.setCustomModelData(1);
+		marksman_meta.displayName(text("Marksman Bow"));
+		marksman.setItemMeta(marksman_meta);
+		lsItems.add(new LSItem(marksman, 750, null, ItemCategory.Range, 6));
+
+		ItemStack ricochet = new ItemStack(BOW);
+		ricochet.addEnchantment(PUNCH, 1);
+		ItemMeta ricochet_meta = ricochet.getItemMeta();
+		ricochet_meta.setCustomModelData(2);
+		ricochet_meta.displayName(text("Ricochet Bow"));
+		ricochet.setItemMeta(ricochet_meta);
+		List<Component> ricochet_lore =  new ArrayList<>();
+		ricochet_lore.add(text("A bouncy bow with bouncy arrows.").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(ricochet, 1500, ricochet_lore, ItemCategory.Range, 8));
+
+		ItemStack multishot = new ItemStack(CROSSBOW);
+		multishot.addEnchantment(MULTISHOT, 1);
+		ItemMeta multishot_meta = multishot.getItemMeta();
+		multishot_meta.setCustomModelData(1);
+		multishot_meta.displayName(text("Multishot Crossbow"));
+		multishot.setItemMeta(multishot_meta);
+		List<Component> multishot_lore =  new ArrayList<>();
+		multishot_lore.add(text("A crossbow that shoots multiple arrows.").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26));
 
 		creation_number = 1; // reset id
 
@@ -122,16 +170,19 @@ public class LSItem {
 
 	// this can handle null being passed in
 	public ItemStack buildDisplayItem(Player p) {
-		List<Component> lore = new ArrayList<>();
+		List<Component> lore;
+		if (description == null) {
+			lore = new ArrayList<>();
+		} else {
+			lore = new ArrayList<>(description);
+		}
+		lore.add(text("")); // add a newline so that the price is seperated
 		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p).getMoney() - price) >= 0) {
 			lore.add(Component.text("" + price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
 			lore.add(Component.text("" + price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));
 		}
 
-		if (description != null) {
-			lore.add(Component.text(description).color(WHITE).decoration(TextDecoration.ITALIC, false));
-		}
 		ItemStack displayItem = item.clone();
 		ItemMeta meta = displayItem.getItemMeta();
 		meta.lore(lore);

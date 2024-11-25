@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public class Shop implements InventoryHolder {
@@ -91,16 +92,21 @@ public class Shop implements InventoryHolder {
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		PlayerInventory inv = p.getInventory();
+		ItemStack arrows_item = new ItemStack(Material.ARROW);
+		ItemMeta arrows_item_meta = arrows_item.getItemMeta();
+		arrows_item_meta.displayName(text("Arrows"));
+		arrows_item.setItemMeta(arrows_item_meta);
 
 		// give 6 arrows back
-    int arrows = 0;
-    for(ItemStack is : inv.getContents()) {
-        if(is != null && is.getType() == Material.ARROW) {
-            arrows += is.getAmount();
-        }
-    }
+		int arrows = 0;
+		for (ItemStack is : inv.getContents()) {
+			if (is != null && is.getType() == Material.ARROW) {
+				arrows += is.getAmount();
+			}
+		}
 		if (arrows < 6) {
-			inv.addItem(new ItemStack(Material.ARROW, 6-arrows));
+			arrows_item.setAmount(6 - arrows);
+			inv.addItem(arrows_item);
 		}
 
 		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
@@ -113,7 +119,8 @@ public class Shop implements InventoryHolder {
 		inv.clear();
 		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		inv.setItem(1, new ItemStack(Material.BOW));
-		inv.setItem(2, new ItemStack(Material.ARROW, 6));
+		arrows_item.setAmount(6);
+		inv.setItem(2, arrows_item);
 
 		Color c = null;
 		if (player_team == Team.Placer) {
