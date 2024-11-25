@@ -91,38 +91,49 @@ public class Shop implements InventoryHolder {
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		PlayerInventory inv = p.getInventory();
-		if (p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
-				|| gc.round_number == GameController.switch_round + 1) {
 
-			Team player_team = gc.teams.get_team(p);
-			inv.clear();
-			inv.setItem(0, new ItemStack(Material.STONE_SWORD));
-			inv.setItem(1, new ItemStack(Material.BOW));
-			inv.setItem(2, new ItemStack(Material.ARROW, 6));
-			if (player_team == Team.Placer) {
-				inv.setHelmet(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_HELMET)));
-				inv.setChestplate(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
-				inv.setLeggings(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_LEGGINGS)));
-				inv.setBoots(colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_BOOTS)));
-			} else if (player_team == Team.Breaker) {
-				inv.setHelmet(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_HELMET)));
-				inv.setChestplate(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
-				inv.setLeggings(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_LEGGINGS)));
-				inv.setBoots(colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_BOOTS)));
-				inv.addItem(new ItemStack(Material.STONE_PICKAXE));
-			}
-			// give unbreakable to all items
-			for (ItemStack is : inv.getContents()) {
-				if (is == null) {
-					continue;
-				}
-				if (is.getType().getMaxDurability() > 0) {
-					ItemMeta im = is.getItemMeta();
-					im.setUnbreakable(true);
-					is.setItemMeta(im);
-				}
-			}
+		// give 6 arrows back
+    int arrows = 0;
+    for(ItemStack is : inv.getContents()) {
+        if(is != null && is.getType() == Material.ARROW) {
+            arrows += is.getAmount();
+        }
+    }
+		if (arrows < 6) {
+			inv.addItem(new ItemStack(Material.ARROW, 6-arrows));
+		}
 
+		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
+				|| gc.round_number == GameController.SWITCH_ROUND + 1)) {
+			// no need to give equipment
+			return;
+		}
+
+		Team player_team = gc.teams.get_team(p);
+		inv.clear();
+		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
+		inv.setItem(1, new ItemStack(Material.BOW));
+		inv.setItem(2, new ItemStack(Material.ARROW, 6));
+
+		Color c = null;
+		if (player_team == Team.Placer) {
+			c = Color.fromRGB(0xe31724);
+		} else if (player_team == Team.Breaker) {
+			c = Color.fromRGB(0x0f9415);
+			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
+		}
+		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET)));
+		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE)));
+		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS)));
+		inv.setBoots(colorArmor(c, new ItemStack(Material.LEATHER_BOOTS)));
+
+		// give unbreakable to all items
+		for (ItemStack is : inv.getContents()) {
+			if (is != null && is.getType().getMaxDurability() > 0) {
+				ItemMeta im = is.getItemMeta();
+				im.setUnbreakable(true);
+				is.setItemMeta(im);
+			}
 		}
 	}
 

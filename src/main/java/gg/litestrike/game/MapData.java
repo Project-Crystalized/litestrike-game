@@ -39,6 +39,7 @@ public class MapData implements Listener {
 
 	// toggelable map-specific features
 	public final boolean jump_pads;
+	public final boolean levitation_pads;
 	public final boolean openable_doors;
 
 	// border gets placed 1 block above this block type
@@ -73,20 +74,21 @@ public class MapData implements Listener {
 
 	}
 
-	// IMPORTANT this only works of /gamerule spawnChunkRadius is set to 0
+	// IMPORTANT this only works if /gamerule spawnChunkRadius is set to 0
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
 		Chunk c = e.getChunk();
 
 		if (is_search_chunk(c.getX(), c.getZ(), c.getWorld())) {
 			ChunkSnapshot cs = c.getChunkSnapshot(true, false, false, false);
+			int min = c.getWorld().getMinHeight();
 
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					for (int x = 0; x < 16; x++) {
 						for (int z = 0; z < 16; z++) {
-							for (int y = -64; y < cs.getHighestBlockYAt(x, z); y++) {
+							for (int y = min; y < cs.getHighestBlockYAt(x, z); y++) {
 								if (cs.getBlockType(x, y, z) == border_marker) {
 									Litestrike.getInstance().mapdata.border_blocks
 											.add(new int[] { cs.getX() * 16 + x, y, cs.getZ() * 16 + z });
@@ -138,8 +140,12 @@ public class MapData implements Listener {
 
 			this.border_height = json.get("border_height").getAsInt();
 
-			this.jump_pads = json.get("enable_jump_pads") != null;
-			this.openable_doors = json.get("enable_openable_doors") != null;
+			JsonElement jp = json.get("enable_jump_pads");
+			this.jump_pads = jp != null && jp.getAsBoolean();
+			JsonElement od = json.get("enable_openable_doors");
+			this.openable_doors = od != null && od.getAsBoolean();
+			JsonElement lp = json.get("enable_levitation_pads");
+			this.levitation_pads = lp != null && lp.getAsBoolean();
 
 			JsonObject jo_podium = json.getAsJsonObject("podium");
 			if (jo_podium != null) {
@@ -178,6 +184,7 @@ public class MapData implements Listener {
 				"\nborder_block_type: " + this.border_block_type +
 				"\nenable_jump_pads: " + this.jump_pads +
 				"\nenable_openable_doors: " + this.openable_doors +
+				"\nenable_levitation_pads: " + this.levitation_pads +
 				"\namount of known border blocks: " + this.border_blocks.size() +
 				"\n\npodium:\nspawn:" + Arrays.toString(this.podium.spawn) +
 				"\nfirst:" + Arrays.toString(this.podium.first) +

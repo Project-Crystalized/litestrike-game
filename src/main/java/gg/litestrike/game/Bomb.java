@@ -193,7 +193,7 @@ class InvItemBomb implements Bomb {
 
 	@Override
 	public void remove() {
-		p_inv.remove(Bomb.bomb_item());
+		p_inv.removeItemAnySlot(Bomb.bomb_item());
 	}
 
 	public void place_bomb(Block bomb_block, BombModel bm, BlockFace bf) {

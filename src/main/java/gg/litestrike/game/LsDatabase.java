@@ -22,7 +22,8 @@ public class LsDatabase {
 				+ "breaker_wins INTEGER,"
 				+ "timestamp 		INTEGER,"
 				+ "map 					INTEGER,"
-				+ "winner 			INTEGER"
+				+ "winner 			INTEGER,"
+				+ "game_ref			INTEGER"
 				+ ");";
 		String create_ls_players = "CREATE TABLE IF NOT EXISTS LsGamesPlayers ("
 				+ "player_uuid 		BLOB,"
@@ -50,11 +51,12 @@ public class LsDatabase {
 	}
 
 	public static void save_game(Team winner) {
-		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner) VALUES(?, ?, unixepoch(), ?, ?)";
+		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
+		GameController gc = Litestrike.getInstance().game_controller;
 
 		int placer_wins_amt = 0;
 		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : Litestrike.getInstance().game_controller.round_results) {
+		for (gg.litestrike.game.Team w : gc.round_results) {
 			if (w == gg.litestrike.game.Team.Placer) {
 				placer_wins_amt += 1;
 			} else {
@@ -69,16 +71,16 @@ public class LsDatabase {
 			game_stmt.setInt(2, breaker_wins_amt);
 			game_stmt.setInt(3, Litestrike.getInstance().mapdata.map_name.hashCode());
 			game_stmt.setInt(4, winner_int);
+			game_stmt.setInt(5, gc.game_reference);
 			game_stmt.executeUpdate();
 
 			int game_id = conn.prepareStatement("SELECT last_insert_rowid();").executeQuery().getInt("last_insert_rowid()");
 
-
-		String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner)"
-				+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, "
+					+ "kills, assists, gained_money, spent_money, bought_items, was_winner)"
+					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				GameController gc = Litestrike.getInstance().game_controller;
 				PlayerData pd = gc.getPlayerData(p);
 				int is_winner = gc.teams.get_team(p) == winner ? 1 : 0;
 
@@ -102,12 +104,12 @@ public class LsDatabase {
 
 	private static byte[] get_bought_items(Player p) {
 		Shop s = Shop.getShop(p);
-		ByteBuffer bb = ByteBuffer.allocate(s.buyHistory.size());
+		ByteBuffer bb = ByteBuffer.allocate(s.buyHistory.size() * 2);
 		for (LSItem lsi : s.buyHistory) {
 			if (lsi == null) {
-				bb.put((byte) 0);
+				bb.putShort((short) 0);
 			} else {
-				bb.put(lsi.id);
+				bb.putShort(lsi.id);
 			}
 		}
 		return bb.array();

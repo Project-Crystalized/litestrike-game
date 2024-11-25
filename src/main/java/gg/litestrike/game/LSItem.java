@@ -22,8 +22,8 @@ public class LSItem {
 	public final Integer price;
 	public final Integer slot;
 
-	private static byte creation_number = 1;
-	public final byte id;
+	private static short creation_number = 1;
+	public final Short id;
 
 	public enum ItemCategory {
 		Melee,
@@ -78,30 +78,23 @@ public class LSItem {
 		 */
 
 		// IMPORTANT: the order in which the items are created must be preserved
-		// because it is used as a id in the database
-		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null,
-				31);
+		// because it is used as a id in the database, also better not remove items from the list
+		LSItem diamondChestplate = new LSItem(DIAMOND_CHESTPLATE, 500, null, ItemCategory.Armor, null, PROTECTION, 1, null, 31);
 		LSItem ironSword = new LSItem(IRON_SWORD, 750, "stab stab", ItemCategory.Melee, null, null, null, null, 0);
 		LSItem stoneSword = new LSItem(STONE_SWORD, null, null, ItemCategory.Melee, null, null, null, null, null);
 		LSItem ironAxe = new LSItem(IRON_AXE, 1750, null, ItemCategory.Melee, null, null, null, null, 2);
 		LSItem bow = new LSItem(BOW, null, null, ItemCategory.Range, null, null, null, null, null);
-		LSItem arrow = new LSItem(ARROW, 100, null, ItemCategory.Ammunition, null, null, null, null, 50);
-		LSItem defuser = new LSItem(IRON_PICKAXE, 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser,
-				"Defuser", null, null, null, null);
+		LSItem arrow = new LSItem(ARROW, 150, null, ItemCategory.Ammunition, "Arrows", null, null, null, 50);
+		LSItem defuser = new LSItem(IRON_PICKAXE, 100, "Don't be a loser buy a defuser -Tubbo", ItemCategory.Defuser, "Defuser", null, null, null, null);
 		LSItem pickaxe = new LSItem(STONE_PICKAXE, null, null, ItemCategory.Defuser, null, null, null, null, null);
-		LSItem gapple = new LSItem(GOLDEN_APPLE, 500, null, ItemCategory.Consumable, null, null, null, null, 49);
+		LSItem gapple = new LSItem(GOLDEN_APPLE, 750, null, ItemCategory.Consumable, null, null, null, null, 49);
 		LSItem ironChestplate = new LSItem(IRON_CHESTPLATE, 250, null, ItemCategory.Armor, null, PROTECTION, 1, null, 40);
-		LSItem quickdraw = new LSItem(CROSSBOW, 2000, "A crossbow that draws lightning fast.", ItemCategory.Range,
-				"Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
-		LSItem pufferFish = new LSItem(IRON_SWORD, 1250, "Adds poison 1 to the player when hit.", ItemCategory.Melee,
-				"Pufferfish Sword", null, null, 2, 18);
-		LSItem slimeSword = new LSItem(IRON_SWORD, 1000, "Adds slowness 1 to the player when hit.", ItemCategory.Melee,
-				"Slime Sword", KNOCKBACK, 1, 1, 20);
-		LSItem marksman = new LSItem(BOW, 750, null, ItemCategory.Range, "Marksman Bow", POWER, 1, 1, 6);
-		LSItem ricochet = new LSItem(BOW, 1500, "A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow",
-				PUNCH, 1, 2, 8);
-		LSItem multishot = new LSItem(CROSSBOW, 2000, "A crossbow that shoots multiple arrows.", ItemCategory.Range,
-				"Multishot Crossbow", MULTISHOT, 1, 1, 26);
+		LSItem quickdraw = new LSItem(CROSSBOW, 2000, "A crossbow that draws lightning fast.", ItemCategory.Range, "Quickdraw Crossbow", QUICK_CHARGE, 1, 2, 24);
+		LSItem pufferFish = new LSItem(STONE_SWORD, 1250, "Adds poison 1 to the player when hit.", ItemCategory.Melee, "Pufferfish Sword", null, null, 2, 18);
+		LSItem slimeSword = new LSItem(STONE_SWORD, 1000, "Adds slowness 1 to the player when hit.", ItemCategory.Melee, "Slime Sword", KNOCKBACK, 1, 1, 20);
+		LSItem marksman = new LSItem(BOW, 750, null, ItemCategory.Range, "Marksman Bow", null, null, 1, 6);
+		LSItem ricochet = new LSItem(BOW, 1500, "A bouncy bow with bouncy arrows.", ItemCategory.Range, "Ricochet Bow", PUNCH, 1, 2, 8);
+		LSItem multishot = new LSItem(CROSSBOW, 2000, "A crossbow that shoots multiple arrows.", ItemCategory.Range, "Multishot Crossbow", MULTISHOT, 1, 1, 26);
 
 		List<LSItem> lsItems = new ArrayList<>();
 
@@ -131,9 +124,9 @@ public class LSItem {
 	public ItemStack buildDisplayItem(Player p) {
 		List<Component> lore = new ArrayList<>();
 		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p).getMoney() - price) >= 0) {
-			lore.add(Component.text("" + price + "\n").color(WHITE).decoration(TextDecoration.ITALIC, false));
+			lore.add(Component.text("" + price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
-			lore.add(Component.text("" + price).color(RED).decoration(TextDecoration.ITALIC, false));
+			lore.add(Component.text("" + price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));
 		}
 
 		if (description != null) {
@@ -155,18 +148,15 @@ public class LSItem {
 			case CROSSBOW:
 			case BOW:
 				return ItemCategory.Range;
-			case ARROW: {
+			case ARROW:
 				return ItemCategory.Ammunition;
-			}
 			case IRON_PICKAXE:
 			case STONE_PICKAXE:
 				return ItemCategory.Defuser;
-			case GOLDEN_APPLE: {
+			case GOLDEN_APPLE:
 				return ItemCategory.Consumable;
-			}
-			case IRON_CHESTPLATE: {
+			case IRON_CHESTPLATE:
 				return ItemCategory.Armor;
-			}
 			default:
 				return null;
 		}

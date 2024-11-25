@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -49,10 +50,12 @@ public class GameController {
 	// then the next round starts and it counts from 0 again
 	public int phase_timer = 0;
 
-	public final int game_id = ThreadLocalRandom.current().nextInt();
+	// the game_reference is printed in chat so that we can later search for the
+	// number in the chat logs
+	public final int game_reference = ThreadLocalRandom.current().nextInt(0, 99999);
 
 	// after this round, the sides get switched
-	public final static int switch_round = 4;
+	public final static int SWITCH_ROUND = 4;
 
 	public final static int PRE_ROUND_TIME = (15 * 20);
 	public final static int RUNNING_TIME = (180 * 20);
@@ -60,6 +63,7 @@ public class GameController {
 	public final static int FINISH_TIME = (20 * 20);
 
 	public GameController() {
+		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
 
 		new BukkitRunnable() {
 			@Override
@@ -75,7 +79,7 @@ public class GameController {
 		}.runTaskLater(Litestrike.getInstance(), 1);
 
 		// setup scoreboard and bossbar
-		ScoreboardController.setup_scoreboard(teams, game_id);
+		ScoreboardController.setup_scoreboard(teams, game_reference);
 		Litestrike.getInstance().bbd.showBossBar();
 
 		// This just calls update_game_state() once every second
@@ -157,10 +161,10 @@ public class GameController {
 
 		// if the enemy team is empty, or if the team has reached the required rounds,
 		// win
-		if (teams.get_placers().size() == 0 || breaker_wins_amt == switch_round + 1) {
+		if (teams.get_placers().size() == 0 || breaker_wins_amt == SWITCH_ROUND + 1) {
 			return Team.Breaker;
 		}
-		if (teams.get_breakers().size() == 0 || placer_wins_amt == switch_round + 1) {
+		if (teams.get_breakers().size() == 0 || placer_wins_amt == SWITCH_ROUND + 1) {
 			return Team.Placer;
 		}
 
@@ -213,9 +217,9 @@ public class GameController {
 
 		ScoreboardController.set_win_display(round_results);
 
-		// remove arrows
+		// remove arrows and items
 		for (Entity e : Bukkit.getWorld("world").getEntities()) {
-			if (e instanceof Arrow) {
+			if (e instanceof Arrow || e instanceof Item) {
 				e.remove();
 			}
 		}
@@ -281,7 +285,7 @@ public class GameController {
 		phase_timer = 0;
 		round_number += 1;
 
-		if (round_number == switch_round + 1) {
+		if (round_number == SWITCH_ROUND + 1) {
 			Bukkit.getServer().sendMessage(text("ꜱᴡɪᴛᴄʜɪɴɢ ꜱɪᴅᴇꜱ!!").color(Litestrike.YELLOW));
 			teams.switch_teams();
 			for (PlayerData pd : playerDatas) {
@@ -294,7 +298,7 @@ public class GameController {
 					round_results.set(i, Team.Placer);
 				}
 			}
-			ScoreboardController.setup_scoreboard(teams, game_id);
+			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
 		}
 
@@ -413,6 +417,7 @@ public class GameController {
 		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
 
 		Collections.sort(playerDatas, new PlayerDataComparator());
+		Collections.reverse(playerDatas);
 		if (playerDatas.size() > 0) {
 			PlayerData first = playerDatas.get(0);
 			s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
@@ -459,6 +464,5 @@ public class GameController {
 					p.teleport(md.podium.get_spawn(w));
 			}
 		}
-
 	}
 }

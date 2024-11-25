@@ -151,14 +151,14 @@ public class ScoreboardController {
 
 	private static String render_win_display(int amt) {
 		String s = "";
-		for (int i = 1; i <= GameController.switch_round; i++) {
+		for (int i = 1; i <= GameController.SWITCH_ROUND; i++) {
 			if (i <= amt) {
 				s += "\uE106";
 			} else {
 				s += "\uE105";
 			}
 		}
-		if (GameController.switch_round + 1 == amt) {
+		if (GameController.SWITCH_ROUND + 1 == amt) {
 			s += "\uE108";
 		} else {
 			s += "\uE107";
