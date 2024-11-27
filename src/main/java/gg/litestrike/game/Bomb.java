@@ -33,17 +33,17 @@ public interface Bomb {
 
 		// set item lore
 		List<Component> lore = new ArrayList<Component>();
-		lore.add(text("This is the bomb.").color(TextColor.color(0xf4d167))
+		lore.add(Component.translatable("crystalized.item.bomb.desc").color(TextColor.color(0xf4d167))
 				.decoration(TextDecoration.ITALIC, false));
-		lore.add(text("Place it at the bomb sites!").color(TextColor.color(0xf4d167))
+		lore.add(Component.translatable("crystalized.item.bomb.desc2").color(TextColor.color(0xf4d167))
 				.decoration(TextDecoration.ITALIC, false));
-		lore.add(text("** maybe some lore stuff here, ask mira or someone idk**").color(NamedTextColor.GRAY)
+		lore.add(Component.translatable("crystalized.item.bomb.desc3").color(NamedTextColor.GRAY)
 				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
 		im.setCustomModelData(29);
 
-		im.displayName(text("The Bomb!!").color(TextColor.color(0xe64cce))
+		im.displayName(Component.translatable("crystalized.item.bomb.name").color(TextColor.color(0xe64cce))
 				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
 
 		// these apis are deprecated:
@@ -105,7 +105,7 @@ class PlacedBomb implements Bomb {
 
 		SoundEffects.bomb_plant_finish(block.getLocation());
 		block.setType(Material.BARRIER);
-		Bukkit.getServer().showTitle(Title.title(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ᴘʟᴀɴᴛᴇᴅ!").color(Litestrike.YELLOW), text("")));
+		Bukkit.getServer().showTitle(Title.title(Component.translatable("crystalized.game.litestrike.bombplanted").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
 		bomb_model.bomb_plant(block.getLocation(), bf);
 	}

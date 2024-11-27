@@ -48,32 +48,30 @@ public class ScoreboardController {
 			breakers.addPlayer(player);
 		}
 
-		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
+		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true).append(text(" \uE100").color(NamedTextColor.WHITE));
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-		obj.getScore("9").setScore(9);
-		obj.getScore("9").customName(text("").color(NamedTextColor.GREEN));
+		obj.getScore("8").setScore(8);
+		obj.getScore("8").customName(text("").color(NamedTextColor.GREEN));
 
 		if (t == gg.litestrike.game.Team.Breaker) {
-			obj.getScore("8").customName(text("ᴛᴇᴀᴍ: ").append(Litestrike.BREAKER_TEXT));
-			obj.getScore("8").setScore(8);
+			obj.getScore("7").customName(Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
 		} else {
-			obj.getScore("8").customName(text("ᴛᴇᴀᴍ: ").append(Litestrike.PLACER_TEXT));
-			obj.getScore("8").setScore(8);
+			obj.getScore("7").customName(Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.PLACER_TEXT));
+
 		}
 		obj.getScore("7").setScore(7);
-		obj.getScore("7").customName(text("").color(NamedTextColor.RED));
 
 		obj.getScore("6").setScore(6);
-		obj.getScore("6").customName(text("").color(NamedTextColor.DARK_RED));
+		obj.getScore("6").customName(Component.translatable("crystalized.game.generic.money").append(text(": ")));
 
 		obj.getScore("5").setScore(5);
 		obj.getScore("5").customName(text("").color(NamedTextColor.DARK_BLUE));
 
 		obj.getScore("4").setScore(4);
-		obj.getScore("4").customName(text("ꜱᴛᴀʏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ!").color(TextColor.color(0xe64cce)));
+		obj.getScore("4").customName(Component.translatable("crystalized.game.litestrike.objective").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
 		obj.getScore("3").customName(text("").color(NamedTextColor.AQUA));
@@ -89,10 +87,9 @@ public class ScoreboardController {
 				.append(text("" + game_id).color(NamedTextColor.GRAY)));
 
 		Team money_count = sb.registerNewTeam("money_count");
-		money_count.addEntry("7");
-		money_count.prefix(text("ᴍᴏɴᴇʏ: "));
+		money_count.addEntry("6");
 		money_count.suffix(text("error"));
-		obj.getScore("7").setScore(7);
+		obj.getScore("6").setScore(6);
 
 		Team wins_placers = sb.registerNewTeam("wins_placers");
 		wins_placers.addEntry("3");

@@ -71,7 +71,8 @@ public class LSItem {
 
 		ItemStack ironSword = new ItemStack(IRON_SWORD);
 		List<Component> ironSword_lore =  new ArrayList<>();
-		ironSword_lore.add(text("stab stab").color(WHITE).decoration(ITALIC, false));
+		ironSword_lore.add(Component.translatable("crystalized.sword.iron.desc1").color(WHITE).decoration(ITALIC, false));
+		ironSword_lore.add(Component.translatable("crystalized.sword.iron.desc2").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(ironSword, 750, ironSword_lore, ItemCategory.Melee, 0));
 
 		ItemStack stoneSword = new ItemStack(STONE_SWORD);
@@ -91,9 +92,9 @@ public class LSItem {
 
 		ItemStack defuser = new ItemStack(IRON_PICKAXE);
 		ItemMeta defuser_meta = defuser.getItemMeta();
-		defuser_meta.displayName(text("Defuser"));
+		defuser_meta.displayName(Component.translatable("crystalized.item.defuser.name"));
 		List<Component> defuser_lore =  new ArrayList<>();
-		defuser_lore.add(text("Don't be a loser buy a defuser -Tubbo").color(WHITE).decoration(ITALIC, false));
+		defuser_lore.add(Component.translatable("crystalized.item.defuser.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, null));
 
 		ItemStack pickaxe = new ItemStack(STONE_PICKAXE);
@@ -110,36 +111,36 @@ public class LSItem {
 		quickdraw.addEnchantment(QUICK_CHARGE, 1);
 		ItemMeta quickdraw_meta = quickdraw.getItemMeta();
 		quickdraw_meta.setCustomModelData(2);
-		quickdraw_meta.displayName(text("Quickdraw Crossbow"));
+		quickdraw_meta.displayName(Component.translatable("crystalized.crossbow.quickcharge.name"));
 		quickdraw.setItemMeta(quickdraw_meta);
 		List<Component> quickdraw_lore =  new ArrayList<>();
-		quickdraw_lore.add(text("A crossbow that draws lightning fast.").color(WHITE).decoration(ITALIC, false));
+		quickdraw_lore.add(Component.translatable("crystalized.crossbow.quickcharge.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24));
 
 		ItemStack pufferFish = new ItemStack(STONE_SWORD);
 		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
 		pufferFish_meta.setCustomModelData(2);
-		pufferFish_meta.displayName(text("Pufferfish Sword"));
+		pufferFish_meta.displayName(Component.translatable("crystalized.sword.pufferfish.name"));
 		pufferFish.setItemMeta(pufferFish_meta);
 		List<Component> pufferFish_lore =  new ArrayList<>();
-		pufferFish_lore.add(text("Adds poison 1 to the player when hit.").color(WHITE).decoration(ITALIC, false));
+		pufferFish_lore.add(Component.translatable("crystalized.sword.pufferfish.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, 18));
 
 		ItemStack slimeSword = new ItemStack(STONE_SWORD);
 		slimeSword.addEnchantment(KNOCKBACK, 1);
 		ItemMeta slimeSword_meta = slimeSword.getItemMeta();
 		slimeSword_meta.setCustomModelData(1);
-		slimeSword_meta.displayName(text("Slime Sword"));
+		slimeSword_meta.displayName(Component.translatable("crystalized.sword.slime.name"));
 		slimeSword.setItemMeta(slimeSword_meta);
 		List<Component> slimeSword_lore =  new ArrayList<>();
-		slimeSword_lore.add(text("Adds slowness 1 to the player when hit.").color(WHITE).decoration(ITALIC, false));
+		slimeSword_lore.add(Component.translatable("crystalized.sword.slime.desc").color(WHITE).decoration(ITALIC, false));
 		// slimeSword.addItemFlags(HIDE_ENCHANTS);
 		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20));
 
 		ItemStack marksman = new ItemStack(BOW);
 		ItemMeta marksman_meta = marksman.getItemMeta();
 		marksman_meta.setCustomModelData(1);
-		marksman_meta.displayName(text("Marksman Bow"));
+		marksman_meta.displayName(Component.translatable("crystalized.bow.marksman.name"));
 		marksman.setItemMeta(marksman_meta);
 		lsItems.add(new LSItem(marksman, 750, null, ItemCategory.Range, 6));
 
@@ -147,20 +148,20 @@ public class LSItem {
 		ricochet.addEnchantment(PUNCH, 1);
 		ItemMeta ricochet_meta = ricochet.getItemMeta();
 		ricochet_meta.setCustomModelData(2);
-		ricochet_meta.displayName(text("Ricochet Bow"));
+		ricochet_meta.displayName(Component.translatable("crystalized.bow.ricochet.name"));
 		ricochet.setItemMeta(ricochet_meta);
 		List<Component> ricochet_lore =  new ArrayList<>();
-		ricochet_lore.add(text("A bouncy bow with bouncy arrows.").color(WHITE).decoration(ITALIC, false));
+		ricochet_lore.add(Component.translatable("crystalized.bow.ricochet.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(ricochet, 1500, ricochet_lore, ItemCategory.Range, 8));
 
 		ItemStack multishot = new ItemStack(CROSSBOW);
 		multishot.addEnchantment(MULTISHOT, 1);
 		ItemMeta multishot_meta = multishot.getItemMeta();
 		multishot_meta.setCustomModelData(1);
-		multishot_meta.displayName(text("Multishot Crossbow"));
+		multishot_meta.displayName(Component.translatable("crystalized.crossbow.multi.name"));
 		multishot.setItemMeta(multishot_meta);
 		List<Component> multishot_lore =  new ArrayList<>();
-		multishot_lore.add(text("A crossbow that shoots multiple arrows.").color(WHITE).decoration(ITALIC, false));
+		multishot_lore.add(Component.translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26));
 
 		creation_number = 1; // reset id

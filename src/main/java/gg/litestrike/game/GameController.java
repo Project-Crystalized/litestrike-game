@@ -180,17 +180,21 @@ public class GameController {
 		// send messages to the teams
 		if (round_number == 1) {
 			for (Player p : teams.get_placers()) {
-				p.sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
+				p.sendMessage(Component.text("\n").append(Component.translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
 						.append(Litestrike.PLACER_TEXT)
-						.append(text(
-								"\n ɢᴏ ᴡɪᴛʜ ʏᴏᴜʀ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ ᴀᴛ ᴏɴᴇ ᴏғ ᴛʜᴇ ᴅᴇsɪɢɴᴀᴛᴇᴅ ʙᴏᴍʙ sɪᴛᴇs!!\n ᴏʀ ᴋɪʟʟ ᴛʜᴇ ᴇɴᴇᴍʏ Tᴇᴀᴍ!\n")
-								.color(Litestrike.YELLOW)));
+						.append(text("\n"))
+						.append(Component.translatable("crystalized.game.litestrike.tutorial.placer1").color(Litestrike.YELLOW))
+						.append(text("\n"))
+						.append(Component.translatable("crystalized.game.litestrike.tutorial.placer2").color(Litestrike.YELLOW))
+						.append(text("\n")));
 			}
-			Audience.audience(teams.get_breakers()).sendMessage(text("\n ʏᴏᴜ ᴀʀᴇ ᴀ ").color(Litestrike.YELLOW)
+			Audience.audience(teams.get_breakers()).sendMessage(Component.text("\n").append(Component.translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
-					.append(text(
-							"\n ᴋɪʟʟ ᴛʜᴇ Eɴᴇᴍʏ ᴛᴇᴀᴍ ᴀɴᴅ ᴘʀᴇᴠᴇɴᴛ ᴛʜᴇᴍ ғʀᴏᴍ ᴘʟᴀᴄɪɴɢ ᴛʜᴇ ʙᴏᴍʙ!\n ɪғ ᴛʜᴇʏ ᴘʟᴀᴄᴇ ᴛʜᴇ ʙᴏᴍʙ, ʙʀᴇᴀᴋ ɪᴛ.\n")
-							.color(Litestrike.YELLOW)));
+					.append(text("\n"))
+					.append(Component.translatable("crystalized.game.litestrike.tutorial.breaker1").color(Litestrike.YELLOW))
+					.append(text("\n"))
+					.append(Component.translatable("crystalized.game.litestrike.tutorial.breaker2").color(Litestrike.YELLOW))
+					.append(text("\n")));
 		}
 
 		// remove the border
@@ -231,6 +235,7 @@ public class GameController {
 		} else {
 			winner_component = Litestrike.BREAKER_TEXT;
 		}
+		//Is this actually used? - Callum
 		Bukkit.getServer()
 				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
@@ -286,7 +291,7 @@ public class GameController {
 		round_number += 1;
 
 		if (round_number == SWITCH_ROUND + 1) {
-			Bukkit.getServer().sendMessage(text("ꜱᴡɪᴛᴄʜɪɴɢ ꜱɪᴅᴇꜱ!!").color(Litestrike.YELLOW));
+			Bukkit.getServer().sendMessage(Component.translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
 			teams.switch_teams();
 			for (PlayerData pd : playerDatas) {
 				pd.removeMoney();
@@ -407,14 +412,15 @@ public class GameController {
 	private void print_result_table(Team winner) {
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
-		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ \uE100").color(NamedTextColor.GREEN));
+		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100")));
 		Component winner_text = text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
 		if (winner == Team.Placer) {
 			s.sendMessage(winner_text.append(Litestrike.PLACER_TEXT));
 		} else {
 			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
 		}
-		s.sendMessage(text("ɢᴀᴍᴇ ʀᴇsᴜʟᴛs:").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
+		s.sendMessage(Component.translatable("crystalized.game.generic.gameresults").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD)
+				.append(text(":")).color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
 
 		Collections.sort(playerDatas, new PlayerDataComparator());
 		Collections.reverse(playerDatas);
