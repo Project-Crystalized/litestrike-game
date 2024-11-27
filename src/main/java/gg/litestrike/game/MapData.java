@@ -74,11 +74,13 @@ public class MapData implements Listener {
 
 	}
 
-	// IMPORTANT this only works if /gamerule spawnChunkRadius is set to 0
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
 		Chunk c = e.getChunk();
+		check_chunk(c);
+	}
 
+	public void check_chunk(Chunk c) {
 		if (is_search_chunk(c.getX(), c.getZ(), c.getWorld())) {
 			ChunkSnapshot cs = c.getChunkSnapshot(true, false, false, false);
 			int min = c.getWorld().getMinHeight();

@@ -1,13 +1,14 @@
 package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -19,7 +20,7 @@ enum Team {
 	Breaker,
 }
 
-public final class Litestrike extends JavaPlugin implements Listener {
+public final class Litestrike extends JavaPlugin {
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -31,6 +32,8 @@ public final class Litestrike extends JavaPlugin implements Listener {
 	public boolean is_force_starting = false;
 
 	public QueScoreboard qsb;
+
+	public ProtocolManager protocolManager;
 
 	// player amount required to autostart
 	public static final int PLAYERS_TO_START = 20;
@@ -45,18 +48,12 @@ public final class Litestrike extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+    protocolManager = ProtocolLibrary.getProtocolManager();
 
-		// the scoreboard has to be delayed until the first server tick to avoid a bug
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				qsb = new QueScoreboard();
-			}
-		}.runTask(this);
+		qsb = new QueScoreboard();
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
-		this.getServer().getPluginManager().registerEvents(this, this);
 		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
 		this.getServer().getPluginManager().registerEvents(new BombListener(), this);
 
@@ -105,6 +102,24 @@ public final class Litestrike extends JavaPlugin implements Listener {
 		}.runTaskTimer(this, 1, 20);
 
 		LsDatabase.setup_databases();
+
+		World w = Bukkit.getWorld("world");
+
+		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
+		w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+		w.setGameRule(GameRule.DO_INSOMNIA, false);
+		w.setGameRule(GameRule.MOB_GRIEFING, false);
+		w.setGameRule(GameRule.DO_FIRE_TICK, false);
+		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+		w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+
+		for (Chunk c : w.getLoadedChunks()) {
+			mapdata.check_chunk(c);
+		}
+
+		protocolManager.addPacketListener(ProtocolLibLib.change_bomb_carrier_armor_color());
+		protocolManager.addPacketListener(ProtocolLibLib.make_allys_glow());
 	}
 
 	@Override
@@ -129,34 +144,4 @@ public final class Litestrike extends JavaPlugin implements Listener {
 						.color(Litestrike.YELLOW));
 		}
 	};
-
-	// setup stuff like gamerules
-	@EventHandler
-	public void onWorldInit(WorldInitEvent e) {
-		World w = e.getWorld();
-
-		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
-		w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
-		w.setGameRule(GameRule.DO_INSOMNIA, false);
-		w.setGameRule(GameRule.MOB_GRIEFING, false);
-		w.setGameRule(GameRule.DO_FIRE_TICK, false);
-		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-
-		// /gamerule spawnChunkRadius needs to be set to 0 before world load,
-		// otherwise the border detection can fail.
-		// so we set it to 0 and disable the plugin if it wasnt at 0 already
-		/*
-		 * if (w.getGameRuleValue(GameRule.SPAWN_CHUNK_RADIUS) != 0) {
-		 * Bukkit.getLogger().log(Level.SEVERE,
-		 * "LITESTRIKE: The Gamerule SPAWN_CHUNK_RADIUS needs to be set to zero in order for Litestrike to work!"
-		 * );
-		 * Bukkit.getLogger().log(Level.SEVERE,
-		 * "LITESTRIKE: The GameRule SPAWN_CHUNK_RADIUS was set to 0! Please restart the server now to prevent bugs."
-		 * );
-		 * w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
-		 * Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-		 * }
-		 */
-	}
 }
