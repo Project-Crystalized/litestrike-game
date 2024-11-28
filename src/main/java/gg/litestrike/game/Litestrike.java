@@ -39,9 +39,9 @@ public final class Litestrike extends JavaPlugin {
 	public static final int PLAYERS_TO_START = 20;
 
 	// constants for Placer and breaker text
-	public static final Component PLACER_TEXT = Component.text("Placer").color(Teams.PLACER_RED)
+	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers").color(Teams.PLACER_RED)
 			.decoration(TextDecoration.BOLD, true);
-	public static final Component BREAKER_TEXT = Component.text("Breaker").color(Teams.BREAKER_GREEN)
+	public static final Component BREAKER_TEXT = Component.translatable("crystalized.game.litestrike.breakers").color(Teams.BREAKER_GREEN)
 			.decoration(TextDecoration.BOLD, true);
 
 	public static final TextColor YELLOW = TextColor.color(0xfbea85);
