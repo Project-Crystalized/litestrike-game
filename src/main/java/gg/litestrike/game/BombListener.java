@@ -172,7 +172,7 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
 
-		if (e.getClickedBlock() != null && !e.getPlayer().isOp() && e.getClickedBlock().getType().isInteractable()) {
+		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
 			e.setCancelled(true);
 		}
 

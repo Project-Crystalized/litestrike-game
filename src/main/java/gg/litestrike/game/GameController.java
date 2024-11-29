@@ -24,6 +24,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.translatable;;
 
 enum RoundState {
 	PreRound,
@@ -179,21 +180,21 @@ public class GameController {
 
 		// send messages to the teams
 		if (round_number == 1) {
-			for (Player p : teams.get_placers()) {
-				p.sendMessage(Component.text("\n").append(Component.translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
-						.append(Litestrike.PLACER_TEXT)
-						.append(text("\n"))
-						.append(Component.translatable("crystalized.game.litestrike.tutorial.placer1").color(Litestrike.YELLOW))
-						.append(text("\n"))
-						.append(Component.translatable("crystalized.game.litestrike.tutorial.placer2").color(Litestrike.YELLOW))
-						.append(text("\n")));
-			}
-			Audience.audience(teams.get_breakers()).sendMessage(Component.text("\n").append(Component.translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
+			Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(text("\n")
+					.append(translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
+					.append(Litestrike.PLACER_TEXT)
+					.append(text("\n"))
+					.append(translatable("crystalized.game.litestrike.tutorial.placer1").color(Litestrike.YELLOW))
+					.append(text("\n"))
+					.append(translatable("crystalized.game.litestrike.tutorial.placer2").color(Litestrike.YELLOW))
+					.append(text("\n")));
+			Audience.audience(teams.get_breakers()).sendMessage(text("\n")
+					.append(translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
 					.append(Litestrike.BREAKER_TEXT)
 					.append(text("\n"))
-					.append(Component.translatable("crystalized.game.litestrike.tutorial.breaker1").color(Litestrike.YELLOW))
+					.append(translatable("crystalized.game.litestrike.tutorial.breaker1").color(Litestrike.YELLOW))
 					.append(text("\n"))
-					.append(Component.translatable("crystalized.game.litestrike.tutorial.breaker2").color(Litestrike.YELLOW))
+					.append(translatable("crystalized.game.litestrike.tutorial.breaker2").color(Litestrike.YELLOW))
 					.append(text("\n")));
 		}
 
@@ -232,11 +233,12 @@ public class GameController {
 		Component winner_component;
 		if (winner == Team.Placer) {
 			winner_component = Litestrike.PLACER_TEXT;
+			Bukkit.getLogger().info("The Placer Team won round " + round_number);
 		} else {
 			winner_component = Litestrike.BREAKER_TEXT;
+			Bukkit.getLogger().info("The Breaker Team won round " + round_number);
 		}
-		//Is this actually used? - Callum
-		Bukkit.getServer()
+		Audience.audience(Bukkit.getOnlinePlayers())
 				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
@@ -291,7 +293,9 @@ public class GameController {
 		round_number += 1;
 
 		if (round_number == SWITCH_ROUND + 1) {
-			Bukkit.getServer().sendMessage(Component.translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
+			Audience.audience(Bukkit.getOnlinePlayers())
+					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
+			Bukkit.getLogger().info("Switching the Sides");
 			teams.switch_teams();
 			for (PlayerData pd : playerDatas) {
 				pd.removeMoney();
@@ -419,7 +423,8 @@ public class GameController {
 		} else {
 			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
 		}
-		s.sendMessage(Component.translatable("crystalized.game.generic.gameresults").color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD)
+		s.sendMessage(translatable("crystalized.game.generic.gameresults").color(NamedTextColor.BLUE)
+				.decorate(TextDecoration.BOLD)
 				.append(text(":")).color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
 
 		Collections.sort(playerDatas, new PlayerDataComparator());

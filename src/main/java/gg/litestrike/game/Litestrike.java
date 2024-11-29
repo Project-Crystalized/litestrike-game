@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -39,16 +40,18 @@ public final class Litestrike extends JavaPlugin {
 	public static final int PLAYERS_TO_START = 20;
 
 	// constants for Placer and breaker text
-	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers").color(Teams.PLACER_RED)
+	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
+			.color(Teams.PLACER_RED)
 			.decoration(TextDecoration.BOLD, true);
-	public static final Component BREAKER_TEXT = Component.translatable("crystalized.game.litestrike.breakers").color(Teams.BREAKER_GREEN)
+	public static final Component BREAKER_TEXT = Component.translatable("crystalized.game.litestrike.breakers")
+			.color(Teams.BREAKER_GREEN)
 			.decoration(TextDecoration.BOLD, true);
 
 	public static final TextColor YELLOW = TextColor.color(0xfbea85);
 
 	@Override
 	public void onEnable() {
-    protocolManager = ProtocolLibrary.getProtocolManager();
+		protocolManager = ProtocolLibrary.getProtocolManager();
 
 		qsb = new QueScoreboard();
 
@@ -96,6 +99,7 @@ public final class Litestrike extends JavaPlugin {
 					countdown = 11;
 					game_controller = new GameController();
 					is_force_starting = false;
+					Bukkit.getLogger().info("A GAME is starting!");
 					return;
 				}
 			}
@@ -140,8 +144,12 @@ public final class Litestrike extends JavaPlugin {
 				Bukkit.getServer().showTitle(Title.title(Component.text(i), Component.text("")));
 			case 10:
 			case 5:
-				Bukkit.getServer().sendMessage(Component.text("ᴛʜᴇ ɢᴀᴍᴇ ᴡɪʟʟ ꜱᴛᴀʀᴛ ɪɴ  " + i + " ꜱᴇᴄᴏɴᴅꜱ!")
-						.color(Litestrike.YELLOW));
+				Audience.audience(Bukkit.getOnlinePlayers())
+						.sendMessage(
+								(Component.translatable("crystalized.game.litestrike.start1")
+										.append(Component.text("" + i))
+										.append(Component.translatable("crystalized.game.litestrike.start2")))
+										.color(Litestrike.YELLOW));
 		}
 	};
 }

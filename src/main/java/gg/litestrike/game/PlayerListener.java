@@ -17,6 +17,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import io.papermc.paper.entity.LookAnchor;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
 import static net.kyori.adventure.text.Component.text;
@@ -139,7 +140,9 @@ public class PlayerListener implements Listener {
 			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
 					.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
 		}
-		Bukkit.getServer().sendMessage(death_message);
+		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(death_message);
+		Bukkit.getLogger().info(p.getName() + "(" + gc.teams.get_team(p) + ") was killed by " + killer.getName() + "("
+				+ gc.teams.get_team(killer) + ")");
 
 		// play sound
 		for (Player player : Bukkit.getOnlinePlayers()) {

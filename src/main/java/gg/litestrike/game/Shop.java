@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 public class Shop implements InventoryHolder {
@@ -92,10 +91,7 @@ public class Shop implements InventoryHolder {
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		PlayerInventory inv = p.getInventory();
-		ItemStack arrows_item = new ItemStack(Material.ARROW);
-		ItemMeta arrows_item_meta = arrows_item.getItemMeta();
-		arrows_item_meta.displayName(text("Arrows"));
-		arrows_item.setItemMeta(arrows_item_meta);
+		ItemStack arrows_item = LSItem.get_arrows();
 
 		// give 6 arrows back
 		int arrows = 0;
