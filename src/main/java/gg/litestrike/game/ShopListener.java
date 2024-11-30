@@ -46,10 +46,13 @@ public class ShopListener implements Listener {
 			return;
 		}
 		event.setCancelled(true);
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		GameController gc = Litestrike.getInstance().game_controller;
 
 		for (LSItem lsitem : s.shopItems) {
 			if (lsitem.slot == null || lsitem.slot != event.getSlot()) {
+				continue;
+			}
+			if (lsitem.slot == Shop.DEFUSER_SLOT && gc.teams.get_team(p) != Team.Breaker) {
 				continue;
 			}
 
@@ -62,7 +65,7 @@ public class ShopListener implements Listener {
 				return;
 			}
 			// check that we have enough money
-			if (!pd.removeMoney(lsitem.price)) {
+			if (!gc.getPlayerData(p).removeMoney(lsitem.price)) {
 				p.sendMessage(Component.text("Cant afford this").color(RED));
 				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 				return;

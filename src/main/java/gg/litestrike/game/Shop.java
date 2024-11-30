@@ -15,6 +15,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.jetbrains.annotations.NotNull;
 
+import gg.litestrike.game.LSItem.ItemCategory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,12 +53,13 @@ public class Shop implements InventoryHolder {
 
 	public void setItems(List<LSItem> ware) {
 		for (LSItem item : ware) {
-			if (item == null) {
+			if (item == null || item.slot == null) {
 				continue;
 			}
-			if (item.slot != null) {
-				currentView.setItem(item.slot, item.buildDisplayItem(player));
+			if (item.categ == ItemCategory.Defuser && Litestrike.getInstance().game_controller.teams.get_team(player) != Team.Breaker) {
+				continue;
 			}
+			currentView.setItem(item.slot, item.buildDisplayItem(player));
 		}
 	}
 

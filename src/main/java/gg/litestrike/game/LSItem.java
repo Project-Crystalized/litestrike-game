@@ -116,7 +116,7 @@ public class LSItem {
 		List<Component> defuser_lore = new ArrayList<>();
 		defuser_lore.add(translatable("crystalized.item.defuser.desc1").color(WHITE).decoration(ITALIC, false));
 		defuser_lore.add(translatable("crystalized.item.defuser.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, null));
+		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT));
 
 		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
 		List<Component> gapple_lore = new ArrayList<>();
