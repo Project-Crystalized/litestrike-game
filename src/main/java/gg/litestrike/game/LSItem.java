@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 import org.bukkit.NamespacedKey;
@@ -55,6 +56,25 @@ public class LSItem {
 		if (item.getType().getMaxDurability() > 0) {
 			meta.setUnbreakable(true);
 		}
+
+		if (price != null) {
+			Component item_name;
+			if (meta.displayName() != null) {
+				item_name = meta.displayName();
+			} else {
+				item_name = translatable(item.translationKey()).decoration(ITALIC, false);
+			}
+			if (price <= 500) {
+				meta.displayName(item_name.color(WHITE));
+			} else if (price <= 1000) {
+				meta.displayName(item_name.color(TextColor.color(0x4DA4E5)));
+			} else if (price <= 2000) {
+				meta.displayName(item_name.color(TextColor.color(0xfbc522)));
+			} else {
+				meta.displayName(item_name.color(TextColor.color(0xb02ae2)));
+			}
+		}
+
 		item.setItemMeta(meta);
 		item.addItemFlags(HIDE_UNBREAKABLE);
 	}
@@ -98,9 +118,6 @@ public class LSItem {
 		defuser_lore.add(translatable("crystalized.item.defuser.desc2").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, null));
 
-		ItemStack pickaxe = new ItemStack(STONE_PICKAXE);
-		lsItems.add(new LSItem(pickaxe, null, null, ItemCategory.Defuser, null));
-
 		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
 		List<Component> gapple_lore = new ArrayList<>();
 		gapple_lore.add(translatable("crystalized.item.gapple.desc1").color(WHITE).decoration(ITALIC, false));
@@ -137,8 +154,8 @@ public class LSItem {
 		slimeSword_meta.displayName(translatable("crystalized.sword.slime.name").decoration(ITALIC, false));
 		slimeSword.setItemMeta(slimeSword_meta);
 		List<Component> slimeSword_lore = new ArrayList<>();
-		slimeSword_lore.add(translatable("crystalized.sword.slime.desc").color(WHITE).decoration(ITALIC, false));
-		// slimeSword.addItemFlags(HIDE_ENCHANTS);
+		slimeSword_lore.add(translatable("crystalized.sword.slime.desc1").color(WHITE).decoration(ITALIC, false));
+		slimeSword_lore.add(translatable("crystalized.sword.slime.desc2").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20));
 
 		ItemStack marksman = new ItemStack(BOW);
@@ -164,7 +181,7 @@ public class LSItem {
 		multishot.addEnchantment(MULTISHOT, 1);
 		ItemMeta multishot_meta = multishot.getItemMeta();
 		multishot_meta.setCustomModelData(1);
-		multishot_meta.displayName(translatable("crystalized.crossbow.multi.name"));
+		multishot_meta.displayName(translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false));
 		multishot.setItemMeta(multishot_meta);
 		List<Component> multishot_lore = new ArrayList<>();
 		multishot_lore.add(translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
@@ -178,7 +195,7 @@ public class LSItem {
 	public static ItemStack get_arrows() {
 		ItemStack arrow = new ItemStack(ARROW, 6);
 		ItemMeta arrow_meta = arrow.getItemMeta();
-		arrow_meta.displayName(translatable("crystalized.item.arrows.name").decoration(ITALIC, false));
+		arrow_meta.displayName(translatable("crystalized.item.arrows.name").color(WHITE).decoration(ITALIC, false));
 		arrow.setItemMeta(arrow_meta);
 		return arrow;
 	}
@@ -211,6 +228,22 @@ public class LSItem {
 				return lsi.categ;
 			}
 		}
+
+		String name = i.getType().name();
+		// hardcoding default equipment because it isnt in LSITEM
+		if (name.contains("SWORD")) {
+			return ItemCategory.Melee;
+		}
+		if (name.contains("HELMET") || name.contains("CHESTPLATE") || name.contains("LEGGINGS") || name.contains("BOOTS")) {
+			return ItemCategory.Armor;
+		}
+		if (name.contains("PICKAXE")) {
+			return ItemCategory.Defuser;
+		}
+		if (name.contains("POTION")) {
+			return ItemCategory.Consumable;
+		}
+
 		return null;
 	}
 }

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
+import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 
 public class Shop implements InventoryHolder {
 	public List<LSItem> shopItems;
@@ -27,6 +28,8 @@ public class Shop implements InventoryHolder {
 	public Player player;
 	public List<LSItem> buyHistory;
 	public static HashMap<String, Shop> shopList = new HashMap<>();
+
+	public static final int DEFUSER_SLOT = 22;
 
 	public Shop(Player p) {
 		if (p == null) {
@@ -47,20 +50,19 @@ public class Shop implements InventoryHolder {
 	}
 
 	public void setItems(List<LSItem> ware) {
-		Inventory i = currentView;
 		for (LSItem item : ware) {
 			if (item == null) {
 				continue;
 			}
 			if (item.slot != null) {
-				i.setItem(item.slot, item.buildDisplayItem(player));
+				currentView.setItem(item.slot, item.buildDisplayItem(player));
 			}
 		}
 	}
 
 	public void setDefuser() {
 		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Breaker) {
-			currentView.setItem(22, shopItems.get(6).buildDisplayItem(player));
+			currentView.setItem(DEFUSER_SLOT, shopItems.get(6).buildDisplayItem(player));
 		}
 	}
 
@@ -136,6 +138,7 @@ public class Shop implements InventoryHolder {
 				ItemMeta im = is.getItemMeta();
 				im.setUnbreakable(true);
 				is.setItemMeta(im);
+				is.addItemFlags(HIDE_UNBREAKABLE);
 			}
 		}
 	}
