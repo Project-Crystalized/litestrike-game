@@ -80,9 +80,12 @@ public class Shop implements InventoryHolder {
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
-	public void updateTitle() {
+	public void updateTitle(LSItem i) {
 		currentView.close();
 		currentView = Bukkit.getServer().createInventory(this, 54, title(player));
+		if (i != null) {
+			currentView.setItem(49, i.buildDisplayItem(player));
+		}
 		player.openInventory(currentView);
 		setItems(shopItems);
 		setDefuser();
@@ -147,7 +150,7 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	private static ItemStack colorArmor(Color c, ItemStack i) {
+	public static ItemStack colorArmor(Color c, ItemStack i) {
 		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
 		lam.setColor(c);
 		i.setItemMeta(lam);

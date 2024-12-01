@@ -122,7 +122,7 @@ public class LSItem {
 		List<Component> gapple_lore = new ArrayList<>();
 		gapple_lore.add(translatable("crystalized.item.gapple.desc1").color(WHITE).decoration(ITALIC, false));
 		gapple_lore.add(translatable("crystalized.item.gapple.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(gapple, 750, gapple_lore, ItemCategory.Consumable, 49));
+		lsItems.add(new LSItem(gapple, 750, gapple_lore, ItemCategory.Consumable, 48));
 
 		ItemStack ironChestplate = new ItemStack(IRON_CHESTPLATE);
 		ironChestplate.addEnchantment(PROTECTION, 1);

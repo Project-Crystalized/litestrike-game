@@ -58,7 +58,7 @@ public class GameController {
 	// after this round, the sides get switched
 	public final static int SWITCH_ROUND = 4;
 
-	public final static int PRE_ROUND_TIME = (20 * 20);
+	public final static int PRE_ROUND_TIME = (920 * 20);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
 	public final static int FINISH_TIME = (20 * 20);
@@ -332,6 +332,8 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
+			Shop s = Shop.getShop(p);
+			s.updateTitle(null);
 			getPlayerData(p).addMoney(1000, "");
 		}
 
