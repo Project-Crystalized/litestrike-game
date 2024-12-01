@@ -56,7 +56,8 @@ public class Shop implements InventoryHolder {
 			if (item == null || item.slot == null) {
 				continue;
 			}
-			if (item.categ == ItemCategory.Defuser && Litestrike.getInstance().game_controller.teams.get_team(player) != Team.Breaker) {
+			if (item.categ == ItemCategory.Defuser
+					&& Litestrike.getInstance().game_controller.teams.get_team(player) != Team.Breaker) {
 				continue;
 			}
 			currentView.setItem(item.slot, item.buildDisplayItem(player));

@@ -105,7 +105,8 @@ class PlacedBomb implements Bomb {
 
 		SoundEffects.bomb_plant_finish(block.getLocation());
 		block.setType(Material.BARRIER);
-		Bukkit.getServer().showTitle(Title.title(Component.translatable("crystalized.game.litestrike.bombplanted").color(Litestrike.YELLOW), text("")));
+		Bukkit.getServer().showTitle(Title
+				.title(Component.translatable("crystalized.game.litestrike.bombplanted").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
 		bomb_model.bomb_plant(block.getLocation(), bf);
 	}

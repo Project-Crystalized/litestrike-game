@@ -21,24 +21,13 @@ public class ProtocolLibLib {
 			@Override
 			public void onPacketSending(PacketEvent event) {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc == null) {
-					return;
-				}
 				PacketContainer packet = event.getPacket();
-				Player updated_player = null;
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					if (player.getEntityId() == packet.getIntegers().read(0)) {
-						updated_player = player;
-						break;
-					}
-				}
-				if (updated_player == null) {
+				Player updated_player = get_player_by_entity_id(packet.getIntegers().read(0));
+				if (gc == null
+						|| updated_player == null
+						|| gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())) {
 					return;
 				}
-				if (gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())) {
-					return;
-				}
-
 				event.setPacket(packet = packet.deepClone());
 				List<WrappedDataValue> wrappedData = packet.getDataValueCollectionModifier().read(0);
 				for (WrappedDataValue wdv : wrappedData) {
@@ -52,32 +41,27 @@ public class ProtocolLibLib {
 		};
 	}
 
+	private static Player get_player_by_entity_id(int id) {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.getEntityId() == id) {
+				return player;
+			}
+		}
+		return null;
+	}
+
 	public static PacketAdapter change_bomb_carrier_armor_color() {
 		return new PacketAdapter(Litestrike.getInstance(), PacketType.Play.Server.ENTITY_EQUIPMENT) {
 			@Override
 			public void onPacketSending(PacketEvent event) {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc == null) {
-					return;
-				}
 				PacketContainer packet = event.getPacket();
-				Player updated_player = null;
-				for (Player player : Bukkit.getOnlinePlayers()) {
-					if (player.getEntityId() == packet.getIntegers().read(0)) {
-						updated_player = player;
-						break;
-					}
-				}
-				if (updated_player == null) {
-					return;
-				}
-				if (gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())) {
-					return;
-				}
-				if (!(gc.bomb instanceof InvItemBomb)) {
-					return;
-				}
-				if (!(updated_player.getInventory().equals(((InvItemBomb) gc.bomb).p_inv))) {
+				Player updated_player = get_player_by_entity_id(packet.getIntegers().read(0));
+				if (gc == null
+						|| updated_player == null
+						|| gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())
+						|| !(gc.bomb instanceof InvItemBomb)
+						|| !(updated_player.getInventory().equals(((InvItemBomb) gc.bomb).p_inv))) {
 					return;
 				}
 				event.setPacket(packet = packet.deepClone());

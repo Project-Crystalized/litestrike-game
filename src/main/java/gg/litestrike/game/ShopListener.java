@@ -72,7 +72,8 @@ public class ShopListener implements Listener {
 			}
 
 			// remove items of same categ from inv
-			if (lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable) {
+			if (lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable
+					&& lsitem.categ != ItemCategory.Armor) {
 				for (int i = 0; i <= 40; i++) {
 					ItemStack it = p.getInventory().getItem(i);
 					if (it == null) {

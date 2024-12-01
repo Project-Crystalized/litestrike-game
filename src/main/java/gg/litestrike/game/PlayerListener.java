@@ -16,11 +16,17 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.entity.LookAnchor;
+import io.papermc.paper.event.player.AsyncChatDecorateEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 
 import static net.kyori.adventure.text.Component.text;
+
+import java.util.List;
 
 public class PlayerListener implements Listener {
 
@@ -80,6 +86,41 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
+	public void onChatEvent(AsyncChatEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+
+		List<Player> enemy_team;
+		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
+			enemy_team = gc.teams.get_placers();
+		} else {
+			enemy_team = gc.teams.get_breakers();
+		}
+
+		e.viewers().removeAll(enemy_team);
+		e.renderer(ChatRenderer.viewerUnaware(new LSChatRenderer()));
+	}
+
+	// @EventHandler
+	// public void onChatDecorate(AsyncChatDecorateEvent e) {
+	// GameController gc = Litestrike.getInstance().game_controller;
+	// if (e.player() == null || gc == null) {
+	// return;
+	// }
+	//
+	// Team t = gc.teams.get_team(e.player());
+	// TextColor color;
+	// if (t == Team.Breaker) {
+	// color = Teams.BREAKER_GREEN;
+	// } else {
+	// color = Teams.PLACER_RED;
+	// }
+	// e.result(e.result().color(color));
+	// }
+
+	@EventHandler
 	public void onEntityDamage(EntityDamageByEntityEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null) {
@@ -136,13 +177,14 @@ public class PlayerListener implements Listener {
 		// send message
 		Component death_message = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)))
 				.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
+		String log_msg = p.getName() + "(" + gc.teams.get_team(p) + ") was killed by ";
 		if (killer != null) {
 			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
 					.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
+			log_msg = log_msg + killer.getName() + "(" + gc.teams.get_team(killer) + ")";
 		}
 		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(death_message);
-		Bukkit.getLogger().info(p.getName() + "(" + gc.teams.get_team(p) + ") was killed by " + killer.getName() + "("
-				+ gc.teams.get_team(killer) + ")");
+		Bukkit.getLogger().info(log_msg);
 
 		// play sound
 		for (Player player : Bukkit.getOnlinePlayers()) {
@@ -153,5 +195,19 @@ public class PlayerListener implements Listener {
 			}
 		}
 
+	}
+}
+
+class LSChatRenderer implements ChatRenderer.ViewerUnaware {
+	@Override
+	public Component render(Player source, Component sourceDisplayName, Component message) {
+		Team t = Litestrike.getInstance().game_controller.teams.get_team(source);
+		TextColor color;
+		if (t == Team.Breaker) {
+			color = TextColor.color(0x22fb30);
+		} else {
+			color = TextColor.color(0xfb3922);
+		}
+		return (text("<").append(sourceDisplayName).append(text("> ")).append(message)).color(color);
 	}
 }

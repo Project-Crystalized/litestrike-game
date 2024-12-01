@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -123,11 +124,8 @@ public class BombListener implements Listener {
 			return;
 		}
 
-		// if that player was already mining, return
-		for (MiningPlayer mp : mining_players) {
-			if (mp.p == e.getPlayer()) {
-				return;
-			}
+		if (is_player_mining(e.getPlayer())) {
+			return;
 		}
 
 		// if not mining the bomb, return
@@ -143,9 +141,45 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onDamageAbort(BlockDamageAbortEvent e) {
-		MiningPlayer to_remove = null;
+		remove_mining_player(e.getPlayer());
+	}
+
+	@EventHandler
+	public void onSwingArm(PlayerArmSwingEvent e) {
+		Bomb b = Litestrike.getInstance().game_controller.bomb;
+		if (!(b instanceof PlacedBomb)) {
+			return;
+		}
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
+				mp.timer = 6 + ping_compensation_ticks(e.getPlayer());
+				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
+				break;
+			}
+		}
+
+		// check if add players to mining_players
+		PlacedBomb pb = (PlacedBomb) b;
+		Block target = e.getPlayer().getTargetBlockExact(5, FluidCollisionMode.NEVER);
+		if (target == null) {
+			return;
+		}
+		if (target.equals(pb.block)) {
+			if (!(is_player_mining(e.getPlayer()))) {
+				mining_players.add(new MiningPlayer(e.getPlayer()));
+				bomb_model.bomb_mining();
+				SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
+			}
+		} else {
+			// arm swing while not on bomb
+			remove_mining_player(e.getPlayer());
+		}
+	}
+
+	private void remove_mining_player(Player p) {
+		MiningPlayer to_remove = null;
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p == p) {
 				to_remove = mp;
 				break;
 			}
@@ -158,15 +192,13 @@ public class BombListener implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onSwingArm(PlayerArmSwingEvent e) {
+	private boolean is_player_mining(Player p) {
 		for (MiningPlayer mp : mining_players) {
-			if (mp.p == e.getPlayer()) {
-				mp.timer = 2;
-				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
-				break;
+			if (mp.p == p) {
+				return true;
 			}
 		}
+		return false;
 	}
 
 	@EventHandler
@@ -206,7 +238,7 @@ public class BombListener implements Listener {
 			SoundEffects.start_planting(lpb.getX(), lpb.getY(), lpb.getZ());
 			bomb_model.spawn_model(lpb.getLocation());
 		}
-		is_planting = 6;
+		is_planting = 7 + ping_compensation_ticks(e.getPlayer());
 
 		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
 		last_planting_player = e.getPlayer();
@@ -308,11 +340,15 @@ public class BombListener implements Listener {
 		mining_players.clear();
 		last_planting_block = null;
 	}
+
+	private int ping_compensation_ticks(Player p) {
+		return Math.min(p.getPing() / 50, 10);
+	}
 }
 
 class MiningPlayer {
 	Player p;
-	int timer = 2;
+	int timer = 12;
 
 	public MiningPlayer(Player p) {
 		this.p = p;
