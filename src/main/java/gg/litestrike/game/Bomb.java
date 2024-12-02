@@ -83,6 +83,8 @@ class DroppedBomb implements Bomb {
 
 		item.setGlowing(true);
 		item.setInvulnerable(true);
+
+		ProtocolLibLib.update_armor();
 	}
 
 	@Override
@@ -109,6 +111,8 @@ class PlacedBomb implements Bomb {
 				.title(Component.translatable("crystalized.game.litestrike.bombplanted").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
 		bomb_model.bomb_plant(block.getLocation(), bf);
+
+		ProtocolLibLib.update_armor();
 	}
 
 	@Override
@@ -190,6 +194,8 @@ class InvItemBomb implements Bomb {
 	public InvItemBomb(PlayerInventory p_inv) {
 		this.p_inv = p_inv;
 		p_inv.addItem(Bomb.bomb_item());
+
+		ProtocolLibLib.update_armor();
 	}
 
 	@Override

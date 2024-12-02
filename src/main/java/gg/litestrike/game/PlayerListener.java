@@ -18,7 +18,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.entity.LookAnchor;
-import io.papermc.paper.event.player.AsyncChatDecorateEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;

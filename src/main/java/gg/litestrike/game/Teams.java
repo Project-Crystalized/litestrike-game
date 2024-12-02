@@ -30,12 +30,6 @@ public class Teams {
 		// if odd, breakers get more
 		breakers = list.subList(0, middle);
 		placers = list.subList(middle, list.size());
-
-		// this is needed because of some weird packet nonsense, to make everyone glow
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			p.setSneaking(true);
-			p.setSneaking(false);
-		}
 	}
 
 	public void switch_teams() {

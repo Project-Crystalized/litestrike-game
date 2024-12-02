@@ -146,6 +146,9 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onSwingArm(PlayerArmSwingEvent e) {
+		if (Litestrike.getInstance().game_controller == null) {
+			return;
+		}
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
 		if (!(b instanceof PlacedBomb)) {
 			return;

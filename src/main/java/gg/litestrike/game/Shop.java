@@ -128,16 +128,19 @@ public class Shop implements InventoryHolder {
 		inv.setItem(2, arrows_item);
 
 		Color c = null;
+		Color boot_color = null;
 		if (player_team == Team.Placer) {
 			c = Color.fromRGB(0xe31724);
+			boot_color = Color.fromRGB(0xe88b28);
 		} else if (player_team == Team.Breaker) {
 			c = Color.fromRGB(0x0f9415);
+			boot_color = Color.fromRGB(0x8119c9);
 			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
 		}
 		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET)));
 		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE)));
 		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS)));
-		inv.setBoots(colorArmor(c, new ItemStack(Material.LEATHER_BOOTS)));
+		inv.setBoots(colorArmor(boot_color, new ItemStack(Material.LEATHER_BOOTS)));
 
 		// give unbreakable to all items
 		for (ItemStack is : inv.getContents()) {

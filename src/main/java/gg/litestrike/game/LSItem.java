@@ -67,6 +67,8 @@ public class LSItem {
 			if (price <= 500) {
 				meta.displayName(item_name.color(WHITE));
 			} else if (price <= 1000) {
+				meta.displayName(item_name.color(TextColor.color(0x8f5805)));
+			} else if (price <= 1500) {
 				meta.displayName(item_name.color(TextColor.color(0x4DA4E5)));
 			} else if (price <= 2000) {
 				meta.displayName(item_name.color(TextColor.color(0xfbc522)));

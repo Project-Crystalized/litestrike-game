@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import com.comphenix.protocol.PacketType;
@@ -50,6 +51,26 @@ public class ProtocolLibLib {
 		return null;
 	}
 
+	// refreshes all the armor colors, to correct bomb carrier color
+	public static void update_armor() {
+		for (Player p : Litestrike.getInstance().game_controller.teams.get_placers()) {
+			PlayerInventory inv = p.getInventory();
+			ItemStack[] items = { inv.getHelmet(), inv.getChestplate(), inv.getLeggings(), inv.getBoots() };
+			for (ItemStack i : items) {
+				if ((!(i.getItemMeta() instanceof LeatherArmorMeta)) || i == null) {
+					continue;
+				}
+				LeatherArmorMeta im = (LeatherArmorMeta) i.getItemMeta();
+				im.setColor(Color.fromRGB(im.getColor().asRGB() + 1));
+				i.setItemMeta(im);
+			}
+			inv.setHelmet(items[0]);
+			inv.setChestplate(items[1]);
+			inv.setLeggings(items[2]);
+			inv.setBoots(items[3]);
+		}
+	}
+
 	public static PacketAdapter change_bomb_carrier_armor_color() {
 		return new PacketAdapter(Litestrike.getInstance(), PacketType.Play.Server.ENTITY_EQUIPMENT) {
 			@Override
@@ -69,7 +90,7 @@ public class ProtocolLibLib {
 					ItemStack stack = slot.getSecond();
 					if (stack != null && stack.getType().name().contains("LEATHER")) {
 						LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
-						meta.setColor(Color.fromRGB(0xFF5733));
+						meta.setColor(Color.fromRGB(0xff8530));
 						stack.setItemMeta(meta);
 					}
 				}

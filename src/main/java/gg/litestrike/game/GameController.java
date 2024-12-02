@@ -58,7 +58,7 @@ public class GameController {
 	// after this round, the sides get switched
 	public final static int SWITCH_ROUND = 4;
 
-	public final static int PRE_ROUND_TIME = (920 * 20);
+	public final static int PRE_ROUND_TIME = (20 * 20);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
 	public final static int FINISH_TIME = (20 * 20);
@@ -335,6 +335,10 @@ public class GameController {
 			Shop s = Shop.getShop(p);
 			s.updateTitle(null);
 			getPlayerData(p).addMoney(1000, "");
+
+			// this is needed because of some weird packet nonsense, to make everyone glow
+			p.setSneaking(true);
+			p.setSneaking(false);
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start
