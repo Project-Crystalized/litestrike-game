@@ -71,9 +71,13 @@ public class GameController {
 			public void run() {
 				playerDatas = new ArrayList<PlayerData>();
 				for (Player player : Bukkit.getOnlinePlayers()) {
-					PlayerData p = new PlayerData(player);
-					playerDatas.add(p);
+					PlayerData pd = new PlayerData(player);
+					playerDatas.add(pd);
 					new Shop(player);
+					new TabListController();
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						player.unlistPlayer(p);
+					}
 				}
 				next_round();
 			}

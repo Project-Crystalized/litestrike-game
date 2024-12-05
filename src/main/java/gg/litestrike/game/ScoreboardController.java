@@ -2,7 +2,6 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -110,24 +109,6 @@ public class ScoreboardController {
 
 		p.setScoreboard(sb);
 
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Litestrike.getInstance().game_controller == null) {
-					cancel();
-				}
-				Component footer = text("");
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					footer.append(get_player_stat(p)).append(text("\n"));
-				}
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
-	}
-
-	private static Component get_player_stat(Player p) {
-
-		// TODO
-		return null;
 	}
 
 	public static void set_win_display(List<gg.litestrike.game.Team> wins) {
