@@ -7,6 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -28,6 +29,10 @@ class TabListController {
 							.append(text("---------------------------------------------------").color(NamedTextColor.GRAY))
 							.append(render_player_stat(p))
 							.append(text("\n---------------------------------------------------\n\n").color(NamedTextColor.GRAY)));
+
+					Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true)
+							.append(text(" \uE100").color(NamedTextColor.WHITE));
+					p.sendPlayerListHeader(title);
 				}
 
 			}
