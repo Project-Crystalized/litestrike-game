@@ -57,7 +57,7 @@ public class ProtocolLibLib {
 			PlayerInventory inv = p.getInventory();
 			ItemStack[] items = { inv.getHelmet(), inv.getChestplate(), inv.getLeggings(), inv.getBoots() };
 			for (ItemStack i : items) {
-				if ((!(i.getItemMeta() instanceof LeatherArmorMeta)) || i == null) {
+				if (i == null || (!(i.getItemMeta() instanceof LeatherArmorMeta))) {
 					continue;
 				}
 				LeatherArmorMeta im = (LeatherArmorMeta) i.getItemMeta();
