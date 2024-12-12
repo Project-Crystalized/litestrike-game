@@ -48,7 +48,8 @@ public class ScoreboardController {
 			breakers.addPlayer(player);
 		}
 
-		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true).append(text(" \uE100").color(NamedTextColor.WHITE));
+		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true)
+				.append(text(" \uE100").color(NamedTextColor.WHITE));
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -57,9 +58,11 @@ public class ScoreboardController {
 		obj.getScore("8").customName(text("").color(NamedTextColor.GREEN));
 
 		if (t == gg.litestrike.game.Team.Breaker) {
-			obj.getScore("7").customName(Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
+			obj.getScore("7").customName(
+					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
 		} else {
-			obj.getScore("7").customName(Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.PLACER_TEXT));
+			obj.getScore("7").customName(
+					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.PLACER_TEXT));
 
 		}
 		obj.getScore("7").setScore(7);
@@ -71,7 +74,8 @@ public class ScoreboardController {
 		obj.getScore("5").customName(text("").color(NamedTextColor.DARK_BLUE));
 
 		obj.getScore("4").setScore(4);
-		obj.getScore("4").customName(Component.translatable("crystalized.game.litestrike.objective").color(TextColor.color(0xe64cce)));
+		obj.getScore("4")
+				.customName(Component.translatable("crystalized.game.litestrike.objective").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("3").setScore(3);
 		obj.getScore("3").customName(text("").color(NamedTextColor.AQUA));
@@ -104,6 +108,7 @@ public class ScoreboardController {
 		obj.getScore("2").setScore(2);
 
 		p.setScoreboard(sb);
+
 	}
 
 	public static void set_win_display(List<gg.litestrike.game.Team> wins) {

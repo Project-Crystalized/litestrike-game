@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
 
 		p.teleport(Litestrike.getInstance().mapdata.get_que_spawn(p.getWorld()));
 		p.getInventory().clear();
-		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
 		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 1, false, false, true));
@@ -161,7 +161,7 @@ public class PlayerListener implements Listener {
 
 		// reset killed player
 		p.setGameMode(GameMode.SPECTATOR);
-		p.setHealth(p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.getInventory().clear();
 
 		// give death/kill and money

@@ -21,7 +21,7 @@ public class BombModel {
 		}
 		after_plant_loc = loc.clone();
 		model = (ArmorStand) loc.getWorld().spawn(loc.clone().add(0, -100, 0), ArmorStand.class);
-		model.getAttribute(Attribute.GENERIC_SCALE).setBaseValue(0.5);
+		model.getAttribute(Attribute.SCALE).setBaseValue(0.5);
 		model.setGravity(false);
 		model.setCanPickupItems(false);
 		model.setVisible(false);
