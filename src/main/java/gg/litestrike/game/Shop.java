@@ -194,4 +194,25 @@ public class Shop implements InventoryHolder {
 			}
 		}
 	}
+
+	public static ItemStack getBasicKid(ItemCategory cate, Player p){
+
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (cate == LSItem.ItemCategory.Melee) {
+			return new ItemStack(Material.STONE_SWORD);
+		} else if (cate == LSItem.ItemCategory.Range) {
+			return new ItemStack(Material.BOW);
+		} else if (cate == LSItem.ItemCategory.Defuser){
+			return new ItemStack(Material.STONE_PICKAXE);
+		} else if(cate == LSItem.ItemCategory.Armor) {
+			if (gc.teams.get_team(p.getName()) == Team.Placer) {
+				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE));
+			} else {
+				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE));
+			}
+		} else if(cate == LSItem.ItemCategory.Ammunition){
+			return new ItemStack(Material.ARROW, 6);
+		}
+		return null;
+	}
 }

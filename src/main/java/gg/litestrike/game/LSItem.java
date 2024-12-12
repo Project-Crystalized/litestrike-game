@@ -232,7 +232,7 @@ public class LSItem {
 		}
 
 		String name = i.getType().name();
-		// hardcoding default equipment because it isnt in LSITEM
+		// hardcoding default equipment because it isn't in LSITEM
 		if (name.contains("SWORD")) {
 			return ItemCategory.Melee;
 		}

@@ -15,8 +15,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
@@ -51,7 +53,7 @@ public class ShopListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		if (event.isRightClick()) {
-			undoBuy(event.getCurrentItem(), (Player) event.getWhoClicked(), event.getSlot());
+			undoBuy((Player) event.getWhoClicked(), event.getSlot());
 			return;
 		}
 
@@ -106,101 +108,110 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	public void undoBuy(ItemStack item, Player p, int slot) {
+	public void undoBuy(Player p, int slot) {
 
 		Shop s = Shop.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
-
+		ItemStack ite = null;
 		LSItem lsitem = null;
+		Integer invSlot = null;
+
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
-			if (lsi.item.getType() != Material.IRON_PICKAXE && lsi.slot != null) {
-				if (lsi.slot != slot) {
-					lsitem = lsi;
-				}
+			p.sendMessage(lsi.item.displayName());
+
+			if(lsi.slot == null){
+				continue;
 			}
+			p.sendMessage("lsi.slot: "+lsi.slot);
+			p.sendMessage("slot: " +slot);
+			if (lsi.slot.equals(slot)) {
+				lsitem = lsi;
+				break;
+			}
+
 		}
 		if (lsitem == null) {
 			return;
 		}
-
+		p.sendMessage("lsitem isn't null");
 		// go through the players inv and find the item we want to sell
 		for (int i = 0; i <= 40; i++) {
-			ItemStack ite = p.getInventory().getItem(i);
+			ite = p.getInventory().getItem(i);
 
-			Component lsitemcom = lsitem.item.displayName();
-			Component itecom = ite.displayName();
-			PlainTextComponentSerializer ptcs = PlainTextComponentSerializer.plainText();
-			String lsitemName = ptcs.serialize(lsitemcom);
-			String iteName = ptcs.serialize(itecom);
+			if(ite == null){
+				continue;
+			}
 
-			if (lsitemName.equals(iteName)) {
-				// check what category the item is in order to sell properly
-				if (lsitem.categ == LSItem.ItemCategory.Melee || lsitem.categ == LSItem.ItemCategory.Range
-						|| lsitem.categ == LSItem.ItemCategory.Defuser) {
-					// go through the buyHistory and find and LSItem that has the same category but
-					// isn't the same item
-					for (int j = s.buyHistory.size(); j > 1; j--) {
-						LSItem hisitem = s.buyHistory.get(j);
-						if (hisitem.categ == lsitem.categ && hisitem.item != lsitem.item) {
-							p.getInventory().setItem(i, hisitem.item);
-							gc.getPlayerData(p).addMoney(lsitem.price, "For selling an Item!");
-							s.updateTitle(lsitem);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-							return;
-						}
-					}
-					// if we don't find any buys in the history we give the player the basic kit
-					if (lsitem.categ == LSItem.ItemCategory.Melee) {
-						p.getInventory().setItem(i, new ItemStack(Material.STONE_SWORD));
-					} else if (lsitem.categ == LSItem.ItemCategory.Range) {
-						p.getInventory().setItem(i, new ItemStack(Material.BOW));
-					} else {
-						p.getInventory().setItem(i, new ItemStack(Material.STONE_PICKAXE));
-					}
-					p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-					gc.getPlayerData(p).addMoney(lsitem.price, "For selling an Item!");
-					s.updateTitle(lsitem);
-					return;
-				} else if (lsitem.categ == LSItem.ItemCategory.Armor) {
-					for (int j = s.buyHistory.size(); j > 1; j--) {
-						LSItem hisitem = s.buyHistory.get(j);
-						if (hisitem.categ == lsitem.categ && hisitem.item != lsitem.item) {
-							p.getInventory().setChestplate(hisitem.item);
-							gc.getPlayerData(p).addMoney(lsitem.price, "For selling an Item!");
-							s.updateTitle(lsitem);
-							p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-							return;
-						}
-					}
-					if (gc.teams.get_team(p.getName()) == Team.Placer) {
-						p.getInventory()
-								.setChestplate(Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE)));
-					} else {
-						p.getInventory()
-								.setChestplate(Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE)));
-					}
-					gc.getPlayerData(p).addMoney(lsitem.price, "For selling an Item!");
-					s.updateTitle(lsitem);
-					p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-					return;
-				} else if (lsitem.categ == LSItem.ItemCategory.Consumable || lsitem.categ == LSItem.ItemCategory.Ammunition) {
-					if (lsitem.slot == 50 && ite.getAmount() == 6) {
-						return;
-					}
-					for (int j = s.buyHistory.size(); j > 1; j--) {
-						LSItem hisitem = s.buyHistory.get(j);
-						if (hisitem.categ == lsitem.categ && hisitem.item != lsitem.item) {
-							int amt = lsitem.item.getAmount();
-							int amount = ite.getAmount();
-							p.getInventory().setItem(i, new ItemStack(lsitem.item.getType(), amount - amt));
-							gc.getPlayerData(p).addMoney(lsitem.price, "For selling an Item!");
-							s.updateTitle(lsitem);
-							return;
-						}
-					}
+			Integer lsitemData;
+			Integer iteData;
+
+			if(lsitem.item.hasItemMeta()){
+				if(lsitem.item.getItemMeta().hasCustomModelData()) {
+					lsitemData = lsitem.item.getItemMeta().getCustomModelData();
+				}else {
+					lsitemData = null;
 				}
+			}else{
+				lsitemData = null;
+			}
+
+			if(ite.hasItemMeta()){
+				if(ite.getItemMeta().hasCustomModelData()) {
+					iteData = ite.getItemMeta().getCustomModelData();
+				}else {
+					iteData = null;
+				}
+			}else{
+				iteData = null;
+			}
+
+			if (lsitem.item.getType() == ite.getType() && Objects.equals(iteData, lsitemData)) {
+				invSlot = i;
+				break;
+			}
+
+			if (i == 40) {
+				return;
 			}
 		}
+
+		if (invSlot == null) {
+			return;
+		}
+		p.sendMessage("for loop complete invSlot isn't null");
+		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
+		LSItem hisitem = null;
+		for (int j = s.buyHistory.size(); j > 1; j--) {
+			hisitem = s.buyHistory.get(j);
+			if (hisitem.categ == lsitem.categ && hisitem.item != lsitem.item) {
+				break;
+			}
+		}
+
+		int amt = lsitem.item.getAmount();
+		int amount = ite.getAmount();
+		ItemStack stack = null;
+		
+		if (hisitem == null) {
+			stack =  Shop.getBasicKid(lsitem.categ, p);
+			// if we don't find any buys in the history we give the player the basic kid
+		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition){
+			if (lsitem.slot == 50 && ite.getAmount() == 6) {
+				return;
+			}
+			stack = new ItemStack(lsitem.item.getType(), amount - amt);
+		} else{
+			stack = hisitem.item;
+		}
+		p.sendMessage("completed initializing stack");
+		if(stack == null){
+			return;
+		}
+
+		p.getInventory().setItem(invSlot, stack);
+		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
+		s.updateTitle(lsitem);
+		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 	}
 }
