@@ -111,7 +111,7 @@ public class LSItem {
 		ItemStack defuser = new ItemStack(IRON_PICKAXE);
 		ItemMeta defuser_meta = defuser.getItemMeta();
 		defuser_meta.displayName(translatable("crystalized.item.defuser.name").decoration(ITALIC, false));
-		defuser_meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(
+		defuser_meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(
 				NamespacedKey.minecraft("foo"), 0d, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlotGroup.ANY));
 		defuser.setItemMeta(defuser_meta);
 		defuser.addItemFlags(HIDE_ATTRIBUTES);
