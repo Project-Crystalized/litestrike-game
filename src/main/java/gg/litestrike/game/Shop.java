@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
+import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 
 public class Shop implements InventoryHolder {
@@ -198,20 +200,23 @@ public class Shop implements InventoryHolder {
 	public static ItemStack getBasicKid(ItemCategory cate, Player p){
 
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (cate == LSItem.ItemCategory.Melee) {
+		if (cate == ItemCategory.Melee) {
 			return new ItemStack(Material.STONE_SWORD);
-		} else if (cate == LSItem.ItemCategory.Range) {
+		} else if (cate == ItemCategory.Range) {
 			return new ItemStack(Material.BOW);
-		} else if (cate == LSItem.ItemCategory.Defuser){
+		} else if (cate == ItemCategory.Defuser){
 			return new ItemStack(Material.STONE_PICKAXE);
-		} else if(cate == LSItem.ItemCategory.Armor) {
+		} else if(cate == ItemCategory.Armor) {
 			if (gc.teams.get_team(p.getName()) == Team.Placer) {
 				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE));
 			} else {
 				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE));
 			}
-		} else if(cate == LSItem.ItemCategory.Ammunition){
-			return new ItemStack(Material.ARROW, 6);
+		} else if(cate == ItemCategory.Ammunition){
+			ItemStack arrow = new ItemStack(Material.ARROW, 6);
+			ItemMeta meta = arrow.getItemMeta();
+			meta.itemName(translatable("crystalized.item.arrows.name").color(WHITE).decoration(ITALIC, false));
+			return arrow;
 		}
 		return null;
 	}

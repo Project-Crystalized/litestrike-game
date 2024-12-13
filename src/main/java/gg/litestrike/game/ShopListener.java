@@ -78,7 +78,7 @@ public class ShopListener implements Listener {
 			// check that we have enough money
 			if (!gc.getPlayerData(p).removeMoney(lsitem.price)) {
 				p.sendMessage(Component.text("Cant afford this").color(RED));
-				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+				p.playSound(Sound.sound(Key.key("minecraft:entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 				return;
 			}
 
@@ -101,7 +101,7 @@ public class ShopListener implements Listener {
 			} else {
 				p.getInventory().addItem(lsitem.item);
 			}
-			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
+			p.playSound(Sound.sound(Key.key("minecraft:block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(lsitem);
 			s.buyHistory.add(lsitem);
 			return;
@@ -118,13 +118,11 @@ public class ShopListener implements Listener {
 
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
-			p.sendMessage(lsi.item.displayName());
 
 			if(lsi.slot == null){
 				continue;
 			}
-			p.sendMessage("lsi.slot: "+lsi.slot);
-			p.sendMessage("slot: " +slot);
+
 			if (lsi.slot.equals(slot)) {
 				lsitem = lsi;
 				break;
@@ -134,7 +132,7 @@ public class ShopListener implements Listener {
 		if (lsitem == null) {
 			return;
 		}
-		p.sendMessage("lsitem isn't null");
+
 		// go through the players inv and find the item we want to sell
 		for (int i = 0; i <= 40; i++) {
 			ite = p.getInventory().getItem(i);
@@ -179,39 +177,42 @@ public class ShopListener implements Listener {
 		if (invSlot == null) {
 			return;
 		}
-		p.sendMessage("for loop complete invSlot isn't null");
+
 		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
 		LSItem hisitem = null;
-		for (int j = s.buyHistory.size(); j > 1; j--) {
-			hisitem = s.buyHistory.get(j);
-			if (hisitem.categ == lsitem.categ && hisitem.item != lsitem.item) {
+		for (int j = s.buyHistory.size()-1; j > 0; j--) {
+			LSItem histitem = s.buyHistory.get(j);
+			if(histitem == null){
+				continue;
+			}
+			if (histitem.categ == lsitem.categ) {
+				hisitem = histitem;
 				break;
 			}
 		}
 
-		int amt = lsitem.item.getAmount();
-		int amount = ite.getAmount();
-		ItemStack stack = null;
+
+		int amount = ite.getAmount() - lsitem.item.getAmount();
+		ItemStack stack;
 		
 		if (hisitem == null) {
+			p.sendMessage("giving basic kid");
 			stack =  Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
 		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition){
 			if (lsitem.slot == 50 && ite.getAmount() == 6) {
 				return;
 			}
-			stack = new ItemStack(lsitem.item.getType(), amount - amt);
+			p.sendMessage("amount is:" +amount);
+			stack = new ItemStack(lsitem.item.getType(), amount);
 		} else{
 			stack = hisitem.item;
 		}
-		p.sendMessage("completed initializing stack");
-		if(stack == null){
-			return;
-		}
 
+		p.sendMessage("completed initializing stack");
 		p.getInventory().setItem(invSlot, stack);
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem);
-		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
+		p.playSound(Sound.sound(Key.key("minecraft:block.noteblock.harp"), Sound.Source.AMBIENT, 1, 3));
 	}
 }
