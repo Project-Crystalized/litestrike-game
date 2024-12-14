@@ -197,14 +197,14 @@ public class ShopListener implements Listener {
 		ItemStack stack = null;
 		
 		if (hisitem == null) {
-			p.sendMessage("giving basic kid");
+			//p.sendMessage("giving basic kid");
 			stack =  Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
 		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition){
 			if (lsitem.slot == 50 && ite.getAmount() == 6) {
 				return;
 			}
-			p.sendMessage("amount is:" +amount);
+			//p.sendMessage("amount is:" +amount);
 			stack = new ItemStack(lsitem.item.getType(), amount);
 		} else{
 			stack = hisitem.item;
@@ -214,7 +214,7 @@ public class ShopListener implements Listener {
 			return;
 		}
 
-		p.sendMessage("completed initializing stack");
+		//p.sendMessage("completed initializing stack");
 		p.getInventory().setItem(invSlot, stack);
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem);
