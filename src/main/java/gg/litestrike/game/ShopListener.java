@@ -180,20 +180,21 @@ public class ShopListener implements Listener {
 
 		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
 		LSItem hisitem = null;
+		Integer iterator = null;
 		for (int j = s.buyHistory.size()-1; j > 0; j--) {
 			LSItem histitem = s.buyHistory.get(j);
 			if(histitem == null){
 				continue;
 			}
-			if (histitem.categ == lsitem.categ) {
+			if (histitem.categ == lsitem.categ && histitem.item != lsitem.item) {
 				hisitem = histitem;
+				iterator = j;
 				break;
 			}
 		}
 
-
 		int amount = ite.getAmount() - lsitem.item.getAmount();
-		ItemStack stack;
+		ItemStack stack = null;
 		
 		if (hisitem == null) {
 			p.sendMessage("giving basic kid");
@@ -209,10 +210,18 @@ public class ShopListener implements Listener {
 			stack = hisitem.item;
 		}
 
+		if(stack == null){
+			return;
+		}
+
 		p.sendMessage("completed initializing stack");
 		p.getInventory().setItem(invSlot, stack);
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem);
 		p.playSound(Sound.sound(Key.key("minecraft:block.noteblock.harp"), Sound.Source.AMBIENT, 1, 3));
+		if(iterator == null){
+			return;
+		}
+		s.buyHistory.remove((int)iterator);
 	}
 }
