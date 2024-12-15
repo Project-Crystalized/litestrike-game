@@ -23,6 +23,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;;
 
@@ -284,9 +287,22 @@ public class GameController {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				// summon firework
+				// TODO summon firework
 			}
 		}.runTaskLater(Litestrike.getInstance(), (20 * 5));
+
+		// this sends players back to lobby
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				ByteArrayDataOutput out = ByteStreams.newDataOutput();
+				out.writeUTF("Connect");
+				out.writeUTF("lobby");
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
+				}
+			}
+		}.runTaskLater(Litestrike.getInstance(), FINISH_TIME - (20 * 2));
 	};
 
 	// this is called when we go from PostRound to PreRound and when the first round
@@ -441,7 +457,7 @@ public class GameController {
 		Collections.reverse(playerDatas);
 		if (playerDatas.size() > 0) {
 			PlayerData first = playerDatas.get(0);
-			s.sendMessage(text(" \uE108").append(text(" 1st. ").color(NamedTextColor.GREEN)
+			s.sendMessage(text(" \uE108").color(NamedTextColor.WHITE).append(text(" 1st. ").color(NamedTextColor.GREEN)
 					.append(text(first.player)).append(text(" ".repeat(20 - first.player.length())))
 					.append(text(first.kills + " / " + first.deaths + " / " + first.assists))));
 		}

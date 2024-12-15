@@ -4,11 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
@@ -70,6 +73,9 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
 
+		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
+		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
+
 		bbd = new BossBarDisplay();
 
 		new BukkitRunnable() {
@@ -100,6 +106,13 @@ public final class Litestrike extends JavaPlugin {
 					game_controller = new GameController();
 					is_force_starting = false;
 					Bukkit.getLogger().info("A GAME is starting!");
+
+					// signals that the game has started to the proxy
+					ByteArrayDataOutput out = ByteStreams.newDataOutput();
+					out.writeUTF("start_game");
+					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
+					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());
+
 					return;
 				}
 			}
