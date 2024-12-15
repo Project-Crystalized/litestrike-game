@@ -95,7 +95,9 @@ public class Shop implements InventoryHolder {
 
 	public static void giveShop() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
+			Shop s = Shop.getShop(p);
 			p.getInventory().addItem(new ItemStack(Material.EMERALD, 1));
+			s.updateTitle(null);
 		}
 	}
 
