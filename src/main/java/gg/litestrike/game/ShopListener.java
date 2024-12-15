@@ -265,6 +265,8 @@ public class ShopListener implements Listener {
 			p.sendMessage("giving basic kid...");
 			stack = Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
+		} else if(hisitem == null){
+			return;
 		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
 			if (lsitem.slot == 50 && ite.getAmount() == 6) {
 				return;
