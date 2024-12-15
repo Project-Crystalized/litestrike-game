@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import gg.litestrike.game.LSItem.ItemCategory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -127,7 +128,7 @@ public class ShopListener implements Listener {
 			} else {
 				p.getInventory().addItem(lsitem.item);
 			}
-			p.playSound(Sound.sound(Key.key("minecraft:block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
+			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(lsitem);
 			s.buyHistory.add(lsitem);
 			return;
@@ -141,6 +142,14 @@ public class ShopListener implements Listener {
 		ItemStack ite = null;
 		LSItem lsitem = null;
 		Integer invSlot = null;
+
+		for(LSItem i : s.buyHistory){
+			if(i==null){
+				p.sendMessage("null");
+			}else {
+				p.sendMessage(i.item.displayName());
+			}
+		}
 
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
@@ -229,58 +238,64 @@ public class ShopListener implements Listener {
 
 		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
 		LSItem hisitem = null;
-		Integer iterator = null;
-		for (Integer j = s.buyHistory.size()-1; j > 0; j--) {
-			LSItem histitem = s.buyHistory.get(j);
-			if(histitem == null){
-				continue;
+
+		for (int j = s.buyHistory.size()-1; j > 0; j--) {
+			LSItem hist_item = s.buyHistory.get(j);
+
+			if (hist_item == null) {
+				return;
 			}
 
-			if(lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition){
-				if (histitem.categ == lsitem.categ) {
-					hisitem = histitem;
-					iterator = j;
+			if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
+				if (hist_item.categ == lsitem.categ) {
+					hisitem = hist_item;
 					break;
 				}
 			}
-			if (histitem.categ == lsitem.categ && histitem.item != lsitem.item) {
-				hisitem = histitem;
-				iterator = j;
+			if (hist_item.categ == lsitem.categ && hist_item.item != lsitem.item) {
+				hisitem = hist_item;
 				break;
 			}
 		}
 
 		int amount = ite.getAmount() - lsitem.item.getAmount();
 		ItemStack stack = null;
-		
-		if (hisitem == null) {
-			stack =  Shop.getBasicKid(lsitem.categ, p);
+
+		if (hisitem == null && Litestrike.getInstance().game_controller.round_number == 1) {
+			p.sendMessage("giving basic kid...");
+			stack = Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
-		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition){
+		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
 			if (lsitem.slot == 50 && ite.getAmount() == 6) {
 				return;
 			}
-			if(!(amount <= 0)){
+			if (!(amount <= 0)) {
 				stack = new ItemStack(lsitem.item.getType(), amount);
 			}
 
-		} else{
+		} else {
 			stack = hisitem.item;
 		}
 
-		if(stack == null){
+		if (stack == null) {
 			p.getInventory().clear(invSlot);
-		}else{
+		} else {
 			p.getInventory().setItem(invSlot, stack);
 		}
 
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-		if(iterator == null){
-			p.sendMessage("iterator is null returning...");
-			return;
+		for(LSItem it : s.buyHistory){
+			if(it == null){
+				continue;
+			}
+			if(it == hisitem){
+				s.buyHistory.remove(hisitem);
+			}
+			if(it == lsitem){
+				s.buyHistory.remove(lsitem);
+			}
 		}
-		s.buyHistory.remove((int)iterator);
 	}
 }

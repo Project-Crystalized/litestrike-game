@@ -43,7 +43,7 @@ public class LSItem {
 
 	public final ItemCategory categ;
 
-	private LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot) {
+	public LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot) {
 		this.price = price;
 		this.description = description;
 		this.categ = cate;
