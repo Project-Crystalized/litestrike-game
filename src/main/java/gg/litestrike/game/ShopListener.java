@@ -230,7 +230,7 @@ public class ShopListener implements Listener {
 		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
 		LSItem hisitem = null;
 		Integer iterator = null;
-		for (int j = s.buyHistory.size()-1; j > 0; j--) {
+		for (Integer j = s.buyHistory.size()-1; j > 0; j--) {
 			LSItem histitem = s.buyHistory.get(j);
 			if(histitem == null){
 				continue;

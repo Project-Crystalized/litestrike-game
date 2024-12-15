@@ -260,7 +260,6 @@ public class GameController {
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
-			s.updateTitle(null);
 			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
 			s.setItems(s.shopItems);
 			s.setDefuser();
@@ -354,7 +353,6 @@ public class GameController {
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
 			Shop s = Shop.getShop(p);
-			s.updateTitle(null);
 			getPlayerData(p).addMoney(1000, "");
 
 			// this is needed because of some weird packet nonsense, to make everyone glow
