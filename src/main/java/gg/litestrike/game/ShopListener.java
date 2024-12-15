@@ -278,6 +278,7 @@ public class ShopListener implements Listener {
 		s.updateTitle(lsitem);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 		if(iterator == null){
+			p.sendMessage("iterator is null returning...");
 			return;
 		}
 		s.buyHistory.remove((int)iterator);
