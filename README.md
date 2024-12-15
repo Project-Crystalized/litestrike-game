@@ -31,6 +31,9 @@ open server.properties
 open bukkit.yml
 	set allow-end: false
 
+open spigot.yml
+    set players: disable-saving to true, this will prevent saving player inventorys and potion effects
+
 ### setting up use behind proxy: {
 		Proxy Setup:
 	Download Velocity from [link here]

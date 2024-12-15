@@ -51,6 +51,13 @@ public class BombListener implements Listener {
 
 	Player last_planting_player;
 
+	// how it works:
+	// when the plugin is started, BombListener is constructed
+	// it spawn a BukkitRunnable that will run for the entire time of the plugin
+	// there is a list of players that are currently mining, this list is updated throug event
+	// as long as there are people in the list, we advance a breaking_counter, if it reaches a value, planting is finished
+	//
+	// planting works similar, but without a list because only one player can plant
 	public BombListener() {
 		new BukkitRunnable() {
 			@Override
@@ -61,7 +68,6 @@ public class BombListener implements Listener {
 				}
 
 				if (is_planting > 0) {
-					// as long as we are placing, advance timer
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
 					if (planting_counter == PLANT_TIME) {
@@ -97,6 +103,9 @@ public class BombListener implements Listener {
 				}
 
 				if (mining_players.size() > 0) {
+					if (is_anyone_mining_with_iron_pick()) {
+						breaking_counter += 1;
+					}
 					breaking_counter += 1;
 					if (breaking_counter == BREAK_TIME) {
 						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
@@ -146,33 +155,34 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onSwingArm(PlayerArmSwingEvent e) {
-		if (Litestrike.getInstance().game_controller == null) {
-			return;
-		}
-		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		if (!(b instanceof PlacedBomb)) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
+		if (gc == null ||
+				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
+				!(gc.bomb instanceof PlacedBomb) ||
+				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
+				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
+			remove_mining_player(e.getPlayer());
 			return;
 		}
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				mp.timer = 6 + ping_compensation_ticks(e.getPlayer());
 				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
-				break;
+				return;
 			}
 		}
 
 		// check if add players to mining_players
-		PlacedBomb pb = (PlacedBomb) b;
+		PlacedBomb pb = (PlacedBomb) gc.bomb;
 		Block target = e.getPlayer().getTargetBlockExact(5, FluidCollisionMode.NEVER);
 		if (target == null) {
 			return;
 		}
 		if (target.equals(pb.block)) {
-			if (!(is_player_mining(e.getPlayer()))) {
 				mining_players.add(new MiningPlayer(e.getPlayer()));
 				bomb_model.bomb_mining();
 				SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
-			}
 		} else {
 			// arm swing while not on bomb
 			remove_mining_player(e.getPlayer());
@@ -204,9 +214,17 @@ public class BombListener implements Listener {
 		return false;
 	}
 
+	private boolean is_anyone_mining_with_iron_pick() {
+		for (MiningPlayer mp : mining_players) {
+			if (mp.p.getInventory().getItemInMainHand().getType() == Material.IRON_PICKAXE) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
-
 		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
 			e.setCancelled(true);
 		}
