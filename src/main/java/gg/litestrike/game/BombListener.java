@@ -20,7 +20,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -55,8 +54,10 @@ public class BombListener implements Listener {
 	// how it works:
 	// when the plugin is started, BombListener is constructed
 	// it spawn a BukkitRunnable that will run for the entire time of the plugin
-	// there is a list of players that are currently mining, this list is updated throug event
-	// as long as there are people in the list, we advance a breaking_counter, if it reaches a value, planting is finished
+	// there is a list of players that are currently mining, this list is updated
+	// throug event
+	// as long as there are people in the list, we advance a breaking_counter, if it
+	// reaches a value, planting is finished
 	//
 	// planting works similar, but without a list because only one player can plant
 	public BombListener() {
@@ -181,9 +182,9 @@ public class BombListener implements Listener {
 			return;
 		}
 		if (target.equals(pb.block)) {
-				mining_players.add(new MiningPlayer(e.getPlayer()));
-				bomb_model.bomb_mining();
-				SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
+			mining_players.add(new MiningPlayer(e.getPlayer()));
+			bomb_model.bomb_mining();
+			SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
 		} else {
 			// arm swing while not on bomb
 			remove_mining_player(e.getPlayer());
@@ -226,28 +227,33 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
-		Material held_item = e.getPlayer().getInventory().getItemInOffHand().getType();
-		if ((e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) 
-				|| held_item == Material.BOW || held_item == Material.CROSSBOW) {
+		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
 			e.setCancelled(true);
 		}
 
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		// uncancel the event when bomb is mined, so we get the BlockDamageEvent
-		if (gc != null && gc.bomb instanceof PlacedBomb) {
-			if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb) gc.bomb).block)) {
-				e.setCancelled(false);
-			}
-		}
+		// if (gc != null && gc.bomb instanceof PlacedBomb) {
+		// if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb)
+		// gc.bomb).block)) {
+		// e.setCancelled(false);
+		// }
+		// }
 
 		if (gc == null ||
+				gc.round_state != RoundState.Running ||
 				e.getItem() == null ||
 				!e.getItem().equals(Bomb.bomb_item()) ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
 				e.getClickedBlock().getType() != Material.TERRACOTTA ||
 				!(gc.bomb instanceof InvItemBomb)) {
 			return;
+		}
+
+		Material held_item = e.getPlayer().getInventory().getItemInOffHand().getType();
+		if (held_item == Material.BOW || held_item == Material.CROSSBOW) {
+			e.setCancelled(true);
 		}
 
 		// sanity check

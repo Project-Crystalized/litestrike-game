@@ -14,10 +14,14 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+
+import static net.kyori.adventure.text.Component.text;
 
 enum Team {
 	Placer,
@@ -40,7 +44,7 @@ public final class Litestrike extends JavaPlugin {
 	public ProtocolManager protocolManager;
 
 	// player amount required to autostart
-	public static final int PLAYERS_TO_START = 20;
+	public static final int PLAYERS_TO_START = 2;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
@@ -149,20 +153,37 @@ public final class Litestrike extends JavaPlugin {
 
 	// plays every second while the game is counting down to start
 	private void count_down_animation(int i) {
+		Audience players = Audience.audience(Bukkit.getOnlinePlayers());
 		switch (i) {
+			case 0:
+				players.playSound(SoundEffects.start_game_sound());
+				break;
 			case 3:
-			case 2:
-			case 1:
+				players.showTitle(Title.title(text("Starting in:").color(NamedTextColor.GREEN),
+						text("3").color(NamedTextColor.RED)
+								.append(Component.text(" 2 1").color(NamedTextColor.GRAY))));
 				SoundEffects.countdown_beep();
-				Bukkit.getServer().showTitle(Title.title(Component.text(i), Component.text("")));
+				break;
+			case 2:
+				players.showTitle(Title.title(text("Starting in:").color(NamedTextColor.GREEN),
+						text("3").color(NamedTextColor.GRAY)
+								.append(Component.text(" 2").color(NamedTextColor.RED))
+								.append(Component.text(" 1").color(NamedTextColor.GRAY))));
+				SoundEffects.countdown_beep();
+				break;
+			case 1:
+				players.showTitle(
+						Title.title(text("Starting in:").color(NamedTextColor.GREEN), text("3 2 ").color(NamedTextColor.GRAY)
+								.append(Component.text("1").color(NamedTextColor.RED))));
+				SoundEffects.countdown_beep();
+				break;
 			case 10:
 			case 5:
-				Audience.audience(Bukkit.getOnlinePlayers())
-						.sendMessage(
-								(Component.translatable("crystalized.game.litestrike.start1")
-										.append(Component.text("" + i))
-										.append(Component.translatable("crystalized.game.litestrike.start2")))
-										.color(Litestrike.YELLOW));
+				players.sendMessage(
+						(Component.translatable("crystalized.game.litestrike.start1")
+								.append(Component.text("" + i))
+								.append(Component.translatable("crystalized.game.litestrike.start2")))
+								.color(Litestrike.YELLOW));
 		}
 	};
 }
