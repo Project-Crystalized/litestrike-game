@@ -20,6 +20,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -225,32 +226,32 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onInteractPlacing(PlayerInteractEvent e) {
-		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
+		Material held_item = e.getPlayer().getInventory().getItemInOffHand().getType();
+		if ((e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) 
+				|| held_item == Material.BOW || held_item == Material.CROSSBOW) {
 			e.setCancelled(true);
 		}
 
-		if (Litestrike.getInstance().game_controller == null) {
-			return;
-		}
+		GameController gc = Litestrike.getInstance().game_controller;
 
 		// uncancel the event when bomb is mined, so we get the BlockDamageEvent
-		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		if (b instanceof PlacedBomb) {
-			if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb) b).block)) {
+		if (gc != null && gc.bomb instanceof PlacedBomb) {
+			if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb) gc.bomb).block)) {
 				e.setCancelled(false);
 			}
 		}
 
-		if (e.getItem() == null ||
+		if (gc == null ||
+				e.getItem() == null ||
 				!e.getItem().equals(Bomb.bomb_item()) ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
 				e.getClickedBlock().getType() != Material.TERRACOTTA ||
-				!(Litestrike.getInstance().game_controller.bomb instanceof InvItemBomb)) {
+				!(gc.bomb instanceof InvItemBomb)) {
 			return;
 		}
 
 		// sanity check
-		if (Litestrike.getInstance().game_controller.teams.get_team(e.getPlayer()) == Team.Breaker) {
+		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
 			Bukkit.getLogger().severe("ERROR: A Breaker planted the bomb!");
 		}
 
@@ -282,11 +283,15 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
 		if (!e.getItemDrop().getItemStack().equals(Bomb.bomb_item())) {
+			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
+				e.setCancelled(true);
+			}
 			return;
 		}
 		reset();
-		InvItemBomb ib = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
+		InvItemBomb ib = (InvItemBomb) gc.bomb;
 		ib.drop_bomb(e.getItemDrop());
 	}
 

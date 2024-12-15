@@ -28,7 +28,8 @@ class TabListController {
 				}
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					p.sendPlayerListFooter(text("")
-							.append(text("-------------------------------\uE101 / \uE103 / A---\uE104-------").color(NamedTextColor.GRAY))
+							.append(
+									text("-------------------------------\uE101 / \uE103 / A---\uE104-------").color(NamedTextColor.GRAY))
 							.append(render_player_stat(p))
 							.append(text("\n---------------------------------------------------\n").color(NamedTextColor.GRAY)));
 
@@ -78,10 +79,11 @@ class TabListController {
 				}
 			}
 
-			// this is ugly and doesnt actually work, but it keeps the stats roughly in line, so they line up
-			int center_padding = 51 - PlainTextComponentSerializer.plainText().serialize(player_status).length()
-			- PlainTextComponentSerializer.plainText().serialize(player_stats).length();
+			int left_size = PlainTextComponentSerializer.plainText().serialize(player_status).length();
+			int right_size = PlainTextComponentSerializer.plainText().serialize(player_stats).length();
+			int center_padding = 51 - left_size - right_size;
 			player_status = player_status.append(text(" ".repeat(center_padding))).append(player_stats);
+			// Bukkit.getLogger().severe("total_len: " + total_len);
 
 			if (gc.teams.get_team(player) == p_team) {
 				allay.add(player_status);
