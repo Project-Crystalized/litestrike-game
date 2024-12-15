@@ -172,7 +172,7 @@ public class LSItem {
 		ItemStack ricochet = new ItemStack(BOW);
 		ricochet.addEnchantment(PUNCH, 1);
 		ItemMeta ricochet_meta = ricochet.getItemMeta();
-		ricochet_meta.setCustomModelData(2);
+		ricochet_meta.setCustomModelData(3);
 		ricochet_meta.displayName(translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false));
 		ricochet.setItemMeta(ricochet_meta);
 		List<Component> ricochet_lore = new ArrayList<>();

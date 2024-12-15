@@ -53,23 +53,49 @@ public class ShopListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		if (event.isRightClick()) {
-			undoBuy((Player) event.getWhoClicked(), event.getSlot());
+			undoBuy(event.getCurrentItem(), (Player) event.getWhoClicked(), event.getSlot());
 			return;
 		}
 
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 
 		for (LSItem lsitem : s.shopItems) {
-			if (lsitem.slot == null || lsitem.slot != event.getSlot()) {
+			if (lsitem.slot == null || (lsitem.slot != event.getSlot() && event.getSlot() != 49)) {
 				continue;
 			}
 			if (lsitem.slot == Shop.DEFUSER_SLOT && gc.teams.get_team(p) != Team.Breaker) {
 				continue;
 			}
 
+			Integer lsitemData;
+			Integer iteData;
+
+			if(lsitem.item.hasItemMeta()){
+				if(lsitem.item.getItemMeta().hasCustomModelData()) {
+					lsitemData = lsitem.item.getItemMeta().getCustomModelData();
+				}else {
+					lsitemData = null;
+				}
+			}else{
+				lsitemData = null;
+			}
+
+			if(event.getCurrentItem().hasItemMeta()){
+				if(event.getCurrentItem().getItemMeta().hasCustomModelData()) {
+					iteData = event.getCurrentItem().getItemMeta().getCustomModelData();
+				}else {
+					iteData = null;
+				}
+			}else{
+				iteData = null;
+			}
+
+			if(lsitem.item.getType() != event.getCurrentItem().getType() || !Objects.equals(lsitemData, iteData)){
+				continue;
+			}
 			// if the item is not ammuntion and also not a consumable and we already have
 			// it, then we cant but it
-			if (lsitem.categ != LSItem.ItemCategory.Ammunition && lsitem.categ != LSItem.ItemCategory.Consumable
+			if (lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable
 					&& s.alreadyHasThis(lsitem.item)) {
 				p.sendMessage(Component.text("You already have this item").color(RED));
 				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
@@ -78,7 +104,7 @@ public class ShopListener implements Listener {
 			// check that we have enough money
 			if (!gc.getPlayerData(p).removeMoney(lsitem.price)) {
 				p.sendMessage(Component.text("Cant afford this").color(RED));
-				p.playSound(Sound.sound(Key.key("minecraft:entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+				p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 				return;
 			}
 
@@ -108,7 +134,7 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	public void undoBuy(Player p, int slot) {
+	public void undoBuy(ItemStack item, Player p, int slot) {
 
 		Shop s = Shop.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
@@ -123,7 +149,30 @@ public class ShopListener implements Listener {
 				continue;
 			}
 
-			if (lsi.slot.equals(slot)) {
+			Integer lsiData;
+			Integer itData;
+
+			if(lsi.item.hasItemMeta()){
+				if(lsi.item.getItemMeta().hasCustomModelData()) {
+					lsiData = lsi.item.getItemMeta().getCustomModelData();
+				}else {
+					lsiData = null;
+				}
+			}else{
+				lsiData = null;
+			}
+
+			if(item.hasItemMeta()){
+				if(item.getItemMeta().hasCustomModelData()) {
+					itData = item.getItemMeta().getCustomModelData();
+				}else {
+					itData = null;
+				}
+			}else{
+				itData = null;
+			}
+
+			if (lsi.slot.equals(slot) || (lsi.item.getType() == item.getType() && Objects.equals(lsiData, itData))) {
 				lsitem = lsi;
 				break;
 			}
