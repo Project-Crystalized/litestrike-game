@@ -13,6 +13,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -45,7 +46,13 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
+	public void onPLayerQuit(PlayerQuitEvent e) {
+		e.quitMessage(text(""));
+	}
+
+	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
+		event.joinMessage(text(""));
 		Player p = event.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
 

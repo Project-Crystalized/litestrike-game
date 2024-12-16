@@ -100,6 +100,7 @@ public class LsDatabase {
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe(e.getMessage());
 		}
+		Bukkit.getLogger().info("Successfully worte data to LsDatabase");
 	}
 
 	private static byte[] get_bought_items(Player p) {
