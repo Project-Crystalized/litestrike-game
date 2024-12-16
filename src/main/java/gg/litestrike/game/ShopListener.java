@@ -5,6 +5,7 @@ import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
@@ -94,7 +96,7 @@ public class ShopListener implements Listener {
 			if(lsitem.item.getType() != event.getCurrentItem().getType() || !Objects.equals(lsitemData, iteData)){
 				continue;
 			}
-			// if the item is not ammuntion and also not a consumable and we already have
+			// if the item is not ammunition and also not a consumable, and we already have
 			// it, then we cant but it
 			if (lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable
 					&& s.alreadyHasThis(lsitem.item)) {
@@ -129,7 +131,7 @@ public class ShopListener implements Listener {
 				p.getInventory().addItem(lsitem.item);
 			}
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-			s.updateTitle(lsitem);
+			s.updateTitle(lsitem, true);
 			s.buyHistory.add(lsitem);
 			return;
 		}
@@ -286,7 +288,7 @@ public class ShopListener implements Listener {
 		}
 
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
-		s.updateTitle(lsitem);
+		s.updateTitle(lsitem, true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 		for(LSItem it : s.buyHistory){
 			if(it == null){

@@ -82,22 +82,24 @@ public class Shop implements InventoryHolder {
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
-	public void updateTitle(LSItem i) {
+	public void updateTitle(LSItem i, boolean openAgain) {
 		currentView.close();
 		currentView = Bukkit.getServer().createInventory(this, 54, title(player));
 		if (i != null) {
 			currentView.setItem(49, i.buildDisplayItem(player));
 		}
-		player.openInventory(currentView);
-		setItems(shopItems);
-		setDefuser();
+		if(openAgain) {
+			player.openInventory(currentView);
+			setItems(shopItems);
+			setDefuser();
+		}
 	}
 
 	public static void giveShop() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			Shop s = Shop.getShop(p);
+			Shop s = getShop(p);
+			s.updateTitle(null, false);
 			p.getInventory().addItem(new ItemStack(Material.EMERALD, 1));
-			s.updateTitle(null);
 		}
 	}
 
