@@ -31,6 +31,7 @@ public class Shop implements InventoryHolder {
 	public Inventory currentView;
 	public Player player;
 	public List<LSItem> buyHistory;
+	public List<ArrayList<Object>> shopLog;
 	public static HashMap<String, Shop> shopList = new HashMap<>();
 
 	public static final int DEFUSER_SLOT = 22;
@@ -45,6 +46,7 @@ public class Shop implements InventoryHolder {
 		player = p;
 		currentView = Bukkit.getServer().createInventory(this, 54, title(p));
 		buyHistory = new ArrayList<>();
+		shopLog = new ArrayList<>();
 		// TODO make the Shop its own item
 		// TODO i think its fine, no need to make shop its own item
 	}

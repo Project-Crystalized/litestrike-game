@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import gg.litestrike.game.LSItem.ItemCategory;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -132,6 +133,10 @@ public class ShopListener implements Listener {
 			}
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(lsitem, true);
+			ArrayList<Object> l = new ArrayList<>();
+			l.add("+");
+			l.add(lsitem);
+			s.shopLog.add(l);
 			s.buyHistory.add(lsitem);
 			return;
 		}
@@ -301,5 +306,9 @@ public class ShopListener implements Listener {
 				s.buyHistory.remove(lsitem);
 			}
 		}
+		ArrayList<Object> l = new ArrayList<>();
+		l.add("-");
+		l.add(lsitem);
+		s.shopLog.add(l);
 	}
 }

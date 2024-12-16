@@ -264,6 +264,9 @@ public class GameController {
 			s.setItems(s.shopItems);
 			s.setDefuser();
 			s.buyHistory.add(null);
+			ArrayList<Object> l = new ArrayList<Object>();
+			l.add("round "+round_number);
+			s.shopLog.add(l);
 		}
 	}
 
