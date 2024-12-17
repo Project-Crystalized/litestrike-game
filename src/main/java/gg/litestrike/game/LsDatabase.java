@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
-	private static final String URL = "jdbc:sqlite:~/databases/litestrike_db.sql";
+	private static final String URL = "jdbc:sqlite:/home/nico/databases/litestrike_db.sql";
 
 	public static void setup_databases() {
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
@@ -105,8 +105,8 @@ public class LsDatabase {
 
 	private static byte[] get_bought_items(Player p) {
 		Shop s = Shop.getShop(p);
-		ByteBuffer bb = ByteBuffer.allocate(s.buyHistory.size() * 2);
-		for (LSItem lsi : s.buyHistory) {
+		ByteBuffer bb = ByteBuffer.allocate(s.shopLog.size() * 2);
+		for (LSItem lsi : s.shopLog) {
 			if (lsi == null) {
 				bb.putShort((short) 0);
 			} else {

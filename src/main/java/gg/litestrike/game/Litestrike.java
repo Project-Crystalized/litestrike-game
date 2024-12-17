@@ -14,7 +14,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -44,7 +43,7 @@ public final class Litestrike extends JavaPlugin {
 	public ProtocolManager protocolManager;
 
 	// player amount required to autostart
-	public static final int PLAYERS_TO_START = 2;
+	public static final int PLAYERS_TO_START = 12;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")

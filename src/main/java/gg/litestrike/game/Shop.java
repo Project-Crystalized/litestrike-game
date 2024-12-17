@@ -31,7 +31,7 @@ public class Shop implements InventoryHolder {
 	public Inventory currentView;
 	public Player player;
 	public List<LSItem> buyHistory;
-	public List<ArrayList<Object>> shopLog;
+	public List<LSItem> shopLog;
 	public static HashMap<String, Shop> shopList = new HashMap<>();
 
 	public static final int DEFUSER_SLOT = 22;

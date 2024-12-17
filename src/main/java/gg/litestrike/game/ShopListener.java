@@ -3,27 +3,23 @@ package gg.litestrike.game;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -74,27 +70,27 @@ public class ShopListener implements Listener {
 			Integer lsitemData;
 			Integer iteData;
 
-			if(lsitem.item.hasItemMeta()){
-				if(lsitem.item.getItemMeta().hasCustomModelData()) {
+			if (lsitem.item.hasItemMeta()) {
+				if (lsitem.item.getItemMeta().hasCustomModelData()) {
 					lsitemData = lsitem.item.getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					lsitemData = null;
 				}
-			}else{
+			} else {
 				lsitemData = null;
 			}
 
-			if(event.getCurrentItem().hasItemMeta()){
-				if(event.getCurrentItem().getItemMeta().hasCustomModelData()) {
+			if (event.getCurrentItem().hasItemMeta()) {
+				if (event.getCurrentItem().getItemMeta().hasCustomModelData()) {
 					iteData = event.getCurrentItem().getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					iteData = null;
 				}
-			}else{
+			} else {
 				iteData = null;
 			}
 
-			if(lsitem.item.getType() != event.getCurrentItem().getType() || !Objects.equals(lsitemData, iteData)){
+			if (lsitem.item.getType() != event.getCurrentItem().getType() || !Objects.equals(lsitemData, iteData)) {
 				continue;
 			}
 			// if the item is not ammunition and also not a consumable, and we already have
@@ -133,27 +129,26 @@ public class ShopListener implements Listener {
 			}
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(lsitem, true);
-			ArrayList<Object> l = new ArrayList<>();
-			l.add("+");
-			l.add(lsitem);
-			s.shopLog.add(l);
+			s.shopLog.add(lsitem);
+			for (LSItem lsi : s.shopLog) {
+				Bukkit.getServer().sendMessage(lsi.item.displayName());
+			}
 			s.buyHistory.add(lsitem);
 			return;
 		}
 	}
 
 	public void undoBuy(ItemStack item, Player p, int slot) {
-
 		Shop s = Shop.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
 		ItemStack ite = null;
 		LSItem lsitem = null;
 		Integer invSlot = null;
 
-		for(LSItem i : s.buyHistory){
-			if(i==null){
+		for (LSItem i : s.buyHistory) {
+			if (i == null) {
 				p.sendMessage("null");
-			}else {
+			} else {
 				p.sendMessage(i.item.displayName());
 			}
 		}
@@ -161,30 +156,30 @@ public class ShopListener implements Listener {
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
 
-			if(lsi.slot == null){
+			if (lsi.slot == null) {
 				continue;
 			}
 
 			Integer lsiData;
 			Integer itData;
 
-			if(lsi.item.hasItemMeta()){
-				if(lsi.item.getItemMeta().hasCustomModelData()) {
+			if (lsi.item.hasItemMeta()) {
+				if (lsi.item.getItemMeta().hasCustomModelData()) {
 					lsiData = lsi.item.getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					lsiData = null;
 				}
-			}else{
+			} else {
 				lsiData = null;
 			}
 
-			if(item.hasItemMeta()){
-				if(item.getItemMeta().hasCustomModelData()) {
+			if (item.hasItemMeta()) {
+				if (item.getItemMeta().hasCustomModelData()) {
 					itData = item.getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					itData = null;
 				}
-			}else{
+			} else {
 				itData = null;
 			}
 
@@ -202,30 +197,30 @@ public class ShopListener implements Listener {
 		for (int i = 0; i <= 40; i++) {
 			ite = p.getInventory().getItem(i);
 
-			if(ite == null){
+			if (ite == null) {
 				continue;
 			}
 
 			Integer lsitemData;
 			Integer iteData;
 
-			if(lsitem.item.hasItemMeta()){
-				if(lsitem.item.getItemMeta().hasCustomModelData()) {
+			if (lsitem.item.hasItemMeta()) {
+				if (lsitem.item.getItemMeta().hasCustomModelData()) {
 					lsitemData = lsitem.item.getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					lsitemData = null;
 				}
-			}else{
+			} else {
 				lsitemData = null;
 			}
 
-			if(ite.hasItemMeta()){
-				if(ite.getItemMeta().hasCustomModelData()) {
+			if (ite.hasItemMeta()) {
+				if (ite.getItemMeta().hasCustomModelData()) {
 					iteData = ite.getItemMeta().getCustomModelData();
-				}else {
+				} else {
 					iteData = null;
 				}
-			}else{
+			} else {
 				iteData = null;
 			}
 
@@ -243,10 +238,11 @@ public class ShopListener implements Listener {
 			return;
 		}
 
-		// go through the buyHistory and find and LSItem that has the same category but isn't the same item
+		// go through the buyHistory and find and LSItem that has the same category but
+		// isn't the same item
 		LSItem hisitem = null;
 
-		for (int j = s.buyHistory.size()-1; j > 0; j--) {
+		for (int j = s.buyHistory.size() - 1; j > 0; j--) {
 			LSItem hist_item = s.buyHistory.get(j);
 
 			if (hist_item == null) {
@@ -272,7 +268,7 @@ public class ShopListener implements Listener {
 			p.sendMessage("giving basic kid...");
 			stack = Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
-		} else if(hisitem == null){
+		} else if (hisitem == null) {
 			return;
 		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
 			if (lsitem.slot == 50 && ite.getAmount() == 6) {
@@ -295,20 +291,28 @@ public class ShopListener implements Listener {
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem, true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-		for(LSItem it : s.buyHistory){
-			if(it == null){
+		for (LSItem it : s.buyHistory) {
+			if (it == null) {
 				continue;
 			}
-			if(it == hisitem){
+			if (it == hisitem) {
 				s.buyHistory.remove(hisitem);
 			}
-			if(it == lsitem){
+			if (it == lsitem) {
 				s.buyHistory.remove(lsitem);
 			}
 		}
-		ArrayList<Object> l = new ArrayList<>();
-		l.add("-");
-		l.add(lsitem);
-		s.shopLog.add(l);
+
+		int last_index = -1;
+		for (int i = 0; i < s.shopLog.size(); i++) {
+			if (s.shopLog.get(i) == lsitem) {
+				last_index = i;
+			}
+		}
+		if (last_index == -1) {
+			Bukkit.getLogger().severe("error, a item was sold tha was not in shopLog");
+		} else {
+			s.shopLog.remove(last_index);
+		}
 	}
 }
