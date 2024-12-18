@@ -38,7 +38,7 @@ public class MapData implements Listener {
 	public final int border_height;
 
 	// toggelable map-specific features
-	public final boolean jump_pads;
+	public boolean launch_pads;
 	public final boolean levitation_pads;
 	public final boolean openable_doors;
 
@@ -143,7 +143,9 @@ public class MapData implements Listener {
 			this.border_height = json.get("border_height").getAsInt();
 
 			JsonElement jp = json.get("enable_jump_pads");
-			this.jump_pads = jp != null && jp.getAsBoolean();
+			this.launch_pads = jp != null && jp.getAsBoolean();
+			JsonElement launch_pad = json.get("enable_launch_pads");
+			this.launch_pads = launch_pad != null && launch_pad.getAsBoolean();
 			JsonElement od = json.get("enable_openable_doors");
 			this.openable_doors = od != null && od.getAsBoolean();
 			JsonElement lp = json.get("enable_levitation_pads");
@@ -184,7 +186,7 @@ public class MapData implements Listener {
 				"\nmap_name: " + this.map_name +
 				"\nborder_marker: " + this.border_marker +
 				"\nborder_block_type: " + this.border_block_type +
-				"\nenable_jump_pads: " + this.jump_pads +
+				"\nenable_launch_pads: " + this.launch_pads +
 				"\nenable_openable_doors: " + this.openable_doors +
 				"\nenable_levitation_pads: " + this.levitation_pads +
 				"\namount of known border blocks: " + this.border_blocks.size() +

@@ -92,15 +92,10 @@ public class BombListener implements Listener {
 
 				////// BReaking from here ///////
 
-				List<MiningPlayer> remove_list = new ArrayList<>();
 				for (MiningPlayer mp : mining_players) {
 					mp.timer -= 1;
-					if (mp.timer == 0) {
-						remove_list.add(mp);
-					}
 				}
-				mining_players.removeAll(remove_list);
-				if (mining_players.size() == 0 && remove_list.size() != 0) {
+				if (mining_players.removeIf(mp -> mp.timer == 0)) {
 					bomb_model.stop_bomb_mining();
 				}
 
@@ -186,21 +181,12 @@ public class BombListener implements Listener {
 			bomb_model.bomb_mining();
 			SoundEffects.start_breaking(pb.block.getX(), pb.block.getY(), pb.block.getZ());
 		} else {
-			// arm swing while not on bomb
 			remove_mining_player(e.getPlayer());
 		}
 	}
 
 	private void remove_mining_player(Player p) {
-		MiningPlayer to_remove = null;
-		for (MiningPlayer mp : mining_players) {
-			if (mp.p == p) {
-				to_remove = mp;
-				break;
-			}
-		}
-		if (to_remove != null) {
-			mining_players.remove(to_remove);
+		if (mining_players.removeIf(mp -> mp.p == p)) {
 			if (mining_players.size() == 0) {
 				bomb_model.stop_bomb_mining();
 			}

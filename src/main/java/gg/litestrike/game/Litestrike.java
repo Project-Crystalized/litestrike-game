@@ -70,6 +70,10 @@ public final class Litestrike extends JavaPlugin {
 			this.getServer().getPluginManager().registerEvents(new LeviPadListener(), this);
 		}
 
+		if (mapdata.launch_pads) {
+			this.getServer().getPluginManager().registerEvents(new LaunchPadListener(), this);
+		}
+
 		DebugCommands dc = new DebugCommands();
 		this.getCommand("mapdata").setExecutor(dc);
 		this.getCommand("force_start").setExecutor(dc);
@@ -113,6 +117,9 @@ public final class Litestrike extends JavaPlugin {
 					// signals that the game has started to the proxy
 					ByteArrayDataOutput out = ByteStreams.newDataOutput();
 					out.writeUTF("start_game");
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						out.writeUTF(p.getName());
+					}
 					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
 					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());
 

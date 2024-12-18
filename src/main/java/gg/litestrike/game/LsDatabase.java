@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
-	private static final String URL = "jdbc:sqlite:/home/nico/databases/litestrike_db.sql";
+	public static final String URL = "jdbc:sqlite:"+ System.getProperty("user.home")+"/databases/litestrike_db.sql";
 
 	public static void setup_databases() {
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
