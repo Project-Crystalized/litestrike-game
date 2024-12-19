@@ -43,10 +43,8 @@ public class LsDatabase {
 			stmt.execute(create_ls_games);
 			stmt.execute(create_ls_players);
 		} catch (SQLException e) {
-			Bukkit.getLogger().severe(e.getMessage());
-			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-				Bukkit.getLogger().severe(ste.toString());
-			}
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("continueing without database");
 		}
 	}
 
@@ -97,10 +95,11 @@ public class LsDatabase {
 				player_stmt.executeUpdate();
 			}
 
+			Bukkit.getLogger().info("Successfully worte data to LsDatabase");
 		} catch (SQLException e) {
-			Bukkit.getLogger().severe(e.getMessage());
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("didnt write data to database");
 		}
-		Bukkit.getLogger().info("Successfully worte data to LsDatabase");
 	}
 
 	private static byte[] get_bought_items(Player p) {
