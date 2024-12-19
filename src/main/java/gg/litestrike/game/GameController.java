@@ -442,7 +442,7 @@ public class GameController {
 	private void print_result_table(Team winner) {
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
-		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100")));
+		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100").color(NamedTextColor.WHITE)));
 		Component winner_text = text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
 		if (winner == Team.Placer) {
 			s.sendMessage(winner_text.append(Litestrike.PLACER_TEXT));

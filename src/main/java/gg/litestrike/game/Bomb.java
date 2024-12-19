@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
@@ -14,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.key.Key;
@@ -46,11 +48,6 @@ public interface Bomb {
 		im.displayName(Component.translatable("crystalized.item.bomb.name").color(TextColor.color(0xe64cce))
 				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
 
-		// these apis are deprecated:
-		// Set<Material> can_place_set = new HashSet<Material>();
-		// can_place_set.add(Material.TERRACOTTA);
-		// im.setCanPlaceOn(can_place_set);
-
 		item.setItemMeta(im);
 		return item;
 	}
@@ -72,6 +69,44 @@ public interface Bomb {
 		Litestrike.getInstance().game_controller.bomb = new InvItemBomb(inv);
 	}
 
+	public static String get_arrow(Player p, Location loc2) {
+		Location p_loc = p.getLocation().clone();
+		p_loc.setY(0);
+		p_loc.setPitch(0);
+
+		Location loc = loc2.clone();
+		loc.setY(0);
+		
+		Vector blockDirection = loc.subtract(p_loc).toVector().normalize();
+
+		double x1 = blockDirection.getX();
+		double z1 = blockDirection.getZ();
+		double x2 = p_loc.getDirection().getX();
+		double z2 = p_loc.getDirection().getZ();
+
+		double angle = Math.toDegrees(Math.atan2(x1*z2-z1*x2, x1*x2+z1*z2));
+
+		if (angle >= -22.5 && angle <= 22.5) {
+			return "\uE110";
+		} else if (angle <= 67.5 && angle > 0) {
+			return "\uE117";
+		} else if (angle <= 112.5 && angle > 0) {
+			return "\uE116";
+		} else if (angle <= 157.5 && angle > 0) {
+			return "\uE115";
+		} else if (angle >= -67.5 && angle < 0) {
+			return "\uE111";
+		} else if (angle >= -112.5 && angle < 0) {
+			return "\uE112";
+		} else if (angle >= -157.5 && angle < 0) {
+			return "\uE113";
+		} else if (angle <= 190 && angle >= -190) {
+			return "\uE114";
+		} else {
+			return "error invalid angle";
+		}
+	}
+	
 	public void remove();
 }
 
@@ -85,6 +120,14 @@ class DroppedBomb implements Bomb {
 		item.setInvulnerable(true);
 
 		ProtocolLibLib.update_armor();
+	}
+
+	public String get_bomb_loc_string(Player p) {
+		if (item == null || item.isDead()) {
+			Bukkit.getLogger().severe("Bomb Logic error, dropped bomb doesnt have a item entity.");
+		}
+		String arrow = Bomb.get_arrow(p, item.getLocation());
+		return "Dropped Somewhere " + arrow;
 	}
 
 	@Override
@@ -113,6 +156,14 @@ class PlacedBomb implements Bomb {
 		bomb_model.bomb_plant(block.getLocation(), bf);
 
 		ProtocolLibLib.update_armor();
+	}
+
+	public String get_bomb_loc_string(Player p) {
+		if (block.getType() == Material.BARRIER) {
+			Bukkit.getLogger().severe("Bomb Logic error, placed bomb doesnt have barrier block.");
+		}
+		String arrow = Bomb.get_arrow(p, block.getLocation());
+		return "Placed at a site " + arrow;
 	}
 
 	@Override
