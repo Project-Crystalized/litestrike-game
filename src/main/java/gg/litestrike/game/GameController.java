@@ -353,7 +353,6 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
-			Shop s = Shop.getShop(p);
 			getPlayerData(p).addMoney(1000, "");
 
 			// this is needed because of some weird packet nonsense, to make everyone glow
@@ -367,7 +366,7 @@ public class GameController {
 		// give bomb to a random player
 		// generate int between 0 and placer teams size
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
-		Bomb.give_bomb(teams.get_placers().get(random).getInventory());
+		Bomb.give_bomb(teams.get_placers().get(random));
 
 		Shop.giveShop();
 	}

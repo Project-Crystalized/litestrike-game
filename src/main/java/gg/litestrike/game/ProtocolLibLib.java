@@ -82,7 +82,7 @@ public class ProtocolLibLib {
 						|| updated_player == null
 						|| gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())
 						|| !(gc.bomb instanceof InvItemBomb)
-						|| !(updated_player.getInventory().equals(((InvItemBomb) gc.bomb).p_inv))) {
+						|| !(updated_player.equals(((InvItemBomb) gc.bomb).player))) {
 					return;
 				}
 				event.setPacket(packet = packet.deepClone());

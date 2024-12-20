@@ -24,9 +24,11 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
+import net.kyori.adventure.audience.Audience;
 
 public class BombListener implements Listener {
 
@@ -107,7 +109,8 @@ public class BombListener implements Listener {
 					if (breaking_counter == BREAK_TIME) {
 						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
 						b.is_broken = true;
-						Bukkit.getServer().sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
+						Audience.audience(Bukkit.getOnlinePlayers())
+								.sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
 						reset();
 					}
@@ -116,6 +119,19 @@ public class BombListener implements Listener {
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
+	}
+
+	@EventHandler
+	public void onPLayerQuit(PlayerQuitEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null || !(gc.bomb instanceof InvItemBomb)) {
+			return;
+		}
+		InvItemBomb b = (InvItemBomb) gc.bomb;
+		if (e.getPlayer() == b.player) {
+			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
+			b.drop_bomb(i);
+		}
 	}
 
 	@EventHandler
@@ -290,7 +306,7 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		if (b instanceof InvItemBomb && ((InvItemBomb) b).p_inv == e.getPlayer().getInventory()) {
+		if (b instanceof InvItemBomb && ((InvItemBomb) b).player == e.getPlayer()) {
 			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
 			((InvItemBomb) b).drop_bomb(i);
 		}
@@ -306,7 +322,7 @@ public class BombListener implements Listener {
 				&& Litestrike.getInstance().game_controller.teams.get_team(e.getEntity().getName()) == Team.Placer) {
 			// if it got picked up by a player and that player is placer, then proceed
 			Player p = (Player) e.getEntity();
-			Bomb.give_bomb(p.getInventory());
+			Bomb.give_bomb(p);
 		}
 	}
 

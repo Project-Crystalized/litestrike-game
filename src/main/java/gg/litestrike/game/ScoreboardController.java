@@ -152,7 +152,7 @@ public class ScoreboardController {
 			if (b == null) {
 				bomb_loc_string = "Unknown";
 			} else if (b instanceof InvItemBomb) {
-				bomb_loc_string = "Inside someones inventory";
+				bomb_loc_string = ((InvItemBomb) b).get_bomb_loc_string(p);
 			} else if (b instanceof DroppedBomb) {
 				bomb_loc_string = ((DroppedBomb) b).get_bomb_loc_string(p);
 			} else if (b instanceof PlacedBomb) {

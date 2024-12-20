@@ -12,7 +12,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -52,7 +51,7 @@ public interface Bomb {
 		return item;
 	}
 
-	public static void give_bomb(PlayerInventory inv) {
+	public static void give_bomb(Player inv) {
 		// some sanity checks
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
 		if (b instanceof InvItemBomb || b instanceof PlacedBomb) {
@@ -159,9 +158,6 @@ class PlacedBomb implements Bomb {
 	}
 
 	public String get_bomb_loc_string(Player p) {
-		if (block.getType() == Material.BARRIER) {
-			Bukkit.getLogger().severe("Bomb Logic error, placed bomb doesnt have barrier block.");
-		}
 		String arrow = Bomb.get_arrow(p, block.getLocation());
 		return "Placed at a site " + arrow;
 	}
@@ -240,18 +236,26 @@ class PlacedBomb implements Bomb {
 }
 
 class InvItemBomb implements Bomb {
-	PlayerInventory p_inv;
+	Player player;
 
-	public InvItemBomb(PlayerInventory p_inv) {
-		this.p_inv = p_inv;
-		p_inv.addItem(Bomb.bomb_item());
+	public InvItemBomb(Player p) {
+		this.player = p;
+		player.getInventory().addItem(Bomb.bomb_item());
 
 		ProtocolLibLib.update_armor();
 	}
 
+	public String get_bomb_loc_string(Player p) {
+		if (p == player) {
+			return "In your Inventory";
+		}
+		String arrow = Bomb.get_arrow(p, player.getLocation());
+		return "In someone's Inventory " + arrow;
+	}
+
 	@Override
 	public void remove() {
-		p_inv.removeItemAnySlot(Bomb.bomb_item());
+		player.getInventory().removeItemAnySlot(Bomb.bomb_item());
 	}
 
 	public void place_bomb(Block bomb_block, BombModel bm, BlockFace bf) {
