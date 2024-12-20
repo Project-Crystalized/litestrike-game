@@ -113,6 +113,7 @@ public final class Litestrike extends JavaPlugin {
 					game_controller = new GameController();
 					is_force_starting = false;
 					Bukkit.getLogger().info("A GAME is starting!");
+					SoundEffects.game_start();
 
 					// signals that the game has started to the proxy
 					ByteArrayDataOutput out = ByteStreams.newDataOutput();

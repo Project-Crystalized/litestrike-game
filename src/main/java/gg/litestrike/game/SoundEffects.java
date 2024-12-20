@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kyori.adventure.audience.Audience;
@@ -11,139 +12,41 @@ import net.kyori.adventure.sound.Sound;
 import static net.kyori.adventure.sound.Sound.Source.AMBIENT;
 
 public class SoundEffects {
+	public static void game_start() {
+		Audience.audience(Bukkit.getOnlinePlayers())
+			.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_start"), AMBIENT, 1f, 1f));
+	}
 	public static void round_start() {
 		new BukkitRunnable() {
-
 			@Override
 			public void run() {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc.round_state != RoundState.PreRound && gc.phase_timer > 6) {
+				if (gc.round_state != RoundState.PreRound) {
 					cancel();
 				}
-				if (gc.phase_timer > GameController.PRE_ROUND_TIME - 80 && gc.phase_timer % 20 == 0) {
-					countdown_beep();
-				}
-				if (gc.round_state == RoundState.Running && gc.phase_timer % 3 == 0) {
-					Bukkit.getServer()
-							.playSound(Sound.sound(Key.key("block.note_block.cow_bell"), AMBIENT, 1f, 0.629961f));
-					Bukkit.getServer().playSound(Sound.sound(Key.key("block.note_block.harp"), AMBIENT, 1f, 0.5f));
-					Bukkit.getServer()
-							.playSound(Sound.sound(Key.key("block.note_block.snare"), AMBIENT, 1f, 0.5f));
+				if (gc.phase_timer == GameController.PRE_ROUND_TIME - 80) {
+					Bukkit.getServer().playSound(Sound.sound(Key.key("crystalized:effect.ls_round_start"), AMBIENT, 1f, 1f));
+					cancel();
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 150, 1);
 	}
 
 	public static void round_lost(Audience a) {
-		new BukkitRunnable() {
-			int timer = 0;
-
-			@Override
-			public void run() {
-				switch (timer) {
-					case 0:
-						a.playSound(Sound.sound(Key.key("block.note_block.xylophone"), AMBIENT, 1f, 1.0f));
-						a.playSound(Sound.sound(Key.key("block.note_block.didgeridoo"), AMBIENT, 1f, 1.122462f));
-						break;
-					case 2:
-						a.playSound(Sound.sound(Key.key("block.note_block.xylophone"), AMBIENT, 1f, 0.840896f));
-						break;
-					case 4:
-						a.playSound(Sound.sound(Key.key("block.note_block.xylophone"), AMBIENT, 1f, 0.749154f));
-						a.playSound(Sound.sound(Key.key("block.note_block.didgeridoo"), AMBIENT, 1f, 1.0f));
-						break;
-					case 6:
-						a.playSound(Sound.sound(Key.key("block.note_block.xylophone"), AMBIENT, 1f, 0.629961f));
-						break;
-					case 8:
-						a.playSound(Sound.sound(Key.key("block.note_block.xylophone"), AMBIENT, 1f, 0.561231f));
-						a.playSound(Sound.sound(Key.key("block.note_block.didgeridoo"), AMBIENT, 1f, 0.840896f));
-						break;
-					case 11:
-					case 12:
-					case 14:
-					case 15:
-						a.playSound(Sound.sound(Key.key("block.note_block.didgeridoo"), AMBIENT, 1f, 0.749154f));
-				}
-				timer += 1;
-				if (timer > 20) {
-					cancel();
-				}
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 1, 2);
+		a.playSound(Sound.sound(Key.key("crystalized:effect.ls_round_lost"), AMBIENT, 1f, 1.0f));
 	}
 
 	public static void round_won(Audience a) {
-		new BukkitRunnable() {
-			int timer = 0;
-
-			@Override
-			public void run() {
-				switch (timer) {
-					case 0:
-						a.playSound(Sound.sound(Key.key("block.note_block.bell"), AMBIENT, 1f, 0.5f));
-						break;
-					case 1:
-						a.playSound(Sound.sound(Key.key("block.note_block.flute"), AMBIENT, 1f, 1.122462f));
-						break;
-					case 2:
-						a.playSound(Sound.sound(Key.key("block.note_block.bell"), AMBIENT, 1f, 0.561231f));
-						break;
-					case 4:
-						a.playSound(Sound.sound(Key.key("block.note_block.bell"), AMBIENT, 1f, 0.629961f));
-						break;
-					case 5:
-						a.playSound(Sound.sound(Key.key("block.note_block.flute"), AMBIENT, 1f, 1.498307f));
-						break;
-					case 6:
-						a.playSound(Sound.sound(Key.key("block.note_block.bell"), AMBIENT, 1f, 0.749154f));
-						break;
-					case 8:
-						a.playSound(Sound.sound(Key.key("block.note_block.bell"), AMBIENT, 1f, 0.840896f));
-						break;
-					case 9:
-						a.playSound(Sound.sound(Key.key("block.note_block.flute"), AMBIENT, 1f, 2.0f));
-						break;
-					case 12:
-					case 13:
-					case 14:
-					case 15:
-						a.playSound(Sound.sound(Key.key("block.note_block.didgeridoo"), AMBIENT, 1f, 2.0f));
-						break;
-					case 21:
-						a.playSound(Sound.sound(Key.key("block.note_block.bass"), AMBIENT, 1f, 1.0f));
-						break;
-				}
-				timer += 1;
-				if (timer > 30) {
-					cancel();
-				}
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 1, 2);
+		a.playSound(Sound.sound(Key.key("crystalized:effect.ls_round_won"), AMBIENT, 1f, 1.0f));
 	}
 
 	public static void bomb_plant_finish(Location loc) {
+		Audience.audience(Bukkit.getOnlinePlayers()).playSound(Sound.sound(Key.key("crystalized:effect.star_plant"), AMBIENT, 1f, 1.0f));
 		new BukkitRunnable() {
 			int timer = 0;
-
 			@Override
 			public void run() {
-				switch (timer) {
-					case 0:
-					case 1:
-					case 2:
-					case 6:
-					case 7:
-					case 8:
-					case 12:
-					case 13:
-					case 14:
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.pling"), AMBIENT, 1f, 0.5f));
-						Bukkit.getServer()
-								.playSound(Sound.sound(Key.key("block.note_block.chime"), AMBIENT, 1f, 0.5f));
-						bomb_particles(loc);
-				}
+				bomb_particles(loc);
 				timer += 1;
 				if (timer > 20) {
 					cancel();
@@ -250,7 +153,6 @@ public class SoundEffects {
 					Sound sound_bass = Sound.sound(Key.key("block.note_block.basedrum"), AMBIENT, 1.9f, 1f);
 					Bukkit.getServer().playSound(sound_bass, x, y, z);
 				}
-
 				timer--;
 				if (timer < 1) {
 					cancel();
@@ -259,8 +161,15 @@ public class SoundEffects {
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 
-	public static void round_end_sound() {
-		// TODO maybe a trumped sound similar to tubnet
+	public static void round_end_sound(Team winner) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			Team player_team = Litestrike.getInstance().game_controller.teams.get_team(p);
+			if (player_team == winner) {
+				p.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_won"), AMBIENT, 50, 1));
+			} else {
+				p.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_lost"), AMBIENT, 50, 1));
+			}
+		}
 	}
 
 }

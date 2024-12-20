@@ -40,9 +40,6 @@ public class DebugCommands implements CommandExecutor {
 		}
 
 		switch (args[0]) {
-			case "start_round":
-				SoundEffects.round_start();
-				break;
 			case "round_lost":
 				SoundEffects.round_lost(Bukkit.getServer());
 				break;

@@ -281,7 +281,7 @@ public class GameController {
 
 		print_result_table(winner);
 		teleport_players_podium(w);
-		SoundEffects.round_end_sound();
+		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
 
 		// summon fireworks after 5 secs

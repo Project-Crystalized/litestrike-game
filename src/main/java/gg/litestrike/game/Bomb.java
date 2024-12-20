@@ -75,7 +75,7 @@ public interface Bomb {
 
 		Location loc = loc2.clone();
 		loc.setY(0);
-		
+
 		Vector blockDirection = loc.subtract(p_loc).toVector().normalize();
 
 		double x1 = blockDirection.getX();
@@ -83,7 +83,7 @@ public interface Bomb {
 		double x2 = p_loc.getDirection().getX();
 		double z2 = p_loc.getDirection().getZ();
 
-		double angle = Math.toDegrees(Math.atan2(x1*z2-z1*x2, x1*x2+z1*z2));
+		double angle = Math.toDegrees(Math.atan2(x1 * z2 - z1 * x2, x1 * x2 + z1 * z2));
 
 		if (angle >= -22.5 && angle <= 22.5) {
 			return "\uE110";
@@ -105,7 +105,7 @@ public interface Bomb {
 			return "error invalid angle";
 		}
 	}
-	
+
 	public void remove();
 }
 
