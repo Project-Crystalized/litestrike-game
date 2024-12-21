@@ -130,9 +130,6 @@ public class ShopListener implements Listener {
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(lsitem, true);
 			s.shopLog.add(lsitem);
-			for (LSItem lsi : s.shopLog) {
-				Bukkit.getServer().sendMessage(lsi.item.displayName());
-			}
 			s.buyHistory.add(lsitem);
 			return;
 		}

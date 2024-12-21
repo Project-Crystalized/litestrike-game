@@ -110,29 +110,15 @@ public class PlayerListener implements Listener {
 		e.renderer(ChatRenderer.viewerUnaware(new LSChatRenderer()));
 	}
 
-	// @EventHandler
-	// public void onChatDecorate(AsyncChatDecorateEvent e) {
-	// GameController gc = Litestrike.getInstance().game_controller;
-	// if (e.player() == null || gc == null) {
-	// return;
-	// }
-	//
-	// Team t = gc.teams.get_team(e.player());
-	// TextColor color;
-	// if (t == Team.Breaker) {
-	// color = Teams.BREAKER_GREEN;
-	// } else {
-	// color = Teams.PLACER_RED;
-	// }
-	// e.result(e.result().color(color));
-	// }
-
 	@EventHandler
 	public void onEntityDamage(EntityDamageByEntityEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null) {
 			e.setCancelled(true);
 			return;
+		}
+		if (gc.teams.get_team((Player) e.getEntity()) == gc.teams.get_team((Player) e.getDamager())) {
+			e.setCancelled(true);
 		}
 	}
 

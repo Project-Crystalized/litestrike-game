@@ -4,9 +4,9 @@ main: gg.litestrike.game.Litestrike
 api-version: '1.21.1'
 load: POSTWORLD
 
-softdepend: [Crystalized_Essentials]
+# softdepend: [Crystalized_Essentials]
 
-depend: [ProtocolLib]
+depend: [ProtocolLib, Crystalized_Essentials]
 
 commands:
   mapdata:
