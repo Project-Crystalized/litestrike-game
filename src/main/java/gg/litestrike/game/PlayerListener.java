@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -200,7 +201,6 @@ public class PlayerListener implements Listener {
 				SoundEffects.enemy_death(player);
 			}
 		}
-
 	}
 }
 
