@@ -14,7 +14,7 @@ import static net.kyori.adventure.sound.Sound.Source.AMBIENT;
 public class SoundEffects {
 	public static void game_start() {
 		Audience.audience(Bukkit.getOnlinePlayers())
-			.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_start"), AMBIENT, 1f, 1f));
+			.playSound(Sound.sound(Key.key("crystalized:effect.countdown_end"), AMBIENT, 1f, 1f));
 	}
 	public static void round_start() {
 		new BukkitRunnable() {
