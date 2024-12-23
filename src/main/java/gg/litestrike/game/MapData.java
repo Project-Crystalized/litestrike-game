@@ -63,7 +63,7 @@ public class MapData implements Listener {
 			for (int[] b : border_blocks) {
 				for (int i = 0; i < border_height; i++) { // go until border_height
 					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
-					if (block.isEmpty() || block.getType() == border_block_type) { // only replace empty, or border_block_type
+					if (block.isEmpty() || block.getType() == border_block_type || block.getType() == Material.LIGHT) { // only replace empty, or border_block_type
 						block.setType(m);
 					}
 				}

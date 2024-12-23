@@ -136,6 +136,7 @@ public final class Litestrike extends JavaPlugin {
 		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
 		w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
 		w.setGameRule(GameRule.DO_INSOMNIA, false);
+		w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
 		w.setGameRule(GameRule.MOB_GRIEFING, false);
 		w.setGameRule(GameRule.DO_FIRE_TICK, false);
 		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
