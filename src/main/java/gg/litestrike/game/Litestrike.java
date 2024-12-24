@@ -43,7 +43,7 @@ public final class Litestrike extends JavaPlugin {
 	public ProtocolManager protocolManager;
 
 	// player amount required to autostart
-	public static final int PLAYERS_TO_START = 12;
+	public static final int PLAYERS_TO_START = 6;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
