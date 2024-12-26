@@ -15,11 +15,8 @@ import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -262,7 +259,7 @@ public class ShopListener implements Listener {
 		ItemStack stack = null;
 
 		if (hisitem == null && Litestrike.getInstance().game_controller.round_number == 1) {
-			p.sendMessage("giving basic kid...");
+			// p.sendMessage("giving basic kid...");
 			stack = Shop.getBasicKid(lsitem.categ, p);
 			// if we don't find any buys in the history we give the player the basic kid
 		} else if (hisitem == null) {

@@ -106,7 +106,7 @@ public class BombListener implements Listener {
 						breaking_counter += 1;
 					}
 					breaking_counter += 1;
-					if (breaking_counter == BREAK_TIME) {
+					if (breaking_counter >= BREAK_TIME) {
 						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
 						b.is_broken = true;
 						Audience.audience(Bukkit.getOnlinePlayers())

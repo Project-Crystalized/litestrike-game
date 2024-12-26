@@ -253,10 +253,10 @@ public class GameController {
 		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(1000, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(800, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(200, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(400, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
