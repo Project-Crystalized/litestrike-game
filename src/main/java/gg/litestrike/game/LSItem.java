@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -11,6 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,7 +122,7 @@ public class LSItem {
 		List<Component> defuser_lore = new ArrayList<>();
 		defuser_lore.add(translatable("crystalized.item.defuser.desc1").color(WHITE).decoration(ITALIC, false));
 		defuser_lore.add(translatable("crystalized.item.defuser.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(defuser, 100, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT));
+		lsItems.add(new LSItem(defuser, 500, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT));
 
 		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
 		List<Component> gapple_lore = new ArrayList<>();
@@ -189,6 +193,15 @@ public class LSItem {
 		multishot_lore.add(translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26));
 
+		ItemStack speed1pot = new ItemStack(POTION);
+		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
+		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*20, 1, true, true, true), true);
+		speed1potMeta.displayName(Component.text("Potion of Swiftness"));
+		speed1pot.setItemMeta(speed1potMeta);
+		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47));
+
+		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 6);
+		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51));
 		creation_number = 1; // reset id
 
 		return lsItems;

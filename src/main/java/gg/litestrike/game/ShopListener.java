@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
@@ -139,18 +140,10 @@ public class ShopListener implements Listener {
 		LSItem lsitem = null;
 		Integer invSlot = null;
 
-		for (LSItem i : s.buyHistory) {
-			if (i == null) {
-				p.sendMessage("null");
-			} else {
-				p.sendMessage(i.item.displayName());
-			}
-		}
-
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
 
-			if (lsi.slot == null) {
+			if (lsi.slot == null || !(lsi.slot == Shop.DEFUSER_SLOT && lsi.item.getType() == Material.IRON_PICKAXE)) {
 				continue;
 			}
 
@@ -285,18 +278,21 @@ public class ShopListener implements Listener {
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem, true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-		for (LSItem it : s.buyHistory) {
-			if (it == null) {
+		ArrayList<Integer> list = new ArrayList<>();
+		for (int i = 0; i <= s.buyHistory.size()-1; i++) {
+			if (s.buyHistory.get(i) == null) {
 				continue;
 			}
-			if (it == hisitem) {
-				s.buyHistory.remove(hisitem);
+			if (s.buyHistory.get(i) == hisitem) {
+				list.add(i);
 			}
-			if (it == lsitem) {
-				s.buyHistory.remove(lsitem);
+			if (s.buyHistory.get(i) == lsitem) {
+				list.add(i);
 			}
 		}
-
+		for(Integer i : list){
+			s.buyHistory.remove(i);
+		}
 		int last_index = -1;
 		for (int i = 0; i < s.shopLog.size(); i++) {
 			if (s.shopLog.get(i) == lsitem) {
@@ -304,7 +300,7 @@ public class ShopListener implements Listener {
 			}
 		}
 		if (last_index == -1) {
-			Bukkit.getLogger().severe("error, a item was sold tha was not in shopLog");
+			Bukkit.getLogger().severe("error, an item was sold than was not in shopLog");
 		} else {
 			s.shopLog.remove(last_index);
 		}
