@@ -99,6 +99,9 @@ class TabListController {
 		for (Component c : enemy) {
 			footer = footer.append(c);
 		}
+		if (disc_list.size() != 0) {
+			footer = footer.append(text("\n---------------------------------------------------").color(NamedTextColor.GRAY));
+		}
 		for (Component c : disc_list) {
 			footer = footer.append(c);
 		}

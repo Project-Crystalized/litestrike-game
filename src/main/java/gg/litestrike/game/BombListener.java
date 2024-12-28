@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageAbortEvent;
@@ -25,6 +26,7 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
@@ -227,34 +229,34 @@ public class BombListener implements Listener {
 		return false;
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void onInteractPlacing(PlayerInteractEvent e) {
 		if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
 			e.setCancelled(true);
 		}
 
 		GameController gc = Litestrike.getInstance().game_controller;
+		ItemStack held_item_main = e.getPlayer().getInventory().getItemInMainHand();
+		ItemStack held_item_off = e.getPlayer().getInventory().getItemInOffHand();
 
-		// uncancel the event when bomb is mined, so we get the BlockDamageEvent
-		// if (gc != null && gc.bomb instanceof PlacedBomb) {
-		// if (e.getClickedBlock() != null && e.getClickedBlock().equals(((PlacedBomb)
-		// gc.bomb).block)) {
-		// e.setCancelled(false);
-		// }
-		// }
+		boolean is_holding_bomb = held_item_main.equals(Bomb.bomb_item()) || held_item_off.equals(Bomb.bomb_item());
 
 		if (gc == null ||
 				gc.round_state != RoundState.Running ||
 				e.getItem() == null ||
-				!e.getItem().equals(Bomb.bomb_item()) ||
+				!is_holding_bomb ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
 				e.getClickedBlock().getType() != Material.TERRACOTTA ||
 				!(gc.bomb instanceof InvItemBomb)) {
 			return;
 		}
 
-		Material held_item = e.getPlayer().getInventory().getItemInOffHand().getType();
-		if (held_item == Material.BOW || held_item == Material.CROSSBOW) {
+		boolean is_holding_bow = held_item_main.getType() == Material.BOW ||
+				held_item_main.getType() == Material.CROSSBOW ||
+				held_item_off.getType() == Material.BOW ||
+				held_item_off.getType() == Material.CROSSBOW;
+
+		if (is_holding_bow) {
 			e.setCancelled(true);
 		}
 

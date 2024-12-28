@@ -17,4 +17,5 @@ for row in res.fetchall():
 
         print(data["name"], "wins: ", row[1])
     except requests.JSONDecodeError:
-        print(id1, "wins: ", row[1])
+        print()
+        # print(id1, "wins: ", row[1])
