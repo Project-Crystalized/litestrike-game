@@ -256,7 +256,7 @@ public class GameController {
 				getPlayerData(p).addMoney(800, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(400, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(400, "ғᴏʀ ʟᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);

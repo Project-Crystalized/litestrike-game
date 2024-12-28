@@ -195,13 +195,13 @@ public class LSItem {
 
 		ItemStack speed1pot = new ItemStack(POTION);
 		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
-		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*20, 1, true, true, true), true);
+		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*20, 0, true, true, true), true);
 		speed1potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed1pot.setItemMeta(speed1potMeta);
 		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47));
 
 		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 6);
-		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51));
+		lsItems.add(new LSItem(spectralArrow, 150, null, ItemCategory.Ammunition, 51));
 		creation_number = 1; // reset id
 
 		return lsItems;
