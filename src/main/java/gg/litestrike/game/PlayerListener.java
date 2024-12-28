@@ -1,6 +1,5 @@
 package gg.litestrike.game;
 
-import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.attribute.Attribute;
@@ -115,6 +114,9 @@ public class PlayerListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null) {
 			e.setCancelled(true);
+			return;
+		}
+		if (!(e.getEntity() instanceof Player) || !(e.getDamager() instanceof Player)) {
 			return;
 		}
 		if (gc.teams.get_team((Player) e.getEntity()) == gc.teams.get_team((Player) e.getDamager())) {

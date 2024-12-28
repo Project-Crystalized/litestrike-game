@@ -15,6 +15,7 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.SpectralArrow;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -231,7 +232,7 @@ public class GameController {
 
 		// remove arrows and items
 		for (Entity e : Bukkit.getWorld("world").getEntities()) {
-			if (e instanceof Arrow || e instanceof Item) {
+			if (e instanceof Arrow || e instanceof Item || e instanceof SpectralArrow) {
 				e.remove();
 			}
 		}

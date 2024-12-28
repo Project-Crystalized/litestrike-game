@@ -60,23 +60,15 @@ class TabListController {
 					.append(text(pd.assists))
 					.append(text("    " + pd.getMoney()).color(TextColor.color(0x0ab1c4)));
 
+			Component player_status;
 			if (player == null) {
-				disc_list.add(text("\n ")
-						.append(text("[Disconnected] "))
-						.append(text(pd.player).color(NamedTextColor.GRAY))
-						.append(player_stats));
-				continue;
-			}
-
-			Component player_status = text("\n ");
-			if (player.getGameMode() == GameMode.SPECTATOR) {
-				player_status = player_status.append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				player_status = text("\n ").append(text("[Disconnected] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+			} else if (player.getGameMode() == GameMode.SPECTATOR) {
+				player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+			} else if (gc.teams.get_team(player) == Team.Placer) {
+				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
 			} else {
-				if (gc.teams.get_team(player) == Team.Placer) {
-					player_status = player_status.append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
-				} else {
-					player_status = player_status.append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
-				}
+				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
 			}
 
 			int left_size = PlainTextComponentSerializer.plainText().serialize(player_status).length();
@@ -85,7 +77,9 @@ class TabListController {
 			player_status = player_status.append(text(" ".repeat(center_padding))).append(player_stats);
 			// Bukkit.getLogger().severe("total_len: " + total_len);
 
-			if (gc.teams.get_team(player) == p_team) {
+			if (player == null) {
+				disc_list.add(player_status);
+			} else if (gc.teams.get_team(player) == p_team) {
 				allay.add(player_status);
 			} else {
 				enemy.add(player_status);
@@ -98,6 +92,9 @@ class TabListController {
 		footer = footer.append(text("\n---------------------------------------------------").color(NamedTextColor.GRAY));
 		for (Component c : enemy) {
 			footer = footer.append(c);
+		}
+		if (disc_list.size() != 0) {
+			footer = footer.append(text("\n---------------------------------------------------").color(NamedTextColor.GRAY));
 		}
 		for (Component c : disc_list) {
 			footer = footer.append(c);

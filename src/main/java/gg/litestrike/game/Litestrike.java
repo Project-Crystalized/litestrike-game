@@ -44,6 +44,7 @@ public final class Litestrike extends JavaPlugin {
 
 	// player amount required to autostart
 	public static final int PLAYERS_TO_START = 6;
+	public static final int PLAYER_CAP = 10;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
@@ -100,6 +101,9 @@ public final class Litestrike extends JavaPlugin {
 
 				// if more then 6 players online, count down, else reset countdown
 				if (Bukkit.getOnlinePlayers().size() >= PLAYERS_TO_START || is_force_starting) {
+					if (Bukkit.getOnlinePlayers().size() >= PLAYER_CAP) {
+						is_force_starting = true;
+					}
 					countdown -= 1;
 					count_down_animation(countdown);
 				} else {
