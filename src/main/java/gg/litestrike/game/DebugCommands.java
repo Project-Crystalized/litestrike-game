@@ -64,24 +64,12 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_mapdata(String[] args, CommandSender commandSender) {
-		Player cmd_sender = (Player) commandSender;
-		World w = cmd_sender.getWorld();
 		MapData mapdata = Litestrike.getInstance().mapdata;
 
 		commandSender.sendMessage(mapdata.toString());
 
 		if (args.length == 0) {
 			return true;
-		}
-		switch (args[0]) {
-			case "raise_border": {
-				mapdata.raiseBorder(w);
-				break;
-			}
-			case "lower_border": {
-				mapdata.lowerBorder(w);
-				break;
-			}
 		}
 		return true;
 	}
@@ -95,9 +83,6 @@ public class DebugCommands implements CommandExecutor {
 			return true;
 		}
 
-		// Bukkit.getLogger().warning("player data amt: " +
-		// Litestrike.getInstance().game_controller.playerDatas.size());
-
 		try {
 			Player p = Bukkit.getPlayer(args[0]);
 			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
@@ -107,17 +92,6 @@ public class DebugCommands implements CommandExecutor {
 			Bukkit.getLogger().log(Level.SEVERE, "Error running the /player_info command\n" + e);
 			return false;
 		}
-
-		// for (Player p :
-		// Litestrike.getInstance().game_controller.teams.get_breakers()) {
-		// commandSender.sendMessage("breaker: " + p.getName());
-		// }
-		//
-		// for (Player p : Litestrike.getInstance().game_controller.teams.get_placers())
-		// {
-		// commandSender.sendMessage("placer: " + p.getName());
-		// }
-
 		return true;
 
 	}

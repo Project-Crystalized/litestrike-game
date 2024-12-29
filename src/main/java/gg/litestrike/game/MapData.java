@@ -29,24 +29,22 @@ import java.util.Arrays;
 // from this file it will read, for example: the spawn points and map_name.
 // this is a singleton
 public class MapData implements Listener {
-	public final double[] placer_spawn;
-	public final double[] breaker_spawn;
-	public final double[] que_spawn;
+	public double[] placer_spawn;
+	public double[] breaker_spawn;
+	public double[] que_spawn;
 
-	public final String map_name;
+	public String map_name;
 
-	public final int border_height;
+	public int border_height;
 
 	// toggelable map-specific features
-	public boolean launch_pads;
-	public final boolean levitation_pads;
-	public final boolean openable_doors;
+	public MapFeatures map_features;
 
 	// border gets placed 1 block above this block type
-	public final Material border_marker;
-	public final Material border_block_type;
+	public Material border_marker;
+	public Material border_block_type;
 
-	public final PodiumData podium;
+	public PodiumData podium;
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
 
@@ -63,7 +61,7 @@ public class MapData implements Listener {
 			for (int[] b : border_blocks) {
 				for (int i = 0; i < border_height; i++) { // go until border_height
 					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
-					if (block.isEmpty() || block.getType() == border_block_type || block.getType() == Material.LIGHT) { // only replace empty, or border_block_type
+					if (block.isEmpty() || block.getType() == border_block_type || block.getType() == Material.LIGHT) {
 						block.setType(m);
 					}
 				}
@@ -103,65 +101,101 @@ public class MapData implements Listener {
 		}
 	}
 
+	private void load_spawn_coords(JsonObject json) {
+		JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();
+		this.placer_spawn = new double[] { p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(),
+				p_spawn.get(2).getAsDouble() };
+
+		JsonArray b_spawn = json.get("breaker_spawn").getAsJsonArray();
+		this.breaker_spawn = new double[] { b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(),
+				b_spawn.get(2).getAsDouble() };
+
+		JsonArray q_spawn = json.get("que_spawn").getAsJsonArray();
+		this.que_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
+				q_spawn.get(2).getAsDouble() };
+	}
+
+	private void load_border_values(JsonObject json) {
+		String b_mark = json.get("border_marker").getAsString();
+		this.border_marker = Material.matchMaterial(b_mark);
+		if (!border_marker.isBlock()) {
+			throw new RuntimeException("border_marker needs to be a placable block");
+		}
+
+		String b_type = json.get("border_block_type").getAsString();
+		this.border_block_type = Material.matchMaterial(b_type);
+		if (!border_block_type.isBlock()) {
+			throw new RuntimeException("border_block_type needs to be a placable block");
+		}
+
+		this.border_height = json.get("border_height").getAsInt();
+	}
+
+	private void parse_config_v2(JsonObject json) {
+		load_spawn_coords(json);
+		this.map_name = json.get("map_name").getAsString();
+
+		load_border_values(json);
+
+		JsonElement jp = json.get("enable_jump_pads");
+		JsonElement launch_pad = json.get("enable_launch_pads");
+		boolean launch_pads = (jp != null && jp.getAsBoolean()) || (launch_pad != null && launch_pad.getAsBoolean());
+
+		JsonElement lp = json.get("enable_levitation_pads");
+		boolean levi_pads = (lp != null && lp.getAsBoolean());
+
+		map_features = new MapFeatures(launch_pads, levi_pads);
+
+		JsonObject jo_podium = json.getAsJsonObject("podium");
+		if (jo_podium != null) {
+			this.podium = new PodiumData(jo_podium);
+		}
+	}
+
+	public void parse_config_v3(JsonObject json) {
+		load_spawn_coords(json);
+
+		this.map_name = json.get("map_name").getAsString();
+
+		load_border_values(json);
+
+		JsonObject jo_map_features = json.getAsJsonObject("map_features");
+		if (jo_map_features != null) {
+			map_features = new MapFeatures(jo_map_features);
+		}
+
+		JsonObject jo_podium = json.getAsJsonObject("podium");
+		if (jo_podium != null) {
+			this.podium = new PodiumData(jo_podium);
+		}
+	}
+
 	public MapData() {
 		try {
 			String file_content = Files.readString(Paths.get("./world/map_config.json"));
 			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
 
 			JsonElement v = json.get("version");
-			if (v != null && v.getAsInt() != 2) {
+			if (v == null) {
 				throw new Exception("incorrect map_config.java file version, please update your map_config.json");
 			}
-
-			// pitch and yaw are not needed, as we just make players look at enemy spawn
-			JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();
-			this.placer_spawn = new double[] { p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(),
-					p_spawn.get(2).getAsDouble() };
-
-			JsonArray b_spawn = json.get("breaker_spawn").getAsJsonArray();
-			this.breaker_spawn = new double[] { b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(),
-					b_spawn.get(2).getAsDouble() };
-
-			JsonArray q_spawn = json.get("que_spawn").getAsJsonArray();
-			this.que_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
-					q_spawn.get(2).getAsDouble() };
-
-			this.map_name = json.get("map_name").getAsString();
-
-			String b_mark = json.get("border_marker").getAsString();
-			this.border_marker = Material.matchMaterial(b_mark);
-			if (!border_marker.isBlock()) {
-				throw new Exception("border_marker needs to be a placable block");
+			switch (v.getAsInt()) {
+				case 2:
+					Bukkit.getLogger().warning("[Litestrike] loading a version 2 map config file, consider updating it");
+					parse_config_v2(json);
+					break;
+				case 3:
+					Bukkit.getLogger().info("[Litestrike] loading a version 3 map config file");
+					parse_config_v3(json);
+					break;
+				default:
+					throw new Exception("incorrect map_config.java file version, please update your map_config.json");
 			}
 
-			String b_type = json.get("border_block_type").getAsString();
-			this.border_block_type = Material.matchMaterial(b_type);
-			if (!border_block_type.isBlock()) {
-				throw new Exception("border_block_type needs to be a placable block");
-			}
-
-			this.border_height = json.get("border_height").getAsInt();
-
-			JsonElement jp = json.get("enable_jump_pads");
-			this.launch_pads = jp != null && jp.getAsBoolean();
-			JsonElement launch_pad = json.get("enable_launch_pads");
-			this.launch_pads = launch_pad != null && launch_pad.getAsBoolean();
-			JsonElement od = json.get("enable_openable_doors");
-			this.openable_doors = od != null && od.getAsBoolean();
-			JsonElement lp = json.get("enable_levitation_pads");
-			this.levitation_pads = lp != null && lp.getAsBoolean();
-
-			JsonObject jo_podium = json.getAsJsonObject("podium");
-			if (jo_podium != null) {
-				this.podium = new PodiumData(jo_podium);
-			} else {
-				this.podium = null;
-			}
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
 			e.printStackTrace();
 			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-			// disable plugin when failure
 			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 			throw new RuntimeException(new Exception());
 		}
@@ -180,20 +214,21 @@ public class MapData implements Listener {
 	}
 
 	public String toString() {
-		return "placer_spawn: " + Arrays.toString(this.placer_spawn) +
+		String s = "placer_spawn: " + Arrays.toString(this.placer_spawn) +
 				"\nbreaker_spawn: " + Arrays.toString(this.breaker_spawn) +
 				"\nque_spawn: " + Arrays.toString(this.que_spawn) +
 				"\nmap_name: " + this.map_name +
 				"\nborder_marker: " + this.border_marker +
 				"\nborder_block_type: " + this.border_block_type +
-				"\nenable_launch_pads: " + this.launch_pads +
-				"\nenable_openable_doors: " + this.openable_doors +
-				"\nenable_levitation_pads: " + this.levitation_pads +
 				"\namount of known border blocks: " + this.border_blocks.size() +
-				"\n\npodium:\nspawn:" + Arrays.toString(this.podium.spawn) +
-				"\nfirst:" + Arrays.toString(this.podium.first) +
-				"\nsecond:" + Arrays.toString(this.podium.second) +
-				"\nthird:" + Arrays.toString(this.podium.third);
+				"\n\nmap_features: " + map_features.toString();
+		if (this.podium != null) {
+			s = s + "\n\npodium:\nspawn:" + Arrays.toString(this.podium.spawn) +
+					"\nfirst:" + Arrays.toString(this.podium.first) +
+					"\nsecond:" + Arrays.toString(this.podium.second) +
+					"\nthird:" + Arrays.toString(this.podium.third);
+		}
+		return s;
 	}
 
 	// if this returns true for a chunk, the chunk is searched for border blocks.

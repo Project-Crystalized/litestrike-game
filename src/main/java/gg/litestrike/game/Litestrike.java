@@ -67,12 +67,9 @@ public final class Litestrike extends JavaPlugin {
 		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
 		this.getServer().getPluginManager().registerEvents(new BombListener(), this);
 
-		if (mapdata.levitation_pads) {
-			this.getServer().getPluginManager().registerEvents(new LeviPadListener(), this);
-		}
-
-		if (mapdata.launch_pads) {
-			this.getServer().getPluginManager().registerEvents(new LaunchPadListener(), this);
+		// registers all listeners for map specific features
+		if (mapdata.map_features != null) {
+			mapdata.map_features.register_listeners(this);
 		}
 
 		DebugCommands dc = new DebugCommands();
