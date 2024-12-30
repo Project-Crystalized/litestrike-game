@@ -35,7 +35,6 @@ public class MapData implements Listener {
 
 	public String map_name;
 
-	public int border_height;
 
 	// toggelable map-specific features
 	public MapFeatures map_features;
@@ -43,6 +42,9 @@ public class MapData implements Listener {
 	// border gets placed 1 block above this block type
 	public Material border_marker;
 	public Material border_block_type;
+	public int border_height;
+
+	public Material bomb_plant_block;
 
 	public PodiumData podium;
 
@@ -158,6 +160,11 @@ public class MapData implements Listener {
 		this.map_name = json.get("map_name").getAsString();
 
 		load_border_values(json);
+
+		JsonElement plant_block = json.get("bomb_plant_block");
+		if (plant_block != null) {
+			bomb_plant_block = Material.matchMaterial(plant_block.getAsString());
+		}
 
 		JsonObject jo_map_features = json.getAsJsonObject("map_features");
 		if (jo_map_features != null) {

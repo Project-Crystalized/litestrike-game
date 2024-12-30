@@ -246,7 +246,7 @@ public class BombListener implements Listener {
 				e.getItem() == null ||
 				!is_holding_bomb ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
-				e.getClickedBlock().getType() != Material.TERRACOTTA ||
+				e.getClickedBlock().getType() != Litestrike.getInstance().mapdata.bomb_plant_block ||
 				!(gc.bomb instanceof InvItemBomb)) {
 			return;
 		}

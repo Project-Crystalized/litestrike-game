@@ -4,7 +4,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -39,6 +38,10 @@ public class ShopListener implements Listener {
 
 	@EventHandler
 	public void buyItem(InventoryClickEvent event) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null || gc.round_state != RoundState.PreRound) {
+			return;
+		}
 		Player p = (Player) event.getWhoClicked();
 		Shop s = Shop.getShop(p);
 		if (event.getCurrentItem() == null) {
@@ -48,14 +51,11 @@ public class ShopListener implements Listener {
 			return;
 		}
 		event.setCancelled(true);
-		GameController gc = Litestrike.getInstance().game_controller;
 
 		if (event.isRightClick()) {
 			undoBuy(event.getCurrentItem(), (Player) event.getWhoClicked(), event.getSlot());
 			return;
 		}
-
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 
 		for (LSItem lsitem : s.shopItems) {
 			if (lsitem.slot == null || (lsitem.slot != event.getSlot() && event.getSlot() != 49)) {
@@ -278,8 +278,9 @@ public class ShopListener implements Listener {
 		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
 		s.updateTitle(lsitem, true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
+
 		ArrayList<Integer> list = new ArrayList<>();
-		for (int i = 0; i <= s.buyHistory.size()-1; i++) {
+		for (int i = 0; i <= s.buyHistory.size() - 1; i++) {
 			if (s.buyHistory.get(i) == null) {
 				continue;
 			}
@@ -290,19 +291,14 @@ public class ShopListener implements Listener {
 				list.add(i);
 			}
 		}
-		for(Integer i : list){
-			s.buyHistory.remove(i);
+		for (Integer i : list) {
+			s.buyHistory.remove(i.intValue());
 		}
-		int last_index = -1;
+
 		for (int i = 0; i < s.shopLog.size(); i++) {
 			if (s.shopLog.get(i) == lsitem) {
-				last_index = i;
+				s.shopLog.remove(i);
 			}
-		}
-		if (last_index == -1) {
-			Bukkit.getLogger().severe("error, an item was sold than was not in shopLog");
-		} else {
-			s.shopLog.remove(last_index);
 		}
 	}
 }
