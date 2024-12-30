@@ -58,6 +58,22 @@ public class Teams {
 		return breaker_list;
 	}
 
+	public List<Player> get_enemy_team_of(Player p) {
+		if (breakers.contains(p.getName())) {
+			return get_placers();
+		} else {
+			return get_breakers();
+		}
+	}
+
+	public List<Player> get_team_of(Team t) {
+		if (t == Team.Breaker) {
+			return get_breakers();
+		} else {
+			return get_placers();
+		}
+	}
+
 	public List<String> get_initial_placers() {
 		return placers;
 	}

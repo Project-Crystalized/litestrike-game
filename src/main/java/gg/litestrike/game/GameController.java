@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -13,9 +15,11 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -57,15 +61,15 @@ public class GameController {
 
 	// the game_reference is printed in chat so that we can later search for the
 	// number in the chat logs
-	public final int game_reference = ThreadLocalRandom.current().nextInt(0, 99999);
+	public final int game_reference = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE - 1);
 
 	// after this round, the sides get switched
 	public final static int SWITCH_ROUND = 4;
 
-	public final static int PRE_ROUND_TIME = (20 * 20);
+	public final static int PRE_ROUND_TIME = (20 * 23);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
-	public final static int FINISH_TIME = (20 * 20);
+	public final static int FINISH_TIME = (20 * 12);
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
@@ -285,13 +289,32 @@ public class GameController {
 		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
 
-		// summon fireworks after 5 secs
+		// summon fireworks
 		new BukkitRunnable() {
+			int i = 0;
+
 			@Override
 			public void run() {
-				// TODO summon firework
+				i++;
+				if (i == 4) {
+					cancel();
+				}
+				for (Player p : teams.get_team_of(winner)) {
+					Firework fw = w.spawn(p.getLocation(), Firework.class);
+					FireworkMeta fwm = fw.getFireworkMeta();
+					fwm.setPower(1);
+					FireworkEffect effect1 = FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withTrail()
+							.withColor(Color.RED)
+							.withColor(Color.BLUE).build();
+					FireworkEffect effect2 = FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withFlicker().withTrail()
+							.withColor(Color.GREEN)
+							.withColor(Color.AQUA)
+							.build();
+					fwm.addEffects(effect1, effect2);
+					fw.setFireworkMeta(fwm);
+				}
 			}
-		}.runTaskLater(Litestrike.getInstance(), (20 * 5));
+		}.runTaskTimer(Litestrike.getInstance(), 0, (20 * 2));
 
 		// this sends players back to lobby
 		new BukkitRunnable() {

@@ -23,12 +23,12 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
 
-import java.util.List;
-
 public class PlayerListener implements Listener {
+	private LSChatRenderer chat_renderer = new LSChatRenderer();
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
@@ -94,19 +94,16 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onChatEvent(AsyncChatEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
+		if (gc == null || gc.round_state == RoundState.GameFinished) {
 			return;
 		}
 
-		List<Player> enemy_team;
-		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
-			enemy_team = gc.teams.get_placers();
-		} else {
-			enemy_team = gc.teams.get_breakers();
+		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
+		if (!msg_text.startsWith("@all") && !msg_text.startsWith("@a")) {
+			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
 		}
 
-		e.viewers().removeAll(enemy_team);
-		e.renderer(ChatRenderer.viewerUnaware(new LSChatRenderer()));
+		e.renderer(ChatRenderer.viewerUnaware(chat_renderer));
 	}
 
 	@EventHandler

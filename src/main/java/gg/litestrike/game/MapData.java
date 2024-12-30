@@ -220,8 +220,10 @@ public class MapData implements Listener {
 				"\nmap_name: " + this.map_name +
 				"\nborder_marker: " + this.border_marker +
 				"\nborder_block_type: " + this.border_block_type +
-				"\namount of known border blocks: " + this.border_blocks.size() +
-				"\n\nmap_features: " + map_features.toString();
+				"\namount of known border blocks: " + this.border_blocks.size();
+		if (map_features != null) {
+			s = s + "\n\nmap_features: " + map_features.toString();
+		}
 		if (this.podium != null) {
 			s = s + "\n\npodium:\nspawn:" + Arrays.toString(this.podium.spawn) +
 					"\nfirst:" + Arrays.toString(this.podium.first) +
