@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
@@ -77,8 +78,9 @@ public class BombListener implements Listener {
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
 					if (planting_counter == PLANT_TIME) {
-						InvItemBomb pb = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
-						pb.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
+						InvItemBomb iib = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
+						iib.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
+						last_planting_block.getWorld().spawnParticle(Particle.REVERSE_PORTAL, last_planting_block.getLocation(), 5000);
 						reset();
 						Litestrike.getInstance().game_controller.getPlayerData(last_planting_player).add_plant();
 					}
@@ -108,9 +110,11 @@ public class BombListener implements Listener {
 						breaking_counter += 1;
 					}
 					breaking_counter += 1;
+					PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
+					mining_players.get(0).p.getWorld().spawnParticle(Particle.CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), 2, 0,0,0);
 					if (breaking_counter >= BREAK_TIME) {
-						PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
 						b.is_broken = true;
+						mining_players.get(0).p.getWorld().spawnParticle(Particle.CHERRY_LEAVES, b.block.getLocation().add(0.5, 0.5, 0.5), 5000, 1,1,1);
 						Audience.audience(Bukkit.getOnlinePlayers())
 								.sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();

@@ -44,7 +44,7 @@ public class MapData implements Listener {
 	public Material border_block_type;
 	public int border_height;
 
-	public Material bomb_plant_block;
+	public Material bomb_plant_block = Material.TERRACOTTA;
 
 	public PodiumData podium;
 

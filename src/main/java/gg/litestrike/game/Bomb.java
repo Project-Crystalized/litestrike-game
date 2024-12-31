@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
@@ -23,6 +22,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import static org.bukkit.Particle.*;
 import static net.kyori.adventure.text.Component.text;
 
 public interface Bomb {
@@ -184,12 +184,9 @@ class PlacedBomb implements Bomb {
 				int freq = 20 + (int) (-0.025 * timer);
 				if (timer - last_beep > freq) {
 					last_beep = timer;
-
 					Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
 					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
-					if (timer > Bomb.DETONATION_TIME - (20 * 7)) {
-						SoundEffects.bomb_particles(block.getLocation());
-					}
+					block.getWorld().spawnParticle(RAID_OMEN, block.getLocation().add(0.5, 0.5, 0.5), 3);
 				}
 
 				if (timer == DETONATION_TIME) {
@@ -203,6 +200,19 @@ class PlacedBomb implements Bomb {
 
 	private void explode() {
 		is_detonated = true;
+		block.getWorld().spawnParticle(TRIAL_SPAWNER_DETECTION, block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
+		block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, block.getLocation().add(0.5, 0.5, 0.5), 500, 1, 1, 1);
+		block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"), Sound.Source.AMBIENT, 20, 1),
+				block.getX(), block.getY(), block.getZ());
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			double distance = p.getLocation().distance(block.getLocation());
+			if (distance < 15) {
+				p.setHealth(0);
+			}
+			if (distance < 30) {
+				p.damage(30 - distance);
+			}
+		}
 
 		// the explosion animation
 		new BukkitRunnable() {
@@ -210,19 +220,9 @@ class PlacedBomb implements Bomb {
 
 			@Override
 			public void run() {
-				block.getWorld().spawnParticle(Particle.FLASH, block.getLocation(), 2, 5, 5, 5);
 				if (i % 10 == 0) {
 					block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
 							block.getX(), block.getY(), block.getZ());
-				}
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					double distance = p.getLocation().distance(block.getLocation());
-					if (distance < 15) {
-						p.setHealth(0);
-					}
-					if (distance < 30) {
-						p.damage(30 - distance);
-					}
 				}
 				i += 1;
 				if (i == (20 * 4)) {
