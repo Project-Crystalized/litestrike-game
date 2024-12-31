@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,9 +12,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -89,6 +94,19 @@ public class PlayerListener implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		// prevent blocks from getting broken
 		event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
+			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
+			e.getPlayer().addPotionEffects(pm.getCustomEffects());
+			if (e.getHand() == EquipmentSlot.HAND) {
+				e.getPlayer().getInventory().setItemInMainHand(null);
+			} else {
+				e.getPlayer().getInventory().setItemInOffHand(null);
+			}
+		}
 	}
 
 	@EventHandler
