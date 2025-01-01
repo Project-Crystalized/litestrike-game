@@ -1,5 +1,7 @@
 package gg.litestrike.game;
 
+import static net.kyori.adventure.text.Component.translatable;
+
 import java.util.Comparator;
 
 import org.bukkit.Bukkit;
@@ -38,14 +40,14 @@ public class PlayerData {
 		ScoreboardController.set_player_money(player, money);
 	}
 
-	public void addMoney(int amt, String reason) {
+	public void addMoney(int amt, Component reason) {
 		Player p = Bukkit.getPlayer(player);
 		if (p == null) {
 			return;
 		}
-		p.sendMessage(Component.text("ʏᴏᴜ ʀᴇᴄᴇɪᴠᴇᴅ ").color(Litestrike.YELLOW)
+		p.sendMessage(translatable("crystalized.game.litestrike.money.receive").color(Litestrike.YELLOW)
 				.append(Component.text(amt + "\uE104").color(TextColor.color(0x0ab1c4)))
-				.append(Component.text(" " + reason).color(Litestrike.YELLOW)));
+				.append(reason.color(Litestrike.YELLOW)));
 		money += amt;
 		total_money_gained += amt;
 
@@ -53,9 +55,9 @@ public class PlayerData {
 	}
 
 	public void giveMoneyBack(int amt) {
+		addMoney(amt, translatable("crystalized.game.litestrike.money.selling"));
 		total_money_gained -= amt;
 		total_money_spent -= amt;
-		addMoney(amt, "for selling a item.");
 	}
 
 	// returns false if not enought money was available

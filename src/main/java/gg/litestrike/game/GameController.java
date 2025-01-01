@@ -258,10 +258,10 @@ public class GameController {
 		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(800, "ғᴏʀ ᴡɪɴɴɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(800, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(400, "ғᴏʀ ʟᴏᴏsɪɴɢ ᴛʜᴇ ʀᴏᴜɴᴅ.");
+				getPlayerData(p).addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
@@ -355,12 +355,12 @@ public class GameController {
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
 		}
-		if (round_number == SWITCH_ROUND * 2) {
+		if (round_number == (SWITCH_ROUND * 2) + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
 			for (PlayerData pd : playerDatas) {
 				pd.removeMoney();
-				pd.addMoney(5000, "For the last round!");
+				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
 			}
 		}
 
@@ -385,7 +385,7 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
-			getPlayerData(p).addMoney(1000, "");
+			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
 
 			// this is needed because of some weird packet nonsense, to make everyone glow
 			p.setSneaking(true);
