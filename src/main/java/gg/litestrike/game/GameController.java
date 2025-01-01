@@ -355,6 +355,14 @@ public class GameController {
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
 		}
+		if (round_number == SWITCH_ROUND * 2) {
+			Audience.audience(Bukkit.getOnlinePlayers())
+					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
+			for (PlayerData pd : playerDatas) {
+				pd.removeMoney();
+				pd.addMoney(5000, "For the last round!");
+			}
+		}
 
 		World w = Bukkit.getWorld("world");
 		Litestrike.getInstance().mapdata.raiseBorder(w);

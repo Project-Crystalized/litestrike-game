@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -92,7 +91,7 @@ public class Shop implements InventoryHolder {
 		if (i != null) {
 			currentView.setItem(49, i.buildDisplayItem(player));
 		}
-		if(openAgain) {
+		if (openAgain) {
 			player.openInventory(currentView);
 			setItems(shopItems);
 			setDefuser();
@@ -125,7 +124,8 @@ public class Shop implements InventoryHolder {
 		}
 
 		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
-				|| gc.round_number == GameController.SWITCH_ROUND + 1)) {
+				|| gc.round_number == GameController.SWITCH_ROUND + 1
+				|| gc.round_number == GameController.SWITCH_ROUND * 2)) {
 			// no need to give equipment
 			return;
 		}
@@ -147,10 +147,10 @@ public class Shop implements InventoryHolder {
 			boot_color = Color.fromRGB(0x8119c9);
 			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
 		}
-		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET), PROJECTILE_PROTECTION));
-		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION));
-		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS), PROTECTION));
-		inv.setBoots(colorArmor(boot_color, new ItemStack(Material.LEATHER_BOOTS), PROTECTION));
+		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET), 1));
+		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE), 1));
+		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS), 1));
+		inv.setBoots(colorArmor(boot_color, new ItemStack(Material.LEATHER_BOOTS), 2));
 
 		// give unbreakable to all items
 		for (ItemStack is : inv.getContents()) {
@@ -163,11 +163,11 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	private static ItemStack colorArmor(Color c, ItemStack i, Enchantment ench) {
+	private static ItemStack colorArmor(Color c, ItemStack i, int ench_level) {
 		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
 		lam.setColor(c);
 		i.setItemMeta(lam);
-		i.addEnchantment(ench, 1);
+		i.addEnchantment(PROTECTION, ench_level);
 		return i;
 	}
 
@@ -206,22 +206,22 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	public static ItemStack getBasicKid(ItemCategory cate, Player p){
+	public static ItemStack getBasicKid(ItemCategory cate, Player p) {
 
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (cate == ItemCategory.Melee) {
 			return new ItemStack(Material.STONE_SWORD);
 		} else if (cate == ItemCategory.Range) {
 			return new ItemStack(Material.BOW);
-		} else if (cate == ItemCategory.Defuser){
+		} else if (cate == ItemCategory.Defuser) {
 			return new ItemStack(Material.STONE_PICKAXE);
-		} else if(cate == ItemCategory.Armor) {
+		} else if (cate == ItemCategory.Armor) {
 			if (gc.teams.get_team(p.getName()) == Team.Placer) {
-				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION);
+				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE), 1);
 			} else {
-				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION);
+				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE), 1);
 			}
-		} else if(cate == ItemCategory.Ammunition){
+		} else if (cate == ItemCategory.Ammunition) {
 			ItemStack arrow = new ItemStack(Material.ARROW, 6);
 			ItemMeta meta = arrow.getItemMeta();
 			meta.itemName(translatable("crystalized.item.arrows.name").color(WHITE).decoration(ITALIC, false));
