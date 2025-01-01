@@ -143,7 +143,7 @@ public class ShopListener implements Listener {
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
 
-			if (lsi.slot == null || !(lsi.slot == Shop.DEFUSER_SLOT && lsi.item.getType() == Material.IRON_PICKAXE)) {
+			if (lsi.slot == null) {
 				continue;
 			}
 

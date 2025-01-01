@@ -200,7 +200,7 @@ public class LSItem {
 		speed1pot.setItemMeta(speed1potMeta);
 		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47));
 
-		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 6);
+		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 2);
 		lsItems.add(new LSItem(spectralArrow, 150, null, ItemCategory.Ammunition, 51));
 		creation_number = 1; // reset id
 
