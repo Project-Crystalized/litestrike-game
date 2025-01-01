@@ -14,8 +14,9 @@ import static net.kyori.adventure.sound.Sound.Source.AMBIENT;
 public class SoundEffects {
 	public static void game_start() {
 		Audience.audience(Bukkit.getOnlinePlayers())
-			.playSound(Sound.sound(Key.key("crystalized:effect.countdown_end"), AMBIENT, 1f, 1f));
+				.playSound(Sound.sound(Key.key("crystalized:effect.countdown_end"), AMBIENT, 1f, 1f));
 	}
+
 	public static void round_start() {
 		new BukkitRunnable() {
 			@Override
@@ -41,26 +42,11 @@ public class SoundEffects {
 	}
 
 	public static void bomb_plant_finish(Location loc) {
-		Audience.audience(Bukkit.getOnlinePlayers()).playSound(Sound.sound(Key.key("crystalized:effect.star_plant"), AMBIENT, 1f, 1.0f));
-		new BukkitRunnable() {
-			int timer = 0;
-			@Override
-			public void run() {
-				bomb_particles(loc);
-				timer += 1;
-				if (timer > 20) {
-					cancel();
-				}
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
+		Audience.audience(Bukkit.getOnlinePlayers())
+				.playSound(Sound.sound(Key.key("crystalized:effect.star_plant"), AMBIENT, 1f, 1.0f));
 	}
 
 	public static void bomb_particles(Location loc) {
-		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
-		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
-		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
-		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
-		loc.getWorld().spawnParticle(Particle.CRIT, loc, 3, 2, 2, 2, 2);
 	}
 
 	public static void ally_death(Audience a) {

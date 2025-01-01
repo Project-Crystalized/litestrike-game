@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,9 +12,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -23,12 +28,12 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
 
-import java.util.List;
-
 public class PlayerListener implements Listener {
+	private LSChatRenderer chat_renderer = new LSChatRenderer();
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
@@ -92,21 +97,31 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
+			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
+			e.getPlayer().addPotionEffects(pm.getCustomEffects());
+			if (e.getHand() == EquipmentSlot.HAND) {
+				e.getPlayer().getInventory().setItemInMainHand(null);
+			} else {
+				e.getPlayer().getInventory().setItemInOffHand(null);
+			}
+		}
+	}
+
+	@EventHandler
 	public void onChatEvent(AsyncChatEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
+		if (gc == null || gc.round_state == RoundState.GameFinished) {
 			return;
 		}
 
-		List<Player> enemy_team;
-		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
-			enemy_team = gc.teams.get_placers();
-		} else {
-			enemy_team = gc.teams.get_breakers();
+		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
+		if (!msg_text.startsWith("@all") && !msg_text.startsWith("@a")) {
+			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
 		}
 
-		e.viewers().removeAll(enemy_team);
-		e.renderer(ChatRenderer.viewerUnaware(new LSChatRenderer()));
+		e.renderer(ChatRenderer.viewerUnaware(chat_renderer));
 	}
 
 	@EventHandler

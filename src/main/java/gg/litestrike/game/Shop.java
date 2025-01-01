@@ -26,6 +26,7 @@ import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
+import static org.bukkit.enchantments.Enchantment.*;
 
 public class Shop implements InventoryHolder {
 	public List<LSItem> shopItems;
@@ -146,10 +147,10 @@ public class Shop implements InventoryHolder {
 			boot_color = Color.fromRGB(0x8119c9);
 			inv.addItem(new ItemStack(Material.STONE_PICKAXE));
 		}
-		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET)));
-		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE)));
-		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS)));
-		inv.setBoots(colorArmor(boot_color, new ItemStack(Material.LEATHER_BOOTS)));
+		inv.setHelmet(colorArmor(c, new ItemStack(Material.LEATHER_HELMET), PROJECTILE_PROTECTION));
+		inv.setChestplate(colorArmor(c, new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION));
+		inv.setLeggings(colorArmor(c, new ItemStack(Material.LEATHER_LEGGINGS), PROTECTION));
+		inv.setBoots(colorArmor(boot_color, new ItemStack(Material.LEATHER_BOOTS), PROTECTION));
 
 		// give unbreakable to all items
 		for (ItemStack is : inv.getContents()) {
@@ -162,11 +163,11 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	public static ItemStack colorArmor(Color c, ItemStack i) {
+	private static ItemStack colorArmor(Color c, ItemStack i, Enchantment ench) {
 		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
 		lam.setColor(c);
 		i.setItemMeta(lam);
-		i.addEnchantment(Enchantment.PROTECTION, 1);
+		i.addEnchantment(ench, 1);
 		return i;
 	}
 
@@ -216,9 +217,9 @@ public class Shop implements InventoryHolder {
 			return new ItemStack(Material.STONE_PICKAXE);
 		} else if(cate == ItemCategory.Armor) {
 			if (gc.teams.get_team(p.getName()) == Team.Placer) {
-				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE));
+				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION);
 			} else {
-				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE));
+				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE), PROTECTION);
 			}
 		} else if(cate == ItemCategory.Ammunition){
 			ItemStack arrow = new ItemStack(Material.ARROW, 6);

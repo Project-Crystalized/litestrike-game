@@ -193,9 +193,16 @@ public class LSItem {
 		multishot_lore.add(translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26));
 
+		ItemStack speed2pot = new ItemStack(POTION);
+		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
+		speed2potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1, true, true, true), true);
+		speed2potMeta.displayName(Component.text("Potion of Swiftness"));
+		speed2pot.setItemMeta(speed2potMeta);
+		lsItems.add(new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 46));
+
 		ItemStack speed1pot = new ItemStack(POTION);
 		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
-		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20*20, 0, true, true, true), true);
+		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 25, 0, true, true, true), true);
 		speed1potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed1pot.setItemMeta(speed1potMeta);
 		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47));
