@@ -215,10 +215,12 @@ public class LSItem {
 	}
 
 	public static ItemStack get_arrows() {
-		ItemStack arrow = new ItemStack(ARROW, 6);
+		ItemStack arrow = new ItemStack(Material.ARROW, 6);
+		/*
 		ItemMeta arrow_meta = arrow.getItemMeta();
 		arrow_meta.displayName(translatable("crystalized.item.arrows.name").color(WHITE).decoration(ITALIC, false));
 		arrow.setItemMeta(arrow_meta);
+		 */
 		return arrow;
 	}
 
