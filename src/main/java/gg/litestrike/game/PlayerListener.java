@@ -31,6 +31,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.translatable;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
@@ -179,7 +180,8 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(p).deaths += 1;
 		if (killer != null) {
 			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).addMoney(500, "ғᴏʀ ᴋɪʟʟɪɴɢ " + p.getName());
+			gc.getPlayerData(killer).addMoney(500,
+					translatable("crystalized.game.litestrike.money.kill").append(text(p.getName())));
 		}
 
 		Team killed_team = gc.teams.get_team(p);

@@ -80,9 +80,6 @@ public class BombModel {
 		}
 	}
 
-	public void bomb_exploded() {
-	}
-
 	// takes in the planting timer
 	// to get a planting percentage, divide it by the BombListener.PLANT_TIME
 	public void raise_bomb(int planting_timer, BlockFace bf) {

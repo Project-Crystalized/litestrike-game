@@ -275,7 +275,7 @@ public class ShopListener implements Listener {
 			p.getInventory().setItem(invSlot, stack);
 		}
 
-		gc.getPlayerData(p).addMoney(lsitem.price, "for selling an Item!");
+		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
 		s.updateTitle(lsitem, true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 
