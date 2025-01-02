@@ -24,7 +24,7 @@ public class BossBarDisplay {
 
 				bb.name(Component.text(renderBossBar()));
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 4);
+		}.runTaskTimer(Litestrike.getInstance(), 5, 1);
 	}
 
 	public void showBossBar() {
@@ -52,7 +52,7 @@ public class BossBarDisplay {
 		}
 		bar += "\uE201"; // green end tile
 
-		bar += "   " + ((get_current_timer() / 20) + 1) + "   ";
+		bar += "   " + get_current_timer_formated() + "   ";
 
 		bar += "\uE206"; // red start tile
 		for (String name : gc.teams.get_initial_placers()) {
@@ -74,6 +74,15 @@ public class BossBarDisplay {
 		return bar;
 	}
 
+	private String get_current_timer_formated() {
+		int timer = get_current_timer();
+		if (timer >= (20 * 10)) {
+			return "" + ((timer / 20));
+		} else {
+			return String.format("%.2f", (timer / 20.0));
+		}
+	}
+
 	private int get_current_timer() {
 		GameController gc = Litestrike.getInstance().game_controller;
 
@@ -92,6 +101,6 @@ public class BossBarDisplay {
 			case RoundState.GameFinished:
 				return GameController.FINISH_TIME - gc.phase_timer;
 		}
-		throw new RuntimeException();
+		throw new RuntimeException("a error occurred rendering tablist");
 	}
 }

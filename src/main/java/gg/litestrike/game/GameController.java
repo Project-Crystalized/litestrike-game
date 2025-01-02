@@ -192,7 +192,7 @@ public class GameController {
 
 		// send messages to the teams
 		if (round_number == 1) {
-			Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(text("\n")
+			Audience.audience(teams.get_placers()).sendMessage(text("\n")
 					.append(translatable("crystalized.game.litestrike.tutorial.generic1")).color(Litestrike.YELLOW)
 					.append(Litestrike.PLACER_TEXT)
 					.append(text("\n"))
@@ -225,11 +225,6 @@ public class GameController {
 		}
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
-		if (bomb != null) {
-			bomb.remove();
-			bomb = null;
-		}
-
 		round_results.add(winner);
 
 		ScoreboardController.set_win_display(round_results);
@@ -330,12 +325,16 @@ public class GameController {
 		}.runTaskLater(Litestrike.getInstance(), FINISH_TIME - (20 * 2));
 	};
 
-	// this is called when we go from PostRound to PreRound and when the first round
-	// starts
+	// called when we go from PostRound to PreRound and when the first round starts
 	private void next_round() {
 		round_state = RoundState.PreRound;
 		phase_timer = 0;
 		round_number += 1;
+
+		if (bomb != null) {
+			bomb.remove();
+			bomb = null;
+		}
 
 		if (round_number == SWITCH_ROUND + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())

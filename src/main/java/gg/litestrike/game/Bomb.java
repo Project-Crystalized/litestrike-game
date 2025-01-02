@@ -123,7 +123,7 @@ class DroppedBomb implements Bomb {
 
 	public String get_bomb_loc_string(Player p) {
 		if (item == null || item.isDead()) {
-			Bukkit.getLogger().severe("Bomb Logic error, dropped bomb doesnt have a item entity.");
+			return "Dropped, but the item is dead.";
 		}
 		String arrow = Bomb.get_arrow(p, item.getLocation());
 		return "Dropped Somewhere " + arrow;
@@ -190,7 +190,7 @@ class PlacedBomb implements Bomb {
 				}
 
 				if (timer == DETONATION_TIME) {
-					bomb_model.bomb_exploded();
+					remove();
 					explode();
 					cancel();
 				}
