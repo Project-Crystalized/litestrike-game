@@ -63,6 +63,7 @@ public final class Litestrike extends JavaPlugin {
 		qsb = new QueScoreboard();
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
 		this.getServer().getPluginManager().registerEvents(new BombListener(), this);

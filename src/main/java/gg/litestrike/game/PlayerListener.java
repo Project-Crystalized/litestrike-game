@@ -11,13 +11,11 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,13 +23,11 @@ import org.bukkit.potion.PotionEffectType;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.entity.LookAnchor;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.Component.translatable;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
@@ -126,21 +122,6 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
-	public void onEntityDamage(EntityDamageByEntityEvent e) {
-		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
-			e.setCancelled(true);
-			return;
-		}
-		if (!(e.getEntity() instanceof Player) || !(e.getDamager() instanceof Player)) {
-			return;
-		}
-		if (gc.teams.get_team((Player) e.getEntity()) == gc.teams.get_team((Player) e.getDamager())) {
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
 		// if game isnt going, cancel event
 		GameController gc = Litestrike.getInstance().game_controller;
@@ -160,53 +141,6 @@ public class PlayerListener implements Listener {
 		event.setCancelled(true);
 	}
 
-	@EventHandler
-	public void onPlayerDeath(PlayerDeathEvent e) {
-		e.setCancelled(true);
-		if (e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
-			return;
-		}
-		Player p = e.getPlayer();
-		// i have no idea if this cast is safe, we will see through playtesting
-		Player killer = (Player) e.getDamageSource().getCausingEntity();
-		GameController gc = Litestrike.getInstance().game_controller;
-
-		// reset killed player
-		p.setGameMode(GameMode.SPECTATOR);
-		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
-		p.getInventory().clear();
-
-		// give death/kill and money
-		gc.getPlayerData(p).deaths += 1;
-		if (killer != null) {
-			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).addMoney(500,
-					translatable("crystalized.game.litestrike.money.kill").append(text(p.getName())));
-		}
-
-		Team killed_team = gc.teams.get_team(p);
-
-		// send message
-		Component death_message = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)))
-				.append(text(" ᴡᴀꜱ ᴋɪʟʟᴇᴅ ").color(Litestrike.YELLOW));
-		String log_msg = p.getName() + "(" + gc.teams.get_team(p) + ") was killed by ";
-		if (killer != null) {
-			death_message = death_message.append(text("ʙʏ ").color(Litestrike.YELLOW))
-					.append(text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer))));
-			log_msg = log_msg + killer.getName() + "(" + gc.teams.get_team(killer) + ")";
-		}
-		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(death_message);
-		Bukkit.getLogger().info(log_msg);
-
-		// play sound
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (gc.teams.get_team(player) == killed_team) {
-				SoundEffects.ally_death(player);
-			} else {
-				SoundEffects.enemy_death(player);
-			}
-		}
-	}
 }
 
 class LSChatRenderer implements ChatRenderer.ViewerUnaware {

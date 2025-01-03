@@ -2,7 +2,9 @@ package gg.litestrike.game;
 
 import static net.kyori.adventure.text.Component.translatable;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -21,6 +23,9 @@ public class PlayerData {
 	private int total_money_spent = 0;
 	private int plants = 0;
 	private int breaks = 0;
+
+	// this keeps track of assits in the current round for this player
+	public List<Player> assist_list = new ArrayList<Player>();
 
 	public PlayerData(Player p) {
 		player = p.getName();

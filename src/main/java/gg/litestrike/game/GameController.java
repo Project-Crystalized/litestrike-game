@@ -250,13 +250,14 @@ public class GameController {
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
 
-		// give money and play sound
 		for (Player p : Bukkit.getOnlinePlayers()) {
+			PlayerData pd = getPlayerData(p);
+			pd.assist_list.clear();
 			if (teams.get_team(p) == winner) {
-				getPlayerData(p).addMoney(800, translatable("crystalized.game.litestrike.money.win_round"));
+				pd.addMoney(800, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 			} else {
-				getPlayerData(p).addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
+				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
