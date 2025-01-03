@@ -113,13 +113,16 @@ public class BombListener implements Listener {
 					}
 					breaking_counter += 1;
 					PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
-					mining_players.get(0).p.getWorld()
-							.spawnParticle(CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), 2, 0, 0, 0);
+					if ((breaking_counter < 60 && breaking_counter % 2 == 0) || breaking_counter > 60) {
+						mining_players.get(0).p.getWorld()
+								.spawnParticle(CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), breaking_counter / 20, 0, 0, 0);
+					}
 					if (breaking_counter >= BREAK_TIME) {
 						b.is_broken = true;
 						b.remove();
-						mining_players.get(0).p.getWorld()
-								.spawnParticle(CHERRY_LEAVES, b.block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
+						// mining_players.get(0).p.getWorld()
+						// .spawnParticle(CHERRY_LEAVES, b.block.getLocation().add(0.5, 0.5, 0.5), 5000,
+						// 1, 1, 1);
 						Audience.audience(Bukkit.getOnlinePlayers())
 								.sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();

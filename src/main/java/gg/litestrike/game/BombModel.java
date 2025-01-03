@@ -13,8 +13,8 @@ public class BombModel {
 	private ArmorStand model;
 	private Location after_plant_loc;
 
-	private static final int MODEL_ACTIVE = 36;
-	public static final int MODEL_INACTIVE = 36;
+	public static final int MODEL_ACTIVE = 36;
+	public static final int MODEL_BREAKING = 37;
 
 	// creates the model one block below the ground so it can rise
 	// takes in, the block location where the bomb will be after planting
@@ -38,22 +38,24 @@ public class BombModel {
 		model.getEquipment().setHelmet(item);
 	}
 
-	public void bomb_mining() {
+	private void change_custom_model_to(int custom_model) {
 		if (model == null) {
 			Bukkit.getLogger().severe("tried to put bombmodel into mining state when it didnt exist");
 		}
-		ItemMeta im = model.getEquipment().getHelmet().getItemMeta();
-		im.setCustomModelData(MODEL_INACTIVE);
-		model.getEquipment().getHelmet().setItemMeta(im);
+		ItemStack helmet = model.getEquipment().getHelmet();
+		ItemMeta im = helmet.getItemMeta();
+		im.setCustomModelData(custom_model);
+		helmet.setItemMeta(im);
+		model.getEquipment().setHelmet(helmet);
+
+	}
+
+	public void bomb_mining() {
+		change_custom_model_to(MODEL_BREAKING);
 	}
 
 	public void stop_bomb_mining() {
-		if (model == null) {
-			Bukkit.getLogger().severe("tried to stop bombmodel mining state when model didnt exist");
-		}
-		ItemMeta im = model.getEquipment().getHelmet().getItemMeta();
-		im.setCustomModelData(MODEL_ACTIVE);
-		model.getEquipment().getHelmet().setItemMeta(im);
+		change_custom_model_to(MODEL_ACTIVE);
 	}
 
 	public void bomb_plant(Location loc, BlockFace bf) {

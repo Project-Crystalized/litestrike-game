@@ -42,7 +42,7 @@ public interface Bomb {
 				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
-		im.setCustomModelData(BombModel.MODEL_INACTIVE);
+		im.setCustomModelData(BombModel.MODEL_ACTIVE);
 
 		im.displayName(Component.translatable("crystalized.item.bomb.name").color(TextColor.color(0xe64cce))
 				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
