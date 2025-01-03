@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -142,40 +143,17 @@ public class ShopListener implements Listener {
 
 		for (LSItem lsi : s.shopItems) {
 			// find corresponding LSItem to the item clicked by slot
-
 			if (lsi.slot == null) {
 				continue;
 			}
 
-			Integer lsiData;
-			Integer itData;
-
-			if (lsi.item.hasItemMeta()) {
-				if (lsi.item.getItemMeta().hasCustomModelData()) {
-					lsiData = lsi.item.getItemMeta().getCustomModelData();
-				} else {
-					lsiData = null;
-				}
-			} else {
-				lsiData = null;
-			}
-
-			if (item.hasItemMeta()) {
-				if (item.getItemMeta().hasCustomModelData()) {
-					itData = item.getItemMeta().getCustomModelData();
-				} else {
-					itData = null;
-				}
-			} else {
-				itData = null;
-			}
-
-			if (lsi.slot.equals(slot) || (lsi.item.getType() == item.getType() && Objects.equals(lsiData, itData))) {
+			if (lsi.slot.equals(slot) || (lsi.item.getType() == item.getType() && Objects.equals(identifyCustomModelData(lsi.item), identifyCustomModelData(item)))) {
 				lsitem = lsi;
 				break;
 			}
 
 		}
+
 		if (lsitem == null) {
 			return;
 		}
@@ -188,30 +166,7 @@ public class ShopListener implements Listener {
 				continue;
 			}
 
-			Integer lsitemData;
-			Integer iteData;
-
-			if (lsitem.item.hasItemMeta()) {
-				if (lsitem.item.getItemMeta().hasCustomModelData()) {
-					lsitemData = lsitem.item.getItemMeta().getCustomModelData();
-				} else {
-					lsitemData = null;
-				}
-			} else {
-				lsitemData = null;
-			}
-
-			if (ite.hasItemMeta()) {
-				if (ite.getItemMeta().hasCustomModelData()) {
-					iteData = ite.getItemMeta().getCustomModelData();
-				} else {
-					iteData = null;
-				}
-			} else {
-				iteData = null;
-			}
-
-			if (lsitem.item.getType() == ite.getType() && Objects.equals(iteData, lsitemData)) {
+			if (lsitem.item.getType() == ite.getType() && Objects.equals(identifyCustomModelData(ite), identifyCustomModelData(lsitem.item))) {
 				invSlot = i;
 				break;
 			}
@@ -258,11 +213,19 @@ public class ShopListener implements Listener {
 		} else if (hisitem == null) {
 			return;
 		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
-			if (lsitem.slot == 50 && ite.getAmount() == 6) {
+			if (lsitem.item.getType() == Material.ARROW && ite.getAmount() == 6 && lsitem.modelData == null) {
 				return;
 			}
 			if (!(amount <= 0)) {
 				stack = new ItemStack(lsitem.item.getType(), amount);
+				ItemMeta stack_meta = stack.getItemMeta();
+				if(lsitem.name != null){
+					stack_meta.displayName(lsitem.name);
+				}
+				if(lsitem.modelData != null){
+					stack_meta.setCustomModelData(lsitem.modelData);
+				}
+				stack.setItemMeta(stack_meta);
 			}
 
 		} else {
@@ -287,8 +250,18 @@ public class ShopListener implements Listener {
 			if (s.buyHistory.get(i) == hisitem) {
 				list.add(i);
 			}
+
 			if (s.buyHistory.get(i) == lsitem) {
-				list.add(i);
+				boolean b = true;
+				for(Integer j : list) {
+					if(j == i){
+						b = false;
+					}
+				}
+
+				if(b) {
+					list.add(i);
+				}
 			}
 		}
 		for (Integer i : list) {
@@ -299,6 +272,18 @@ public class ShopListener implements Listener {
 			if (s.shopLog.get(i) == lsitem) {
 				s.shopLog.remove(i);
 			}
+		}
+	}
+
+	public Integer identifyCustomModelData(ItemStack item){
+		if (item.hasItemMeta()) {
+			if (item.getItemMeta().hasCustomModelData()) {
+				 return item.getItemMeta().getCustomModelData();
+			} else {
+				return null;
+			}
+		} else {
+			return null;
 		}
 	}
 }

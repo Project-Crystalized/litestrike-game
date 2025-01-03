@@ -109,7 +109,7 @@ public class Shop implements InventoryHolder {
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		PlayerInventory inv = p.getInventory();
-		ItemStack arrows_item = LSItem.get_arrows();
+		ItemStack arrows_item = new ItemStack(Material.ARROW, 6);;
 
 		// give 6 arrows back
 		int arrows = 0;
