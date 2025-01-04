@@ -20,6 +20,7 @@ import gg.litestrike.game.LSItem.ItemCategory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -85,23 +86,22 @@ public class Shop implements InventoryHolder {
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
-	public void updateTitle(LSItem i, boolean openAgain) {
-		currentView.close();
-		currentView = Bukkit.getServer().createInventory(this, 54, title(player));
-		if (i != null) {
-			currentView.setItem(49, i.buildDisplayItem(player));
-		}
+	public void updateTitle(boolean openAgain) {
+		Inventory inv = Bukkit.getServer().createInventory(this, 54, title(player));
 		if (openAgain) {
-			player.openInventory(currentView);
+			player.openInventory(inv);
+			currentView = inv;
 			setItems(shopItems);
 			setDefuser();
+		}else {
+			currentView.close();
 		}
 	}
 
 	public static void giveShop() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop s = getShop(p);
-			s.updateTitle(null, false);
+			s.updateTitle(false);
 			p.getInventory().addItem(new ItemStack(Material.EMERALD, 1));
 		}
 	}
@@ -176,19 +176,50 @@ public class Shop implements InventoryHolder {
 			if (player.getInventory().getItem(i) == null) {
 				continue;
 			}
-			Component it = player.getInventory().getItem(i).displayName();
+			ItemStack it= player.getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
-			Component ite = item.displayName();
-			PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
-			String itName = plainSerializer.serialize(it);
-			String iteName = plainSerializer.serialize(ite);
-			if (itName.equals(iteName)) {
+
+			if (it.getType() == item.getType() && Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public int findInvIndex(ItemStack item){
+		for (int i = 0; i <= 40; i++) {
+			if (player.getInventory().getItem(i) == null) {
+				continue;
+			}
+			ItemStack it= player.getInventory().getItem(i);
+			if (it == null) {
+				continue;
+			}
+
+			if (it.getType() == item.getType() && Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public int findInvIndex(LSItem.ItemCategory categ){
+		for (int i = 0; i <= 40; i++) {
+			if (player.getInventory().getItem(i) == null) {
+				continue;
+			}
+			ItemStack it= player.getInventory().getItem(i);
+			if (it == null) {
+				continue;
+			}
+
+			if (LSItem.getItemCategory(it) == categ) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public static void removeShop(Player p) {
@@ -228,5 +259,34 @@ public class Shop implements InventoryHolder {
 			return arrow;
 		}
 		return null;
+	}
+
+	public void removeFromBuyHistory(LSItem item, LSItem lsitem){
+		ArrayList<Integer> list = new ArrayList<>();
+		for (int i = 0; i <= buyHistory.size() - 1; i++) {
+			if (buyHistory.get(i) == null) {
+				continue;
+			}
+			if (buyHistory.get(i) == item) {
+				list.add(i);
+			}
+			if(lsitem != null) {
+				if (buyHistory.get(i) == lsitem) {
+					boolean b = true;
+					for (Integer j : list) {
+						if (j == i) {
+							b = false;
+						}
+					}
+
+					if (b) {
+						list.add(i);
+					}
+				}
+			}
+		}
+		for (Integer i : list) {
+			buyHistory.remove(i.intValue());
+		}
 	}
 }

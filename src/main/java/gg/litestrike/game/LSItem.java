@@ -131,7 +131,7 @@ public class LSItem {
 		List<Component> gapple_lore = new ArrayList<>();
 		gapple_lore.add(translatable("crystalized.item.gapple.desc1").color(WHITE).decoration(ITALIC, false));
 		gapple_lore.add(translatable("crystalized.item.gapple.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(gapple, 750, gapple_lore, ItemCategory.Consumable, 48, null, null));
+		lsItems.add(new LSItem(gapple, 750, gapple_lore, ItemCategory.Consumable, 49, null, null));
 
 		ItemStack ironChestplate = new ItemStack(IRON_CHESTPLATE);
 		ironChestplate.addEnchantment(PROTECTION, 1);
@@ -201,14 +201,14 @@ public class LSItem {
 		speed2potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1, true, true, true), true);
 		speed2potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed2pot.setItemMeta(speed2potMeta);
-		lsItems.add(new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 46, Component.text("Potion of Swiftness"), null));
+		lsItems.add(new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
 
 		ItemStack speed1pot = new ItemStack(POTION);
 		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
 		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 25, 0, true, true, true), true);
 		speed1potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed1pot.setItemMeta(speed1potMeta);
-		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
+		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 48, Component.text("Potion of Swiftness"), null));
 
 		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 3);
 		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));
