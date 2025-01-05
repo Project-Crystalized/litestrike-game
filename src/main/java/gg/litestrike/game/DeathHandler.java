@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
@@ -43,7 +44,7 @@ public class DeathHandler implements Listener {
 			killer = (Player) entity;
 		}
 
-		send_death_message(p, killer, get_death_icon(e.getDamageSource().getDamageType()));
+		send_death_message(p, killer, get_death_icon(e.getDamageSource().getDamageType(), killer));
 		log_death_message(p, killer);
 
 		// give death/kill and money
@@ -106,13 +107,25 @@ public class DeathHandler implements Listener {
 		}
 	}
 
-	private Component get_death_icon(DamageType dt) {
+	private Component get_death_icon(DamageType dt, Player killer) {
 		if (dt == DamageType.ARROW) {
-			return text(" \uE102 ");
+			if (killer.getInventory().getItemInMainHand().getType() == Material.CROSSBOW 
+					|| killer.getInventory().getItemInOffHand().getType() == Material.CROSSBOW) {
+				return text(" \uE11E "); //CROSSBOW death icon
+			}
+			return text(" \uE102 "); // BOW death icon
 		} else if (dt == DamageType.PLAYER_ATTACK) {
-			return text(" \uE101 ");
+			if (killer.getInventory().getItemInMainHand().getType().toString().toLowerCase().contains("pickaxe")
+					|| killer.getInventory().getItemInOffHand().getType().toString().toLowerCase().contains("pickaxe")) {
+				return text(" \uE11E "); //CROSSBOW death icon
+			}
+			if (killer.getInventory().getItemInMainHand().getType().toString().toLowerCase().contains("axe")
+					|| killer.getInventory().getItemInOffHand().getType().toString().toLowerCase().contains("axe")) {
+				return text(" \uE11F "); //PICKAXE death icon
+			}
+			return text(" \uE101 "); // SWORD death icon
 		} else {
-			return text(" \uE103 ");
+			return text(" \uE103 "); // generic death icon
 		}
 	}
 
