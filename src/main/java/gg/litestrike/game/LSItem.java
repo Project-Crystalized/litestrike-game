@@ -64,7 +64,7 @@ public class LSItem {
 			meta.setUnbreakable(true);
 		}
 
-		if (price != null) {
+		if (price != null && item.getType() != Material.ARROW) {
 			Component item_name;
 			if (meta.displayName() != null) {
 				item_name = meta.displayName();
@@ -112,7 +112,7 @@ public class LSItem {
 		ItemStack bow = new ItemStack(BOW);
 		lsItems.add(new LSItem(bow, null, null, ItemCategory.Range, null, null, null));
 
-		ItemStack arrow = new ItemStack(Material.ARROW, 6);;
+		ItemStack arrow = new ItemStack(Material.ARROW, 6);
 		lsItems.add(new LSItem(arrow, 150, null, ItemCategory.Ammunition, 50, null, null));
 
 		ItemStack defuser = new ItemStack(IRON_PICKAXE);

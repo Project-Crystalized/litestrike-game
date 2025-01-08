@@ -4,13 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Hanging;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -89,12 +91,20 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		// prevent blocks from getting broken
+		event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onHangingBreak(HangingBreakByEntityEvent event) {
 		event.setCancelled(true);
 	}
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
+		if (e.getClickedBlock() instanceof Hanging) {
+			e.setCancelled(true);
+			return;
+		}
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
 			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
 			e.getPlayer().addPotionEffects(pm.getCustomEffects());
@@ -103,6 +113,13 @@ public class PlayerListener implements Listener {
 			} else {
 				e.getPlayer().getInventory().setItemInOffHand(null);
 			}
+		}
+	}
+
+	@EventHandler
+	public void onPlayerEntityInteract(PlayerInteractEntityEvent event) {
+		if (event.getRightClicked() instanceof Hanging) {
+			event.setCancelled(true);
 		}
 	}
 
@@ -123,15 +140,17 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
-		// if game isnt going, cancel event
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null) {
 			e.setCancelled(true);
 			return;
 		}
 
-		// if round isnt running, cancel event
 		if (gc.round_state != RoundState.Running) {
+			e.setCancelled(true);
+		}
+
+		if (e.getEntity() instanceof Hanging) {
 			e.setCancelled(true);
 		}
 	}

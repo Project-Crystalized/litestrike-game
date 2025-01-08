@@ -1,7 +1,6 @@
 package gg.litestrike.game;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
@@ -93,7 +92,7 @@ public class Shop implements InventoryHolder {
 			currentView = inv;
 			setItems(shopItems);
 			setDefuser();
-		}else {
+		} else {
 			currentView.close();
 		}
 	}
@@ -109,7 +108,7 @@ public class Shop implements InventoryHolder {
 	public static void giveDefaultArmor(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		PlayerInventory inv = p.getInventory();
-		ItemStack arrows_item = new ItemStack(Material.ARROW, 6);;
+		ItemStack arrows_item = new ItemStack(Material.ARROW, 6);
 
 		// give 6 arrows back
 		int arrows = 0;
@@ -176,41 +175,43 @@ public class Shop implements InventoryHolder {
 			if (player.getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it= player.getInventory().getItem(i);
+			ItemStack it = player.getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
 
-			if (it.getType() == item.getType() && Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
+			if (it.getType() == item.getType()
+					&& Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public int findInvIndex(ItemStack item){
+	public int findInvIndex(ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
 			if (player.getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it= player.getInventory().getItem(i);
+			ItemStack it = player.getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
 
-			if (it.getType() == item.getType() && Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
+			if (it.getType() == item.getType()
+					&& Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	public int findInvIndex(LSItem.ItemCategory categ){
+	public int findInvIndex(LSItem.ItemCategory categ) {
 		for (int i = 0; i <= 40; i++) {
 			if (player.getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it= player.getInventory().getItem(i);
+			ItemStack it = player.getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
@@ -261,7 +262,7 @@ public class Shop implements InventoryHolder {
 		return null;
 	}
 
-	public void removeFromBuyHistory(LSItem item, LSItem lsitem){
+	public void removeFromBuyHistory(LSItem item, LSItem lsitem) {
 		ArrayList<Integer> list = new ArrayList<>();
 		for (int i = 0; i <= buyHistory.size() - 1; i++) {
 			if (buyHistory.get(i) == null) {
@@ -270,7 +271,7 @@ public class Shop implements InventoryHolder {
 			if (buyHistory.get(i) == item) {
 				list.add(i);
 			}
-			if(lsitem != null) {
+			if (lsitem != null) {
 				if (buyHistory.get(i) == lsitem) {
 					boolean b = true;
 					for (Integer j : list) {

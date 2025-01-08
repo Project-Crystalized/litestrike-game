@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
-	public static final String URL = "jdbc:sqlite:"+ System.getProperty("user.home")+"/databases/litestrike_db.sql";
+	public static final String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sql";
 
 	public static void setup_databases() {
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
@@ -21,7 +21,7 @@ public class LsDatabase {
 				+ "placer_wins 	INTEGER,"
 				+ "breaker_wins INTEGER,"
 				+ "timestamp 		INTEGER,"
-				+ "map 					INTEGER,"
+				+ "map 					STRING,"
 				+ "winner 			INTEGER,"
 				+ "game_ref			INTEGER"
 				+ ");";
@@ -67,7 +67,7 @@ public class LsDatabase {
 			PreparedStatement game_stmt = conn.prepareStatement(save_game);
 			game_stmt.setInt(1, placer_wins_amt);
 			game_stmt.setInt(2, breaker_wins_amt);
-			game_stmt.setInt(3, Litestrike.getInstance().mapdata.map_name.hashCode());
+			game_stmt.setString(3, Litestrike.getInstance().mapdata.map_name);
 			game_stmt.setInt(4, winner_int);
 			game_stmt.setInt(5, gc.game_reference);
 			game_stmt.executeUpdate();
