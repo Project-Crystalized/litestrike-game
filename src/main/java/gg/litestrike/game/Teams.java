@@ -1,7 +1,6 @@
 package gg.litestrike.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,11 +19,7 @@ public class Teams {
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 
 	public Teams() {
-		List<String> list = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			list.add(p.getName());
-		}
-		Collections.shuffle(list);
+		List<String> list = Litestrike.getInstance().party_manager.generate_teams();
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more

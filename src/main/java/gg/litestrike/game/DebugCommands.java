@@ -5,13 +5,13 @@ import org.bukkit.command.CommandExecutor;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
 public class DebugCommands implements CommandExecutor {
@@ -78,6 +78,9 @@ public class DebugCommands implements CommandExecutor {
 		if (args.length == 0) {
 			return false;
 		}
+
+		String party_info = Litestrike.getInstance().party_manager.print_partys();
+		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(Component.text(party_info));
 		if (Litestrike.getInstance().game_controller == null) {
 			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
 			return true;

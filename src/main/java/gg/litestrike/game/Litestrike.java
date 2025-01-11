@@ -42,6 +42,8 @@ public final class Litestrike extends JavaPlugin {
 
 	public ProtocolManager protocolManager;
 
+	public PartyManager party_manager = new PartyManager();
+
 	// player amount required to autostart
 	public static final int PLAYERS_TO_START = 6;
 	public static final int PLAYER_CAP = 10;
@@ -81,6 +83,7 @@ public final class Litestrike extends JavaPlugin {
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
+		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", party_manager);
 
 		bbd = new BossBarDisplay();
 
@@ -125,6 +128,7 @@ public final class Litestrike extends JavaPlugin {
 					}
 					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
 					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());
+					party_manager.clear_partys();
 
 					return;
 				}

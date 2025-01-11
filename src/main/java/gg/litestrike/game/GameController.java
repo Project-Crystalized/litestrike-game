@@ -104,6 +104,7 @@ public class GameController {
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						p.kick();
 					}
+					Litestrike.getInstance().party_manager.clear_partys();
 					Litestrike.getInstance().game_controller = null;
 					cancel();
 				}
