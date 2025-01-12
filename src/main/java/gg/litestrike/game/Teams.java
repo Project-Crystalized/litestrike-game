@@ -89,7 +89,7 @@ public class Teams {
 		return null;
 	}
 
-	public Team get_team(Player p) {
+	public static Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
 		}

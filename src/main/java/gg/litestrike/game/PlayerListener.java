@@ -2,15 +2,16 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Hanging;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -30,6 +31,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.projectiles.ProjectileSource;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -166,6 +168,29 @@ public class PlayerListener implements Listener {
 	public void onInventoryClick(InventoryClickEvent event){
 		if(event.getSlotType() == InventoryType.SlotType.CRAFTING){
 			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onProjectileHit(ProjectileHitEvent event){
+		if(event.getHitBlock() == null){
+			return;
+		}
+
+		ProjectileSource shooter = event.getEntity().getShooter();
+
+		if(shooter == null){
+			return;
+		}
+		
+		if(event.getEntity().getType() == EntityType.SPECTRAL_ARROW){
+			Location loc = event.getEntity().getLocation();
+			for(LivingEntity e : loc.getNearbyLivingEntities(3)){
+				if(Teams.get_team((Player)e) == Teams.get_team((Player) shooter)){
+					e.removePotionEffect(PotionEffectType.GLOWING);
+				}
+			}
+
 		}
 	}
 
