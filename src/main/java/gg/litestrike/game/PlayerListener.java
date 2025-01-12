@@ -13,6 +13,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -56,6 +57,11 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
+	}
+
+	@EventHandler
+	public void onArmorStand(PlayerArmorStandManipulateEvent e) {
+		e.setCancelled(true);
 	}
 
 	@EventHandler

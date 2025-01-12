@@ -101,13 +101,18 @@ public final class Litestrike extends JavaPlugin {
 				qsb.update_player_count();
 
 				// if more then 6 players online, count down, else reset countdown
-				if (Bukkit.getOnlinePlayers().size() >= PLAYERS_TO_START || is_force_starting) {
-					if (Bukkit.getOnlinePlayers().size() >= PLAYER_CAP) {
+				int online_players = Bukkit.getOnlinePlayers().size();
+				if ((online_players >= PLAYERS_TO_START && online_players % 2 == 0) || is_force_starting) {
+					if (online_players >= PLAYER_CAP) {
 						is_force_starting = true;
 					}
 					countdown -= 1;
 					count_down_animation(countdown);
 				} else {
+					if (countdown != 11 && online_players % 2 == 0) {
+						Audience.audience(Bukkit.getOnlinePlayers())
+								.sendMessage(text("Stopped Que, cause uneven number of players.").color(Litestrike.YELLOW));
+					}
 					countdown = 11;
 					return;
 				}

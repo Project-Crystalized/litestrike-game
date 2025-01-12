@@ -48,7 +48,8 @@ public class LSItem {
 
 	public final ItemCategory categ;
 
-	public LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot, Component name, Integer modelData) {
+	public LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot,
+			Component name, Integer modelData) {
 		this.price = price;
 		this.description = description;
 		this.categ = cate;
@@ -125,7 +126,8 @@ public class LSItem {
 		List<Component> defuser_lore = new ArrayList<>();
 		defuser_lore.add(translatable("crystalized.item.defuser.desc1").color(WHITE).decoration(ITALIC, false));
 		defuser_lore.add(translatable("crystalized.item.defuser.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(defuser, 500, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT, translatable("crystalized.item.defuser.name").decoration(ITALIC, false), null));
+		lsItems.add(new LSItem(defuser, 500, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT,
+				translatable("crystalized.item.defuser.name").decoration(ITALIC, false), null));
 
 		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
 		List<Component> gapple_lore = new ArrayList<>();
@@ -145,16 +147,18 @@ public class LSItem {
 		quickdraw.setItemMeta(quickdraw_meta);
 		List<Component> quickdraw_lore = new ArrayList<>();
 		quickdraw_lore.add(translatable("crystalized.crossbow.quickcharge.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24, translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false), 2));
+		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24,
+				translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false), 2));
 
-		ItemStack pufferFish = new ItemStack(STONE_SWORD);
+		ItemStack pufferFish = new ItemStack(WOODEN_SWORD);
 		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
 		pufferFish_meta.setCustomModelData(2);
 		pufferFish_meta.displayName(translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false));
 		pufferFish.setItemMeta(pufferFish_meta);
 		List<Component> pufferFish_lore = new ArrayList<>();
 		pufferFish_lore.add(translatable("crystalized.sword.pufferfish.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, 18, translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false), 2));
+		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, 18,
+				translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false), 2));
 
 		ItemStack slimeSword = new ItemStack(STONE_SWORD);
 		slimeSword.addEnchantment(KNOCKBACK, 1);
@@ -165,7 +169,8 @@ public class LSItem {
 		List<Component> slimeSword_lore = new ArrayList<>();
 		slimeSword_lore.add(translatable("crystalized.sword.slime.desc1").color(WHITE).decoration(ITALIC, false));
 		slimeSword_lore.add(translatable("crystalized.sword.slime.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20, translatable("crystalized.sword.slime.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20,
+				translatable("crystalized.sword.slime.name").decoration(ITALIC, false), 1));
 
 		ItemStack marksman = new ItemStack(BOW);
 		ItemMeta marksman_meta = marksman.getItemMeta();
@@ -174,7 +179,8 @@ public class LSItem {
 		marksman.setItemMeta(marksman_meta);
 		List<Component> marksman_lore = new ArrayList<>();
 		marksman_lore.add(translatable("crystalized.bow.marksman.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(marksman, 750, marksman_lore, ItemCategory.Range, 6, translatable("crystalized.bow.marksman.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(marksman, 750, marksman_lore, ItemCategory.Range, 6,
+				translatable("crystalized.bow.marksman.name").decoration(ITALIC, false), 1));
 
 		ItemStack ricochet = new ItemStack(BOW);
 		ricochet.addEnchantment(PUNCH, 1);
@@ -184,7 +190,8 @@ public class LSItem {
 		ricochet.setItemMeta(ricochet_meta);
 		List<Component> ricochet_lore = new ArrayList<>();
 		ricochet_lore.add(translatable("crystalized.bow.ricochet.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(ricochet, 1500, ricochet_lore, ItemCategory.Range, 8, translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false), 3));
+		lsItems.add(new LSItem(ricochet, 1500, ricochet_lore, ItemCategory.Range, 8,
+				translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false), 3));
 
 		ItemStack multishot = new ItemStack(CROSSBOW);
 		multishot.addEnchantment(MULTISHOT, 1);
@@ -194,21 +201,24 @@ public class LSItem {
 		multishot.setItemMeta(multishot_meta);
 		List<Component> multishot_lore = new ArrayList<>();
 		multishot_lore.add(translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26, translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26,
+				translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false), 1));
 
 		ItemStack speed2pot = new ItemStack(POTION);
 		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
 		speed2potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1, true, true, true), true);
 		speed2potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed2pot.setItemMeta(speed2potMeta);
-		lsItems.add(new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
+		lsItems.add(
+				new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
 
 		ItemStack speed1pot = new ItemStack(POTION);
 		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
 		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 25, 0, true, true, true), true);
 		speed1potMeta.displayName(Component.text("Potion of Swiftness"));
 		speed1pot.setItemMeta(speed1potMeta);
-		lsItems.add(new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 48, Component.text("Potion of Swiftness"), null));
+		lsItems.add(
+				new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 48, Component.text("Potion of Swiftness"), null));
 
 		ItemStack spectralArrow = new ItemStack(Material.SPECTRAL_ARROW, 3);
 		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));
@@ -221,7 +231,8 @@ public class LSItem {
 		dragon_lore.add(Component.translatable("crystalized.item.dragonarrow.desc"));
 		dragon_meta.lore(dragon_lore);
 		dragonArrow.setItemMeta(dragon_meta);
-		lsItems.add(new LSItem(dragonArrow, 350, dragon_lore, ItemCategory.Ammunition, 52, translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(dragonArrow, 350, dragon_lore, ItemCategory.Ammunition, 52,
+				translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false), 1));
 
 		ItemStack exploArrow = new ItemStack(Material.ARROW, 3);
 		ItemMeta explo_meta = exploArrow.getItemMeta();
@@ -231,13 +242,13 @@ public class LSItem {
 		explo_lore.add(Component.translatable("crystalized.item.explosivearrow.desc"));
 		explo_meta.lore(explo_lore);
 		exploArrow.setItemMeta(explo_meta);
-		lsItems.add(new LSItem(exploArrow, 350, explo_lore, ItemCategory.Ammunition, 53, translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false), 2));
+		lsItems.add(new LSItem(exploArrow, 350, explo_lore, ItemCategory.Ammunition, 53,
+				translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false), 2));
 
 		creation_number = 1; // reset id
 
 		return lsItems;
 	}
-
 
 	// this can handle null being passed in
 	public ItemStack buildDisplayItem(Player p) {
