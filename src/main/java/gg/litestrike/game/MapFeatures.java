@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -91,6 +92,7 @@ class LaunchPadListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
+		if (p.getGameMode() == GameMode.SPECTATOR) return;
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
@@ -105,6 +107,7 @@ class LeviPadListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
+		if (p.getGameMode() == GameMode.SPECTATOR) return;
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 		if (block_under.getType() == MapFeatures.levi_pad_block && !(p.hasPotionEffect(PotionEffectType.LEVITATION))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
@@ -118,6 +121,7 @@ class JumpPadListener implements Listener {
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
+		if (p.getGameMode() == GameMode.SPECTATOR) return;
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
