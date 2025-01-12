@@ -268,9 +268,6 @@ public class GameController {
 			s.setDefuser();
 			s.buyHistory.add(null);
 			s.shopLog.add(null);
-
-
-
 		}
 	}
 
@@ -303,14 +300,11 @@ public class GameController {
 				for (Player p : teams.get_team_of(winner)) {
 					Firework fw = w.spawn(p.getLocation(), Firework.class);
 					FireworkMeta fwm = fw.getFireworkMeta();
-					fwm.setPower(1);
-					FireworkEffect effect1 = FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withTrail()
-							.withColor(Color.RED)
-							.withColor(Color.BLUE).build();
+					fwm.setPower(2);
+					FireworkEffect effect1 = FireworkEffect.builder().with(FireworkEffect.Type.BALL).withTrail()
+							.withColor(Color.RED).withColor(Color.BLUE).build();
 					FireworkEffect effect2 = FireworkEffect.builder().with(FireworkEffect.Type.CREEPER).withFlicker().withTrail()
-							.withColor(Color.GREEN)
-							.withColor(Color.AQUA)
-							.build();
+							.withColor(Color.GREEN).withColor(Color.AQUA).build();
 					fwm.addEffects(effect1, effect2);
 					fw.setFireworkMeta(fwm);
 				}

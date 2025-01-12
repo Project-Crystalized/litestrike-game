@@ -124,7 +124,7 @@ public class Shop implements InventoryHolder {
 
 		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 				|| gc.round_number == GameController.SWITCH_ROUND + 1
-				|| gc.round_number == GameController.SWITCH_ROUND * 2)) {
+				|| gc.round_number == (GameController.SWITCH_ROUND * 2) + 1)) {
 			// no need to give equipment
 			return;
 		}
@@ -226,11 +226,11 @@ public class Shop implements InventoryHolder {
 	public static void removeShop(Player p) {
 		Inventory inv = p.getInventory();
 		Shop s = getShop(p);
-		for(int i = 0; i <= 40; i++){
-			if(inv.getItem(i) == null){
+		for (int i = 0; i <= 40; i++) {
+			if (inv.getItem(i) == null) {
 				continue;
 			}
-			if(inv.getItem(i).getType() == Material.EMERALD){
+			if (inv.getItem(i).getType() == Material.EMERALD) {
 				inv.clear(i);
 			}
 		}
