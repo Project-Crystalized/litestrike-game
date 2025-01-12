@@ -12,6 +12,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -158,6 +160,13 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onHunger(FoodLevelChangeEvent event) {
 		event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onInventoryClick(InventoryClickEvent event){
+		if(event.getSlotType() == InventoryType.SlotType.CRAFTING){
+			event.setCancelled(true);
+		}
 	}
 
 }

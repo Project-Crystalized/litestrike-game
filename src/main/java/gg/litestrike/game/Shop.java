@@ -226,16 +226,15 @@ public class Shop implements InventoryHolder {
 	public static void removeShop(Player p) {
 		Inventory inv = p.getInventory();
 		Shop s = getShop(p);
-		for (int i = 0; i <= 40; i++) {
-			ItemStack it = p.getInventory().getItem(i);
-			if (it == null) {
+		for(int i = 0; i <= 40; i++){
+			if(inv.getItem(i) == null){
 				continue;
 			}
-			if (it.getType() == Material.EMERALD) {
+			if(inv.getItem(i).getType() == Material.EMERALD){
 				inv.clear(i);
-				s.currentView.close();
 			}
 		}
+		s.currentView.close();
 	}
 
 	public static ItemStack getBasicKid(ItemCategory cate, Player p) {

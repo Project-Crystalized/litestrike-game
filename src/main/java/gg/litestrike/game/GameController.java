@@ -262,11 +262,15 @@ public class GameController {
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
-			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
+			s.currentView = Bukkit.getServer().
+							createInventory(s, 54, Shop.title(p));
 			s.setItems(s.shopItems);
 			s.setDefuser();
 			s.buyHistory.add(null);
 			s.shopLog.add(null);
+
+
+
 		}
 	}
 
