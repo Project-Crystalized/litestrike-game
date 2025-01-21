@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
 
+import java.util.UUID;
 import java.util.logging.Level;
 import java.lang.Exception;
 
@@ -104,6 +105,18 @@ public class Teams {
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
 		throw new RuntimeException(new Exception("player is in no team"));
+	}
+
+	public static Team get_team(UUID uuid){
+		Player p = Bukkit.getPlayer(uuid);
+		if (placers.contains(p.getName())) {
+			return Team.Placer;
+		}
+
+		if (breakers.contains(p.getName())) {
+			return Team.Breaker;
+		}
+		return null;
 	}
 
 	public Team get_team(String name) {
