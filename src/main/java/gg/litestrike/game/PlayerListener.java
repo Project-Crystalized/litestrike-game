@@ -187,36 +187,36 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
-	public void onInventoryClick(InventoryClickEvent event){
-		if(event.getSlotType() == InventoryType.SlotType.CRAFTING){
+	public void onInventoryClick(InventoryClickEvent event) {
+		if (event.getSlotType() == InventoryType.SlotType.CRAFTING) {
 			event.setCancelled(true);
 		}
 	}
 
 	@EventHandler
-	public void onProjectileHit(ProjectileHitEvent event){
-		if(event.getHitBlock() == null){
+	public void onProjectileHit(ProjectileHitEvent event) {
+		if (event.getHitBlock() == null)
 			return;
-		}
 
 		ProjectileSource shooter = event.getEntity().getShooter();
 		Location loc = event.getEntity().getLocation();
 
-		if(shooter == null){
+		if (shooter == null)
 			return;
-		}
 		
-		if(event.getEntity().getType() == EntityType.SPECTRAL_ARROW){
-			for(LivingEntity e : loc.getNearbyLivingEntities(3)){
-				if(Teams.get_team((Player)e) == Teams.get_team((Player) shooter)){
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null)
+			return;
+
+		if (event.getEntity().getType() == EntityType.SPECTRAL_ARROW) {
+			for (LivingEntity e : loc.getNearbyLivingEntities(3)) {
+				if (gc.teams.get_team((Player) e) == gc.teams.get_team((Player) shooter)) {
 					e.removePotionEffect(PotionEffectType.GLOWING);
 				}
 			}
-
 		}
 
 	}
-
 }
 
 class LSChatRenderer implements ChatRenderer.ViewerUnaware {

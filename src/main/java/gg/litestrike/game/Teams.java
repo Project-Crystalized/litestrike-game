@@ -90,7 +90,7 @@ public class Teams {
 		return null;
 	}
 
-	public static Team get_team(Player p) {
+	public Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
 		}
@@ -104,7 +104,7 @@ public class Teams {
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
-		throw new RuntimeException(new Exception("player is in no team"));
+		return null;
 	}
 
 	public static Team get_team(UUID uuid){
@@ -133,7 +133,7 @@ public class Teams {
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
-		throw new RuntimeException(new Exception("player is in no team"));
+		return null;
 	}
 
 	public static TextColor get_team_color(Team t) {
