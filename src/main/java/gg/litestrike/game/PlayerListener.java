@@ -10,10 +10,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -215,6 +212,13 @@ public class PlayerListener implements Listener {
 
 		}
 
+	}
+
+	@EventHandler
+	public void onBowShot(EntityShootBowEvent event){
+		if(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound){
+			event.setCancelled(true);
+		}
 	}
 
 }
