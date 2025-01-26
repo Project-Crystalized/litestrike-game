@@ -38,10 +38,19 @@ public class LsDatabase {
 				+ "was_winner			INTEGER"
 				+ ");";
 
+		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
+				+ "player_uuid 		BLOB UNIQUE,"
+				+ "elo						INTEGER,"
+				+ "rank						INTEGER,"
+				+ "lp							INTEGER,"
+				+ "promos					INTEGER"
+				+ ");";
+
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			Statement stmt = conn.createStatement();
 			stmt.execute(create_ls_games);
 			stmt.execute(create_ls_players);
+			stmt.execute(create_ls_ranks);
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
 			Bukkit.getLogger().warning("continueing without database");
@@ -49,8 +58,13 @@ public class LsDatabase {
 	}
 
 	public static void save_game(Team winner) {
-		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
 		GameController gc = Litestrike.getInstance().game_controller;
+
+		if (Litestrike.getInstance().mapdata.ranked) {
+			Ranking.do_ranking(winner);
+		}
+
+		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
 
 		int placer_wins_amt = 0;
 		int breaker_wins_amt = 0;

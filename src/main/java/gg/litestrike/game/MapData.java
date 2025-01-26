@@ -35,7 +35,6 @@ public class MapData implements Listener {
 
 	public String map_name;
 
-
 	// toggelable map-specific features
 	public MapFeatures map_features;
 
@@ -47,6 +46,8 @@ public class MapData implements Listener {
 	public Material bomb_plant_block = Material.TERRACOTTA;
 
 	public PodiumData podium;
+
+	public boolean ranked = false;
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
 
@@ -175,6 +176,13 @@ public class MapData implements Listener {
 		if (jo_podium != null) {
 			this.podium = new PodiumData(jo_podium);
 		}
+
+		JsonElement ranked = json.get("is_ranked");
+		if (ranked != null && ranked.getAsBoolean() == true) {
+			Bukkit.getLogger().info("Registered this server to be a ranked Litestrike server!");
+			this.ranked = true;
+		}
+
 	}
 
 	public MapData() {
