@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
@@ -101,7 +103,14 @@ public class Shop implements InventoryHolder {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop s = getShop(p);
 			s.updateTitle(false);
-			p.getInventory().addItem(new ItemStack(Material.EMERALD, 1));
+			ItemStack shop = new ItemStack(Material.EMERALD, 1);
+			ItemMeta meta = shop.getItemMeta();
+			meta.displayName(Component.text("Shop").color(WHITE).decoration(ITALIC, false));
+			List<TextComponent> list = new ArrayList<>();
+			list.add(Component.text("right click").color(GRAY).decoration(ITALIC, false));
+			meta.lore(list);
+			shop.setItemMeta(meta);
+			p.getInventory().addItem(shop);
 		}
 	}
 

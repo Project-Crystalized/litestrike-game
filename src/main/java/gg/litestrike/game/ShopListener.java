@@ -34,6 +34,7 @@ public class ShopListener implements Listener {
 				s.setItems(s.shopItems);
 				s.setDefuser();
 			}
+			s.updateTitle(true);
 		}
 	}
 

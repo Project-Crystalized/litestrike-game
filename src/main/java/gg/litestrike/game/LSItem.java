@@ -206,6 +206,15 @@ public class LSItem {
 		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26,
 				translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false), 1));
 
+		ItemStack charged = new ItemStack(CROSSBOW);
+		ItemMeta charged_meta = charged.getItemMeta();
+		charged_meta.setCustomModelData(3);
+		charged_meta.displayName(translatable("crystalized.crossbow.charged.name"));
+		charged.setItemMeta(charged_meta);
+		List<Component> charged_lore = new ArrayList<>();
+		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(charged, 2000, charged_lore, ItemCategory.Range, 44, translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
+
 		ItemStack speed2pot = new ItemStack(POTION);
 		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
 		speed2potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1, true, true, true), true);
