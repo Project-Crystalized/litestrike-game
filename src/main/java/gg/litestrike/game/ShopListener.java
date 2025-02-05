@@ -30,11 +30,10 @@ public class ShopListener implements Listener {
 		Shop s = Shop.getShop(p);
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
 			if (p.getInventory().getItemInMainHand().getType() == Material.EMERALD) {
-				p.openInventory(s.currentView);
 				s.setItems(s.shopItems);
 				s.setDefuser();
+				s.updateTitle(true);
 			}
-			s.updateTitle(true);
 		}
 	}
 
