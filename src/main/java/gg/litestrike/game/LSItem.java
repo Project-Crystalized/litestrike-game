@@ -256,6 +256,16 @@ public class LSItem {
 		lsItems.add(new LSItem(exploArrow, 350, explo_lore, ItemCategory.Ammunition, 53,
 				translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false), 2));
 
+		ItemStack underDog = new ItemStack(STONE_SWORD);
+		ItemMeta underDog_meta = underDog.getItemMeta();
+		underDog_meta.setCustomModelData(3);
+		underDog_meta.displayName(Component.text("Underdog Sword").decoration(ITALIC, false));
+		List<Component> underDog_lore = new ArrayList<>();
+		underDog_lore.add(Component.text("gets stronger when you loose").color(WHITE).decoration(ITALIC, false));
+		underDog_meta.lore(underDog_lore);
+		underDog.setItemMeta(underDog_meta);
+		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36, Component.text("Underdog Sword").decoration(ITALIC, false), 3));
+
 		creation_number = 1; // reset id
 
 		return lsItems;
@@ -306,5 +316,16 @@ public class LSItem {
 		}
 
 		return null;
+	}
+
+	public static void underDogSword(Player p, int i){
+		ItemStack item = p.getInventory().getItem(i);
+		if(item == null){
+			return;
+		}
+		ItemMeta meta = item.getItemMeta();
+		meta.setCustomModelData(meta.getCustomModelData()+1);
+		item.setItemMeta(meta);
+		p.getInventory().setItem(i, item);
 	}
 }
