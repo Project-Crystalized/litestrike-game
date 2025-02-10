@@ -152,7 +152,7 @@ public class LSItem {
 		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24,
 				translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false), 2));
 
-		ItemStack pufferFish = new ItemStack(WOODEN_SWORD);
+		ItemStack pufferFish = new ItemStack(STONE_SWORD);
 		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
 		pufferFish_meta.setCustomModelData(2);
 		pufferFish_meta.displayName(translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false));
@@ -221,7 +221,7 @@ public class LSItem {
 		speed2potMeta.displayName(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false));
 		speed2pot.setItemMeta(speed2potMeta);
 		lsItems.add(
-				new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
+				new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 46, Component.text("Potion of Swiftness"), null));
 
 		ItemStack speed1pot = new ItemStack(POTION);
 		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
@@ -229,7 +229,16 @@ public class LSItem {
 		speed1potMeta.displayName(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false));
 		speed1pot.setItemMeta(speed1potMeta);
 		lsItems.add(
-				new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 48, Component.text("Potion of Swiftness"), null));
+				new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
+
+		ItemStack respot = new ItemStack(POTION);
+		PotionMeta respotMeta = (PotionMeta) speed1pot.getItemMeta();
+		respotMeta.addCustomEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0, true, true, true), true);
+		respotMeta.displayName(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false));
+		respot.setItemMeta(respotMeta);
+		lsItems.add(
+				new LSItem(respot, 750, null, ItemCategory.Consumable, 45, Component.text("Potion of Resistance"), null));
+
 
 		ItemStack spectralArrow = new ItemStack(SPECTRAL_ARROW, 3);
 		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));

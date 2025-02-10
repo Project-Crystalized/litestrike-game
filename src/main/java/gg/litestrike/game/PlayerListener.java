@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -218,6 +219,13 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onBowShot(EntityShootBowEvent event){
+		if(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound){
+			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void loadCrossbow(EntityLoadCrossbowEvent event){
 		if(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound){
 			event.setCancelled(true);
 		}
