@@ -268,7 +268,7 @@ public class GameController {
 						continue;
 					}
 					ItemMeta meta = item.getItemMeta();
-					if(item.getType() == STONE_SWORD && meta.hasCustomModelData() && (meta.getCustomModelData() == 3 || meta.getCustomModelData() == 4 || meta.getCustomModelData() == 5)){
+					if(item.getType() == STONE_SWORD && meta.hasCustomModelData() && (meta.getCustomModelData() == 3 || meta.getCustomModelData() == 4 || meta.getCustomModelData() == 5 || meta.getCustomModelData() == 6)){
 						LSItem.underDogSword(p, i);
 						break;
 					}

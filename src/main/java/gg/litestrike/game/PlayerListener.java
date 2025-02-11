@@ -173,6 +173,9 @@ public class PlayerListener implements Listener {
 		}
 
 		DamageSource source = e.getDamageSource();
+		if(source.getCausingEntity() == null){
+			return;
+		}
 		Entity defender = e.getEntity();
 		if(Teams.get_team(source.getCausingEntity().getUniqueId()) == Teams.get_team(defender.getUniqueId())){
 			e.setCancelled(true);
