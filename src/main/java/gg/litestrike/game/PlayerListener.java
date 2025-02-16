@@ -216,6 +216,11 @@ public class PlayerListener implements Listener {
 				}
 			}
 		}
+		new BukkitRunnable(){
+			public void run(){
+				event.getEntity().remove();
+			}
+		}.runTaskLater(Litestrike.getInstance(), 3);
 
 	}
 
