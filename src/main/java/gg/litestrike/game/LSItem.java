@@ -268,9 +268,9 @@ public class LSItem {
 		ItemStack underDog = new ItemStack(STONE_SWORD);
 		ItemMeta underDog_meta = underDog.getItemMeta();
 		underDog_meta.setCustomModelData(3);
-		underDog_meta.displayName(Component.text("Underdog Sword").decoration(ITALIC, false));
+		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false));
 		List<Component> underDog_lore = new ArrayList<>();
-		underDog_lore.add(Component.text("gets stronger when you loose").color(WHITE).decoration(ITALIC, false));
+		underDog_lore.add(Component.text("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
 		underDog_meta.lore(underDog_lore);
 		underDog.setItemMeta(underDog_meta);
 		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36, Component.text("Underdog Sword").decoration(ITALIC, false), 3));

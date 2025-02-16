@@ -272,7 +272,7 @@ public class Shop implements InventoryHolder {
 
 	public void removeFromBuyHistory(LSItem item, LSItem lsitem) {
 		ArrayList<Integer> list = new ArrayList<>();
-		for (int i = 0; i <= buyHistory.size() - 1; i++) {
+		for (int i = buyHistory.size() - 1; i >= 0 ; i--) {
 			if (buyHistory.get(i) == null) {
 				continue;
 			}

@@ -142,7 +142,7 @@ public class ShopListener implements Listener {
 			LSItem hist_item = s.buyHistory.get(j);
 
 			if (hist_item == null) {
-				return;
+				continue;
 			}
 
 			if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
