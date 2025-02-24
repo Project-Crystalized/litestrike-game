@@ -40,10 +40,8 @@ public class LsDatabase {
 
 		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
 				+ "player_uuid 		BLOB UNIQUE,"
-				+ "elo						INTEGER,"
 				+ "rank						INTEGER,"
-				+ "lp							INTEGER,"
-				+ "promos					INTEGER"
+				+ "rp							INTEGER,"
 				+ ");";
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
