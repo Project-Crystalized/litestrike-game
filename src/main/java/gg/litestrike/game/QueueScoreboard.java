@@ -15,10 +15,10 @@ import net.kyori.adventure.text.format.TextColor;
 
 import static net.kyori.adventure.text.Component.text;
 
-public class QueScoreboard {
+public class QueueScoreboard {
 	private Scoreboard sb;
 
-	public QueScoreboard() {
+	public QueueScoreboard() {
 		sb = Bukkit.getScoreboardManager().getNewScoreboard();
 
 		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true);
