@@ -70,6 +70,7 @@ public class GameController {
 	public final static int SWITCH_ROUND = 4;
 
 	public final static int PRE_ROUND_TIME = (20 * 23);
+	// public final static int PRE_ROUND_TIME = (20 * 1);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
 	public final static int FINISH_TIME = (20 * 12);
@@ -262,13 +263,14 @@ public class GameController {
 				SoundEffects.round_won(p);
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
-				for(int i = 0; i <= 40; i++){
+				for (int i = 0; i <= 40; i++) {
 					ItemStack item = p.getInventory().getItem(i);
-					if(item == null){
+					if (item == null) {
 						continue;
 					}
 					ItemMeta meta = item.getItemMeta();
-					if(item.getType() == STONE_SWORD && meta.hasCustomModelData() && (meta.getCustomModelData() == 3 || meta.getCustomModelData() == 4 || meta.getCustomModelData() == 5 || meta.getCustomModelData() == 6)){
+					if (item.getType() == STONE_SWORD && meta.hasCustomModelData() && (meta.getCustomModelData() == 3
+							|| meta.getCustomModelData() == 4 || meta.getCustomModelData() == 5 || meta.getCustomModelData() == 6)) {
 						LSItem.underDogSword(p, i);
 						break;
 					}
@@ -276,8 +278,7 @@ public class GameController {
 				SoundEffects.round_lost(p);
 			}
 			Shop s = Shop.getShop(p);
-			s.currentView = Bukkit.getServer().
-							createInventory(s, 54, Shop.title(p));
+			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
 			s.setItems(s.shopItems);
 			s.setDefuser();
 			s.buyHistory.add(null);

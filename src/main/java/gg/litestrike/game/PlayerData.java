@@ -91,7 +91,7 @@ public class PlayerData {
 	}
 
 	public int calc_player_score() {
-		return 2 * kills + 3 * breaks + 3 * plants + assists;
+		return kills + kills / 5 + assists / 2 + assists / 10 + breaks + plants;
 	}
 
 	public int getTotalMoneyGained() {
