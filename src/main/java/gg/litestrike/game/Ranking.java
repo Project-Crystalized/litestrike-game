@@ -17,27 +17,7 @@ import org.bukkit.entity.Player;
 public class Ranking {
 
 	public static void do_ranking(Team winner_team) {
-		List<PlayerRankedData> player_ranks = new ArrayList<>();
-		GameController gc = Litestrike.getInstance().game_controller;
-
-		List<String> player_names = new ArrayList<>(gc.teams.get_initial_breakers());
-		player_names.addAll(gc.teams.get_initial_placers());
-		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
-			for (String placer_name : player_names) {
-				UUID uuid = Bukkit.getOfflinePlayer(placer_name).getUniqueId();
-				String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
-
-				PreparedStatement ps = conn.prepareStatement(query);
-				ps.setBytes(1, uuid_to_bytes(uuid));
-				ResultSet rs = ps.executeQuery();
-				player_ranks.add(new PlayerRankedData(rs, uuid));
-			}
-		} catch (SQLException e) {
-			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt write data to database");
-		}
-
-		// player ranks are now loaded
+		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
 
 		for (PlayerRankedData prd : player_ranks) {
 			Team players_team = get_current_team(prd.uuid);
@@ -53,31 +33,18 @@ public class Ranking {
 			p.sendMessage("You have gained or lost " + point_change + " rp.");
 			p.sendMessage("Your rp is now " + prd.rp + " rp.");
 
-			//do rankup
+			// do rankup
 			if (did_win && prd.rp > get_rank_min_rp(prd.rank + 1) + 20) {
 				// if the player won, AND he has 20 more rp than the next higher rank
 				prd.rank += 1;
 				p.sendMessage("You have gained a rank!");
 			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
-				prd.rank -=1;
+				prd.rank -= 1;
 				p.sendMessage("You have lost a rank. :(");
 			}
 		}
 
-		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
-			for (PlayerRankedData prd : player_ranks) {
-				String update = "INSERT INTO LsRanks (rank, rp, player_uuid) VALUES (?,?,?) ON CONFLICT(player_uuid) DO UPDATE SET rank=excluded.rank, rp=excluded.rp;";
-
-				PreparedStatement ps = conn.prepareStatement(update);
-				ps.setInt(1, prd.rank);
-				ps.setInt(2, prd.rp);
-				ps.setBytes(3, uuid_to_bytes(prd.uuid));
-				ps.executeUpdate();
-			}
-		} catch (SQLException e) {
-			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt write data to database");
-		}
+		PlayerRankedData.save_players(player_ranks);
 	}
 
 	// gets the team, the player would be in, if they would still be online
@@ -85,9 +52,9 @@ public class Ranking {
 		GameController gc = Litestrike.getInstance().game_controller;
 		OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
 		Team online_team = gc.teams.get_team(p.getName());
-		if (online_team != null) 
+		if (online_team != null)
 			return online_team;
-		
+
 		Team initial_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Breaker : Team.Placer;
 		Team other_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Placer : Team.Breaker;
 
@@ -96,13 +63,6 @@ public class Ranking {
 		} else {
 			return initial_team;
 		}
-	}
-
-	private static byte[] uuid_to_bytes(UUID uuid) {
-		ByteBuffer bb = ByteBuffer.allocate(16);
-		bb.putLong(uuid.getMostSignificantBits());
-		bb.putLong(uuid.getLeastSignificantBits());
-		return bb.array();
 	}
 
 	private static int get_win_loss_points(boolean did_win, int rank) {
@@ -114,13 +74,13 @@ public class Ranking {
 			}
 		} else {
 			switch (rank) {
-				case 1,2,3:
+				case 1, 2, 3:
 					return 8;
-				case 4,5:
+				case 4, 5:
 					return 7;
-				case 6,7:
+				case 6, 7:
 					return 6;
-				case 8,9:
+				case 8, 9:
 					return 5;
 				case 10:
 					return 4;
@@ -162,10 +122,62 @@ class PlayerRankedData {
 	public int rp;
 	public UUID uuid;
 
-	public PlayerRankedData(ResultSet rs, UUID uuid) throws SQLException {
+	private PlayerRankedData(ResultSet rs, UUID uuid) throws SQLException {
 		this.uuid = uuid;
 		rs.next();
 		this.rank = rs.getInt("rank");
 		this.rp = rs.getInt("rp");
+		if (rank == 0 && rp == 0) {
+			Bukkit.getLogger().warning("initialized ranks for a new player");
+			rank = 3;
+			rp = 300;
+		}
+	}
+
+	public static List<PlayerRankedData> load_player_data() {
+		List<PlayerRankedData> player_ranks = new ArrayList<>();
+		GameController gc = Litestrike.getInstance().game_controller;
+
+		List<String> player_names = new ArrayList<>(gc.teams.get_initial_breakers());
+		player_names.addAll(gc.teams.get_initial_placers());
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			for (String placer_name : player_names) {
+				UUID uuid = Bukkit.getOfflinePlayer(placer_name).getUniqueId();
+				String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
+
+				PreparedStatement ps = conn.prepareStatement(query);
+				ps.setBytes(1, uuid_to_bytes(uuid));
+				ResultSet rs = ps.executeQuery();
+				player_ranks.add(new PlayerRankedData(rs, uuid));
+			}
+		} catch (SQLException e) {
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("didnt write data to database");
+		}
+		return player_ranks;
+	}
+
+	private static byte[] uuid_to_bytes(UUID uuid) {
+		ByteBuffer bb = ByteBuffer.allocate(16);
+		bb.putLong(uuid.getMostSignificantBits());
+		bb.putLong(uuid.getLeastSignificantBits());
+		return bb.array();
+	}
+
+	public static void save_players(List<PlayerRankedData> player_ranks) {
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			for (PlayerRankedData prd : player_ranks) {
+				String update = "INSERT INTO LsRanks (rank, rp, player_uuid) VALUES (?,?,?) ON CONFLICT(player_uuid) DO UPDATE SET rank=excluded.rank, rp=excluded.rp;";
+
+				PreparedStatement ps = conn.prepareStatement(update);
+				ps.setInt(1, prd.rank);
+				ps.setInt(2, prd.rp);
+				ps.setBytes(3, uuid_to_bytes(prd.uuid));
+				ps.executeUpdate();
+			}
+		} catch (SQLException e) {
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("didnt write data to database");
+		}
 	}
 }
