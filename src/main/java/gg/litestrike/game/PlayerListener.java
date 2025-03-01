@@ -85,7 +85,7 @@ public class PlayerListener implements Listener {
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
-			Litestrike.getInstance().qsb.show_que_scoreboard(p);
+			Litestrike.getInstance().qsb.show_queue_scoreboard(p);
 
 		} else {
 			// if we are here, it means the player is rejoining

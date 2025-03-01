@@ -58,7 +58,7 @@ public class QueueScoreboard {
 
 	}
 
-	public void show_que_scoreboard(Player p) {
+	public void show_queue_scoreboard(Player p) {
 		p.setScoreboard(sb);
 		update_player_count();
 	}
