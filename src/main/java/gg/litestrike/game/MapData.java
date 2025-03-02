@@ -31,7 +31,7 @@ import java.util.Arrays;
 public class MapData implements Listener {
 	public double[] placer_spawn;
 	public double[] breaker_spawn;
-	public double[] que_spawn;
+	public double[] queue_spawn;
 
 	public String map_name;
 
@@ -113,8 +113,8 @@ public class MapData implements Listener {
 		this.breaker_spawn = new double[] { b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(),
 				b_spawn.get(2).getAsDouble() };
 
-		JsonArray q_spawn = json.get("que_spawn").getAsJsonArray();
-		this.que_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
+		JsonArray q_spawn = json.get("queue_spawn").getAsJsonArray();
+		this.queue_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
 				q_spawn.get(2).getAsDouble() };
 	}
 
@@ -224,14 +224,14 @@ public class MapData implements Listener {
 		return new Location(w, breaker_spawn[0], breaker_spawn[1], breaker_spawn[2]);
 	}
 
-	public Location get_que_spawn(World w) {
-		return new Location(w, que_spawn[0], que_spawn[1], que_spawn[2]);
+	public Location get_queue_spawn(World w) {
+		return new Location(w, queue_spawn[0], queue_spawn[1], queue_spawn[2]);
 	}
 
 	public String toString() {
 		String s = "placer_spawn: " + Arrays.toString(this.placer_spawn) +
 				"\nbreaker_spawn: " + Arrays.toString(this.breaker_spawn) +
-				"\nque_spawn: " + Arrays.toString(this.que_spawn) +
+				"\nqueue_spawn: " + Arrays.toString(this.queue_spawn) +
 				"\nmap_name: " + this.map_name +
 				"\nborder_marker: " + this.border_marker +
 				"\nborder_block_type: " + this.border_block_type +
