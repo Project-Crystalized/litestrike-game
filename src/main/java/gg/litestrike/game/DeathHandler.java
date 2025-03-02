@@ -82,7 +82,10 @@ public class DeathHandler implements Listener {
 		List<Player> assiters = new ArrayList<>();
 		for (PlayerData pd : gc.playerDatas) {
 			if (pd.assist_list.contains(p)) {
-				assiters.add(Bukkit.getPlayer(pd.player));
+				Player player = Bukkit.getPlayer(pd.player);
+				if (player != null) {
+					assiters.add(player);
+				}
 			}
 		}
 		return assiters;
@@ -109,19 +112,19 @@ public class DeathHandler implements Listener {
 
 	private Component get_death_icon(DamageType dt, Player killer) {
 		if (dt == DamageType.ARROW) {
-			if (killer.getInventory().getItemInMainHand().getType() == Material.CROSSBOW 
+			if (killer.getInventory().getItemInMainHand().getType() == Material.CROSSBOW
 					|| killer.getInventory().getItemInOffHand().getType() == Material.CROSSBOW) {
-				return text(" \uE11E "); //CROSSBOW death icon
+				return text(" \uE11E "); // CROSSBOW death icon
 			}
 			return text(" \uE102 "); // BOW death icon
 		} else if (dt == DamageType.PLAYER_ATTACK) {
 			if (killer.getInventory().getItemInMainHand().getType().toString().toLowerCase().contains("pickaxe")
 					|| killer.getInventory().getItemInOffHand().getType().toString().toLowerCase().contains("pickaxe")) {
-				return text(" \uE11E "); //CROSSBOW death icon
+				return text(" \uE11E "); // CROSSBOW death icon
 			}
 			if (killer.getInventory().getItemInMainHand().getType().toString().toLowerCase().contains("axe")
 					|| killer.getInventory().getItemInOffHand().getType().toString().toLowerCase().contains("axe")) {
-				return text(" \uE11F "); //PICKAXE death icon
+				return text(" \uE11F "); // PICKAXE death icon
 			}
 			return text(" \uE101 "); // SWORD death icon
 		} else {

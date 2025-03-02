@@ -320,6 +320,10 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
+		if (b == null) {
+			Bukkit.getLogger().severe("a player died while no bomb existed? is that possible?");
+			return;
+		}
 		if (b instanceof InvItemBomb && ((InvItemBomb) b).player == e.getPlayer()) {
 			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
 			((InvItemBomb) b).drop_bomb(i);
@@ -333,7 +337,7 @@ public class BombListener implements Listener {
 		}
 		e.setCancelled(true);
 		if (e.getEntity() instanceof Player
-				&& Litestrike.getInstance().game_controller.teams.get_team(e.getEntity().getName()) == Team.Placer) {
+				&& Teams.get_team(e.getEntity().getName()) == Team.Placer) {
 			// if it got picked up by a player and that player is placer, then proceed
 			Player p = (Player) e.getEntity();
 			Bomb.give_bomb(p);

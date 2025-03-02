@@ -47,7 +47,7 @@ public final class Litestrike extends JavaPlugin {
 
 	// player amount required to autostart
 	public static final int PLAYERS_TO_START = 6;
-	public static final int PLAYER_CAP = 10;
+	public static final int PLAYER_CAP = 8;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
