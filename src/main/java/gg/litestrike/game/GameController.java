@@ -295,6 +295,11 @@ public class GameController {
 			bomb = null;
 		}
 
+		for(Player p : Bukkit.getOnlinePlayers()){
+			Shop s = Shop.getShop(p);
+			s.buyHistory.clear();
+		}
+
 		World w = Bukkit.getWorld("world");
 
 		print_result_table(winner);
