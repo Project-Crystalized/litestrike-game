@@ -70,7 +70,7 @@ public class PlayerListener implements Listener {
 		Player p = event.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		p.teleport(Litestrike.getInstance().mapdata.get_que_spawn(p.getWorld()));
+		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
@@ -79,7 +79,7 @@ public class PlayerListener implements Listener {
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
-			Litestrike.getInstance().qsb.show_que_scoreboard(p);
+			Litestrike.getInstance().qsb.show_queue_scoreboard(p);
 
 		} else {
 			// if we are here, it means the player is rejoining

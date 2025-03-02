@@ -85,6 +85,7 @@ public class BombListener implements Listener {
 								.spawnParticle(REVERSE_PORTAL, last_planting_block.getLocation().add(0.5, 0.5, 0.5), 5000);
 						reset();
 						Litestrike.getInstance().game_controller.getPlayerData(last_planting_player).add_plant();
+
 					}
 				} else {
 					if (planting_counter > 1) {

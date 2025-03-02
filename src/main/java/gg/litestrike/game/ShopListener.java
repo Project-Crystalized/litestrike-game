@@ -116,7 +116,7 @@ public class ShopListener implements Listener {
 				continue;
 			}
 
-			if (lsi.slot.equals(slot) || (lsi.item.getType() == item.getType() && Objects.equals(identifyCustomModelData(lsi.item), identifyCustomModelData(item)))) {
+			if (lsi.slot.equals(slot) && (lsi.item.getType() == item.getType() && Objects.equals(identifyCustomModelData(lsi.item), identifyCustomModelData(item)))) {
 				lsitem = lsi;
 				break;
 			}

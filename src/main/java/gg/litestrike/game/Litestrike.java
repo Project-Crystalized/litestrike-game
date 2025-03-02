@@ -39,7 +39,7 @@ public final class Litestrike extends JavaPlugin {
 	// this is set by the /force_start command
 	public boolean is_force_starting = false;
 
-	public QueScoreboard qsb;
+	public QueueScoreboard qsb;
 
 	public ProtocolManager protocolManager;
 
@@ -63,7 +63,7 @@ public final class Litestrike extends JavaPlugin {
 	public void onEnable() {
 		protocolManager = ProtocolLibrary.getProtocolManager();
 
-		qsb = new QueScoreboard();
+		qsb = new QueueScoreboard();
 
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
@@ -112,7 +112,7 @@ public final class Litestrike extends JavaPlugin {
 				} else {
 					if (countdown != 11 && online_players % 2 == 0) {
 						Audience.audience(Bukkit.getOnlinePlayers())
-								.sendMessage(text("Stopped Que, cause uneven number of players.").color(Litestrike.YELLOW));
+								.sendMessage(text("Stopped Queue, cause uneven number of players.").color(Litestrike.YELLOW));
 					}
 					countdown = 11;
 					return;

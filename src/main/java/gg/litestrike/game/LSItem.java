@@ -213,7 +213,7 @@ public class LSItem {
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
 		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(charged, 2000, charged_lore, ItemCategory.Range, 44, translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
+		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 44, translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
 
 		ItemStack speed2pot = new ItemStack(POTION);
 		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
