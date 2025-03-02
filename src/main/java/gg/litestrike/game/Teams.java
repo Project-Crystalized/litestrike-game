@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
 import java.util.logging.Level;
-import java.lang.Exception;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
@@ -107,7 +106,7 @@ public class Teams {
 		return null;
 	}
 
-	public static Team get_team(UUID uuid){
+	public static Team get_team(UUID uuid) {
 		Player p = Bukkit.getPlayer(uuid);
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
@@ -119,7 +118,7 @@ public class Teams {
 		return null;
 	}
 
-	public Team get_team(String name) {
+	public static Team get_team(String name) {
 		if (placers.contains(name)) {
 			return Team.Placer;
 		}
@@ -142,5 +141,33 @@ public class Teams {
 		} else {
 			return PLACER_RED;
 		}
+	}
+
+	public static int get_team_breaks(Team t) {
+		int breaks = 0;
+		List<String> team;
+		if (t == Team.Breaker) {
+			team = breakers;
+		} else {
+			team = placers;
+		}
+		for (String name : team) {
+			breaks += Litestrike.getInstance().game_controller.getPlayerData(name).getBroken();
+		}
+		return breaks;
+	}
+
+	public static int get_team_plants(Team t) {
+		int breaks = 0;
+		List<String> team;
+		if (t == Team.Breaker) {
+			team = breakers;
+		} else {
+			team = placers;
+		}
+		for (String name : team) {
+			breaks += Litestrike.getInstance().game_controller.getPlayerData(name).getPlaced();
+		}
+		return breaks;
 	}
 }

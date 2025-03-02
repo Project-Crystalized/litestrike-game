@@ -489,6 +489,23 @@ public class GameController {
 		return null;
 	}
 
+	public PlayerData getPlayerData(String p) {
+		for (PlayerData pd : playerDatas) {
+			if (pd.player.equals(p)) {
+				return pd;
+			}
+		}
+		Bukkit.getServer().sendMessage(text("error occured, a player didnt have associated data"));
+		Bukkit.getLogger().warning("player name: " + p);
+		Bukkit.getLogger().warning("known names: ");
+
+		for (PlayerData pd : playerDatas) {
+			Bukkit.getLogger().warning(pd.player);
+		}
+
+		return null;
+	}
+
 	private void print_result_table(Team winner) {
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));

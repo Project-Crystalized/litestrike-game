@@ -22,8 +22,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,10 +33,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Collection;
-import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -76,7 +70,7 @@ public class PlayerListener implements Listener {
 		Player p = event.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		p.teleport(Litestrike.getInstance().mapdata.get_que_spawn(p.getWorld()));
+		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
@@ -85,7 +79,7 @@ public class PlayerListener implements Listener {
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
-			Litestrike.getInstance().qsb.show_que_scoreboard(p);
+			Litestrike.getInstance().qsb.show_queue_scoreboard(p);
 
 		} else {
 			// if we are here, it means the player is rejoining
@@ -173,11 +167,11 @@ public class PlayerListener implements Listener {
 		}
 
 		DamageSource source = e.getDamageSource();
-		if(source.getCausingEntity() == null){
+		if (source.getCausingEntity() == null) {
 			return;
 		}
 		Entity defender = e.getEntity();
-		if(Teams.get_team(source.getCausingEntity().getUniqueId()) == Teams.get_team(defender.getUniqueId())){
+		if (Teams.get_team(source.getCausingEntity().getUniqueId()) == Teams.get_team(defender.getUniqueId())) {
 			e.setCancelled(true);
 		}
 	}
@@ -204,7 +198,7 @@ public class PlayerListener implements Listener {
 
 		if (shooter == null)
 			return;
-		
+
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null)
 			return;
@@ -219,18 +213,17 @@ public class PlayerListener implements Listener {
 
 	}
 
-
 	@EventHandler
-	public void onBowShot(EntityShootBowEvent event){
-		if(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound){
+	public void onBowShot(EntityShootBowEvent event) {
+		if (Litestrike.getInstance().game_controller.round_state == RoundState.PreRound) {
 			event.setCancelled(true);
-			((Player)event.getEntity()).getInventory().addItem(((Arrow)event.getProjectile()).getItemStack());
+			((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
 		}
 	}
 
 	@EventHandler
-	public void loadCrossbow(EntityLoadCrossbowEvent event){
-		if(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound){
+	public void loadCrossbow(EntityLoadCrossbowEvent event) {
+		if (Litestrike.getInstance().game_controller.round_state == RoundState.PreRound) {
 			event.setCancelled(true);
 		}
 	}

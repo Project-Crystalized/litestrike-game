@@ -22,25 +22,32 @@ public class Ranking {
 		for (PlayerRankedData prd : player_ranks) {
 			Team players_team = get_current_team(prd.uuid);
 			Player p = Bukkit.getPlayer(prd.uuid);
+			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
 
 			boolean did_win = players_team == winner_team;
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
-			int score = Litestrike.getInstance().game_controller.getPlayerData(p).calc_player_score();
+			int score = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
 
 			point_change += score / 2;
 			prd.rp += point_change;
-			p.sendMessage("You have gained or lost " + point_change + " rp.");
-			p.sendMessage("Your rp is now " + prd.rp + " rp.");
+			if (p != null) {
+				p.sendMessage("You have gained or lost " + point_change + " rp.");
+				p.sendMessage("Your rp is now " + prd.rp + " rp.");
+			}
 
 			// do rankup
 			if (did_win && prd.rp > get_rank_min_rp(prd.rank + 1) + 20) {
 				// if the player won, AND he has 20 more rp than the next higher rank
 				prd.rank += 1;
-				p.sendMessage("You have gained a rank!");
+				if (p != null) {
+					p.sendMessage("You have gained a rank!");
+				}
 			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
 				prd.rank -= 1;
-				p.sendMessage("You have lost a rank. :(");
+				if (p != null) {
+					p.sendMessage("You have lost a rank. :(");
+				}
 			}
 		}
 
@@ -51,7 +58,7 @@ public class Ranking {
 	private static Team get_current_team(UUID uuid) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-		Team online_team = gc.teams.get_team(p.getName());
+		Team online_team = Teams.get_team(p.getName());
 		if (online_team != null)
 			return online_team;
 
@@ -129,8 +136,8 @@ class PlayerRankedData {
 		this.rp = rs.getInt("rp");
 		if (rank == 0 && rp == 0) {
 			Bukkit.getLogger().warning("initialized ranks for a new player");
-			rank = 3;
-			rp = 300;
+			rank = 2;
+			rp = 100;
 		}
 	}
 
