@@ -137,12 +137,17 @@ public class ShopListener implements Listener {
 
 		// go through the buyHistory and find and LSItem that has the same category but
 		// isn't the same item
+		int count = 0;
 		LSItem hisitem = null;
 		for (int j = s.buyHistory.size() - 1; j >= 0; j--) {
 			LSItem hist_item = s.buyHistory.get(j);
 
+			if(hist_item == null && count == 1){
+				break;
+			}
+
 			if (hist_item == null) {
-				continue;
+				count ++;
 			}
 
 			if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
