@@ -158,6 +158,7 @@ public class ScoreboardController {
 				bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
 			} else {
 				bomb_loc.prefix(Component.text(""));
+				bomb_loc.suffix(Component.text(""));
 			}
 		}
 		for (Player p : t.get_placers()) {
