@@ -150,12 +150,17 @@ public class ScoreboardController {
 	public static void render_bomb_display() {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		FloodgateApi floodgateapi = FloodgateApi.getInstance();
+		Bomb b = Litestrike.getInstance().game_controller.bomb;
 		for (Player p : t.get_breakers()) {
 			Team bomb_loc = p.getScoreboard().getTeam("bomb_loc");
-			bomb_loc.prefix(Component.text(""));
+			if (b != null && b instanceof PlacedBomb) {
+				bomb_loc.prefix(Component.text("Bomb: "));
+				bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
+			} else {
+				bomb_loc.prefix(Component.text(""));
+			}
 		}
 		for (Player p : t.get_placers()) {
-			Bomb b = Litestrike.getInstance().game_controller.bomb;
 			String bomb_loc_string = "error";
 			if (b == null) {
 				bomb_loc_string = "Unknown";
