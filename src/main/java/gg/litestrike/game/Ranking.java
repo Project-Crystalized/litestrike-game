@@ -72,6 +72,28 @@ public class Ranking {
 		}
 	}
 
+	public static int get_total_rp_team(List<String> team) {
+		int total = 0;
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			String query = "SELECT rp FROM LsRanks WHERE player_uuid = ?";
+			PreparedStatement ps = conn.prepareStatement(query);
+			for (String name : team) {
+				UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+
+				ps.setBytes(1, PlayerRankedData.uuid_to_bytes(uuid));
+				ResultSet rs = ps.executeQuery();
+				rs.next();
+				// unranked people will count as 0, that is fine cause they will get a good team
+				// on their first game, so it is a good impression (its also easier to code)
+				total += rs.getInt("rp");
+			}
+		} catch (SQLException e) {
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("didnt load data from database");
+		}
+		return total;
+	}
+
 	private static int get_win_loss_points(boolean did_win, int rank) {
 		if (!did_win) {
 			if (rank == 10) {
@@ -159,12 +181,12 @@ class PlayerRankedData {
 			}
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt write data to database");
+			Bukkit.getLogger().warning("didnt load data from database error");
 		}
 		return player_ranks;
 	}
 
-	private static byte[] uuid_to_bytes(UUID uuid) {
+	public static byte[] uuid_to_bytes(UUID uuid) {
 		ByteBuffer bb = ByteBuffer.allocate(16);
 		bb.putLong(uuid.getMostSignificantBits());
 		bb.putLong(uuid.getLeastSignificantBits());

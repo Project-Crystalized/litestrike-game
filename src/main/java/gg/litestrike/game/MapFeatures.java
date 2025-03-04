@@ -98,7 +98,7 @@ class LaunchPadListener implements Listener {
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			p.setVelocity(p.getLocation().getDirection().multiply(2.2));
+			p.setVelocity(p.getLocation().getDirection().multiply(2));
 			MapFeatures.fall_protected_players.add(p);
 		}
 	}

@@ -280,7 +280,6 @@ public class BombListener implements Listener {
 			Bukkit.getLogger().severe("ERROR: A Breaker planted the bomb!");
 		}
 
-
 		if (is_planting < 0) {
 			last_planting_block = e.getClickedBlock();
 			SoundEffects.start_planting(last_planting_block.getX(), last_planting_block.getY(), last_planting_block.getZ());
@@ -292,9 +291,9 @@ public class BombListener implements Listener {
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
-		if (!e.getClickedBlock().equals(last_planting_block) || !e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable()) {
-			bomb_model.remove();
-			reset();
+		if (!e.getClickedBlock().equals(last_planting_block)
+				|| !e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable()) {
+			is_planting = 0;
 		}
 		planting_face = e.getBlockFace();
 	}
