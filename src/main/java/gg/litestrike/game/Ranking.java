@@ -27,9 +27,7 @@ public class Ranking {
 			boolean did_win = players_team == winner_team;
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
-			int score = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
-
-			point_change += score / 2;
+			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
 			prd.rp += point_change;
 			if (p != null) {
 				p.sendMessage("You have gained or lost " + point_change + " rp.");
@@ -97,22 +95,22 @@ public class Ranking {
 	private static int get_win_loss_points(boolean did_win, int rank) {
 		if (!did_win) {
 			if (rank == 10) {
-				return -8;
+				return -6;
 			} else {
-				return -7;
+				return -5;
 			}
 		} else {
 			switch (rank) {
 				case 1, 2, 3:
-					return 8;
-				case 4, 5:
-					return 7;
-				case 6, 7:
 					return 6;
-				case 8, 9:
+				case 4, 5:
 					return 5;
-				case 10:
+				case 6, 7:
 					return 4;
+				case 8, 9:
+					return 3;
+				case 10:
+					return 2;
 				default:
 					Bukkit.getLogger().severe("ERROR ranking, rank outside bounds?");
 					return 0;
