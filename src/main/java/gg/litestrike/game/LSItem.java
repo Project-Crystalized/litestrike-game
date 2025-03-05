@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -19,6 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.bukkit.inventory.ItemFlag.*;
@@ -38,6 +40,7 @@ public class LSItem {
 	public final Integer modelData;
 	private static short creation_number = 1;
 	public final Short id;
+	public static HashMap<String, LSItem> importantEquip = new HashMap<>();
 
 	public enum ItemCategory {
 		Melee,
@@ -117,6 +120,14 @@ public class LSItem {
 
 		ItemStack arrow = new ItemStack(ARROW, 6);
 		lsItems.add(new LSItem(arrow, 150, null, ItemCategory.Ammunition, 50, null, null));
+
+		ItemStack breakerAmour = new ItemStack(LEATHER_CHESTPLATE);
+		breakerAmour = Shop.colorArmor(Color.fromRGB(0x0f9415), breakerAmour, 1);
+		lsItems.add(new LSItem(breakerAmour, null, null, ItemCategory.Armor, null, null, null));
+
+		ItemStack placerAmour = new ItemStack(LEATHER_CHESTPLATE);
+		placerAmour = Shop.colorArmor(Color.fromRGB(0xe31724), placerAmour, 1);
+		lsItems.add(new LSItem(placerAmour, null, null, ItemCategory.Armor, null, null, null));
 
 		ItemStack defuser = new ItemStack(IRON_PICKAXE);
 		ItemMeta defuser_meta = defuser.getItemMeta();
@@ -282,6 +293,9 @@ public class LSItem {
 
 	// this can handle null being passed in
 	public ItemStack buildDisplayItem(Player p) {
+		if(price == null){
+			return null;
+		}
 		List<Component> lore;
 		if (description == null) {
 			lore = new ArrayList<>();

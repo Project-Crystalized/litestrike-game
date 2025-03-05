@@ -33,7 +33,9 @@ public class Shop implements InventoryHolder {
 	public List<LSItem> shopItems;
 	public Inventory currentView;
 	public Player player;
-	public List<LSItem> buyHistory;
+	public HashMap<LSItem.ItemCategory, LSItem> currentEquip = new HashMap<>();
+	public HashMap<LSItem.ItemCategory, LSItem> previousEquip = new HashMap<>();
+	public HashMap<LSItem, Integer> consAndAmmoCount = new HashMap<>();
 	public List<LSItem> shopLog;
 	public static HashMap<String, Shop> shopList = new HashMap<>();
 
@@ -48,7 +50,6 @@ public class Shop implements InventoryHolder {
 		shopItems = LSItem.createItems();
 		player = p;
 		currentView = Bukkit.getServer().createInventory(this, 54, title(p));
-		buyHistory = new ArrayList<>();
 		shopLog = new ArrayList<>();
 		// TODO make the Shop its own item
 		// TODO i think its fine, no need to make shop its own item
@@ -171,7 +172,7 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	private static ItemStack colorArmor(Color c, ItemStack i, int ench_level) {
+	public static ItemStack colorArmor(Color c, ItemStack i, int ench_level) {
 		LeatherArmorMeta lam = (LeatherArmorMeta) i.getItemMeta();
 		lam.setColor(c);
 		i.setItemMeta(lam);
@@ -246,56 +247,29 @@ public class Shop implements InventoryHolder {
 		s.currentView.close();
 	}
 
-	public static ItemStack getBasicKid(ItemCategory cate, Player p) {
-
+	public void resetEquip(){
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (cate == ItemCategory.Melee) {
-			return new ItemStack(Material.STONE_SWORD);
-		} else if (cate == ItemCategory.Range) {
-			return new ItemStack(Material.BOW);
-		} else if (cate == ItemCategory.Defuser) {
-			return new ItemStack(Material.STONE_PICKAXE);
-		} else if (cate == ItemCategory.Armor) {
-			if (gc.teams.get_team(p.getName()) == Team.Placer) {
-				return Shop.colorArmor(Color.fromRGB(0xe31724), new ItemStack(Material.LEATHER_CHESTPLATE), 1);
-			} else {
-				return Shop.colorArmor(Color.fromRGB(0x0f9415), new ItemStack(Material.LEATHER_CHESTPLATE), 1);
-			}
-		} else if (cate == ItemCategory.Ammunition) {
-			ItemStack arrow = new ItemStack(Material.ARROW, 6);
-			ItemMeta meta = arrow.getItemMeta();
-			meta.itemName(translatable("crystalized.item.arrows.name").color(WHITE).decoration(ITALIC, false));
-			return arrow;
+		previousEquip.clear();
+		currentEquip.clear();
+		currentEquip.put(LSItem.ItemCategory.Melee, shopItems.get(2));
+		currentEquip.put(LSItem.ItemCategory.Range, shopItems.get(4));
+		if(gc.teams.get_team(player) == Team.Placer){
+			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(7));
+		}else{
+			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(6));
+			currentEquip.put(LSItem.ItemCategory.Defuser, shopItems.get(8));
 		}
-		return null;
 	}
 
-	public void removeFromBuyHistory(LSItem item, LSItem lsitem) {
-		ArrayList<Integer> list = new ArrayList<>();
-		for (int i = buyHistory.size() - 1; i >= 0 ; i--) {
-			if (buyHistory.get(i) == null) {
-				continue;
-			}
-			if (buyHistory.get(i) == item) {
-				list.add(i);
-			}
-			if (lsitem != null) {
-				if (buyHistory.get(i) == lsitem) {
-					boolean b = true;
-					for (Integer j : list) {
-						if (j == i) {
-							b = false;
-						}
-					}
-
-					if (b) {
-						list.add(i);
-					}
-				}
-			}
-		}
-		for (Integer i : list) {
-			buyHistory.remove(i.intValue());
-		}
+	public void resetEquipCounters(){
+		consAndAmmoCount.clear();
+		consAndAmmoCount.put(shopItems.get(5), 0);
+		consAndAmmoCount.put(shopItems.get(9), 0);
+		consAndAmmoCount.put(shopItems.get(18), 0);
+		consAndAmmoCount.put(shopItems.get(19), 0);
+		consAndAmmoCount.put(shopItems.get(20), 0);
+		consAndAmmoCount.put(shopItems.get(21), 0);
+		consAndAmmoCount.put(shopItems.get(22), 0);
+		consAndAmmoCount.put(shopItems.get(23), 0);
 	}
 }

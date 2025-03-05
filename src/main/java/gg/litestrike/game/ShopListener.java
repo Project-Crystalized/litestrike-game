@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
@@ -91,6 +92,18 @@ public class ShopListener implements Listener {
 				p.getInventory().clear(cont);
 			}
 
+			if(lsitem.categ != ItemCategory.Ammunition && lsitem.categ != ItemCategory.Consumable){
+				if(s.previousEquip.get(lsitem.categ) != null) {
+					s.previousEquip.replace(lsitem.categ, s.currentEquip.get(lsitem.categ));
+				}else {
+					s.previousEquip.put(lsitem.categ, s.currentEquip.get(lsitem.categ));
+				}
+				s.currentEquip.replace(lsitem.categ, lsitem);
+			} else{
+				int i = s.consAndAmmoCount.get(lsitem);
+				s.consAndAmmoCount.replace(lsitem, i+1);
+			}
+
 			if (lsitem.categ == ItemCategory.Armor) {
 				p.getInventory().setChestplate(lsitem.item);
 			} else {
@@ -99,7 +112,6 @@ public class ShopListener implements Listener {
 			p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 			s.updateTitle(true);
 			s.shopLog.add(lsitem);
-			s.buyHistory.add(lsitem);
 			return;
 		}
 	}
@@ -134,76 +146,36 @@ public class ShopListener implements Listener {
 			return;
 		}
 
-
-		// go through the buyHistory and find and LSItem that has the same category but
-		// isn't the same item
-		int count = 0;
-		LSItem hisitem = null;
-		for (int j = s.buyHistory.size() - 1; j >= 0; j--) {
-			LSItem hist_item = s.buyHistory.get(j);
-
-			if(hist_item == null && count == 1){
-				break;
-			}
-
-			if (hist_item == null) {
-				count ++;
-			}
-
-			if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
-				if (hist_item.categ == lsitem.categ) {
-					hisitem = hist_item;
-					break;
-				}
-			}
-			if (hist_item.categ == lsitem.categ && hist_item.item != lsitem.item) {
-				hisitem = hist_item;
-				break;
-			}
-		}
-
 		if(p.getInventory().getItem(invSlot) == null){
 			return;
 		}
 
-		int amount = p.getInventory().getItem(invSlot).getAmount() - lsitem.item.getAmount();
-		ItemStack stack = null;
+		Inventory inv = p.getInventory();
 
-		if (hisitem == null && Litestrike.getInstance().game_controller.round_number == 1 && lsitem.item.getType() != Material.ARROW) {
-			stack = Shop.getBasicKid(lsitem.categ, p);
-			// if we don't find any buys in the history we give the player the basic kid
-		} else if (hisitem == null) {
-			return;
-		} else if (lsitem.categ == ItemCategory.Consumable || lsitem.categ == ItemCategory.Ammunition) {
-			if (lsitem.item.getType() == Material.ARROW && p.getInventory().getItem(invSlot).getAmount() == 6 && lsitem.modelData == null) {
+		//check what ItemCategory it is and find the item
+		if(lsitem.categ != LSItem.ItemCategory.Consumable && lsitem.categ != LSItem.ItemCategory.Ammunition){
+			if(s.previousEquip.get(lsitem.categ) == null){
 				return;
 			}
-			if (!(amount <= 0)) {
-				stack = new ItemStack(lsitem.item.getType(), amount);
-				ItemMeta stack_meta = stack.getItemMeta();
-				if(lsitem.name != null){
-					stack_meta.displayName(lsitem.name);
-				}
-				if(lsitem.modelData != null){
-					stack_meta.setCustomModelData(lsitem.modelData);
-				}
-				stack.setItemMeta(stack_meta);
+			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
+			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+			s.previousEquip.remove(lsitem.categ);
+		}else {
+			if (s.consAndAmmoCount.get(lsitem) >= 0) {
+				p.sendMessage("consAndAmmoCount is null");
+				return;
 			}
-
-		} else {
-			stack = hisitem.item;
+			inv.clear(invSlot);
+			for (int i = s.consAndAmmoCount.get(lsitem) - 1; i >= 0; i--) {
+				if (i == s.consAndAmmoCount.get(lsitem) - 1) {
+					inv.setItem(invSlot, lsitem.item);
+				}
+				inv.addItem(lsitem.item);
+			}
 		}
-
-		if (stack == null) {
-			p.getInventory().clear(invSlot);
-		} else {
-			p.getInventory().setItem(invSlot, stack);
-		}
-
 		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
 		s.updateTitle(true);
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
-		s.removeFromBuyHistory(hisitem, lsitem);
 
 		for (int i = 0; i < s.shopLog.size(); i++) {
 			if (s.shopLog.get(i) == lsitem) {

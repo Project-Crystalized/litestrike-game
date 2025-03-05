@@ -85,7 +85,9 @@ public class GameController {
 				for (Player player : Bukkit.getOnlinePlayers()) {
 					PlayerData pd = new PlayerData(player);
 					playerDatas.add(pd);
-					new Shop(player);
+					Shop s = new Shop(player);
+					s.resetEquip();
+					s.resetEquipCounters();
 					new TabListController();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
@@ -281,7 +283,6 @@ public class GameController {
 			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
 			s.setItems(s.shopItems);
 			s.setDefuser();
-			s.buyHistory.add(null);
 			s.shopLog.add(null);
 		}
 	}
@@ -297,7 +298,6 @@ public class GameController {
 
 		for(Player p : Bukkit.getOnlinePlayers()){
 			Shop s = Shop.getShop(p);
-			s.buyHistory.clear();
 		}
 
 		World w = Bukkit.getWorld("world");
@@ -405,7 +405,8 @@ public class GameController {
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
 			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
-
+			Shop s = Shop.getShop(p);
+			s.resetEquipCounters();
 			// this is needed because of some weird packet nonsense, to make everyone glow
 			p.setSneaking(true);
 			p.setSneaking(false);
