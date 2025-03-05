@@ -75,6 +75,8 @@ public class BombListener implements Listener {
 					return;
 				}
 
+				// Bukkit.getLogger().severe("is planting: "+is_planting);
+				// Bukkit.getLogger().severe("plant counter: "+planting_counter);
 				if (is_planting > 0) {
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
@@ -279,19 +281,19 @@ public class BombListener implements Listener {
 		}
 
 		if (is_planting < 0) {
-			Block lpb = e.getClickedBlock();
-			SoundEffects.start_planting(lpb.getX(), lpb.getY(), lpb.getZ());
-			bomb_model.spawn_model(lpb.getLocation());
+			last_planting_block = e.getClickedBlock();
+			SoundEffects.start_planting(last_planting_block.getX(), last_planting_block.getY(), last_planting_block.getZ());
+			bomb_model.spawn_model(last_planting_block.getLocation());
 		}
-		is_planting = 7 + ping_compensation_ticks(e.getPlayer());
+		is_planting = 6 + ping_compensation_ticks(e.getPlayer());
 
 		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
-		if (!e.getClickedBlock().equals(last_planting_block)) {
-			reset();
-			last_planting_block = e.getClickedBlock();
+		if (!e.getClickedBlock().equals(last_planting_block)
+				|| !e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable()) {
+			is_planting = 0;
 		}
 		planting_face = e.getBlockFace();
 	}

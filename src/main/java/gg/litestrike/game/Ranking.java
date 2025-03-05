@@ -27,9 +27,7 @@ public class Ranking {
 			boolean did_win = players_team == winner_team;
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
-			int score = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
-
-			point_change += score / 2;
+			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
 			prd.rp += point_change;
 			if (p != null) {
 				p.sendMessage("You have gained or lost " + point_change + " rp.");
@@ -72,25 +70,47 @@ public class Ranking {
 		}
 	}
 
+	public static int get_total_rp_team(List<String> team) {
+		int total = 0;
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			String query = "SELECT rp FROM LsRanks WHERE player_uuid = ?";
+			PreparedStatement ps = conn.prepareStatement(query);
+			for (String name : team) {
+				UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
+
+				ps.setBytes(1, PlayerRankedData.uuid_to_bytes(uuid));
+				ResultSet rs = ps.executeQuery();
+				rs.next();
+				// unranked people will count as 0, that is fine cause they will get a good team
+				// on their first game, so it is a good impression (its also easier to code)
+				total += rs.getInt("rp");
+			}
+		} catch (SQLException e) {
+			Bukkit.getLogger().warning(e.getMessage());
+			Bukkit.getLogger().warning("didnt load data from database");
+		}
+		return total;
+	}
+
 	private static int get_win_loss_points(boolean did_win, int rank) {
 		if (!did_win) {
 			if (rank == 10) {
-				return -8;
+				return -6;
 			} else {
-				return -7;
+				return -5;
 			}
 		} else {
 			switch (rank) {
 				case 1, 2, 3:
-					return 8;
-				case 4, 5:
-					return 7;
-				case 6, 7:
 					return 6;
-				case 8, 9:
+				case 4, 5:
 					return 5;
-				case 10:
+				case 6, 7:
 					return 4;
+				case 8, 9:
+					return 3;
+				case 10:
+					return 2;
 				default:
 					Bukkit.getLogger().severe("ERROR ranking, rank outside bounds?");
 					return 0;
@@ -159,12 +179,12 @@ class PlayerRankedData {
 			}
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt write data to database");
+			Bukkit.getLogger().warning("didnt load data from database error");
 		}
 		return player_ranks;
 	}
 
-	private static byte[] uuid_to_bytes(UUID uuid) {
+	public static byte[] uuid_to_bytes(UUID uuid) {
 		ByteBuffer bb = ByteBuffer.allocate(16);
 		bb.putLong(uuid.getMostSignificantBits());
 		bb.putLong(uuid.getLeastSignificantBits());

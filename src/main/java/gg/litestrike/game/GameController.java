@@ -296,7 +296,7 @@ public class GameController {
 			bomb = null;
 		}
 
-		for(Player p : Bukkit.getOnlinePlayers()){
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop s = Shop.getShop(p);
 		}
 

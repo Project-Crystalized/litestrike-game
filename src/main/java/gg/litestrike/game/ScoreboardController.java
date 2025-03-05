@@ -51,7 +51,7 @@ public class ScoreboardController {
 			breakers.addPlayer(player);
 		}
 
-		//Bedrock scoreboard
+		// Bedrock scoreboard
 		if (floodgateapi.isFloodgatePlayer(p.getUniqueId())) {
 			new BedrockScoreboard(p, t, teams, game_id);
 			return;
@@ -150,12 +150,18 @@ public class ScoreboardController {
 	public static void render_bomb_display() {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		FloodgateApi floodgateapi = FloodgateApi.getInstance();
+		Bomb b = Litestrike.getInstance().game_controller.bomb;
 		for (Player p : t.get_breakers()) {
 			Team bomb_loc = p.getScoreboard().getTeam("bomb_loc");
-			bomb_loc.prefix(Component.text(""));
+			if (b != null && b instanceof PlacedBomb) {
+				bomb_loc.prefix(Component.text("Bomb: "));
+				bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
+			} else {
+				bomb_loc.prefix(Component.text(""));
+				bomb_loc.suffix(Component.text(""));
+			}
 		}
 		for (Player p : t.get_placers()) {
-			Bomb b = Litestrike.getInstance().game_controller.bomb;
 			String bomb_loc_string = "error";
 			if (b == null) {
 				bomb_loc_string = "Unknown";
@@ -250,7 +256,7 @@ public class ScoreboardController {
 
 }
 
-class BedrockScoreboard{
+class BedrockScoreboard {
 	public BedrockScoreboard(Player p, gg.litestrike.game.Team t, Teams teams, int game_id) {
 		Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
 
@@ -278,13 +284,14 @@ class BedrockScoreboard{
 		obj.getScore("8").customName(text("    "));
 
 		obj.getScore("7").setScore(7);
-		obj.getScore("7").customName(Component.translatable("crystalized.game.litestrike.objective").color(TextColor.color(0xe64cce)));
+		obj.getScore("7")
+				.customName(Component.translatable("crystalized.game.litestrike.objective").color(TextColor.color(0xe64cce)));
 
 		obj.getScore("6").setScore(6);
-		obj.getScore("6").customName(text("\uE105\uE105\uE105\uE105\uE107 (0) ")); //placers wins
+		obj.getScore("6").customName(text("\uE105\uE105\uE105\uE105\uE107 (0) ")); // placers wins
 
 		obj.getScore("5").setScore(5);
-		obj.getScore("5").customName(text("\uE105\uE105\uE105\uE105\uE107 (0)")); //breakers wins
+		obj.getScore("5").customName(text("\uE105\uE105\uE105\uE105\uE107 (0)")); // breakers wins
 
 		obj.getScore("4").setScore(4);
 		obj.getScore("4").customName(text(" "));
@@ -304,7 +311,8 @@ class BedrockScoreboard{
 
 		p.setScoreboard(sb);
 
-		//Couldn't get it to work in the individual methods for updating the scoreboard, so BukkitRunnable instead
+		// Couldn't get it to work in the individual methods for updating the
+		// scoreboard, so BukkitRunnable instead
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -327,14 +335,14 @@ class BedrockScoreboard{
 				obj.getScore("9").customName(Component.translatable("crystalized.game.generic.money")
 						.append(text(": "))
 						.append(text(pd.getMoney()).color(TextColor.color(0x0ab1c4)))
-						.append(text("\uE104"))
-				);
+						.append(text("\uE104")));
 
 				if (t == gg.litestrike.game.Team.Breaker) {
 					obj.getScore("6").customName(text("  ").append(text(render_win_display(placer_wins_amt))).append(text(" ")));
 					obj.getScore("5").customName(text("\uE109 ").append(text(render_win_display(breaker_wins_amt))));
 				} else {
-					obj.getScore("6").customName(text("\uE109 ").append(text(render_win_display(placer_wins_amt))).append(text(" ")));
+					obj.getScore("6")
+							.customName(text("\uE109 ").append(text(render_win_display(placer_wins_amt))).append(text(" ")));
 					obj.getScore("5").customName(text("  ").append(text(render_win_display(breaker_wins_amt))));
 				}
 			}
