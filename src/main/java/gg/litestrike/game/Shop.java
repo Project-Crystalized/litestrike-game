@@ -26,6 +26,7 @@ import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
+import static org.bukkit.Material.EMERALD;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.enchantments.Enchantment.*;
 
@@ -104,7 +105,7 @@ public class Shop implements InventoryHolder {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop s = getShop(p);
 			s.updateTitle(false);
-			ItemStack shop = new ItemStack(Material.EMERALD, 1);
+			ItemStack shop = new ItemStack(EMERALD, 1);
 			ItemMeta meta = shop.getItemMeta();
 			meta.displayName(Component.text("Shop").color(WHITE).decoration(ITALIC, false));
 			List<TextComponent> list = new ArrayList<>();
@@ -141,6 +142,7 @@ public class Shop implements InventoryHolder {
 
 		Team player_team = gc.teams.get_team(p);
 		inv.clear();
+		p.setItemOnCursor(null);
 		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		inv.setItem(1, new ItemStack(Material.BOW));
 		arrows_item.setAmount(6);
@@ -240,11 +242,14 @@ public class Shop implements InventoryHolder {
 			if (inv.getItem(i) == null) {
 				continue;
 			}
-			if (inv.getItem(i).getType() == Material.EMERALD) {
+			if (inv.getItem(i).getType() == EMERALD) {
 				inv.clear(i);
 			}
 		}
 		s.currentView.close();
+		if(p.getItemOnCursor().getType() == EMERALD){
+			p.setItemOnCursor(null);
+		}
 	}
 
 	public void resetEquip(){
