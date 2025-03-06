@@ -204,13 +204,12 @@ public class PlayerListener implements Listener {
 			return;
 
 		if (event.getEntity().getType() == EntityType.SPECTRAL_ARROW) {
-			for (LivingEntity e : loc.getNearbyLivingEntities(3)) {
+			for (LivingEntity e : loc.getNearbyPlayers(3)) {
 				if (gc.teams.get_team((Player) e) == gc.teams.get_team((Player) shooter)) {
 					e.removePotionEffect(PotionEffectType.GLOWING);
 				}
 			}
 		}
-
 	}
 
 	@EventHandler

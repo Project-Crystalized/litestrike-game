@@ -29,29 +29,32 @@ public class Teams {
 
 	private List<String> generate_fair_teams() {
 		List<String> best_team = Litestrike.getInstance().party_manager.generate_teams();
-		int best_diff_score = get_diff_score(best_team);
+		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
 
-		for (int i = 0; i < 3; i++) {
-			List<String> new_team = Litestrike.getInstance().party_manager.generate_teams();
-			int new_diff_score = get_diff_score(new_team);
+		if (Litestrike.getInstance().mapdata.ranked) {
+			int best_diff_score = get_diff_score(best_team, player_ranks);
+			for (int i = 0; i < 3; i++) {
+				List<String> new_team = Litestrike.getInstance().party_manager.generate_teams();
+				int new_diff_score = get_diff_score(new_team, player_ranks);
 
-			if (new_diff_score < best_diff_score) {
-				best_team = new_team;
-				best_diff_score = new_diff_score;
+				if (new_diff_score < best_diff_score) {
+					best_team = new_team;
+					best_diff_score = new_diff_score;
+				}
 			}
 		}
-		
+
 		return best_team;
 	}
 
 	// get the difference in rp between the two teams
-	private int get_diff_score(List<String> teams) {
+	private int get_diff_score(List<String> teams, List<PlayerRankedData> player_ranks) {
 		int middle = teams.size() / 2;
 
 		List<String> tmp_breakers = teams.subList(0, middle);
 		List<String> tmp_placers = teams.subList(middle, teams.size());
-		int breaker_score = Ranking.get_total_rp_team(tmp_breakers);
-		int placer_score = Ranking.get_total_rp_team(tmp_placers);
+		int breaker_score = Ranking.get_total_rp_team(tmp_breakers, player_ranks);
+		int placer_score = Ranking.get_total_rp_team(tmp_placers, player_ranks);
 
 		return Math.abs(breaker_score - placer_score);
 	}

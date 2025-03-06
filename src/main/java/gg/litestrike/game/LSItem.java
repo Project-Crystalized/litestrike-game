@@ -1,6 +1,5 @@
 package gg.litestrike.game;
 
-import io.papermc.paper.datacomponent.item.UseCooldown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -14,7 +13,6 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.components.UseCooldownComponent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -213,7 +211,8 @@ public class LSItem {
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
 		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 44, translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
+		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 44,
+				translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
 
 		ItemStack speed2pot = new ItemStack(POTION);
 		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
@@ -232,13 +231,12 @@ public class LSItem {
 				new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
 
 		ItemStack respot = new ItemStack(POTION);
-		PotionMeta respotMeta = (PotionMeta) speed1pot.getItemMeta();
+		PotionMeta respotMeta = (PotionMeta) respot.getItemMeta();
 		respotMeta.addCustomEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0, true, true, true), true);
 		respotMeta.displayName(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false));
 		respot.setItemMeta(respotMeta);
 		lsItems.add(
 				new LSItem(respot, 750, null, ItemCategory.Consumable, 45, Component.text("Potion of Resistance"), null));
-
 
 		ItemStack spectralArrow = new ItemStack(SPECTRAL_ARROW, 3);
 		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));
@@ -273,7 +271,8 @@ public class LSItem {
 		underDog_lore.add(Component.text("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
 		underDog_meta.lore(underDog_lore);
 		underDog.setItemMeta(underDog_meta);
-		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36, Component.text("Underdog Sword").decoration(ITALIC, false), 3));
+		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36,
+				Component.text("Underdog Sword").decoration(ITALIC, false), 3));
 
 		creation_number = 1; // reset id
 
@@ -327,13 +326,13 @@ public class LSItem {
 		return null;
 	}
 
-	public static void underDogSword(Player p, int i){
+	public static void underDogSword(Player p, int i) {
 		ItemStack item = p.getInventory().getItem(i);
-		if(item == null){
+		if (item == null) {
 			return;
 		}
 		ItemMeta meta = item.getItemMeta();
-		meta.setCustomModelData(meta.getCustomModelData()+1);
+		meta.setCustomModelData(meta.getCustomModelData() + 1);
 		item.setItemMeta(meta);
 		p.getInventory().setItem(i, item);
 	}

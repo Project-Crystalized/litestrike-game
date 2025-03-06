@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -70,24 +71,23 @@ public class Ranking {
 		}
 	}
 
-	public static int get_total_rp_team(List<String> team) {
+	public static int get_total_rp_team(List<String> team, List<PlayerRankedData> player_ranks) {
 		int total = 0;
-		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
-			String query = "SELECT rp FROM LsRanks WHERE player_uuid = ?";
-			PreparedStatement ps = conn.prepareStatement(query);
-			for (String name : team) {
-				UUID uuid = Bukkit.getOfflinePlayer(name).getUniqueId();
 
-				ps.setBytes(1, PlayerRankedData.uuid_to_bytes(uuid));
-				ResultSet rs = ps.executeQuery();
-				rs.next();
-				// unranked people will count as 0, that is fine cause they will get a good team
-				// on their first game, so it is a good impression (its also easier to code)
-				total += rs.getInt("rp");
+		for (PlayerRankedData prd : player_ranks) {
+			if (prd.rp < 0) { // negative numbers mess up the calculation
+				total += prd.rp;
+				continue;
 			}
-		} catch (SQLException e) {
-			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt load data from database");
+
+			int win_loss = prd.recent_wins - prd.recent_losses;
+			if (win_loss > 0) {
+				total += prd.rp * Math.pow(1.12, win_loss);
+			} else if (win_loss < 0) {
+				total += prd.rp * Math.pow(0.88, -win_loss);
+			} else {
+				total += prd.rp;
+			}
 		}
 		return total;
 	}
@@ -95,22 +95,22 @@ public class Ranking {
 	private static int get_win_loss_points(boolean did_win, int rank) {
 		if (!did_win) {
 			if (rank == 10) {
-				return -6;
+				return -7;
 			} else {
-				return -5;
+				return -6;
 			}
 		} else {
 			switch (rank) {
 				case 1, 2, 3:
-					return 6;
+					return 7;
 				case 4, 5:
-					return 5;
+					return 6;
 				case 6, 7:
-					return 4;
+					return 5;
 				case 8, 9:
-					return 3;
+					return 4;
 				case 10:
-					return 2;
+					return 3;
 				default:
 					Bukkit.getLogger().severe("ERROR ranking, rank outside bounds?");
 					return 0;
@@ -148,8 +148,10 @@ class PlayerRankedData {
 	public int rank;
 	public int rp;
 	public UUID uuid;
+	public int recent_wins = 0;
+	public int recent_losses = 0;
 
-	private PlayerRankedData(ResultSet rs, UUID uuid) throws SQLException {
+	private PlayerRankedData(ResultSet rs, ResultSet rs_last_games, UUID uuid) throws SQLException {
 		this.uuid = uuid;
 		rs.next();
 		this.rank = rs.getInt("rank");
@@ -159,23 +161,48 @@ class PlayerRankedData {
 			rank = 2;
 			rp = 100;
 		}
+
+		while (rs_last_games.next()) {
+			if (rs_last_games.getInt("was_winner") == 1) {
+				recent_wins += 1;
+			} else if (rs_last_games.getInt("was_winner") == 0){
+				recent_losses += 1;
+			} else {
+				Bukkit.getLogger().severe("super weird error?!?");
+			}
+		}
 	}
 
 	public static List<PlayerRankedData> load_player_data() {
 		List<PlayerRankedData> player_ranks = new ArrayList<>();
 		GameController gc = Litestrike.getInstance().game_controller;
+		List<String> player_names = new ArrayList<>();
+		if (gc == null) {
+			// this is called at the beginning before gamecontroller is created, to make teams
+			player_names = Bukkit.getOnlinePlayers().stream().map(player -> player.getName()).collect(Collectors.toList());
+		} else {
+			// this is used at the end, to write data back to database
+			player_names.addAll(gc.teams.get_initial_breakers());
+			player_names.addAll(gc.teams.get_initial_placers());
+		}
 
-		List<String> player_names = new ArrayList<>(gc.teams.get_initial_breakers());
-		player_names.addAll(gc.teams.get_initial_placers());
 		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
-			for (String placer_name : player_names) {
-				UUID uuid = Bukkit.getOfflinePlayer(placer_name).getUniqueId();
-				String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
+			String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
+			String query_last_games = "SELECT was_winner "
+			+ "FROM LsGamesPlayers lgp INNER JOIN LitestrikeGames lsg ON lgp.game = lsg.game_id "
+			+ "WHERE player_uuid = ? "
+			+ "ORDER BY timestamp DESC "
+			+ "LIMIT 10;";
+			PreparedStatement ps = conn.prepareStatement(query);
+			PreparedStatement ps_last_games = conn.prepareStatement(query_last_games);
+			for (String player_name : player_names) {
+				UUID uuid = Bukkit.getOfflinePlayer(player_name).getUniqueId();
 
-				PreparedStatement ps = conn.prepareStatement(query);
 				ps.setBytes(1, uuid_to_bytes(uuid));
+				ps_last_games.setBytes(1, uuid_to_bytes(uuid));
 				ResultSet rs = ps.executeQuery();
-				player_ranks.add(new PlayerRankedData(rs, uuid));
+				ResultSet rs_last_games = ps_last_games.executeQuery();
+				player_ranks.add(new PlayerRankedData(rs, rs_last_games, uuid));
 			}
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
