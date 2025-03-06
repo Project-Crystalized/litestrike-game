@@ -407,6 +407,7 @@ public class GameController {
 			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
 			Shop s = Shop.getShop(p);
 			s.resetEquipCounters();
+			s.previousEquip.clear();
 			// this is needed because of some weird packet nonsense, to make everyone glow
 			p.setSneaking(true);
 			p.setSneaking(false);

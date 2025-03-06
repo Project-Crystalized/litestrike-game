@@ -286,6 +286,9 @@ public class LSItem {
 		underDog.setItemMeta(underDog_meta);
 		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36, Component.text("Underdog Sword").decoration(ITALIC, false), 3));
 
+		ItemStack stonePick = new ItemStack(STONE_PICKAXE);
+		lsItems.add(new LSItem(stonePick, null, null, ItemCategory.Defuser, null, null, null));
+
 		creation_number = 1; // reset id
 
 		return lsItems;

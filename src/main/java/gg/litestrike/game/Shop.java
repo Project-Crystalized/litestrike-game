@@ -74,7 +74,7 @@ public class Shop implements InventoryHolder {
 
 	public void setDefuser() {
 		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Breaker) {
-			currentView.setItem(DEFUSER_SLOT, shopItems.get(6).buildDisplayItem(player));
+			currentView.setItem(DEFUSER_SLOT, shopItems.get(8).buildDisplayItem(player));
 		}
 	}
 
@@ -257,19 +257,16 @@ public class Shop implements InventoryHolder {
 			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(7));
 		}else{
 			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(6));
-			currentEquip.put(LSItem.ItemCategory.Defuser, shopItems.get(8));
+			currentEquip.put(LSItem.ItemCategory.Defuser, shopItems.get(25));
 		}
 	}
 
 	public void resetEquipCounters(){
-		consAndAmmoCount.clear();
-		consAndAmmoCount.put(shopItems.get(5), 0);
-		consAndAmmoCount.put(shopItems.get(9), 0);
-		consAndAmmoCount.put(shopItems.get(18), 0);
-		consAndAmmoCount.put(shopItems.get(19), 0);
-		consAndAmmoCount.put(shopItems.get(20), 0);
-		consAndAmmoCount.put(shopItems.get(21), 0);
-		consAndAmmoCount.put(shopItems.get(22), 0);
-		consAndAmmoCount.put(shopItems.get(23), 0);
+	consAndAmmoCount.clear();
+	for(LSItem item : shopItems){
+		if(item.categ == LSItem.ItemCategory.Ammunition || item.categ == LSItem.ItemCategory.Consumable){
+			consAndAmmoCount.put(item, 0);
+		}
+	}
 	}
 }

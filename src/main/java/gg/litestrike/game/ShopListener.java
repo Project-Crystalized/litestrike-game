@@ -101,7 +101,8 @@ public class ShopListener implements Listener {
 				s.currentEquip.replace(lsitem.categ, lsitem);
 			} else{
 				int i = s.consAndAmmoCount.get(lsitem);
-				s.consAndAmmoCount.replace(lsitem, i+1);
+				s.consAndAmmoCount.remove(lsitem);
+				s.consAndAmmoCount.put(lsitem, i+1);
 			}
 
 			if (lsitem.categ == ItemCategory.Armor) {
@@ -119,7 +120,6 @@ public class ShopListener implements Listener {
 	public void undoBuy(ItemStack item, Player p, int slot) {
 		Shop s = Shop.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
-		ItemStack ite = null;
 		LSItem lsitem = null;
 
 		for (LSItem lsi : s.shopItems) {
@@ -161,16 +161,21 @@ public class ShopListener implements Listener {
 			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
 			s.previousEquip.remove(lsitem.categ);
 		}else {
-			if (s.consAndAmmoCount.get(lsitem) >= 0) {
-				p.sendMessage("consAndAmmoCount is null");
+			if (s.consAndAmmoCount.get(lsitem) <= 0) {
 				return;
 			}
+			int count = s.consAndAmmoCount.get(lsitem) - 1;
+			s.consAndAmmoCount.remove(lsitem);
+			s.consAndAmmoCount.put(lsitem, count);
 			inv.clear(invSlot);
-			for (int i = s.consAndAmmoCount.get(lsitem) - 1; i >= 0; i--) {
-				if (i == s.consAndAmmoCount.get(lsitem) - 1) {
-					inv.setItem(invSlot, lsitem.item);
+			if(count != 0) {
+				for (int i = count; i >= 0; i--) {
+					if (i == count) {
+						inv.setItem(invSlot, lsitem.item);
+					} else {
+						inv.addItem(lsitem.item);
+					}
 				}
-				inv.addItem(lsitem.item);
 			}
 		}
 		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
