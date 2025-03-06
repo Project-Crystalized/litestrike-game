@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -151,14 +152,14 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
+		if (gc == null || gc.round_state != RoundState.Running) {
 			e.setCancelled(true);
 			return;
 		}
 
-		if (gc.round_state != RoundState.Running) {
-			e.setCancelled(true);
-			return;
+		// reduce explosion damage
+		if (e.getCause() == DamageCause.ENTITY_EXPLOSION) {
+			e.setDamage(e.getDamage() / 2);
 		}
 
 		if (e.getEntity() instanceof Hanging) {
