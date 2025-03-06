@@ -51,7 +51,7 @@ public class DeathHandler implements Listener {
 		gc.getPlayerData(p).deaths += 1;
 		if (killer != null) {
 			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).addMoney(500,
+			gc.getPlayerData(killer).addMoney(400,
 					translatable("crystalized.game.litestrike.money.kill")
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(killer))));

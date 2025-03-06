@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,7 +25,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
 public class MapFeatures implements Listener {
-	public static Set<Player> fall_protected_players = new HashSet<>();
+	private static Set<Player> fall_protected_players = new HashSet<>();
 
 	protected static Material launch_pad_block;
 	protected static Material levi_pad_block;
@@ -86,6 +88,25 @@ public class MapFeatures implements Listener {
 			fall_protected_players.removeIf(pl -> !pl.isConnected());
 		}
 	}
+
+	public static void fall_protect_player(Player p, int time) {
+		fall_protected_players.add(p);
+		new BukkitRunnable() {
+			int i = 0;
+
+			@Override
+			public void run() {
+				i++;
+				if (i > time) {
+					fall_protected_players.remove(p);
+					cancel();
+				}
+				if (p.isOnGround()) {
+					i = Math.max(time - 1, i);
+				}
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 5, 1);
+	}
 }
 
 class LaunchPadListener implements Listener {
@@ -99,7 +120,7 @@ class LaunchPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
-			MapFeatures.fall_protected_players.add(p);
+			MapFeatures.fall_protect_player(p, (20 * 3));
 		}
 	}
 
@@ -115,7 +136,7 @@ class LeviPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.levi_pad_block && !(p.hasPotionEffect(PotionEffectType.LEVITATION))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, (55), 2));
-			MapFeatures.fall_protected_players.add(p);
+			MapFeatures.fall_protect_player(p, (20 * 4));
 		}
 	}
 }
@@ -130,7 +151,7 @@ class JumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protected_players.add(p);
+			MapFeatures.fall_protect_player(p, (20 * 4));
 		}
 	}
 }

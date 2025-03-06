@@ -94,7 +94,7 @@ public class PlayerData {
 		Team team = Teams.get_team(player);
 		int team_breaks = Teams.get_team_breaks(team);
 		int team_plants = Teams.get_team_plants(team);
-		return (kills / 2) + (kills / 5) + (assists / 4) + (assists / 5) + ((team_breaks + team_plants) / 2);
+		return (int) Math.ceil((kills * 0.6) + (assists * 0.28) + ((team_breaks + team_plants) * 0.45));
 	}
 
 	public int getTotalMoneyGained() {
