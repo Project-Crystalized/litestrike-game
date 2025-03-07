@@ -4,24 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.title.Title;
-
-import static net.kyori.adventure.text.Component.text;
 
 enum Team {
 	Placer,
@@ -35,11 +25,6 @@ public final class Litestrike extends JavaPlugin {
 	public GameController game_controller;
 
 	public BossBarDisplay bbd;
-
-	// this is set by the /force_start command
-	public boolean is_force_starting = false;
-
-	public QueueScoreboard qsb;
 
 	public ProtocolManager protocolManager;
 
@@ -63,8 +48,6 @@ public final class Litestrike extends JavaPlugin {
 	public void onEnable() {
 		protocolManager = ProtocolLibrary.getProtocolManager();
 
-		qsb = new QueueScoreboard();
-
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
@@ -85,61 +68,9 @@ public final class Litestrike extends JavaPlugin {
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", party_manager);
+		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", new QueueSystem());
 
 		bbd = new BossBarDisplay();
-
-		new BukkitRunnable() {
-			int countdown = 11;
-
-			@Override
-			public void run() {
-
-				// if there is already a game going on, do nothing
-				if (game_controller != null) {
-					return;
-				}
-
-				qsb.update_player_count();
-
-				// if more then 6 players online, count down, else reset countdown
-				int online_players = Bukkit.getOnlinePlayers().size();
-				if ((online_players >= PLAYERS_TO_START && online_players % 2 == 0) || is_force_starting) {
-					if (online_players >= PLAYER_CAP) {
-						is_force_starting = true;
-					}
-					countdown -= 1;
-					count_down_animation(countdown);
-				} else {
-					if (countdown != 11 && online_players % 2 == 0) {
-						Audience.audience(Bukkit.getOnlinePlayers())
-								.sendMessage(text("Stopped Queue, cause uneven number of players.").color(Litestrike.YELLOW));
-					}
-					countdown = 11;
-					return;
-				}
-
-				// if countdown reaches zero, we start the game
-				if (countdown == 0 || is_force_starting) {
-					countdown = 11;
-					game_controller = new GameController();
-					is_force_starting = false;
-					Bukkit.getLogger().info("A GAME is starting!");
-					SoundEffects.game_start();
-
-					// signals that the game has started to the proxy
-					ByteArrayDataOutput out = ByteStreams.newDataOutput();
-					out.writeUTF("start_game");
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						out.writeUTF(p.getName());
-					}
-					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
-					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());
-					party_manager.clear_partys();
-
-					return;
-				}
-			}
-		}.runTaskTimer(this, 1, 20);
 
 		LsDatabase.setup_databases();
 
@@ -170,40 +101,4 @@ public final class Litestrike extends JavaPlugin {
 	public static Litestrike getInstance() {
 		return getPlugin(Litestrike.class);
 	}
-
-	// plays every second while the game is counting down to start
-	private void count_down_animation(int i) {
-		Audience players = Audience.audience(Bukkit.getOnlinePlayers());
-		switch (i) {
-			case 0:
-				players.playSound(SoundEffects.start_game_sound());
-				break;
-			case 3:
-				players.showTitle(Title.title(text("Starting in:").color(NamedTextColor.GREEN),
-						text("3").color(NamedTextColor.RED)
-								.append(Component.text(" 2 1").color(NamedTextColor.GRAY))));
-				SoundEffects.countdown_beep();
-				break;
-			case 2:
-				players.showTitle(Title.title(text("Starting in:").color(NamedTextColor.GREEN),
-						text("3").color(NamedTextColor.GRAY)
-								.append(Component.text(" 2").color(NamedTextColor.RED))
-								.append(Component.text(" 1").color(NamedTextColor.GRAY))));
-				SoundEffects.countdown_beep();
-				break;
-			case 1:
-				players.showTitle(
-						Title.title(text("Starting in:").color(NamedTextColor.GREEN), text("3 2 ").color(NamedTextColor.GRAY)
-								.append(Component.text("1").color(NamedTextColor.RED))));
-				SoundEffects.countdown_beep();
-				break;
-			case 10:
-			case 5:
-				players.sendMessage(
-						(Component.translatable("crystalized.game.litestrike.start1")
-								.append(Component.text("" + i))
-								.append(Component.translatable("crystalized.game.litestrike.start2")))
-								.color(Litestrike.YELLOW));
-		}
-	};
 }

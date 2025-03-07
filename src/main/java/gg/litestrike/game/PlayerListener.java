@@ -6,7 +6,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -43,6 +42,9 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
 		GameController gc = Litestrike.getInstance().game_controller;
+		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
+			event.disallow(PlayerLoginEvent.Result.KICK_FULL, text("The server is full.\n"));
+		}
 		if (gc == null) {
 			return;
 		}
@@ -80,7 +82,7 @@ public class PlayerListener implements Listener {
 
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
-			Litestrike.getInstance().qsb.show_queue_scoreboard(p);
+			QueueSystem.qsb.show_queue_scoreboard(p);
 
 		} else {
 			// if we are here, it means the player is rejoining

@@ -42,7 +42,8 @@ public class QueueScoreboard {
 		obj.getScore("3").customName(text("You are Playing on the Map:"));
 
 		obj.getScore("2").setScore(2);
-		obj.getScore("2").customName(text("" + Litestrike.getInstance().mapdata.map_name).color(NamedTextColor.DARK_PURPLE));
+		obj.getScore("2")
+				.customName(text("" + Litestrike.getInstance().mapdata.map_name).color(NamedTextColor.DARK_PURPLE));
 
 		obj.getScore("1").setScore(1);
 		obj.getScore("1").customName(text(""));
@@ -64,6 +65,6 @@ public class QueueScoreboard {
 	}
 
 	public void update_player_count() {
-		sb.getTeam("player_count").prefix(text("" + Bukkit.getOnlinePlayers().size()));
+		sb.getTeam("player_count").prefix(text("" + QueueSystem.people_in_que()));
 	}
 }

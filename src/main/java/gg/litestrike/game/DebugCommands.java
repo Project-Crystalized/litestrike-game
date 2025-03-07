@@ -58,7 +58,7 @@ public class DebugCommands implements CommandExecutor {
 	}
 
 	private boolean run_force_start(String[] args, CommandSender commandSender) {
-		Litestrike.getInstance().is_force_starting = true;
+		QueueSystem.is_force_starting = true;
 		Bukkit.getServer().sendMessage(Component.text("Force starting the GAME!!!"));
 		return true;
 	}
