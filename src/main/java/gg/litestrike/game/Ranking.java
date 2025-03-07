@@ -23,6 +23,10 @@ public class Ranking {
 		for (PlayerRankedData prd : player_ranks) {
 			Team players_team = get_current_team(prd.uuid);
 			Player p = Bukkit.getPlayer(prd.uuid);
+			if (p == null) {
+				Bukkit.getLogger().info("a player was offline, and therefore lost rp");
+				prd.rp -= 5;
+			}
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
 
 			boolean did_win = players_team == winner_team;
@@ -80,14 +84,14 @@ public class Ranking {
 				continue;
 			}
 
-			int win_loss = prd.recent_wins - prd.recent_losses;
-			if (win_loss > 0) {
-				total += prd.rp * Math.pow(1.12, win_loss);
-			} else if (win_loss < 0) {
-				total += prd.rp * Math.pow(0.88, -win_loss);
-			} else {
-				total += prd.rp;
-			}
+			// int win_loss = prd.recent_wins - prd.recent_losses;
+			// if (win_loss > 0) {
+			// total += prd.rp * Math.pow(1.12, win_loss);
+			// } else if (win_loss < 0) {
+			// total += prd.rp * Math.pow(0.88, -win_loss);
+			// } else {
+			// total += prd.rp;
+			// }
 		}
 		return total;
 	}
@@ -165,7 +169,7 @@ class PlayerRankedData {
 		while (rs_last_games.next()) {
 			if (rs_last_games.getInt("was_winner") == 1) {
 				recent_wins += 1;
-			} else if (rs_last_games.getInt("was_winner") == 0){
+			} else if (rs_last_games.getInt("was_winner") == 0) {
 				recent_losses += 1;
 			} else {
 				Bukkit.getLogger().severe("super weird error?!?");
@@ -178,7 +182,8 @@ class PlayerRankedData {
 		GameController gc = Litestrike.getInstance().game_controller;
 		List<String> player_names = new ArrayList<>();
 		if (gc == null) {
-			// this is called at the beginning before gamecontroller is created, to make teams
+			// this is called at the beginning before gamecontroller is created, to make
+			// teams
 			player_names = Bukkit.getOnlinePlayers().stream().map(player -> player.getName()).collect(Collectors.toList());
 		} else {
 			// this is used at the end, to write data back to database
@@ -189,10 +194,10 @@ class PlayerRankedData {
 		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
 			String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
 			String query_last_games = "SELECT was_winner "
-			+ "FROM LsGamesPlayers lgp INNER JOIN LitestrikeGames lsg ON lgp.game = lsg.game_id "
-			+ "WHERE player_uuid = ? "
-			+ "ORDER BY timestamp DESC "
-			+ "LIMIT 10;";
+					+ "FROM LsGamesPlayers lgp INNER JOIN LitestrikeGames lsg ON lgp.game = lsg.game_id "
+					+ "WHERE player_uuid = ? "
+					+ "ORDER BY timestamp DESC "
+					+ "LIMIT 10;";
 			PreparedStatement ps = conn.prepareStatement(query);
 			PreparedStatement ps_last_games = conn.prepareStatement(query_last_games);
 			for (String player_name : player_names) {

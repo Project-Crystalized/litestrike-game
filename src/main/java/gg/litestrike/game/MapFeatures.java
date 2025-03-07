@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -82,7 +81,7 @@ public class MapFeatures implements Listener {
 
 	@EventHandler
 	public void onPlayerDamage(EntityDamageEvent e) {
-		if (fall_protected_players.contains(e.getEntity()) && e.getCause() == DamageCause.FALL) {
+		if (e.getCause() == DamageCause.FALL && fall_protected_players.contains(e.getEntity())) {
 			e.setCancelled(true);
 			fall_protected_players.remove(e.getEntity());
 			fall_protected_players.removeIf(pl -> !pl.isConnected());
@@ -101,9 +100,6 @@ public class MapFeatures implements Listener {
 					fall_protected_players.remove(p);
 					cancel();
 				}
-				if (p.isOnGround() && time > 20) {
-					i = Math.max(time - 5, i);
-				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 5, 1);
 	}
@@ -120,10 +116,9 @@ class LaunchPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
-			MapFeatures.fall_protect_player(p, (20 * 4));
+			MapFeatures.fall_protect_player(p, (20 * 5));
 		}
 	}
-
 }
 
 class LeviPadListener implements Listener {
@@ -136,7 +131,7 @@ class LeviPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.levi_pad_block && !(p.hasPotionEffect(PotionEffectType.LEVITATION))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, (55), 2));
-			MapFeatures.fall_protect_player(p, (20 * 5));
+			MapFeatures.fall_protect_player(p, (20 * 6));
 		}
 	}
 }
