@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import net.kyori.adventure.audience.Audience;
@@ -92,16 +93,16 @@ public class DeathHandler implements Listener {
 	}
 
 	@EventHandler
-	public void onEntityDamage(EntityDamageByEntityEvent e) {
+	public void onEntityDamage(EntityDamageEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null) {
 			e.setCancelled(true);
 			return;
 		}
-		if (!(e.getEntity() instanceof Player) || !(e.getDamager() instanceof Player)) {
+		if (!(e.getEntity() instanceof Player) || !(e.getDamageSource().getCausingEntity() instanceof Player)) {
 			return;
 		}
-		Player damager = (Player) e.getDamager();
+		Player damager = (Player) e.getDamageSource().getCausingEntity();
 		Player damage_receiver = (Player) e.getEntity();
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);

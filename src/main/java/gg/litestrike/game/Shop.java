@@ -7,6 +7,7 @@ import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -112,7 +113,11 @@ public class Shop implements InventoryHolder {
 			list.add(Component.text("right click").color(GRAY).decoration(ITALIC, false));
 			meta.lore(list);
 			shop.setItemMeta(meta);
-			p.getInventory().addItem(shop);
+			if (p.getInventory().getItem(8) == null || p.getInventory().getItem(8).isEmpty()) {
+				p.getInventory().setItem(8, shop);
+			} else {
+				p.getInventory().addItem(shop);
+			}
 		}
 	}
 

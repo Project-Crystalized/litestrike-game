@@ -261,7 +261,7 @@ public class GameController {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
 			if (teams.get_team(p) == winner) {
-				pd.addMoney(800, translatable("crystalized.game.litestrike.money.win_round"));
+				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));

@@ -159,7 +159,7 @@ public class PlayerListener implements Listener {
 
 		// reduce explosion damage
 		if (e.getCause() == DamageCause.ENTITY_EXPLOSION) {
-			e.setDamage(e.getDamage() / 2);
+			e.setDamage(e.getDamage() / 3);
 		}
 
 		if (e.getEntity() instanceof Hanging) {
@@ -167,12 +167,11 @@ public class PlayerListener implements Listener {
 			return;
 		}
 
-		DamageSource source = e.getDamageSource();
-		if (source.getCausingEntity() == null) {
+		Entity source = e.getDamageSource().getCausingEntity();
+		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}
-		Entity defender = e.getEntity();
-		if (Teams.get_team(source.getCausingEntity().getUniqueId()) == Teams.get_team(defender.getUniqueId())) {
+		if (Teams.get_team(source.getUniqueId()) == Teams.get_team(e.getEntity().getUniqueId())) {
 			e.setCancelled(true);
 		}
 	}
