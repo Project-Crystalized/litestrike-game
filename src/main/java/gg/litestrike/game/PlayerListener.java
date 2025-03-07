@@ -218,7 +218,11 @@ public class PlayerListener implements Listener {
 	public void onBowShot(EntityShootBowEvent event) {
 		if (Litestrike.getInstance().game_controller.round_state == RoundState.PreRound) {
 			event.setCancelled(true);
-			((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
+			if (event.getProjectile() instanceof Arrow) {
+				((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
+			} else if (event.getProjectile() instanceof SpectralArrow) {
+				((Player) event.getEntity()).getInventory().addItem(((SpectralArrow) event.getProjectile()).getItemStack());
+			}
 		}
 	}
 
