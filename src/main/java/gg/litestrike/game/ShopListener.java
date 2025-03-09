@@ -30,6 +30,7 @@ public class ShopListener implements Listener {
 		Player p = event.getPlayer();
 		Shop s = Shop.getShop(p);
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
+			p.sendMessage("in openShop first if");
 			if (p.getInventory().getItemInMainHand().getType() == Material.EMERALD) {
 				s.setItems(s.shopItems);
 				s.setDefuser();

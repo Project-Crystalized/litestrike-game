@@ -148,6 +148,7 @@ public class Shop implements InventoryHolder {
 		Team player_team = gc.teams.get_team(p);
 		inv.clear();
 		p.setItemOnCursor(null);
+		p.setItemOnCursor(null);
 		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		inv.setItem(1, new ItemStack(Material.BOW));
 		arrows_item.setAmount(6);
