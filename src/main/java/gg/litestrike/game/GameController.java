@@ -53,6 +53,8 @@ public class GameController {
 	public RoundState round_state = RoundState.PreRound;
 
 	public List<Team> round_results = new ArrayList<Team>();
+	public int placer_wins_amt = 0;
+	public int breaker_wins_amt = 0;
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -166,17 +168,6 @@ public class GameController {
 			return null;
 		}
 
-		// end if a team has won
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : round_results) {
-			if (w == gg.litestrike.game.Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
-
 		// if the enemy team is empty, or if the team has reached the required rounds,
 		// win
 		if (teams.get_placers().size() == 0 || breaker_wins_amt == SWITCH_ROUND + 1) {
@@ -231,6 +222,11 @@ public class GameController {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
 		round_results.add(winner);
+		if (winner == Team.Placer) {
+			placer_wins_amt += 1;
+		} else {
+			breaker_wins_amt += 1;
+		}
 
 		ScoreboardController.set_win_display(round_results);
 

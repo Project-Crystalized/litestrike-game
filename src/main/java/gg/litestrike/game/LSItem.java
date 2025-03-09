@@ -329,20 +329,12 @@ public class LSItem {
 
 	public static ItemStack do_underdog_sword(ItemStack item, Player player) {
 		ItemStack cloned_item = item.clone();
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (Team w : Litestrike.getInstance().game_controller.round_results) {
-			if (w == Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
+		GameController gc = Litestrike.getInstance().game_controller;
 		int rounds_down = 0;
 		if (Teams.get_team(player.getName()) == Team.Breaker) {
-			rounds_down = placer_wins_amt - breaker_wins_amt;
+			rounds_down = gc.placer_wins_amt - gc.breaker_wins_amt;
 		} else {
-			rounds_down = breaker_wins_amt - placer_wins_amt;
+			rounds_down = gc.breaker_wins_amt - gc.placer_wins_amt;
 		}
 		if (rounds_down <= 0) {
 			return cloned_item;
@@ -360,7 +352,8 @@ public class LSItem {
 		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasCustomModelData()) {
 			return false;
 		}
-		return (item.getType() == Material.STONE_SWORD && (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
+		return (item.getType() == Material.STONE_SWORD
+				&& (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {
