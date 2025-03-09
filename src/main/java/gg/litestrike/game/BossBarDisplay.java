@@ -31,7 +31,7 @@ public class BossBarDisplay {
 		Bukkit.getServer().showBossBar(bb);
 	}
 
-	public String renderBossBar() {
+	private String renderBossBar() {
 		GameController gc = Litestrike.getInstance().game_controller;
 		int player_tiles = Math.max(gc.teams.get_placers().size(), gc.teams.get_placers().size());
 

@@ -7,14 +7,11 @@ import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.jetbrains.annotations.NotNull;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
@@ -23,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
@@ -31,8 +27,7 @@ import static org.bukkit.Material.EMERALD;
 import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.enchantments.Enchantment.*;
 
-public class Shop implements InventoryHolder {
-	public List<LSItem> shopItems;
+public class Shop {
 	public Inventory currentView;
 	public Player player;
 	public HashMap<LSItem.ItemCategory, LSItem> currentEquip = new HashMap<>();
@@ -49,20 +44,18 @@ public class Shop implements InventoryHolder {
 		}
 
 		shopList.put(p.getName(), this);
-		shopItems = LSItem.createItems();
 		player = p;
-		currentView = Bukkit.getServer().createInventory(this, 54, title(p));
+		currentView = Bukkit.getServer().createInventory(null, 54, title(p));
 		shopLog = new ArrayList<>();
 		// TODO make the Shop its own item
-		// TODO i think its fine, no need to make shop its own item
 	}
 
 	public static Shop getShop(Player p) {
 		return shopList.get(p.getName());
 	}
 
-	public void setItems(List<LSItem> ware) {
-		for (LSItem item : ware) {
+	private void setItems() {
+		for (LSItem item : LSItem.shopItems) {
 			if (item == null || item.slot == null) {
 				continue;
 			}
@@ -74,38 +67,28 @@ public class Shop implements InventoryHolder {
 		}
 	}
 
-	public void setDefuser() {
-		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Breaker) {
-			currentView.setItem(DEFUSER_SLOT, shopItems.get(8).buildDisplayItem(player));
-		}
-	}
-
-	@Override
-	public @NotNull Inventory getInventory() {
-		return Bukkit.getServer().createInventory(this, 1);
-	}
-
-	public static Component title(Player p) {
+	private static Component title(Player p) {
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
-	public void updateTitle(boolean openAgain) {
-		Inventory inv = Bukkit.getServer().createInventory(this, 54, title(player));
-		if (openAgain) {
-			player.openInventory(inv);
-			currentView = inv;
-			setItems(shopItems);
-			setDefuser();
-		} else {
-			currentView.close();
-		}
+	public void update_shop() {
+		currentView = Bukkit.getServer().createInventory(null, 54, title(player));
+		setItems();
 	}
 
-	public static void giveShop() {
+	public void open_shop() {
+		update_shop();
+		player.openInventory(currentView);
+	}
+
+	// this is called once in next_round()
+	public static void giveShop_and_update() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop s = getShop(p);
-			s.updateTitle(false);
+			s.shopLog.add(null);
+			s.update_shop();
+
 			ItemStack shop = new ItemStack(EMERALD, 1);
 			ItemMeta meta = shop.getItemMeta();
 			meta.displayName(Component.text("Shop").color(WHITE).decoration(ITALIC, false));
@@ -252,31 +235,31 @@ public class Shop implements InventoryHolder {
 			}
 		}
 		s.currentView.close();
-		if(p.getItemOnCursor().getType() == EMERALD){
+		if (p.getItemOnCursor().getType() == EMERALD) {
 			p.setItemOnCursor(null);
 		}
 	}
 
-	public void resetEquip(){
+	public void resetEquip() {
 		GameController gc = Litestrike.getInstance().game_controller;
 		previousEquip.clear();
 		currentEquip.clear();
-		currentEquip.put(LSItem.ItemCategory.Melee, shopItems.get(2));
-		currentEquip.put(LSItem.ItemCategory.Range, shopItems.get(4));
-		if(gc.teams.get_team(player) == Team.Placer){
-			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(7));
-		}else{
-			currentEquip.put(LSItem.ItemCategory.Armor, shopItems.get(6));
-			currentEquip.put(LSItem.ItemCategory.Defuser, shopItems.get(25));
+		currentEquip.put(LSItem.ItemCategory.Melee, LSItem.shopItems.get(2));
+		currentEquip.put(LSItem.ItemCategory.Range, LSItem.shopItems.get(4));
+		if (gc.teams.get_team(player) == Team.Placer) {
+			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(7));
+		} else {
+			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(6));
+			currentEquip.put(LSItem.ItemCategory.Defuser, LSItem.shopItems.get(25));
 		}
 	}
 
-	public void resetEquipCounters(){
-	consAndAmmoCount.clear();
-	for(LSItem item : shopItems){
-		if(item.categ == LSItem.ItemCategory.Ammunition || item.categ == LSItem.ItemCategory.Consumable){
-			consAndAmmoCount.put(item, 0);
+	public void resetEquipCounters() {
+		consAndAmmoCount.clear();
+		for (LSItem item : LSItem.shopItems) {
+			if (item.categ == LSItem.ItemCategory.Ammunition || item.categ == LSItem.ItemCategory.Consumable) {
+				consAndAmmoCount.put(item, 0);
+			}
 		}
-	}
 	}
 }
