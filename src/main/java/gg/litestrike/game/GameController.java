@@ -65,7 +65,7 @@ public class GameController {
 	public final int game_reference = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE - 1);
 
 	// after this round, the sides get switched
-	public final static int SWITCH_ROUND = 4;
+	public final static int SWITCH_ROUND = 2;
 
 	public final static int PRE_ROUND_TIME = (20 * 23);
 	// public final static int PRE_ROUND_TIME = (20 * 1);
@@ -356,6 +356,10 @@ public class GameController {
 			}
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
+			for (Shop s : Shop.shopList.values()) {
+				s.resetEquip();
+				s.resetEquipCounters();
+			}
 		}
 		if (round_number == (SWITCH_ROUND * 2) + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())

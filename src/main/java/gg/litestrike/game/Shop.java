@@ -179,6 +179,9 @@ public class Shop {
 			if (it == null) {
 				continue;
 			}
+			if (LSItem.is_underdog_sword(item) && LSItem.is_underdog_sword(it)) {
+				return true;
+			}
 
 			if (it.getType() == item.getType()
 					&& Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
@@ -196,6 +199,10 @@ public class Shop {
 			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
 			if (it == null) {
 				continue;
+			}
+
+			if (LSItem.is_underdog_sword(item) && LSItem.is_underdog_sword(it)) {
+				return i;
 			}
 
 			if (it.getType() == item.getType()

@@ -4,6 +4,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -89,6 +90,9 @@ public class ShopListener implements Listener {
 		if (clicked_item.categ != ItemCategory.Ammunition && clicked_item.categ != ItemCategory.Consumable
 				&& clicked_item.categ != ItemCategory.Armor) {
 			int cont = s.findInvIndex(clicked_item.categ);
+			if (cont == -1) {
+				Bukkit.getLogger().severe("tried to get a -1 index for item: " + clicked_item.item.getType());
+			}
 			p.getInventory().clear(cont);
 		}
 
@@ -131,8 +135,7 @@ public class ShopListener implements Listener {
 				continue;
 			}
 
-			if (lsi.slot.equals(slot) && (lsi.item.getType() == item.getType()
-					&& Objects.equals(identifyCustomModelData(lsi.item), identifyCustomModelData(item)))) {
+			if (lsi.slot.equals(slot) && (lsi.item.getType() == item.getType())) {
 				lsitem = lsi;
 				break;
 			}
@@ -149,6 +152,8 @@ public class ShopListener implements Listener {
 			return;
 		}
 
+		Bukkit.getLogger().severe("early got here");
+
 		if (p.getInventory().getItem(invSlot) == null) {
 			return;
 		}
@@ -158,8 +163,10 @@ public class ShopListener implements Listener {
 		// check what ItemCategory it is and find the item
 		if (lsitem.categ != LSItem.ItemCategory.Consumable && lsitem.categ != LSItem.ItemCategory.Ammunition) {
 			if (s.previousEquip.get(lsitem.categ) == null) {
+				Bukkit.getLogger().severe("got here");
 				return;
 			}
+			Bukkit.getLogger().severe("got here2");
 			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
 			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
 			s.previousEquip.remove(lsitem.categ);
