@@ -13,7 +13,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
@@ -106,7 +105,7 @@ public class DeathHandler implements Listener {
 		Player damage_receiver = (Player) e.getEntity();
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);
-		} else {
+		} else if (e.getDamage() > 1) {
 			gc.getPlayerData(damager).assist_list.add(damage_receiver);
 		}
 	}

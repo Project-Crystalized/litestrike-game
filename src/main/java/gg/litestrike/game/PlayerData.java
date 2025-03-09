@@ -2,9 +2,9 @@ package gg.litestrike.game;
 
 import static net.kyori.adventure.text.Component.translatable;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,7 +25,7 @@ public class PlayerData {
 	private int breaks = 0;
 
 	// this keeps track of assits in the current round for this player
-	public List<Player> assist_list = new ArrayList<Player>();
+	public Set<Player> assist_list = new HashSet<Player>();
 
 	public PlayerData(Player p) {
 		player = p.getName();
