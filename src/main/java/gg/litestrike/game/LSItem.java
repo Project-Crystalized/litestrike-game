@@ -321,8 +321,7 @@ public class LSItem {
 		meta.lore(lore);
 		displayItem.setItemMeta(meta);
 
-		// underdog
-		if (item.getType() == Material.STONE_SWORD && item.getItemMeta().getCustomModelData() == 3) {
+		if (is_underdog_sword(item)) {
 			displayItem = do_underdog_sword(displayItem, p);
 		}
 		return displayItem;
@@ -348,13 +347,20 @@ public class LSItem {
 		if (rounds_down <= 0) {
 			return cloned_item;
 		}
-		// Bukkit.getLogger().severe("rounds down is: " + rounds_down + " for player: "
-		// + player.getName());
 		ItemMeta im = cloned_item.getItemMeta();
+		im.setCustomModelData(null);
 		im.setCustomModelData(3 + rounds_down);
+		im.removeEnchantments();
 		im.addEnchant(Enchantment.SHARPNESS, rounds_down, true);
 		cloned_item.setItemMeta(im);
 		return cloned_item;
+	}
+
+	public static boolean is_underdog_sword(ItemStack item) {
+		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasCustomModelData()) {
+			return false;
+		}
+		return (item.getType() == Material.STONE_SWORD && (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {

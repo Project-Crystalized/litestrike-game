@@ -19,6 +19,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -257,6 +258,12 @@ public class GameController {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
+			Inventory inv = p.getInventory();
+			for (int i = 0; i < inv.getSize(); i++) {
+				if (LSItem.is_underdog_sword(inv.getItem(i))) {
+					inv.setItem(i, LSItem.do_underdog_sword(inv.getItem(i), p));
+				}
+			}
 			if (teams.get_team(p) == winner) {
 				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);

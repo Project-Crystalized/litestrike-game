@@ -109,9 +109,8 @@ public class ShopListener implements Listener {
 			p.getInventory().setChestplate(clicked_item.item);
 		} else {
 			// underog
-			if (clicked_item.item.getType() == Material.STONE_SWORD
-					&& clicked_item.item.getItemMeta().getCustomModelData() == 3) {
-				p.getInventory().addItem(LSItem.do_underdog_sword(clicked_item.item.clone(), p));
+			if (LSItem.is_underdog_sword(clicked_item.item)) {
+				p.getInventory().addItem(LSItem.do_underdog_sword(clicked_item.item, p));
 			} else {
 				p.getInventory().addItem(clicked_item.item);
 			}
