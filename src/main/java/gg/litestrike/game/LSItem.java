@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
@@ -39,6 +40,8 @@ public class LSItem {
 	private static short creation_number = 1;
 	public final Short id;
 	public static HashMap<String, LSItem> importantEquip = new HashMap<>();
+
+	public static List<LSItem> shopItems = createItems();
 
 	public enum ItemCategory {
 		Melee,
@@ -92,7 +95,7 @@ public class LSItem {
 		item.addItemFlags(HIDE_UNBREAKABLE);
 	}
 
-	public static List<LSItem> createItems() {
+	private static List<LSItem> createItems() {
 		List<LSItem> lsItems = new ArrayList<>();
 
 		// IMPORTANT: the order in which the items are created must be preserved
@@ -295,7 +298,7 @@ public class LSItem {
 
 	// this can handle null being passed in
 	public ItemStack buildDisplayItem(Player p) {
-		if(price == null){
+		if (price == null) {
 			return null;
 		}
 		List<Component> lore;
@@ -315,11 +318,45 @@ public class LSItem {
 		ItemMeta meta = displayItem.getItemMeta();
 		meta.lore(lore);
 		displayItem.setItemMeta(meta);
+
+		// underdog
+		if (item.getType() == Material.STONE_SWORD && item.getItemMeta().getCustomModelData() == 3) {
+			displayItem = do_underdog_sword(displayItem, p);
+		}
 		return displayItem;
 	}
 
+	public static ItemStack do_underdog_sword(ItemStack item, Player player) {
+		ItemStack cloned_item = item.clone();
+		int placer_wins_amt = 0;
+		int breaker_wins_amt = 0;
+		for (Team w : Litestrike.getInstance().game_controller.round_results) {
+			if (w == Team.Placer) {
+				placer_wins_amt += 1;
+			} else {
+				breaker_wins_amt += 1;
+			}
+		}
+		int rounds_down = 0;
+		if (Teams.get_team(player.getName()) == Team.Breaker) {
+			rounds_down = placer_wins_amt - breaker_wins_amt;
+		} else {
+			rounds_down = breaker_wins_amt - placer_wins_amt;
+		}
+		if (rounds_down <= 0) {
+			return cloned_item;
+		}
+		// Bukkit.getLogger().severe("rounds down is: " + rounds_down + " for player: "
+		// + player.getName());
+		ItemMeta im = cloned_item.getItemMeta();
+		im.setCustomModelData(3 + rounds_down);
+		im.addEnchant(Enchantment.SHARPNESS, rounds_down, true);
+		cloned_item.setItemMeta(im);
+		return cloned_item;
+	}
+
 	public static ItemCategory getItemCategory(ItemStack i) {
-		for (LSItem lsi : LSItem.createItems()) {
+		for (LSItem lsi : LSItem.shopItems) {
 			if (i.getType() == lsi.item.getType()) {
 				return lsi.categ;
 			}
@@ -341,16 +378,5 @@ public class LSItem {
 		}
 
 		return null;
-	}
-
-	public static void underDogSword(Player p, int i) {
-		ItemStack item = p.getInventory().getItem(i);
-		if (item == null) {
-			return;
-		}
-		ItemMeta meta = item.getItemMeta();
-		meta.setCustomModelData(meta.getCustomModelData() + 1);
-		item.setItemMeta(meta);
-		p.getInventory().setItem(i, item);
 	}
 }

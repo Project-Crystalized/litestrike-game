@@ -61,12 +61,12 @@ public class PlayerListener implements Listener {
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
-		if(gc.teams.get_team(e.getPlayer()) != Team.Placer){
+		if (gc == null || gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
 			return;
 		}
-		if(gc.bomb instanceof InvItemBomb){
-			InvItemBomb bomb = (InvItemBomb)gc.bomb;
-			if(bomb.player.equals(e.getPlayer())){
+		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
+			InvItemBomb bomb = (InvItemBomb) gc.bomb;
+			if (bomb.player.equals(e.getPlayer())) {
 				Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
 				bomb.drop_bomb(i);
 			}

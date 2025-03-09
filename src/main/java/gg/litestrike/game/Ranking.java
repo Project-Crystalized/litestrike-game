@@ -83,14 +83,13 @@ public class Ranking {
 				total += prd.rp;
 				continue;
 			}
+			total += prd.rp;
 
 			// int win_loss = prd.recent_wins - prd.recent_losses;
 			// if (win_loss > 0) {
 			// total += prd.rp * Math.pow(1.12, win_loss);
 			// } else if (win_loss < 0) {
 			// total += prd.rp * Math.pow(0.88, -win_loss);
-			// } else {
-			// total += prd.rp;
 			// }
 		}
 		return total;

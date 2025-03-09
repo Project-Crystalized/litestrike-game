@@ -19,9 +19,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -35,7 +33,6 @@ import com.google.common.io.ByteStreams;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
-import static org.bukkit.Material.STONE_SWORD;;
 
 enum RoundState {
 	PreRound,
@@ -265,25 +262,8 @@ public class GameController {
 				SoundEffects.round_won(p);
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
-				for (int i = 0; i <= 40; i++) {
-					ItemStack item = p.getInventory().getItem(i);
-					if (item == null) {
-						continue;
-					}
-					ItemMeta meta = item.getItemMeta();
-					if (item.getType() == STONE_SWORD && meta.hasCustomModelData() && (meta.getCustomModelData() == 3
-							|| meta.getCustomModelData() == 4 || meta.getCustomModelData() == 5 || meta.getCustomModelData() == 6)) {
-						LSItem.underDogSword(p, i);
-						break;
-					}
-				}
 				SoundEffects.round_lost(p);
 			}
-			Shop s = Shop.getShop(p);
-			s.currentView = Bukkit.getServer().createInventory(s, 54, Shop.title(p));
-			s.setItems(s.shopItems);
-			s.setDefuser();
-			s.shopLog.add(null);
 		}
 	}
 
@@ -294,10 +274,6 @@ public class GameController {
 		if (bomb != null) {
 			bomb.remove();
 			bomb = null;
-		}
-
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			Shop s = Shop.getShop(p);
 		}
 
 		World w = Bukkit.getWorld("world");
@@ -421,7 +397,7 @@ public class GameController {
 		int random = ThreadLocalRandom.current().nextInt(0, teams.get_placers().size());
 		Bomb.give_bomb(teams.get_placers().get(random));
 
-		Shop.giveShop();
+		Shop.giveShop_and_update();
 	}
 
 	// this will determine the winner of the round and return it.

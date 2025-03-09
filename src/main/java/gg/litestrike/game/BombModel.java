@@ -19,9 +19,7 @@ public class BombModel {
 	// creates the model one block below the ground so it can rise
 	// takes in, the block location where the bomb will be after planting
 	public void spawn_model(Location loc) {
-		if (model != null) {
-			this.remove();
-		}
+		this.remove();
 		after_plant_loc = loc.clone();
 		model = (ArmorStand) loc.getWorld().spawn(loc.clone().add(0, -100, 0), ArmorStand.class);
 		model.getAttribute(Attribute.SCALE).setBaseValue(0.5);
