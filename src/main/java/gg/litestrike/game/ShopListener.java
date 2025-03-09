@@ -137,7 +137,6 @@ public class ShopListener implements Listener {
 				lsitem = lsi;
 				break;
 			}
-
 		}
 
 		if (lsitem == null) {

@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -297,7 +298,7 @@ public class LSItem {
 	}
 
 	// this can handle null being passed in
-	public ItemStack buildDisplayItem(Player p) {
+	public ItemStack buildDisplayItem(String p_name) {
 		if (price == null) {
 			return null;
 		}
@@ -307,8 +308,9 @@ public class LSItem {
 		} else {
 			lore = new ArrayList<>(description);
 		}
+		Player p = Bukkit.getPlayer(p_name);
 		lore.add(Component.text("")); // add a newline so that the price is seperated
-		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p).getMoney() - price) >= 0) {
+		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {
 			lore.add(Component.text("" + price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
 			lore.add(Component.text("" + price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));

@@ -99,6 +99,8 @@ public class PlayerListener implements Listener {
 			// if we are here, it means the player is rejoining
 			p.setGameMode(GameMode.SPECTATOR);
 
+			Shop.getShop(p).player = p.getName();
+
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 
 			// give player the scoreboard and bossbar again

@@ -29,7 +29,7 @@ import static org.bukkit.enchantments.Enchantment.*;
 
 public class Shop {
 	public Inventory currentView;
-	public Player player;
+	public String player;
 	public HashMap<LSItem.ItemCategory, LSItem> currentEquip = new HashMap<>();
 	public HashMap<LSItem.ItemCategory, LSItem> previousEquip = new HashMap<>();
 	public HashMap<LSItem, Integer> consAndAmmoCount = new HashMap<>();
@@ -44,8 +44,8 @@ public class Shop {
 		}
 
 		shopList.put(p.getName(), this);
-		player = p;
-		currentView = Bukkit.getServer().createInventory(null, 54, title(p));
+		player = p.getName();
+		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
 		shopLog = new ArrayList<>();
 		// TODO make the Shop its own item
 	}
@@ -60,14 +60,14 @@ public class Shop {
 				continue;
 			}
 			if (item.categ == ItemCategory.Defuser
-					&& Litestrike.getInstance().game_controller.teams.get_team(player) != Team.Breaker) {
+					&& Teams.get_team(player) != Team.Breaker) {
 				continue;
 			}
 			currentView.setItem(item.slot, item.buildDisplayItem(player));
 		}
 	}
 
-	private static Component title(Player p) {
+	private static Component title(String p) {
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
@@ -79,7 +79,7 @@ public class Shop {
 
 	public void open_shop() {
 		update_shop();
-		player.openInventory(currentView);
+		Bukkit.getPlayer(player).openInventory(currentView);
 	}
 
 	// this is called once in next_round()
@@ -172,10 +172,10 @@ public class Shop {
 
 	public boolean alreadyHasThis(ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
-			if (player.getInventory().getItem(i) == null) {
+			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it = player.getInventory().getItem(i);
+			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
@@ -190,10 +190,10 @@ public class Shop {
 
 	public int findInvIndex(ItemStack item) {
 		for (int i = 0; i <= 40; i++) {
-			if (player.getInventory().getItem(i) == null) {
+			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it = player.getInventory().getItem(i);
+			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
@@ -208,10 +208,10 @@ public class Shop {
 
 	public int findInvIndex(LSItem.ItemCategory categ) {
 		for (int i = 0; i <= 40; i++) {
-			if (player.getInventory().getItem(i) == null) {
+			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
 				continue;
 			}
-			ItemStack it = player.getInventory().getItem(i);
+			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
 			if (it == null) {
 				continue;
 			}
@@ -241,12 +241,11 @@ public class Shop {
 	}
 
 	public void resetEquip() {
-		GameController gc = Litestrike.getInstance().game_controller;
 		previousEquip.clear();
 		currentEquip.clear();
 		currentEquip.put(LSItem.ItemCategory.Melee, LSItem.shopItems.get(2));
 		currentEquip.put(LSItem.ItemCategory.Range, LSItem.shopItems.get(4));
-		if (gc.teams.get_team(player) == Team.Placer) {
+		if (Teams.get_team(player) == Team.Placer) {
 			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(7));
 		} else {
 			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(6));
