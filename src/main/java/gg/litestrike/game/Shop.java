@@ -268,4 +268,8 @@ public class Shop {
 			}
 		}
 	}
+
+	public void add_item(ItemStack item) {}
+
+	// public void remove_item(ItemStack item) {}
 }

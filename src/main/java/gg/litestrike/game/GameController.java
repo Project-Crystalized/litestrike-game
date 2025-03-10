@@ -350,6 +350,9 @@ public class GameController {
 					round_results.set(i, Team.Placer);
 				}
 			}
+			int tmp = breaker_wins_amt;
+			breaker_wins_amt = placer_wins_amt;
+			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
 			for (Shop s : Shop.shopList.values()) {
