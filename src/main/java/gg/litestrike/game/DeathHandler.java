@@ -4,6 +4,7 @@ import static org.bukkit.GameMode.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -81,7 +82,7 @@ public class DeathHandler implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		List<Player> assiters = new ArrayList<>();
 		for (PlayerData pd : gc.playerDatas) {
-			if (pd.assist_list.contains(p)) {
+			if (pd.assist_list.get(p) != null && pd.assist_list.get(p) > 3.9) {
 				Player player = Bukkit.getPlayer(pd.player);
 				if (player != null) {
 					assiters.add(player);
@@ -105,8 +106,9 @@ public class DeathHandler implements Listener {
 		Player damage_receiver = (Player) e.getEntity();
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);
-		} else if (e.getDamage() > 1) {
-			gc.getPlayerData(damager).assist_list.add(damage_receiver);
+		} else {
+			Map<Player, Double> assist_list = gc.getPlayerData(damager).assist_list;
+			assist_list.put(damage_receiver, assist_list.getOrDefault(damage_receiver, 0.0) + e.getFinalDamage());
 		}
 	}
 
