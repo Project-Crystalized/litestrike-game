@@ -79,11 +79,14 @@ public class Ranking {
 		int total = 0;
 
 		for (PlayerRankedData prd : player_ranks) {
-			if (prd.rp < 0) { // negative numbers mess up the calculation
-				total += prd.rp;
+			if (!team.contains(Bukkit.getPlayer(prd.uuid).getName())) {
 				continue;
 			}
 			total += prd.rp;
+			if (prd.rp < 0) {
+				// negative numbers mess up the calculation
+				continue;
+			}
 
 			// int win_loss = prd.recent_wins - prd.recent_losses;
 			// if (win_loss > 0) {
