@@ -135,6 +135,7 @@ public class Teams {
 		Bukkit.getLogger().severe("name was: " + p.getName());
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		new Exception().printStackTrace();
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
@@ -167,6 +168,7 @@ public class Teams {
 		Bukkit.getLogger().severe("name was: " + name);
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		new Exception().printStackTrace();
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 

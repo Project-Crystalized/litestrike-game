@@ -107,7 +107,7 @@ public class LsDatabase {
 	}
 
 	private static byte[] get_bought_items(Player p) {
-		Shop s = Shop.getShop(p);
+		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		ByteBuffer bb = ByteBuffer.allocate(s.shopLog.size() * 2);
 		for (LSItem lsi : s.shopLog) {
 			if (lsi == null) {

@@ -68,8 +68,8 @@ public class DeathHandler implements Listener {
 							.color(Teams.get_team_color(gc.teams.get_team(p))));
 		}
 
-		Shop.getShop(p).resetEquip();
-		Shop.getShop(p).resetEquipCounters();
+		gc.getShop(p).resetEquip();
+		gc.getShop(p).resetEquipCounters();
 
 		Team killed_team = gc.teams.get_team(p);
 		for (Player player : Bukkit.getOnlinePlayers()) {

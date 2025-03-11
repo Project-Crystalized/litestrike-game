@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -56,6 +57,8 @@ public class GameController {
 	public int placer_wins_amt = 0;
 	public int breaker_wins_amt = 0;
 
+	public HashMap<String, Shop> shopList = new HashMap<>();
+
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
 	// determined its reset to 0 and counts until (5 * 20) for the postround time.
@@ -73,6 +76,7 @@ public class GameController {
 	// public final static int PRE_ROUND_TIME = (20 * 1);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
+	// public final static int POST_ROUND_TIME = (1 * 20);
 	public final static int FINISH_TIME = (20 * 12);
 
 	public GameController() {
@@ -355,7 +359,7 @@ public class GameController {
 			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
-			for (Shop s : Shop.shopList.values()) {
+			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();
 			}
@@ -391,7 +395,7 @@ public class GameController {
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
 			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
-			Shop s = Shop.getShop(p);
+			Shop s = Litestrike.getInstance().game_controller.getShop(p);
 			s.resetEquipCounters();
 			s.previousEquip.clear();
 			// this is needed because of some weird packet nonsense, to make everyone glow
@@ -557,4 +561,9 @@ public class GameController {
 			}
 		}
 	}
+
+	public Shop getShop(Player p) {
+		return shopList.get(p.getName());
+	}
+
 }

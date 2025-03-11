@@ -27,7 +27,7 @@ public class ShopListener implements Listener {
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
 			Player p = event.getPlayer();
 			if (p.getInventory().getItemInMainHand().getType() == Material.EMERALD) {
-				Shop s = Shop.getShop(p);
+				Shop s = Litestrike.getInstance().game_controller.getShop(p);
 				s.open_shop();
 			}
 		}
@@ -40,7 +40,7 @@ public class ShopListener implements Listener {
 			return;
 		}
 		Player p = (Player) event.getWhoClicked();
-		Shop s = Shop.getShop(p);
+		Shop s = gc.getShop(p);
 		if (event.getCurrentItem() == null) {
 			return;
 		}
@@ -123,7 +123,7 @@ public class ShopListener implements Listener {
 	}
 
 	public void undoBuy(ItemStack item, Player p, int slot) {
-		Shop s = Shop.getShop(p);
+		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
 		LSItem lsitem = null;
 

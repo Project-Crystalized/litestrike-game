@@ -34,7 +34,6 @@ public class Shop {
 	public HashMap<LSItem.ItemCategory, LSItem> previousEquip = new HashMap<>();
 	public HashMap<LSItem, Integer> consAndAmmoCount = new HashMap<>();
 	public List<LSItem> shopLog;
-	public static HashMap<String, Shop> shopList = new HashMap<>();
 
 	public static final int DEFUSER_SLOT = 22;
 
@@ -43,15 +42,11 @@ public class Shop {
 			return;
 		}
 
-		shopList.put(p.getName(), this);
+		Litestrike.getInstance().game_controller.shopList.put(p.getName(), this);
 		player = p.getName();
 		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
 		shopLog = new ArrayList<>();
 		// TODO make the Shop its own item
-	}
-
-	public static Shop getShop(Player p) {
-		return shopList.get(p.getName());
 	}
 
 	private void setItems() {
@@ -85,7 +80,7 @@ public class Shop {
 	// this is called once in next_round()
 	public static void giveShop_and_update() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			Shop s = getShop(p);
+			Shop s = Litestrike.getInstance().game_controller.getShop(p);
 			s.shopLog.add(null);
 			s.update_shop();
 
@@ -232,7 +227,7 @@ public class Shop {
 
 	public static void removeShop(Player p) {
 		Inventory inv = p.getInventory();
-		Shop s = getShop(p);
+		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		for (int i = 0; i <= 40; i++) {
 			if (inv.getItem(i) == null) {
 				continue;
@@ -269,7 +264,8 @@ public class Shop {
 		}
 	}
 
-	public void add_item(ItemStack item) {}
+	public void add_item(ItemStack item) {
+	}
 
 	// public void remove_item(ItemStack item) {}
 }
