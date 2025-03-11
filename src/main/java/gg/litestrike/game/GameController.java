@@ -257,7 +257,7 @@ public class GameController {
 			Inventory inv = p.getInventory();
 			for (int i = 0; i < inv.getSize(); i++) {
 				if (LSItem.is_underdog_sword(inv.getItem(i))) {
-					inv.setItem(i, LSItem.do_underdog_sword(inv.getItem(i), p));
+					inv.setItem(i, LSItem.do_underdog_sword(teams.get_team(p)));
 				}
 			}
 			if (teams.get_team(p) == winner) {

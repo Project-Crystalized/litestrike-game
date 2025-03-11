@@ -56,6 +56,13 @@ public class Teams {
 		int breaker_score = Ranking.get_total_rp_team(tmp_breakers, player_ranks);
 		int placer_score = Ranking.get_total_rp_team(tmp_placers, player_ranks);
 
+		Bukkit.getLogger().severe("");
+		Bukkit.getLogger().severe("breakers: " + tmp_breakers.toString());
+		Bukkit.getLogger().severe("total rp breakers: " + breaker_score);
+		Bukkit.getLogger().severe("");
+		Bukkit.getLogger().severe("placers: " + tmp_placers.toString());
+		Bukkit.getLogger().severe("total rp placers: " + placer_score);
+		Bukkit.getLogger().severe("");
 		return Math.abs(breaker_score - placer_score);
 	}
 
@@ -132,6 +139,7 @@ public class Teams {
 
 		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
 		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		Bukkit.getLogger().severe("name was: " + p.getName());
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 

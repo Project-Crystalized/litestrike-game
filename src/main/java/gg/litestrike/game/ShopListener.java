@@ -16,8 +16,6 @@ import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
-import java.util.Objects;
-
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -114,7 +112,7 @@ public class ShopListener implements Listener {
 		} else {
 			// underog
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
-				p.getInventory().addItem(LSItem.do_underdog_sword(clicked_item.item, p));
+				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
 				p.getInventory().addItem(clicked_item.item);
 			}
@@ -152,8 +150,6 @@ public class ShopListener implements Listener {
 			return;
 		}
 
-		Bukkit.getLogger().severe("early got here");
-
 		if (p.getInventory().getItem(invSlot) == null) {
 			return;
 		}
@@ -163,10 +159,8 @@ public class ShopListener implements Listener {
 		// check what ItemCategory it is and find the item
 		if (lsitem.categ != LSItem.ItemCategory.Consumable && lsitem.categ != LSItem.ItemCategory.Ammunition) {
 			if (s.previousEquip.get(lsitem.categ) == null) {
-				Bukkit.getLogger().severe("got here");
 				return;
 			}
-			Bukkit.getLogger().severe("got here2");
 			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
 			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
 			s.previousEquip.remove(lsitem.categ);

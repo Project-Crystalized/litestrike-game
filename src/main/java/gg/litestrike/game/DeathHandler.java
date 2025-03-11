@@ -68,6 +68,9 @@ public class DeathHandler implements Listener {
 							.color(Teams.get_team_color(gc.teams.get_team(p))));
 		}
 
+		// Shop.getShop(p).resetEquip();
+		// Shop.getShop(p).resetEquipCounters();
+
 		Team killed_team = gc.teams.get_team(p);
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (gc.teams.get_team(player) == killed_team) {
@@ -104,6 +107,9 @@ public class DeathHandler implements Listener {
 		}
 		Player damager = (Player) e.getDamageSource().getCausingEntity();
 		Player damage_receiver = (Player) e.getEntity();
+
+		Bukkit.getLogger().severe("damage dealt: " + e.getFinalDamage());
+
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);
 		} else {

@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
@@ -322,30 +321,39 @@ public class LSItem {
 		displayItem.setItemMeta(meta);
 
 		if (is_underdog_sword(item)) {
-			displayItem = do_underdog_sword(displayItem, p);
+			displayItem = do_underdog_sword(Teams.get_team(p_name));
+			ItemMeta dog_meta = displayItem.getItemMeta();
+			dog_meta.lore().addAll(lore);
+			displayItem.setItemMeta(dog_meta);
 		}
+
 		return displayItem;
 	}
 
-	public static ItemStack do_underdog_sword(ItemStack item, Player player) {
-		ItemStack cloned_item = item.clone();
+	public static ItemStack do_underdog_sword(Team t) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		int rounds_down = 0;
-		if (Teams.get_team(player.getName()) == Team.Breaker) {
+		if (t == Team.Breaker) {
 			rounds_down = gc.placer_wins_amt - gc.breaker_wins_amt;
 		} else {
 			rounds_down = gc.breaker_wins_amt - gc.placer_wins_amt;
 		}
 		if (rounds_down <= 0) {
-			return cloned_item;
+			rounds_down = 0;
 		}
-		ItemMeta im = cloned_item.getItemMeta();
-		im.setCustomModelData(null);
-		im.setCustomModelData(3 + rounds_down);
-		im.removeEnchantments();
-		im.addEnchant(Enchantment.SHARPNESS, rounds_down, true);
-		cloned_item.setItemMeta(im);
-		return cloned_item;
+		ItemStack underDog = new ItemStack(STONE_SWORD);
+		ItemMeta underDog_meta = underDog.getItemMeta();
+		underDog_meta.setCustomModelData(3 + rounds_down);
+		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false).color(TextColor.color(0x8f5805)));
+		List<Component> underDog_lore = new ArrayList<>();
+		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
+		underDog_lore.add(Component.text(""));
+		underDog_lore.add(Component.text("Current bonus: "+rounds_down+" damage.").color(WHITE).decoration(ITALIC, false));
+		underDog_meta.lore(underDog_lore);
+		underDog_meta.setUnbreakable(true);
+
+		underDog.setItemMeta(underDog_meta);
+		return underDog;
 	}
 
 	public static boolean is_underdog_sword(ItemStack item) {
