@@ -56,13 +56,6 @@ public class Teams {
 		int breaker_score = Ranking.get_total_rp_team(tmp_breakers, player_ranks);
 		int placer_score = Ranking.get_total_rp_team(tmp_placers, player_ranks);
 
-		Bukkit.getLogger().severe("");
-		Bukkit.getLogger().severe("breakers: " + tmp_breakers.toString());
-		Bukkit.getLogger().severe("total rp breakers: " + breaker_score);
-		Bukkit.getLogger().severe("");
-		Bukkit.getLogger().severe("placers: " + tmp_placers.toString());
-		Bukkit.getLogger().severe("total rp placers: " + placer_score);
-		Bukkit.getLogger().severe("");
 		return Math.abs(breaker_score - placer_score);
 	}
 
@@ -137,7 +130,7 @@ public class Teams {
 			return Team.Breaker;
 		}
 
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
+		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 1");
 		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
 		Bukkit.getLogger().severe("name was: " + p.getName());
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
@@ -169,8 +162,11 @@ public class Teams {
 			return Team.Breaker;
 		}
 
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
+		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 2");
 		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		Bukkit.getLogger().severe("name was: " + name);
+		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
+		Bukkit.getLogger().severe("placers team: " + placers.toString());
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 

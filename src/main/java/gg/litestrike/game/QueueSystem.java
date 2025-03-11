@@ -115,6 +115,7 @@ public class QueueSystem implements PluginMessageListener {
 		}
 
 		last_velocity_que_update = in.readInt();
+		time_since_velocity_update = 0;
 	}
 
 	// plays every second while the game is counting down to start

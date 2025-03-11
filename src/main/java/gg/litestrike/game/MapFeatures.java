@@ -96,12 +96,12 @@ public class MapFeatures implements Listener {
 			@Override
 			public void run() {
 				i++;
-				if (i > time) {
+				if (i > time || !fall_protected_players.contains(p)) {
 					fall_protected_players.remove(p);
 					cancel();
 				}
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 1);
+		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 }
 
@@ -116,7 +116,7 @@ class LaunchPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
-			MapFeatures.fall_protect_player(p, (20 * 7));
+			MapFeatures.fall_protect_player(p, 4);
 		}
 	}
 }
@@ -146,7 +146,7 @@ class JumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protect_player(p, (20 * 5));
+			MapFeatures.fall_protect_player(p, (20 * 4));
 		}
 	}
 }
