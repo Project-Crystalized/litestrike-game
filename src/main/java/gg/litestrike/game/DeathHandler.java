@@ -108,7 +108,8 @@ public class DeathHandler implements Listener {
 		Player damager = (Player) e.getDamageSource().getCausingEntity();
 		Player damage_receiver = (Player) e.getEntity();
 
-		Bukkit.getLogger().severe("damage dealt: " + e.getFinalDamage());
+		// Bukkit.getLogger().severe("damage dealt: " + e.getFinalDamage());
+		// Bukkit.getLogger().severe("raw damage dealt: " + e.getDamage());
 
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);
