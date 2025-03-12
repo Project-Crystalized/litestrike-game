@@ -313,6 +313,10 @@ public class BombListener implements Listener {
 			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
 				e.setCancelled(true);
 			}
+			String item_name = e.getItemDrop().getItemStack().getType().toString().toLowerCase();
+			if (!item_name.contains("arrow")) {
+				e.setCancelled(true);
+			}
 			return;
 		}
 		reset();
