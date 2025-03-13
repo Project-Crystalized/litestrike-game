@@ -136,6 +136,7 @@ public class PlayerListener implements Listener {
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
 			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
 			e.getPlayer().addPotionEffects(pm.getCustomEffects());
+			SoundEffects.potion_drink(e.getPlayer().getLocation());
 			if (e.getHand() == EquipmentSlot.HAND) {
 				e.getPlayer().getInventory().setItemInMainHand(null);
 			} else {
