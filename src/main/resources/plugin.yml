@@ -36,3 +36,10 @@ commands:
     aliases: []
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
+
+  big_door:
+    description: "For debugging purposes, play a sound effect"
+    usage: "/big_door"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"

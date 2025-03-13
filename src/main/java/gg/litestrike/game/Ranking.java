@@ -82,18 +82,18 @@ public class Ranking {
 			if (!team.contains(Bukkit.getPlayer(prd.uuid).getName())) {
 				continue;
 			}
-			total += prd.rp;
 			if (prd.rp < 0) {
+				total += prd.rp;
 				// negative numbers mess up the calculation
 				continue;
 			}
 
-			// int win_loss = prd.recent_wins - prd.recent_losses;
-			// if (win_loss > 0) {
-			// total += prd.rp * Math.pow(1.12, win_loss);
-			// } else if (win_loss < 0) {
-			// total += prd.rp * Math.pow(0.88, -win_loss);
-			// }
+			int win_loss = prd.recent_wins - prd.recent_losses;
+			if (win_loss > 0) {
+			total += prd.rp * Math.pow(1.12, win_loss);
+			} else if (win_loss < 0) {
+			total += prd.rp * Math.pow(0.88, -win_loss);
+			}
 		}
 		return total;
 	}
