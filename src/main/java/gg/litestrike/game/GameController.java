@@ -36,13 +36,6 @@ import com.google.common.io.ByteStreams;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
 
-enum RoundState {
-	PreRound,
-	Running,
-	PostRound,
-	GameFinished,
-}
-
 // This will be created by something else, whenever there are 6+ people online
 // and no game is currently going
 public class GameController {
@@ -78,6 +71,13 @@ public class GameController {
 	public final static int POST_ROUND_TIME = (5 * 20);
 	// public final static int POST_ROUND_TIME = (1 * 20);
 	public final static int FINISH_TIME = (20 * 12);
+
+	public enum RoundState {
+		PreRound,
+		Running,
+		PostRound,
+		GameFinished,
+	}
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
@@ -210,6 +210,8 @@ public class GameController {
 					.append(text("\n")));
 		}
 
+		Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
+
 		// remove the border
 		Litestrike.getInstance().mapdata.lowerBorder(Bukkit.getWorld("world"));
 
@@ -338,6 +340,8 @@ public class GameController {
 			bomb.remove();
 			bomb = null;
 		}
+
+		Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
 
 		if (round_number == SWITCH_ROUND + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())

@@ -36,7 +36,7 @@ public class ShopListener implements Listener {
 	@EventHandler
 	public void buyItem(InventoryClickEvent event) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.round_state != RoundState.PreRound) {
+		if (gc == null || gc.round_state != GameController.RoundState.PreRound) {
 			return;
 		}
 		Player p = (Player) event.getWhoClicked();

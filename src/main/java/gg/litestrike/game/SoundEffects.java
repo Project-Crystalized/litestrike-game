@@ -21,7 +21,7 @@ public class SoundEffects {
 			@Override
 			public void run() {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc.round_state != RoundState.PreRound) {
+				if (gc.round_state != GameController.RoundState.PreRound) {
 					cancel();
 				}
 				if (gc.phase_timer == GameController.PRE_ROUND_TIME - 80) {

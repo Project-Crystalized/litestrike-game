@@ -6,9 +6,12 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.gson.JsonArray;
@@ -16,12 +19,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import gg.litestrike.game.Litestrike;
+import gg.litestrike.game.GameController.RoundState;
 
 public class BigDoor implements Listener {
-
 	private double[] center_coords;
 	private int radius;
 	private Material material;
+
+	private boolean door_open = false;
 
 	public BigDoor(JsonObject json) {
 		try {
@@ -49,6 +54,7 @@ public class BigDoor implements Listener {
 	}
 
 	public void regenerate_door() {
+		door_open = false;
 		Bukkit.getLogger().severe("regenerating door");
 		List<Block> blocks = getSphere(get_center(Bukkit.getWorld("world")), radius, false);
 		for (Block b : blocks) {
@@ -59,9 +65,11 @@ public class BigDoor implements Listener {
 	}
 
 	public void open_door() {
+		door_open = true;
 		Bukkit.getLogger().severe("opening door");
 		new BukkitRunnable() {
 			private int i = 0;
+			private World w = Bukkit.getWorld("world");
 
 			public void run() {
 				i++;
@@ -70,15 +78,25 @@ public class BigDoor implements Listener {
 					return;
 				}
 
-				List<Block> blocks = getSphere(get_center(Bukkit.getWorld("world")), i, false);
+				List<Block> blocks = getSphere(get_center(w), i, false);
+				w.playSound(get_center(w), "block.iron_door.open", 2, 0.6f);
 				for (Block b : blocks) {
 					if (b.getType() == material) {
 						b.setType(Material.AIR);
+						w.spawnParticle(Particle.SQUID_INK, b.getLocation(), 10);
 					}
 				}
 			};
 
 		}.runTaskTimer(Litestrike.getInstance(), 0, 10);
+	}
+
+	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		if (door_open || Litestrike.getInstance().game_controller.round_state != RoundState.Running) {
+			return;
+		}
+		open_door();
 	}
 
 	public List<Block> getSphere(Location location, int radius, boolean empty) {
