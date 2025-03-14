@@ -210,10 +210,12 @@ public class GameController {
 					.append(text("\n")));
 		}
 
-		Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
-
+		Litestrike ls = Litestrike.getInstance();
+		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
+			ls.mapdata.map_features.bigDoor.regenerate_door();
+		}
 		// remove the border
-		Litestrike.getInstance().mapdata.lowerBorder(Bukkit.getWorld("world"));
+		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop.removeShop(p);
@@ -341,7 +343,10 @@ public class GameController {
 			bomb = null;
 		}
 
-		Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
+		Litestrike ls = Litestrike.getInstance();
+		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
+			ls.mapdata.map_features.bigDoor.regenerate_door();
+		}
 
 		if (round_number == SWITCH_ROUND + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
@@ -547,7 +552,11 @@ public class GameController {
 			// dont teleport if there are no podium coordinates
 			return;
 		}
+		for (Player p: Bukkit.getOnlinePlayers()) {
+			p.setGameMode(GameMode.ADVENTURE);
+		}
 		Collections.sort(playerDatas, new PlayerDataComparator());
+		Collections.reverse(playerDatas);
 		for (int i = 0; i < playerDatas.size(); i++) {
 			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
 			switch (i) {

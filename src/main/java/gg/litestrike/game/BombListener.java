@@ -198,7 +198,7 @@ public class BombListener implements Listener {
 		}
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
-				mp.timer = 6 + ping_compensation_ticks(e.getPlayer());
+				mp.timer = 5 + ping_compensation_ticks(e.getPlayer());
 				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
 				return;
 			}
