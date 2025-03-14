@@ -93,7 +93,7 @@ public class BigDoor implements Listener {
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
-		if (e.getClickedBlock().getType() != Material.LEVER) {
+		if (e.getClickedBlock().getType() == null || e.getClickedBlock().getType() != Material.LEVER) {
 			return;
 		}
 		if (door_open || Litestrike.getInstance().game_controller.round_state != RoundState.Running) {
