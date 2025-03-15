@@ -162,7 +162,11 @@ public class ShopListener implements Listener {
 				return;
 			}
 			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
-			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+			if (LSItem.is_underdog_sword(s.previousEquip.get(lsitem.categ).item)) {
+				inv.setItem(invSlot, LSItem.do_underdog_sword(Teams.get_team(p.getName())));
+			} else {
+				inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+			}
 			s.previousEquip.remove(lsitem.categ);
 		} else {
 			if (s.consAndAmmoCount.get(lsitem) <= 0) {

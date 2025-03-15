@@ -315,7 +315,7 @@ public class BombListener implements Listener {
 				e.setCancelled(true);
 			}
 			String item_name = e.getItemDrop().getItemStack().getType().toString().toLowerCase();
-			if (!item_name.contains("arrow")) {
+			if (!(item_name.contains("arrow") || e.getItemDrop().getItemStack().getType() == Material.POTION)) {
 				e.setCancelled(true);
 			}
 			return;

@@ -55,7 +55,6 @@ public class BigDoor implements Listener {
 
 	public void regenerate_door() {
 		door_open = false;
-		Bukkit.getLogger().severe("regenerating door");
 		List<Block> blocks = getSphere(get_center(Bukkit.getWorld("world")), radius, false);
 		for (Block b : blocks) {
 			if (b.getType().isAir() || b.getType() == Material.LIGHT) {
@@ -66,7 +65,6 @@ public class BigDoor implements Listener {
 
 	public void open_door() {
 		door_open = true;
-		Bukkit.getLogger().severe("opening door");
 		new BukkitRunnable() {
 			private int i = 0;
 			private World w = Bukkit.getWorld("world");
@@ -93,7 +91,7 @@ public class BigDoor implements Listener {
 
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
-		if (e.getClickedBlock().getType() == null || e.getClickedBlock().getType() != Material.LEVER) {
+		if (e.getClickedBlock() == null || e.getClickedBlock().getType() != Material.LEVER) {
 			return;
 		}
 		if (door_open || Litestrike.getInstance().game_controller.round_state != RoundState.Running) {

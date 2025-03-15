@@ -161,7 +161,7 @@ public class PlayerListener implements Listener {
 		}
 
 		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
-		if (!msg_text.startsWith("@all") && !msg_text.startsWith("@a")) {
+		if (!msg_text.startsWith("@a") && !msg_text.startsWith("@A")) {
 			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
 		}
 
