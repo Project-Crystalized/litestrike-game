@@ -323,7 +323,9 @@ public class LSItem {
 		if (is_underdog_sword(item)) {
 			displayItem = do_underdog_sword(Teams.get_team(p_name));
 			ItemMeta dog_meta = displayItem.getItemMeta();
-			dog_meta.lore().addAll(lore);
+			var dog_lore = dog_meta.lore();
+			dog_lore.addAll(lore);
+			dog_meta.lore(dog_lore);
 			displayItem.setItemMeta(dog_meta);
 		}
 
@@ -344,11 +346,13 @@ public class LSItem {
 		ItemStack underDog = new ItemStack(STONE_SWORD);
 		ItemMeta underDog_meta = underDog.getItemMeta();
 		underDog_meta.setCustomModelData(3 + rounds_down);
-		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false).color(TextColor.color(0x8f5805)));
+		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false)
+				.color(TextColor.color(0x8f5805)));
 		List<Component> underDog_lore = new ArrayList<>();
 		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
 		underDog_lore.add(Component.text(""));
-		underDog_lore.add(Component.text("Current bonus: "+rounds_down+" damage.").color(WHITE).decoration(ITALIC, false));
+		underDog_lore
+				.add(Component.text("Current bonus: " + rounds_down + " damage.").color(WHITE).decoration(ITALIC, false));
 		underDog_meta.lore(underDog_lore);
 		underDog_meta.setUnbreakable(true);
 
