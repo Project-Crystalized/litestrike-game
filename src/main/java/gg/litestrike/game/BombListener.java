@@ -467,6 +467,7 @@ public class BombListener implements Listener {
 			case REDSTONE_WIRE:
 			case SPRUCE_FENCE:
 			case WARPED_FENCE:
+			case IRON_TRAPDOOR:
 				return false;
 			default:
 				return true;
