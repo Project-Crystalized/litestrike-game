@@ -65,21 +65,12 @@ public class LsDatabase {
 
 		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
 
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : gc.round_results) {
-			if (w == gg.litestrike.game.Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
 		int winner_int = winner == Team.Placer ? 1 : 0;
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			PreparedStatement game_stmt = conn.prepareStatement(save_game);
-			game_stmt.setInt(1, placer_wins_amt);
-			game_stmt.setInt(2, breaker_wins_amt);
+			game_stmt.setInt(1, gc.placer_wins_amt);
+			game_stmt.setInt(2, gc.breaker_wins_amt);
 			game_stmt.setString(3, Litestrike.getInstance().mapdata.map_name);
 			game_stmt.setInt(4, winner_int);
 			game_stmt.setInt(5, gc.game_reference);
@@ -116,7 +107,7 @@ public class LsDatabase {
 	}
 
 	private static byte[] get_bought_items(Player p) {
-		Shop s = Shop.getShop(p);
+		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		ByteBuffer bb = ByteBuffer.allocate(s.shopLog.size() * 2);
 		for (LSItem lsi : s.shopLog) {
 			if (lsi == null) {

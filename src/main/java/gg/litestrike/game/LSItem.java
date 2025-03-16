@@ -4,12 +4,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
@@ -309,7 +309,7 @@ public class LSItem {
 	}
 
 	// this can handle null being passed in
-	public ItemStack buildDisplayItem(Player p) {
+	public ItemStack buildDisplayItem(String p_name) {
 		if (price == null) {
 			return null;
 		}
@@ -319,8 +319,9 @@ public class LSItem {
 		} else {
 			lore = new ArrayList<>(description);
 		}
+		Player p = Bukkit.getPlayer(p_name);
 		lore.add(Component.text("")); // add a newline so that the price is seperated
-		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p).getMoney() - price) >= 0) {
+		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {
 			lore.add(Component.text("" + price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
 			lore.add(Component.text("" + price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));
@@ -331,40 +332,52 @@ public class LSItem {
 		meta.lore(lore);
 		displayItem.setItemMeta(meta);
 
-		// underdog
-		if (item.getType() == Material.STONE_SWORD && item.getItemMeta().getCustomModelData() == 3) {
-			displayItem = do_underdog_sword(displayItem, p);
+		if (is_underdog_sword(item)) {
+			displayItem = do_underdog_sword(Teams.get_team(p_name));
+			ItemMeta dog_meta = displayItem.getItemMeta();
+			var dog_lore = dog_meta.lore();
+			dog_lore.addAll(lore);
+			dog_meta.lore(dog_lore);
+			displayItem.setItemMeta(dog_meta);
 		}
+
 		return displayItem;
 	}
 
-	public static ItemStack do_underdog_sword(ItemStack item, Player player) {
-		ItemStack cloned_item = item.clone();
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (Team w : Litestrike.getInstance().game_controller.round_results) {
-			if (w == Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
+	public static ItemStack do_underdog_sword(Team t) {
+		GameController gc = Litestrike.getInstance().game_controller;
 		int rounds_down = 0;
-		if (Teams.get_team(player.getName()) == Team.Breaker) {
-			rounds_down = placer_wins_amt - breaker_wins_amt;
+		if (t == Team.Breaker) {
+			rounds_down = gc.placer_wins_amt - gc.breaker_wins_amt;
 		} else {
-			rounds_down = breaker_wins_amt - placer_wins_amt;
+			rounds_down = gc.breaker_wins_amt - gc.placer_wins_amt;
 		}
 		if (rounds_down <= 0) {
-			return cloned_item;
+			rounds_down = 0;
 		}
-		// Bukkit.getLogger().severe("rounds down is: " + rounds_down + " for player: "
-		// + player.getName());
-		ItemMeta im = cloned_item.getItemMeta();
-		im.setCustomModelData(3 + rounds_down);
-		im.addEnchant(Enchantment.SHARPNESS, rounds_down, true);
-		cloned_item.setItemMeta(im);
-		return cloned_item;
+		ItemStack underDog = new ItemStack(STONE_SWORD);
+		ItemMeta underDog_meta = underDog.getItemMeta();
+		underDog_meta.setCustomModelData(3 + rounds_down);
+		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false)
+				.color(TextColor.color(0x8f5805)));
+		List<Component> underDog_lore = new ArrayList<>();
+		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
+		underDog_lore.add(Component.text(""));
+		underDog_lore
+				.add(Component.text("Current bonus: " + rounds_down + " damage.").color(WHITE).decoration(ITALIC, false));
+		underDog_meta.lore(underDog_lore);
+		underDog_meta.setUnbreakable(true);
+
+		underDog.setItemMeta(underDog_meta);
+		return underDog;
+	}
+
+	public static boolean is_underdog_sword(ItemStack item) {
+		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasCustomModelData()) {
+			return false;
+		}
+		return (item.getType() == Material.STONE_SWORD
+				&& (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {

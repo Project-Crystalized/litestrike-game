@@ -29,9 +29,15 @@ public class DebugCommands implements CommandExecutor {
 				return run_force_start(args, commandSender);
 			case "soundd":
 				return run_sound_info(args, commandSender);
+			case "big_door":
+				return run_big_door(args, commandSender);
 			default:
 				return false;
 		}
+	}
+
+	private boolean run_big_door(String[] args, CommandSender commandSender) {
+		return true;
 	}
 
 	private boolean run_sound_info(String[] args, CommandSender commandSender) {
@@ -65,12 +71,18 @@ public class DebugCommands implements CommandExecutor {
 
 	private boolean run_mapdata(String[] args, CommandSender commandSender) {
 		MapData mapdata = Litestrike.getInstance().mapdata;
-
 		commandSender.sendMessage(mapdata.toString());
 
 		if (args.length == 0) {
 			return true;
 		}
+
+		if (args[0].equals("open")) {
+			Litestrike.getInstance().mapdata.map_features.bigDoor.open_door();
+		} else {
+			Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
+		}
+
 		return true;
 	}
 

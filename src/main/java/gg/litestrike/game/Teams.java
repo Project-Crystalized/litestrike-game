@@ -130,8 +130,12 @@ public class Teams {
 			return Team.Breaker;
 		}
 
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
+		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 1");
 		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		Bukkit.getLogger().severe("name was: " + p.getName());
+		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
+		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		new Exception().printStackTrace();
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
@@ -159,8 +163,12 @@ public class Teams {
 			return Team.Breaker;
 		}
 
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found");
+		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 2");
 		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		Bukkit.getLogger().severe("name was: " + name);
+		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
+		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		new Exception().printStackTrace();
 		// disable plugin when failure
 		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 

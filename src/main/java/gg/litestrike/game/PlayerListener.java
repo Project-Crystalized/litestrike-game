@@ -25,6 +25,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import gg.litestrike.game.GameController.RoundState;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.entity.LookAnchor;
@@ -99,9 +100,14 @@ public class PlayerListener implements Listener {
 			// if we are here, it means the player is rejoining
 			p.setGameMode(GameMode.SPECTATOR);
 
+			if (gc.getShop(p) != null) {
+				gc.getShop(p).player = p.getName();
+			}
+
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 
 			// give player the scoreboard and bossbar again
+			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
 			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
 
@@ -132,6 +138,7 @@ public class PlayerListener implements Listener {
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
 			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
 			e.getPlayer().addPotionEffects(pm.getCustomEffects());
+			SoundEffects.potion_drink(e.getPlayer().getLocation());
 			if (e.getHand() == EquipmentSlot.HAND) {
 				e.getPlayer().getInventory().setItemInMainHand(null);
 			} else {
@@ -155,7 +162,7 @@ public class PlayerListener implements Listener {
 		}
 
 		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
-		if (!msg_text.startsWith("@all") && !msg_text.startsWith("@a")) {
+		if (!msg_text.startsWith("@a") && !msg_text.startsWith("@A")) {
 			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
 		}
 

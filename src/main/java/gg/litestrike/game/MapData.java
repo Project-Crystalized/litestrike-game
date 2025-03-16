@@ -17,6 +17,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import gg.litestrike.game.mapfeatures.MapFeatures;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;

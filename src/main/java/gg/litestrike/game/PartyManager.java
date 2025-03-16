@@ -56,7 +56,7 @@ public class PartyManager implements PluginMessageListener {
 		// iam os sorry, this code is prolly so confusing ;-;
 		List<String> new_list1 = new ArrayList<>();
 		List<String> new_list2 = new ArrayList<>();
-		//add partys
+		// add partys
 		boolean alternating = true;
 		for (List<String> party : partys) {
 			alternating = !alternating;

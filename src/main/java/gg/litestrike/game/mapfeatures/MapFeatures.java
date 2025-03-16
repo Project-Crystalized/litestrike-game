@@ -1,27 +1,20 @@
-package gg.litestrike.game;
+package gg.litestrike.game.mapfeatures;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
+import gg.litestrike.game.Litestrike;
 
 public class MapFeatures implements Listener {
 	private static Set<Player> fall_protected_players = new HashSet<>();
@@ -29,6 +22,8 @@ public class MapFeatures implements Listener {
 	protected static Material launch_pad_block;
 	protected static Material levi_pad_block;
 	protected static Material jump_pad_block;
+
+	public BigDoor bigDoor;
 
 	public MapFeatures(JsonObject json) {
 		JsonElement lp_block = json.get("launch_pad_block");
@@ -47,6 +42,11 @@ public class MapFeatures implements Listener {
 		JsonElement jump_block = json.get("jump_pad_block");
 		if (jump_block != null) {
 			jump_pad_block = Material.matchMaterial(jump_block.getAsString());
+		}
+
+		JsonObject jo_big_door = json.getAsJsonObject("big_door");
+		if (jo_big_door != null) {
+			bigDoor = new BigDoor(jo_big_door);
 		}
 	}
 
@@ -77,6 +77,9 @@ public class MapFeatures implements Listener {
 		if (jump_pad_block != null) {
 			plugin.getServer().getPluginManager().registerEvents(new JumpPadListener(), plugin);
 		}
+		if (bigDoor != null) {
+			plugin.getServer().getPluginManager().registerEvents(bigDoor, plugin);
+		}
 	}
 
 	@EventHandler
@@ -96,57 +99,12 @@ public class MapFeatures implements Listener {
 			@Override
 			public void run() {
 				i++;
-				if (i > time) {
+				if (i > time || !fall_protected_players.contains(p)) {
 					fall_protected_players.remove(p);
 					cancel();
 				}
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 1);
+		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 }
 
-class LaunchPadListener implements Listener {
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
-		Player p = e.getPlayer();
-		if (p.getGameMode() == GameMode.SPECTATOR) {
-			return;
-		}
-		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-		if (block_under.getType() == MapFeatures.launch_pad_block) {
-			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			p.setVelocity(p.getLocation().getDirection().multiply(2));
-			MapFeatures.fall_protect_player(p, (20 * 6));
-		}
-	}
-}
-
-class LeviPadListener implements Listener {
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
-		Player p = e.getPlayer();
-		if (p.getGameMode() == GameMode.SPECTATOR)
-			return;
-		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-		if (block_under.getType() == MapFeatures.levi_pad_block && !(p.hasPotionEffect(PotionEffectType.LEVITATION))) {
-			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, (55), 2));
-			MapFeatures.fall_protect_player(p, (20 * 6));
-		}
-	}
-}
-
-class JumpPadListener implements Listener {
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
-		Player p = e.getPlayer();
-		if (p.getGameMode() == GameMode.SPECTATOR)
-			return;
-		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
-			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protect_player(p, (20 * 5));
-		}
-	}
-}

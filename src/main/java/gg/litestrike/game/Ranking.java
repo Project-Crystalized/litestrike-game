@@ -48,7 +48,9 @@ public class Ranking {
 				}
 			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
 				prd.rank -= 1;
-				if (p != null) {
+				if (prd.rank < 0) {
+					prd.rank = 0;
+				} else if (p != null) {
 					p.sendMessage("You have lost a rank. :(");
 				}
 			}
@@ -79,18 +81,21 @@ public class Ranking {
 		int total = 0;
 
 		for (PlayerRankedData prd : player_ranks) {
-			if (prd.rp < 0) { // negative numbers mess up the calculation
-				total += prd.rp;
+			if (!team.contains(Bukkit.getPlayer(prd.uuid).getName())) {
 				continue;
 			}
-			total += prd.rp;
+			if (prd.rp < 0) {
+				total += prd.rp;
+				// negative numbers mess up the calculation
+				continue;
+			}
 
-			// int win_loss = prd.recent_wins - prd.recent_losses;
-			// if (win_loss > 0) {
-			// total += prd.rp * Math.pow(1.12, win_loss);
-			// } else if (win_loss < 0) {
-			// total += prd.rp * Math.pow(0.88, -win_loss);
-			// }
+			int win_loss = prd.recent_wins - prd.recent_losses;
+			if (win_loss > 0) {
+			total += prd.rp * Math.pow(1.12, win_loss);
+			} else if (win_loss < 0) {
+			total += prd.rp * Math.pow(0.88, -win_loss);
+			}
 		}
 		return total;
 	}

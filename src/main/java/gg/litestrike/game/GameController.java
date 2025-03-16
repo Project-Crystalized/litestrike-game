@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -19,6 +20,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -34,13 +36,6 @@ import com.google.common.io.ByteStreams;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
 
-enum RoundState {
-	PreRound,
-	Running,
-	PostRound,
-	GameFinished,
-}
-
 // This will be created by something else, whenever there are 6+ people online
 // and no game is currently going
 public class GameController {
@@ -52,6 +47,10 @@ public class GameController {
 	public RoundState round_state = RoundState.PreRound;
 
 	public List<Team> round_results = new ArrayList<Team>();
+	public int placer_wins_amt = 0;
+	public int breaker_wins_amt = 0;
+
+	public HashMap<String, Shop> shopList = new HashMap<>();
 
 	// the phase_timer starts counting up from the beginning of the round
 	// after it reaches (15 * 20), the game is started. when the round winner is
@@ -70,7 +69,15 @@ public class GameController {
 	// public final static int PRE_ROUND_TIME = (20 * 1);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
+	// public final static int POST_ROUND_TIME = (1 * 20);
 	public final static int FINISH_TIME = (20 * 12);
+
+	public enum RoundState {
+		PreRound,
+		Running,
+		PostRound,
+		GameFinished,
+	}
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
@@ -165,17 +172,6 @@ public class GameController {
 			return null;
 		}
 
-		// end if a team has won
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : round_results) {
-			if (w == gg.litestrike.game.Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
-
 		// if the enemy team is empty, or if the team has reached the required rounds,
 		// win
 		if (teams.get_placers().size() == 0 || breaker_wins_amt == SWITCH_ROUND + 1) {
@@ -214,8 +210,12 @@ public class GameController {
 					.append(text("\n")));
 		}
 
+		Litestrike ls = Litestrike.getInstance();
+		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
+			ls.mapdata.map_features.bigDoor.regenerate_door();
+		}
 		// remove the border
-		Litestrike.getInstance().mapdata.lowerBorder(Bukkit.getWorld("world"));
+		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop.removeShop(p);
@@ -230,6 +230,11 @@ public class GameController {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
 		round_results.add(winner);
+		if (winner == Team.Placer) {
+			placer_wins_amt += 1;
+		} else {
+			breaker_wins_amt += 1;
+		}
 
 		ScoreboardController.set_win_display(round_results);
 
@@ -257,6 +262,12 @@ public class GameController {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
+			Inventory inv = p.getInventory();
+			for (int i = 0; i < inv.getSize(); i++) {
+				if (LSItem.is_underdog_sword(inv.getItem(i))) {
+					inv.setItem(i, LSItem.do_underdog_sword(teams.get_team(p)));
+				}
+			}
 			if (teams.get_team(p) == winner) {
 				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
@@ -332,6 +343,11 @@ public class GameController {
 			bomb = null;
 		}
 
+		Litestrike ls = Litestrike.getInstance();
+		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
+			ls.mapdata.map_features.bigDoor.regenerate_door();
+		}
+
 		if (round_number == SWITCH_ROUND + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
@@ -347,8 +363,15 @@ public class GameController {
 					round_results.set(i, Team.Placer);
 				}
 			}
+			int tmp = breaker_wins_amt;
+			breaker_wins_amt = placer_wins_amt;
+			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display(round_results);
+			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
+				s.resetEquip();
+				s.resetEquipCounters();
+			}
 		}
 		if (round_number == (SWITCH_ROUND * 2) + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
@@ -356,6 +379,10 @@ public class GameController {
 			for (PlayerData pd : playerDatas) {
 				pd.removeMoney();
 				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
+			}
+			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
+				s.resetEquip();
+				s.resetEquipCounters();
 			}
 		}
 
@@ -381,7 +408,7 @@ public class GameController {
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
 			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
-			Shop s = Shop.getShop(p);
+			Shop s = Litestrike.getInstance().game_controller.getShop(p);
 			s.resetEquipCounters();
 			s.previousEquip.clear();
 			// this is needed because of some weird packet nonsense, to make everyone glow
@@ -529,7 +556,11 @@ public class GameController {
 			// dont teleport if there are no podium coordinates
 			return;
 		}
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			p.setGameMode(GameMode.ADVENTURE);
+		}
 		Collections.sort(playerDatas, new PlayerDataComparator());
+		Collections.reverse(playerDatas);
 		for (int i = 0; i < playerDatas.size(); i++) {
 			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
 			switch (i) {
@@ -547,4 +578,9 @@ public class GameController {
 			}
 		}
 	}
+
+	public Shop getShop(Player p) {
+		return shopList.get(p.getName());
+	}
+
 }

@@ -183,21 +183,11 @@ public class ScoreboardController {
 	}
 
 	public static void set_win_display(List<gg.litestrike.game.Team> wins) {
-		int placer_wins_amt = 0;
-		int breaker_wins_amt = 0;
-		for (gg.litestrike.game.Team w : wins) {
-			if (w == gg.litestrike.game.Team.Placer) {
-				placer_wins_amt += 1;
-			} else {
-				breaker_wins_amt += 1;
-			}
-		}
+		GameController gc = Litestrike.getInstance().game_controller;
+		Component placer_text = text(render_win_display(gc.placer_wins_amt));
+		Component breaker_text = text(render_win_display(gc.breaker_wins_amt));
 
-		Component placer_text = text(render_win_display(placer_wins_amt));
-		Component breaker_text = text(render_win_display(breaker_wins_amt));
-		Teams t = Litestrike.getInstance().game_controller.teams;
-
-		for (Player p : t.get_placers()) {
+		for (Player p : gc.teams.get_placers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
 			if (breakers == null || placers == null) {
@@ -208,7 +198,7 @@ public class ScoreboardController {
 			placers.suffix(placer_text);
 		}
 
-		for (Player p : t.get_breakers()) {
+		for (Player p : gc.teams.get_breakers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
 			if (breakers == null || placers == null) {

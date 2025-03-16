@@ -4,6 +4,7 @@ import static org.bukkit.GameMode.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,7 +14,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
@@ -68,6 +68,9 @@ public class DeathHandler implements Listener {
 							.color(Teams.get_team_color(gc.teams.get_team(p))));
 		}
 
+		gc.getShop(p).resetEquip();
+		gc.getShop(p).resetEquipCounters();
+
 		Team killed_team = gc.teams.get_team(p);
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (gc.teams.get_team(player) == killed_team) {
@@ -82,7 +85,7 @@ public class DeathHandler implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		List<Player> assiters = new ArrayList<>();
 		for (PlayerData pd : gc.playerDatas) {
-			if (pd.assist_list.contains(p)) {
+			if (pd.assist_list.get(p) != null && pd.assist_list.get(p) > 3.9) {
 				Player player = Bukkit.getPlayer(pd.player);
 				if (player != null) {
 					assiters.add(player);
@@ -104,10 +107,15 @@ public class DeathHandler implements Listener {
 		}
 		Player damager = (Player) e.getDamageSource().getCausingEntity();
 		Player damage_receiver = (Player) e.getEntity();
+
+		// Bukkit.getLogger().severe("damage dealt: " + e.getFinalDamage());
+		// Bukkit.getLogger().severe("raw damage dealt: " + e.getDamage());
+
 		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
 			e.setCancelled(true);
 		} else {
-			gc.getPlayerData(damager).assist_list.add(damage_receiver);
+			Map<Player, Double> assist_list = gc.getPlayerData(damager).assist_list;
+			assist_list.put(damage_receiver, assist_list.getOrDefault(damage_receiver, 0.0) + e.getFinalDamage());
 		}
 	}
 

@@ -4,6 +4,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,8 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
-
-import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
@@ -28,7 +27,7 @@ public class ShopListener implements Listener {
 		if (event.getAction() == RIGHT_CLICK_AIR || event.getAction() == RIGHT_CLICK_BLOCK) {
 			Player p = event.getPlayer();
 			if (p.getInventory().getItemInMainHand().getType() == Material.EMERALD) {
-				Shop s = Shop.getShop(p);
+				Shop s = Litestrike.getInstance().game_controller.getShop(p);
 				s.open_shop();
 			}
 		}
@@ -37,11 +36,11 @@ public class ShopListener implements Listener {
 	@EventHandler
 	public void buyItem(InventoryClickEvent event) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.round_state != RoundState.PreRound) {
+		if (gc == null || gc.round_state != GameController.RoundState.PreRound) {
 			return;
 		}
 		Player p = (Player) event.getWhoClicked();
-		Shop s = Shop.getShop(p);
+		Shop s = gc.getShop(p);
 		if (event.getCurrentItem() == null) {
 			return;
 		}
@@ -89,6 +88,9 @@ public class ShopListener implements Listener {
 		if (clicked_item.categ != ItemCategory.Ammunition && clicked_item.categ != ItemCategory.Consumable
 				&& clicked_item.categ != ItemCategory.Armor) {
 			int cont = s.findInvIndex(clicked_item.categ);
+			if (cont == -1) {
+				Bukkit.getLogger().severe("tried to get a -1 index for item: " + clicked_item.item.getType());
+			}
 			p.getInventory().clear(cont);
 		}
 
@@ -109,9 +111,8 @@ public class ShopListener implements Listener {
 			p.getInventory().setChestplate(clicked_item.item);
 		} else {
 			// underog
-			if (clicked_item.item.getType() == Material.STONE_SWORD
-					&& clicked_item.item.getItemMeta().getCustomModelData() == 3) {
-				p.getInventory().addItem(LSItem.do_underdog_sword(clicked_item.item.clone(), p));
+			if (LSItem.is_underdog_sword(clicked_item.item)) {
+				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
 				p.getInventory().addItem(clicked_item.item);
 			}
@@ -122,7 +123,7 @@ public class ShopListener implements Listener {
 	}
 
 	public void undoBuy(ItemStack item, Player p, int slot) {
-		Shop s = Shop.getShop(p);
+		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
 		LSItem lsitem = null;
 
@@ -132,12 +133,10 @@ public class ShopListener implements Listener {
 				continue;
 			}
 
-			if (lsi.slot.equals(slot) && (lsi.item.getType() == item.getType()
-					&& Objects.equals(identifyCustomModelData(lsi.item), identifyCustomModelData(item)))) {
+			if (lsi.slot.equals(slot) && (lsi.item.getType() == item.getType())) {
 				lsitem = lsi;
 				break;
 			}
-
 		}
 
 		if (lsitem == null) {
@@ -163,28 +162,38 @@ public class ShopListener implements Listener {
 				return;
 			}
 			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
-			inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+			if (LSItem.is_underdog_sword(s.previousEquip.get(lsitem.categ).item)) {
+				inv.setItem(invSlot, LSItem.do_underdog_sword(Teams.get_team(p.getName())));
+			} else {
+				inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+			}
 			s.previousEquip.remove(lsitem.categ);
 		} else {
 			if (s.consAndAmmoCount.get(lsitem) <= 0) {
 				return;
 			}
-			int amount = p.getInventory().getItem(invSlot).getAmount() / lsitem.item.getAmount() - 1;
+			// int amount = p.getInventory().getItem(invSlot).getAmount() / lsitem.item.getAmount() - 1;
 			int count = s.consAndAmmoCount.get(lsitem) - 1;
 			if (count < 0) {
 				return;
 			}
 			s.consAndAmmoCount.remove(lsitem);
 			s.consAndAmmoCount.put(lsitem, count);
-			inv.clear(invSlot);
-			for (int i = amount; i > 0; i--) {
-				if (i == amount) {
-					inv.setItem(invSlot, lsitem.item);
-				} else {
-					inv.addItem(lsitem.item);
-				}
-			}
 
+			ItemStack item_in_slot = inv.getItem(invSlot);
+			if (item_in_slot.getAmount() - lsitem.item.getAmount() < 0) {
+				return;
+			}
+			item_in_slot.setAmount(item_in_slot.getAmount() - lsitem.item.getAmount());
+			inv.setItem(invSlot, item_in_slot);
+			// inv.clear(invSlot);
+			// for (int i = amount; i > 0; i--) {
+			// if (i == amount) {
+			// inv.setItem(invSlot, lsitem.item);
+			// } else {
+			// inv.addItem(lsitem.item);
+			// }
+			// }
 		}
 		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
 		s.open_shop();

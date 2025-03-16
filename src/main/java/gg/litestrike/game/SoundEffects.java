@@ -2,7 +2,6 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -22,7 +21,7 @@ public class SoundEffects {
 			@Override
 			public void run() {
 				GameController gc = Litestrike.getInstance().game_controller;
-				if (gc.round_state != RoundState.PreRound) {
+				if (gc.round_state != GameController.RoundState.PreRound) {
 					cancel();
 				}
 				if (gc.phase_timer == GameController.PRE_ROUND_TIME - 80) {
@@ -124,6 +123,10 @@ public class SoundEffects {
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
+	}
+
+	public static void potion_drink(Location l) {
+		l.getWorld().playSound(l, "entity.generic.drink", 1, 1);
 	}
 
 	public static void stop_planting(int x, int y, int z) {
