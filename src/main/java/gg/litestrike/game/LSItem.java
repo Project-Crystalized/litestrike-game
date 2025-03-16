@@ -120,7 +120,12 @@ public class LSItem {
 		lsItems.add(new LSItem(bow, null, null, ItemCategory.Range, null, null, null));
 
 		ItemStack arrow = new ItemStack(ARROW, 6);
-		lsItems.add(new LSItem(arrow, 150, null, ItemCategory.Ammunition, 50, null, null));
+		List<Component> arrowDesc = new ArrayList<>();
+		arrowDesc.add(Component.text("| '").color(WHITE).decoration(ITALIC, false));
+		ItemMeta meta  = arrow.getItemMeta();
+		meta.lore(arrowDesc);
+		arrow.setItemMeta(meta);
+		lsItems.add(new LSItem(arrow, 150, arrowDesc, ItemCategory.Ammunition, 50, null, null));
 
 		ItemStack breakerAmour = new ItemStack(LEATHER_CHESTPLATE);
 		breakerAmour = Shop.colorArmor(Color.fromRGB(0x0f9415), breakerAmour, 1);
@@ -253,7 +258,12 @@ public class LSItem {
 				new LSItem(respot, 750, null, ItemCategory.Consumable, 45, Component.text("Potion of Resistance"), null));
 
 		ItemStack spectralArrow = new ItemStack(SPECTRAL_ARROW, 3);
-		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));
+		List<Component> spectral_lore = new ArrayList<>();
+		spectral_lore.add(Component.text("| '").color(WHITE).decoration(ITALIC, false));
+		ItemMeta spectral_meta = spectralArrow.getItemMeta();
+		spectral_meta.lore(spectral_lore);
+		spectralArrow.setItemMeta(spectral_meta);
+		lsItems.add(new LSItem(spectralArrow, 125, spectral_lore, ItemCategory.Ammunition, 51, null, null));
 
 		ItemStack dragonArrow = new ItemStack(ARROW, 3);
 		ItemMeta dragon_meta = dragonArrow.getItemMeta();
@@ -261,6 +271,7 @@ public class LSItem {
 		dragon_meta.displayName(translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false));
 		List<Component> dragon_lore = new ArrayList<>();
 		dragon_lore.add(translatable("crystalized.item.dragonarrow.desc").color(WHITE).decoration(ITALIC, false));
+		dragon_lore.add(Component.text("|").color(WHITE).decoration(ITALIC, false));
 		dragon_meta.lore(dragon_lore);
 		dragonArrow.setItemMeta(dragon_meta);
 		lsItems.add(new LSItem(dragonArrow, 350, dragon_lore, ItemCategory.Ammunition, 52,
@@ -272,6 +283,7 @@ public class LSItem {
 		explo_meta.displayName(translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false));
 		List<Component> explo_lore = new ArrayList<>();
 		explo_lore.add(translatable("crystalized.item.explosivearrow.desc").color(WHITE).decoration(ITALIC, false));
+		explo_lore.add(Component.text("| |").color(WHITE).decoration(ITALIC, false));
 		explo_meta.lore(explo_lore);
 		exploArrow.setItemMeta(explo_meta);
 		lsItems.add(new LSItem(exploArrow, 350, explo_lore, ItemCategory.Ammunition, 53,
