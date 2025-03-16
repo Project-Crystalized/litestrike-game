@@ -380,6 +380,10 @@ public class GameController {
 				pd.removeMoney();
 				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
 			}
+			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
+				s.resetEquip();
+				s.resetEquipCounters();
+			}
 		}
 
 		World w = Bukkit.getWorld("world");
@@ -552,7 +556,7 @@ public class GameController {
 			// dont teleport if there are no podium coordinates
 			return;
 		}
-		for (Player p: Bukkit.getOnlinePlayers()) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			p.setGameMode(GameMode.ADVENTURE);
 		}
 		Collections.sort(playerDatas, new PlayerDataComparator());
