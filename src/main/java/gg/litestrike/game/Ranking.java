@@ -48,7 +48,9 @@ public class Ranking {
 				}
 			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
 				prd.rank -= 1;
-				if (p != null) {
+				if (prd.rank < 0) {
+					prd.rank = 0;
+				} else if (p != null) {
 					p.sendMessage("You have lost a rank. :(");
 				}
 			}
