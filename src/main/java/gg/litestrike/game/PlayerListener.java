@@ -107,6 +107,7 @@ public class PlayerListener implements Listener {
 			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 
 			// give player the scoreboard and bossbar again
+			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
 			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
 

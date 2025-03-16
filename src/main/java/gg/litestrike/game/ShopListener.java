@@ -172,22 +172,28 @@ public class ShopListener implements Listener {
 			if (s.consAndAmmoCount.get(lsitem) <= 0) {
 				return;
 			}
-			int amount = p.getInventory().getItem(invSlot).getAmount() / lsitem.item.getAmount() - 1;
+			// int amount = p.getInventory().getItem(invSlot).getAmount() / lsitem.item.getAmount() - 1;
 			int count = s.consAndAmmoCount.get(lsitem) - 1;
 			if (count < 0) {
 				return;
 			}
 			s.consAndAmmoCount.remove(lsitem);
 			s.consAndAmmoCount.put(lsitem, count);
-			inv.clear(invSlot);
-			for (int i = amount; i > 0; i--) {
-				if (i == amount) {
-					inv.setItem(invSlot, lsitem.item);
-				} else {
-					inv.addItem(lsitem.item);
-				}
-			}
 
+			ItemStack item_in_slot = inv.getItem(invSlot);
+			if (item_in_slot.getAmount() - lsitem.item.getAmount() <= 0) {
+				return;
+			}
+			item_in_slot.setAmount(item_in_slot.getAmount() - lsitem.item.getAmount());
+			inv.setItem(invSlot, item_in_slot);
+			// inv.clear(invSlot);
+			// for (int i = amount; i > 0; i--) {
+			// 	if (i == amount) {
+			// 		inv.setItem(invSlot, lsitem.item);
+			// 	} else {
+			// 		inv.addItem(lsitem.item);
+			// 	}
+			// }
 		}
 		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
 		s.open_shop();
