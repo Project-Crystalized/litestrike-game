@@ -13,6 +13,7 @@ import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -25,7 +26,7 @@ import static net.kyori.adventure.text.Component.translatable;
 
 public class DeathHandler implements Listener {
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		e.setCancelled(true);
 		if (e.getPlayer().getGameMode() != SURVIVAL) {
@@ -43,6 +44,10 @@ public class DeathHandler implements Listener {
 		Player killer = null;
 		if (entity != null && entity instanceof Player) {
 			killer = (Player) entity;
+		}
+		if (killer == null) {
+			killer = gc.getPlayerData(p).ldt.get_last_damager();
+			// this might still be null!
 		}
 
 		send_death_message(p, killer, get_death_icon(e.getDamageSource().getDamageType(), killer));
@@ -116,6 +121,8 @@ public class DeathHandler implements Listener {
 		} else {
 			Map<Player, Double> assist_list = gc.getPlayerData(damager).assist_list;
 			assist_list.put(damage_receiver, assist_list.getOrDefault(damage_receiver, 0.0) + e.getFinalDamage());
+
+			gc.getPlayerData(damage_receiver).ldt.update_damager(damager);
 		}
 	}
 

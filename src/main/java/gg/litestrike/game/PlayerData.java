@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -23,6 +24,7 @@ public class PlayerData {
 	private int total_money_spent = 0;
 	private int plants = 0;
 	private int breaks = 0;
+	public LastDamagerTracker ldt = new LastDamagerTracker();
 
 	// this keeps track of assits in the current round for this player
 	public Map<Player, Double> assist_list = new HashMap<Player, Double>();
@@ -111,6 +113,36 @@ public class PlayerData {
 
 	public int getBroken() {
 		return breaks;
+	}
+}
+
+class LastDamagerTracker {
+	private int counter = 0;
+	private Player player;
+
+	public LastDamagerTracker() {
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				counter--;
+				if (player != null && counter == 1) {
+					player = null;
+				}
+			}
+		}.runTaskTimerAsynchronously(Litestrike.getInstance(), 10, 20);
+	}
+
+	public Player get_last_damager() {
+		return player;
+	}
+
+	public void update_damager(Player p) {
+		counter = 15;
+		player = p;
+	}
+	public void clear_damager() {
+		counter = 0;
+		player = null;
 	}
 }
 

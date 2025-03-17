@@ -262,6 +262,7 @@ public class GameController {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
+			pd.ldt.clear_damager();
 			Inventory inv = p.getInventory();
 			for (int i = 0; i < inv.getSize(); i++) {
 				if (LSItem.is_underdog_sword(inv.getItem(i))) {
