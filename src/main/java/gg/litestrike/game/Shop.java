@@ -18,7 +18,6 @@ import gg.litestrike.game.LSItem.ItemCategory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -175,12 +174,7 @@ public class Shop {
 			if (it == null) {
 				continue;
 			}
-			if (LSItem.is_underdog_sword(item) && LSItem.is_underdog_sword(it)) {
-				return true;
-			}
-
-			if (it.getType() == item.getType()
-					&& Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
+			if (LSItem.is_same_ls_item(it, item)) {
 				return true;
 			}
 		}
@@ -197,12 +191,7 @@ public class Shop {
 				continue;
 			}
 
-			if (LSItem.is_underdog_sword(item) && LSItem.is_underdog_sword(it)) {
-				return i;
-			}
-
-			if (it.getType() == item.getType()
-					&& Objects.equals(ShopListener.identifyCustomModelData(it), ShopListener.identifyCustomModelData(item))) {
+			if (LSItem.is_same_ls_item(it, item)) {
 				return i;
 			}
 		}

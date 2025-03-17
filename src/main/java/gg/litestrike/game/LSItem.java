@@ -21,6 +21,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.enchantments.Enchantment.*;
@@ -122,7 +123,7 @@ public class LSItem {
 		ItemStack arrow = new ItemStack(ARROW, 6);
 		List<Component> arrowDesc = new ArrayList<>();
 		arrowDesc.add(Component.text("| '").color(WHITE).decoration(ITALIC, false));
-		ItemMeta meta  = arrow.getItemMeta();
+		ItemMeta meta = arrow.getItemMeta();
 		meta.lore(arrowDesc);
 		arrow.setItemMeta(meta);
 		lsItems.add(new LSItem(arrow, 150, arrowDesc, ItemCategory.Ammunition, 50, null, null));
@@ -342,6 +343,27 @@ public class LSItem {
 		}
 
 		return displayItem;
+	}
+
+	public static boolean is_same_ls_item(ItemStack item, ItemStack ls_item) {
+		if (LSItem.is_underdog_sword(item) && LSItem.is_underdog_sword(ls_item)) {
+			return true;
+		}
+
+		if (item.getType() == ls_item.getType()
+				&& Objects.equals(ShopListener.identifyCustomModelData(item), ShopListener.identifyCustomModelData(ls_item))) {
+			if (item.getItemMeta() instanceof PotionMeta && ls_item.getItemMeta() instanceof PotionMeta) {
+				PotionMeta item_meta = (PotionMeta) item.getItemMeta();
+				PotionMeta ls_item_meta = (PotionMeta) ls_item.getItemMeta();
+				if (item_meta.getCustomEffects().equals(ls_item_meta.getCustomEffects())) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public static ItemStack do_underdog_sword(Team t) {
