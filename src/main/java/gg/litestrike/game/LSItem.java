@@ -309,11 +309,11 @@ public class LSItem {
 			lore = new ArrayList<>(description);
 		}
 		if((item.getType() == ARROW || item.getType() == SPECTRAL_ARROW)&& modelData == null){
-			lore.add(Component.text("| '").color(WHITE).decoration(ITALIC, false));
+			lore.add(Component.text("\uE12C \uE12D").color(WHITE).decoration(ITALIC, false));
 		}else if(item.getType() == ARROW && modelData == 1){
-			lore.add(Component.text("|").color(WHITE).decoration(ITALIC, false));
+			lore.add(Component.text("\uE12C").color(WHITE).decoration(ITALIC, false));
 		}else if(item.getType() == ARROW && modelData == 2){
-			lore.add(Component.text("| |").color(WHITE).decoration(ITALIC, false));
+			lore.add(Component.text("\uE12C \uE12C").color(WHITE).decoration(ITALIC, false));
 		}
 		Player p = Bukkit.getPlayer(p_name);
 		lore.add(Component.text("")); // add a newline so that the price is seperated
