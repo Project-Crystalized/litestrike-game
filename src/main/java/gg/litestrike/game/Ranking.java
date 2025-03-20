@@ -43,13 +43,15 @@ public class Ranking {
 			if (did_win && prd.rp > get_rank_min_rp(prd.rank + 1) + 20) {
 				// if the player won, AND he has 20 more rp than the next higher rank
 				prd.rank += 1;
-				if (p != null) {
+				if (prd.rank > 10) {
+					prd.rank = 10;
+				} else if (p != null) {
 					p.sendMessage("You have gained a rank!");
 				}
 			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
 				prd.rank -= 1;
-				if (prd.rank < 0) {
-					prd.rank = 0;
+				if (prd.rank < 2) {
+					prd.rank = 2;
 				} else if (p != null) {
 					p.sendMessage("You have lost a rank. :(");
 				}
