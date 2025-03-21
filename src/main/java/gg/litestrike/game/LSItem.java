@@ -346,7 +346,7 @@ public class LSItem {
 		}
 
 		if (item.getType() == ls_item.getType()
-				&& Objects.equals(ShopListener.identifyCustomModelData(item), ShopListener.identifyCustomModelData(ls_item))) {
+				&& Objects.equals(ShopListener.identifyItemModel(item), ShopListener.identifyItemModel(ls_item))) {
 			if (item.getItemMeta() instanceof PotionMeta && ls_item.getItemMeta() instanceof PotionMeta) {
 				PotionMeta item_meta = (PotionMeta) item.getItemMeta();
 				PotionMeta ls_item_meta = (PotionMeta) ls_item.getItemMeta();
