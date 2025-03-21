@@ -206,10 +206,23 @@ public class ShopListener implements Listener {
 		}
 	}
 
+	//deprecated in favour of identifyItemModel(ItemStack)
 	public static Integer identifyCustomModelData(ItemStack item) {
 		if (item.hasItemMeta()) {
 			if (item.getItemMeta().hasCustomModelData()) {
 				return item.getItemMeta().getCustomModelData();
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	public static String identifyItemModel(ItemStack item) {
+		if (item.hasItemMeta()) {
+			if (item.getItemMeta().hasItemModel()) {
+				return item.getItemMeta().getItemModel().toString(); //hopefully this produces something like "crystalized:slime_sword"
 			} else {
 				return null;
 			}

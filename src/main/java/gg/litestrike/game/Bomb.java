@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Item;
@@ -43,6 +44,7 @@ public interface Bomb {
 		im.lore(lore);
 
 		im.setCustomModelData(BombModel.MODEL_ACTIVE);
+		im.setItemModel(new NamespacedKey("crystalized", "models/bomb/shard"));
 
 		im.displayName(Component.translatable("crystalized.item.bomb.name").color(TextColor.color(0xe64cce))
 				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
