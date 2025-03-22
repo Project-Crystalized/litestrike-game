@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
@@ -13,8 +14,8 @@ public class BombModel {
 	private ArmorStand model;
 	private Location after_plant_loc;
 
-	public static final int MODEL_ACTIVE = 36;
-	public static final int MODEL_BREAKING = 37;
+	public static final int MODEL_ACTIVE = 0;
+	public static final int MODEL_BREAKING = 1;
 
 	// creates the model one block below the ground so it can rise
 	// takes in, the block location where the bomb will be after planting
@@ -43,6 +44,7 @@ public class BombModel {
 		ItemStack helmet = model.getEquipment().getHelmet();
 		ItemMeta im = helmet.getItemMeta();
 		im.setCustomModelData(custom_model);
+		im.setItemModel(new NamespacedKey("crystalized", "models/bomb/shard"));
 		helmet.setItemMeta(im);
 		model.getEquipment().setHelmet(helmet);
 

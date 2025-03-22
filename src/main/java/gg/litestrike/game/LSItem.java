@@ -157,7 +157,7 @@ public class LSItem {
 		ItemStack quickdraw = new ItemStack(CROSSBOW);
 		quickdraw.addEnchantment(QUICK_CHARGE, 1);
 		ItemMeta quickdraw_meta = quickdraw.getItemMeta();
-		quickdraw_meta.setCustomModelData(2);
+		quickdraw_meta.setItemModel(new NamespacedKey("crystalized", "quick_charge_crossbow"));
 		quickdraw_meta.displayName(translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false));
 		quickdraw.setItemMeta(quickdraw_meta);
 		List<Component> quickdraw_lore = new ArrayList<>();
@@ -167,7 +167,7 @@ public class LSItem {
 
 		ItemStack pufferFish = new ItemStack(STONE_SWORD);
 		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
-		pufferFish_meta.setCustomModelData(2);
+		pufferFish_meta.setItemModel(new NamespacedKey("crystalized", "pufferfish_sword"));
 		pufferFish_meta.displayName(translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false));
 		pufferFish.setItemMeta(pufferFish_meta);
 		List<Component> pufferFish_lore = new ArrayList<>();
@@ -178,7 +178,7 @@ public class LSItem {
 		ItemStack slimeSword = new ItemStack(STONE_SWORD);
 		slimeSword.addEnchantment(KNOCKBACK, 1);
 		ItemMeta slimeSword_meta = slimeSword.getItemMeta();
-		slimeSword_meta.setCustomModelData(1);
+		slimeSword_meta.setItemModel(new NamespacedKey("crystalized", "slime_sword"));
 		slimeSword_meta.displayName(translatable("crystalized.sword.slime.name").decoration(ITALIC, false));
 		slimeSword.setItemMeta(slimeSword_meta);
 		List<Component> slimeSword_lore = new ArrayList<>();
@@ -189,7 +189,7 @@ public class LSItem {
 
 		ItemStack marksman = new ItemStack(BOW);
 		ItemMeta marksman_meta = marksman.getItemMeta();
-		marksman_meta.setCustomModelData(1);
+		marksman_meta.setItemModel(new NamespacedKey("crystalized", "marksman_bow"));
 		marksman_meta.displayName(translatable("crystalized.bow.marksman.name").decoration(ITALIC, false));
 		marksman.setItemMeta(marksman_meta);
 		List<Component> marksman_lore = new ArrayList<>();
@@ -200,7 +200,7 @@ public class LSItem {
 		ItemStack ricochet = new ItemStack(BOW);
 		ricochet.addEnchantment(PUNCH, 1);
 		ItemMeta ricochet_meta = ricochet.getItemMeta();
-		ricochet_meta.setCustomModelData(3);
+		ricochet_meta.setItemModel(new NamespacedKey("crystalized", "ricochet_bow"));
 		ricochet_meta.displayName(translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false));
 		ricochet.setItemMeta(ricochet_meta);
 		List<Component> ricochet_lore = new ArrayList<>();
@@ -211,7 +211,7 @@ public class LSItem {
 		ItemStack multishot = new ItemStack(CROSSBOW);
 		multishot.addEnchantment(MULTISHOT, 1);
 		ItemMeta multishot_meta = multishot.getItemMeta();
-		multishot_meta.setCustomModelData(1);
+		multishot_meta.setItemModel(new NamespacedKey("crystalized", "multishot_crossbow"));
 		multishot_meta.displayName(translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false));
 		multishot.setItemMeta(multishot_meta);
 		List<Component> multishot_lore = new ArrayList<>();
@@ -221,7 +221,7 @@ public class LSItem {
 
 		ItemStack charged = new ItemStack(CROSSBOW);
 		ItemMeta charged_meta = charged.getItemMeta();
-		charged_meta.setCustomModelData(3);
+		charged_meta.setItemModel(new NamespacedKey("crystalized", "charged_crossbow"));
 		charged_meta.displayName(translatable("crystalized.crossbow.charged.name"));
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
@@ -258,7 +258,7 @@ public class LSItem {
 
 		ItemStack dragonArrow = new ItemStack(ARROW, 3);
 		ItemMeta dragon_meta = dragonArrow.getItemMeta();
-		dragon_meta.setCustomModelData(1);
+		dragon_meta.setItemModel(new NamespacedKey("crystalized", "dragon_arrow"));
 		dragon_meta.displayName(translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false));
 		List<Component> dragon_lore = new ArrayList<>();
 		dragon_lore.add(translatable("crystalized.item.dragonarrow.desc").color(WHITE).decoration(ITALIC, false));
@@ -269,7 +269,7 @@ public class LSItem {
 
 		ItemStack exploArrow = new ItemStack(ARROW, 3);
 		ItemMeta explo_meta = exploArrow.getItemMeta();
-		explo_meta.setCustomModelData(2);
+		explo_meta.setItemModel(new NamespacedKey("crystalized", "explosive_arrow"));
 		explo_meta.displayName(translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false));
 		List<Component> explo_lore = new ArrayList<>();
 		explo_lore.add(translatable("crystalized.item.explosivearrow.desc").color(WHITE).decoration(ITALIC, false));
@@ -280,7 +280,7 @@ public class LSItem {
 
 		ItemStack underDog = new ItemStack(STONE_SWORD);
 		ItemMeta underDog_meta = underDog.getItemMeta();
-		underDog_meta.setCustomModelData(3);
+		underDog_meta.setItemModel(new NamespacedKey("crystalized", "underdog_sword"));
 		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false));
 		List<Component> underDog_lore = new ArrayList<>();
 		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
@@ -346,7 +346,7 @@ public class LSItem {
 		}
 
 		if (item.getType() == ls_item.getType()
-				&& Objects.equals(ShopListener.identifyCustomModelData(item), ShopListener.identifyCustomModelData(ls_item))) {
+				&& Objects.equals(ShopListener.identifyItemModel(item), ShopListener.identifyItemModel(ls_item))) {
 			if (item.getItemMeta() instanceof PotionMeta && ls_item.getItemMeta() instanceof PotionMeta) {
 				PotionMeta item_meta = (PotionMeta) item.getItemMeta();
 				PotionMeta ls_item_meta = (PotionMeta) ls_item.getItemMeta();
@@ -374,7 +374,8 @@ public class LSItem {
 		}
 		ItemStack underDog = new ItemStack(STONE_SWORD);
 		ItemMeta underDog_meta = underDog.getItemMeta();
-		underDog_meta.setCustomModelData(3 + rounds_down);
+		underDog_meta.setItemModel(new NamespacedKey("crystalized", "underdog_sword"));
+		underDog_meta.setCustomModelData(rounds_down);
 		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false)
 				.color(TextColor.color(0x8f5805)));
 		List<Component> underDog_lore = new ArrayList<>();
@@ -390,11 +391,21 @@ public class LSItem {
 	}
 
 	public static boolean is_underdog_sword(ItemStack item) {
+		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasItemModel()) {
+			return false;
+		}
+		if (item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "underdog_sword"))) {
+			return true;
+		}
+		return false;
+
+		/*
 		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasCustomModelData()) {
 			return false;
 		}
 		return (item.getType() == Material.STONE_SWORD
 				&& (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
+		 */
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {
