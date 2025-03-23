@@ -5,6 +5,8 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
@@ -135,11 +137,15 @@ public class Teams {
 		Bukkit.getLogger().severe("name was: " + p.getName());
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		Bukkit.getServer().sendMessage(Component.text("Error 002").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference).color(NamedTextColor.RED));
 		new Exception().printStackTrace();
 		// disable plugin when failure
-		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+		breakers.add(p.getName());
 
-		return null;
+		return Team.Breaker;
 	}
 
 	public static Team get_team(UUID uuid) {
@@ -168,11 +174,16 @@ public class Teams {
 		Bukkit.getLogger().severe("name was: " + name);
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
+		Bukkit.getServer().sendMessage(Component.text("Error 003").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference).color(NamedTextColor.RED));
 		new Exception().printStackTrace();
 		// disable plugin when failure
-		Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
 
-		return null;
+		breakers.add(name);
+
+		return Team.Breaker;
 	}
 
 	public static TextColor get_team_color(Team t) {
