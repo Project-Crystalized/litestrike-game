@@ -143,7 +143,10 @@ public class DeathHandler implements Listener {
 				return text(" \uE11F "); // PICKAXE death icon
 			}
 			return text(" \uE101 "); // SWORD death icon
-		} else {
+		} //else if(dt == DamageType.DRAGON_BREATH){
+			//return text("");//TODO
+		//}
+		else {
 			return text(" \uE103 "); // generic death icon
 		}
 	}

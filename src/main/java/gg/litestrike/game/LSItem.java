@@ -292,6 +292,26 @@ public class LSItem {
 		ItemStack stonePick = new ItemStack(STONE_PICKAXE);
 		lsItems.add(new LSItem(stonePick, null, null, ItemCategory.Defuser, null, null, null));
 
+		ItemStack angled = new ItemStack(BOW);
+		ItemMeta angled_meta = angled.getItemMeta();
+		angled_meta.setItemModel(new NamespacedKey("crystalized", "angled_bow"));
+		angled_meta.displayName(translatable("crystalized.bow.angled.name").decoration(ITALIC, false));
+		angled.setItemMeta(angled_meta);
+		List<Component> angled_lore = new ArrayList<>();
+		marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, null,
+				translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+
+		ItemStack breeze = new ItemStack(STONE_SWORD);
+		ItemMeta breeze_meta = breeze.getItemMeta();
+		breeze_meta.setItemModel(new NamespacedKey("crystalized", "breeze_dagger"));
+		breeze_meta.displayName(translatable("crystalized.sword.wind.name").decoration(ITALIC, false));
+		breeze.setItemMeta(pufferFish_meta);
+		List<Component> breeze_lore = new ArrayList<>();
+		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, null,
+				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
+
 		creation_number = 1; // reset id
 
 		return lsItems;
