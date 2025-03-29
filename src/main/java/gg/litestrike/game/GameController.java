@@ -213,6 +213,7 @@ public class GameController {
 		}
 		// remove the border
 		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
+		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:true");
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop.removeShop(p);
@@ -265,6 +266,8 @@ public class GameController {
 				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
+
+		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			PlayerData pd = getPlayerData(p);
@@ -571,6 +574,9 @@ public class GameController {
 		Collections.reverse(playerDatas);
 		for (int i = 0; i < playerDatas.size(); i++) {
 			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
+			if (p == null) {
+				continue;
+			}
 			switch (i) {
 				case 0:
 					p.teleport(md.podium.get_first(w));

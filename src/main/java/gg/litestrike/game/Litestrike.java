@@ -1,5 +1,7 @@
 package gg.litestrike.game;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
@@ -12,6 +14,7 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.jspecify.annotations.NonNull;
 
 enum Team {
 	Placer,
@@ -69,6 +72,7 @@ public final class Litestrike extends JavaPlugin {
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", party_manager);
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", new QueueSystem());
+		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:essentials");
 
 		bbd = new BossBarDisplay();
 
@@ -100,5 +104,11 @@ public final class Litestrike extends JavaPlugin {
 
 	public static Litestrike getInstance() {
 		return getPlugin(Litestrike.class);
+	}
+
+	public void sendPluginMessage(@NonNull String channel, @NonNull String message) {
+		ByteArrayDataOutput out = ByteStreams.newDataOutput();
+		out.writeUTF(message);
+		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 }
