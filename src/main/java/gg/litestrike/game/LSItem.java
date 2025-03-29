@@ -314,7 +314,7 @@ public class LSItem {
 		breeze.setItemMeta(breeze_meta);
 		List<Component> breeze_lore = new ArrayList<>();
 		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, 39,
+		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, null,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
 
 		creation_number = 1; // reset id

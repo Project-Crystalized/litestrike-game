@@ -11,9 +11,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+
+import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 
 public class Ranking {
 
@@ -35,8 +40,14 @@ public class Ranking {
 			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
 			prd.rp += point_change;
 			if (p != null) {
-				p.sendMessage("You have gained or lost " + point_change + " rp.");
-				p.sendMessage("Your rp is now " + prd.rp + " rp.");
+				if(point_change >= 0){
+					p.sendMessage(Component.text("You have gained " + Math.abs(point_change) + " rp.").color(GREEN).decoration(BOLD, true));
+					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(GREEN).decoration(BOLD, true));
+				}if(point_change < 0){
+					p.sendMessage(Component.text("You have lost " + Math.abs(point_change) + " rp.").color(RED).decoration(BOLD, true));
+					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(RED).decoration(BOLD, true));
+				}
+
 			}
 
 			// do rankup
