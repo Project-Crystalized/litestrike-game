@@ -6,13 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -22,6 +16,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -219,6 +216,16 @@ public class GameController {
 
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Shop.removeShop(p);
+			Inventory inv = p.getInventory();
+			for (int i = 0; i < inv.getSize(); i++) {
+				if (LSItem.isBreezeDagger(inv.getItem(i))) {
+					ItemMeta meta = inv.getItem(i).getItemMeta();
+					NamespacedKey key = new NamespacedKey("namespace", "key");
+					PersistentDataContainer cont = meta.getPersistentDataContainer();
+					cont.set(key, PersistentDataType.INTEGER, 2);
+					inv.getItem(i).setItemMeta(meta);
+				}
+			}
 		}
 	}
 

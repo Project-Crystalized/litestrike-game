@@ -15,6 +15,8 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -306,10 +308,13 @@ public class LSItem {
 		ItemMeta breeze_meta = breeze.getItemMeta();
 		breeze_meta.setItemModel(new NamespacedKey("crystalized", "breeze_dagger"));
 		breeze_meta.displayName(translatable("crystalized.sword.wind.name").decoration(ITALIC, false));
-		breeze.setItemMeta(pufferFish_meta);
+		NamespacedKey key = new NamespacedKey("namespace", "key");
+		PersistentDataContainer cont = breeze_meta.getPersistentDataContainer();
+		cont.set(key, PersistentDataType.INTEGER, 0);
+		breeze.setItemMeta(breeze_meta);
 		List<Component> breeze_lore = new ArrayList<>();
 		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, null,
+		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, 39,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
 
 		creation_number = 1; // reset id
@@ -426,6 +431,16 @@ public class LSItem {
 		return (item.getType() == Material.STONE_SWORD
 				&& (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
 		 */
+	}
+
+	public static boolean isBreezeDagger(ItemStack item){
+		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasItemModel()) {
+			return false;
+		}
+		if (item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "breeze_dagger"))) {
+			return true;
+		}
+		return false;
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {
