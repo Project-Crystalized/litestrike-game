@@ -567,6 +567,9 @@ public class GameController {
 		Collections.reverse(playerDatas);
 		for (int i = 0; i < playerDatas.size(); i++) {
 			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
+			if (p == null) {
+				continue;
+			}
 			switch (i) {
 				case 0:
 					p.teleport(md.podium.get_first(w));
