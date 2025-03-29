@@ -133,7 +133,7 @@ public class Teams {
 		}
 
 		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 1");
-		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+		// Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
 		Bukkit.getLogger().severe("name was: " + p.getName());
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());

@@ -114,7 +114,8 @@ public class PlayerListener implements Listener {
 			if (should_be_team == null) {
 				p.kick(text("a fatal logic error occured, pls report this as a bug"));
 				Bukkit.getLogger().severe("fatal logic error occured:" +
-						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible");
+						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible, name: "
+						+ p.getName());
 			}
 		}
 	}
