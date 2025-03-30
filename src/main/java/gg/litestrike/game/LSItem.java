@@ -174,7 +174,7 @@ public class LSItem {
 		pufferFish.setItemMeta(pufferFish_meta);
 		List<Component> pufferFish_lore = new ArrayList<>();
 		pufferFish_lore.add(translatable("crystalized.sword.pufferfish.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, 18,
+		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, null,
 				translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false), 2));
 
 		ItemStack slimeSword = new ItemStack(STONE_SWORD);
@@ -228,7 +228,7 @@ public class LSItem {
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
 		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 44,
+		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, null,
 				translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
 
 		ItemStack speed2pot = new ItemStack(POTION);
@@ -301,7 +301,7 @@ public class LSItem {
 		angled.setItemMeta(angled_meta);
 		List<Component> angled_lore = new ArrayList<>();
 		marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, null,
+		lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, 44,
 				translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack breeze = new ItemStack(STONE_SWORD);
@@ -314,7 +314,7 @@ public class LSItem {
 		breeze.setItemMeta(breeze_meta);
 		List<Component> breeze_lore = new ArrayList<>();
 		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(breeze, 1250, breeze_lore, ItemCategory.Melee, null,
+		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, 18,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
 
 		creation_number = 1; // reset id

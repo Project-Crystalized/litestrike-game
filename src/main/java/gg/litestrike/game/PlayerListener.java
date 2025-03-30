@@ -136,6 +136,12 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
+
+		if(e.getItem() != null && e.getItem().getType() == Material.POTION && Litestrike.getInstance().game_controller.round_state == GameController.RoundState.PreRound){
+			e.setCancelled(true);
+			return;
+		}
+
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
 			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
 			e.getPlayer().addPotionEffects(pm.getCustomEffects());
