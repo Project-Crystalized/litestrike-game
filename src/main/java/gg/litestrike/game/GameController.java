@@ -63,7 +63,7 @@ public class GameController {
 	public final static int SWITCH_ROUND = 4;
 
 	public final static int PRE_ROUND_TIME = (20 * 23);
-	// public final static int PRE_ROUND_TIME = (20 * 1);
+	// public final static int PRE_ROUND_TIME = (20 * 5);
 	public final static int RUNNING_TIME = (180 * 20);
 	public final static int POST_ROUND_TIME = (5 * 20);
 	// public final static int POST_ROUND_TIME = (1 * 20);

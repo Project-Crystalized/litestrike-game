@@ -72,7 +72,11 @@ public class PartyManager implements PluginMessageListener {
 		// add remaining people who arent in party
 		for (String player : all_players) {
 			if (!(new_list1.contains(player) || new_list2.contains(player))) {
-				new_list1.add(player);
+				if (new_list1.size() > new_list2.size()) {
+					new_list2.add(player);
+				} else {
+					new_list1.add(player);
+				}
 			}
 		}
 		Collections.reverse(new_list2);

@@ -21,12 +21,16 @@ public class Teams {
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 
 	public Teams() {
-		List<String> list = generate_fair_teams();
+		List<String> list = generate_random_teams();
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
 		breakers = list.subList(0, middle);
 		placers = list.subList(middle, list.size());
+	}
+
+	private List<String> generate_random_teams() {
+		return Litestrike.getInstance().party_manager.generate_teams();
 	}
 
 	private List<String> generate_fair_teams() {
