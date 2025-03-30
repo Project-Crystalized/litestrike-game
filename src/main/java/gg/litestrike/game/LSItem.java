@@ -305,7 +305,7 @@ public class LSItem {
 		// 		translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack crossbow = new ItemStack(CROSSBOW);
-		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, null, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack breeze = new ItemStack(STONE_SWORD);
 		ItemMeta breeze_meta = breeze.getItemMeta();
