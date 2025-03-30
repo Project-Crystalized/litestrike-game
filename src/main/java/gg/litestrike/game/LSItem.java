@@ -294,15 +294,18 @@ public class LSItem {
 		ItemStack stonePick = new ItemStack(STONE_PICKAXE);
 		lsItems.add(new LSItem(stonePick, null, null, ItemCategory.Defuser, null, null, null));
 
-		ItemStack angled = new ItemStack(BOW);
-		ItemMeta angled_meta = angled.getItemMeta();
-		angled_meta.setItemModel(new NamespacedKey("crystalized", "angled_bow"));
-		angled_meta.displayName(translatable("crystalized.bow.angled.name").decoration(ITALIC, false));
-		angled.setItemMeta(angled_meta);
-		List<Component> angled_lore = new ArrayList<>();
-		marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, 44,
-				translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		// ItemStack angled = new ItemStack(BOW);
+		// ItemMeta angled_meta = angled.getItemMeta();
+		// angled_meta.setItemModel(new NamespacedKey("crystalized", "angled_bow"));
+		// angled_meta.displayName(translatable("crystalized.bow.angled.name").decoration(ITALIC, false));
+		// angled.setItemMeta(angled_meta);
+		// List<Component> angled_lore = new ArrayList<>();
+		// marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC, false));
+		// lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, 44,
+		// 		translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+
+		ItemStack crossbow = new ItemStack(CROSSBOW);
+		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, null, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack breeze = new ItemStack(STONE_SWORD);
 		ItemMeta breeze_meta = breeze.getItemMeta();
