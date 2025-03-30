@@ -174,7 +174,7 @@ public class LSItem {
 		pufferFish.setItemMeta(pufferFish_meta);
 		List<Component> pufferFish_lore = new ArrayList<>();
 		pufferFish_lore.add(translatable("crystalized.sword.pufferfish.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(pufferFish, 1250, pufferFish_lore, ItemCategory.Melee, null,
+		lsItems.add(new LSItem(pufferFish, 1000, pufferFish_lore, ItemCategory.Melee, 18,
 				translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false), 2));
 
 		ItemStack slimeSword = new ItemStack(STONE_SWORD);
@@ -317,7 +317,7 @@ public class LSItem {
 		breeze.setItemMeta(breeze_meta);
 		List<Component> breeze_lore = new ArrayList<>();
 		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, 18,
+		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, null,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
 
 		creation_number = 1; // reset id
