@@ -22,6 +22,8 @@ public class Teams {
 
 	public Teams() {
 		List<String> list = generate_random_teams();
+		Bukkit.getLogger().info("the generated team list is: " + list.toString());
+		// List<String> list = generate_fair_teams();
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
@@ -142,8 +144,10 @@ public class Teams {
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
 		Bukkit.getServer().sendMessage(Component.text("Error 002").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference).color(NamedTextColor.RED));
+		Bukkit.getServer()
+				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
+				.color(NamedTextColor.RED));
 		new Exception().printStackTrace();
 		// disable plugin when failure
 		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
@@ -179,8 +183,10 @@ public class Teams {
 		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
 		Bukkit.getLogger().severe("placers team: " + placers.toString());
 		Bukkit.getServer().sendMessage(Component.text("Error 003").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference).color(NamedTextColor.RED));
+		Bukkit.getServer()
+				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
+		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
+				.color(NamedTextColor.RED));
 		new Exception().printStackTrace();
 		// disable plugin when failure
 		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
