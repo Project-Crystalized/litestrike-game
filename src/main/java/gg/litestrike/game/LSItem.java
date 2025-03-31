@@ -307,6 +307,11 @@ public class LSItem {
 		ItemStack crossbow = new ItemStack(CROSSBOW);
 		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
+		// ItemStack shield = new ItemStack(ENDER_PEARL);
+		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
+		// ItemStack wooden_axe = new ItemStack(GOAT_HORN);
+		// lsItems.add(new LSItem(wooden_axe, 100, null, ItemCategory.Range, 13, null, 1));
+
 		ItemStack breeze = new ItemStack(STONE_SWORD);
 		ItemMeta breeze_meta = breeze.getItemMeta();
 		breeze_meta.setItemModel(new NamespacedKey("crystalized", "breeze_dagger"));

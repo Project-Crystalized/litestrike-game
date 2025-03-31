@@ -61,6 +61,9 @@ public class PartyManager implements PluginMessageListener {
 		for (List<String> party : partys) {
 			alternating = !alternating;
 			for (String member : party) {
+				if (!all_players.contains(member)) {
+					continue;
+				}
 				if (alternating) {
 					new_list1.add(member);
 				} else {
