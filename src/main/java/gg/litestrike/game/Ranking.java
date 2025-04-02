@@ -38,7 +38,15 @@ public class Ranking {
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
 			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
+
+			double change = point_change;
+			int n = prd.rp/1000;
+			for(int i = n; i > 0; i--){
+				change = point_change * 0.9;
+			}
+			point_change = (int)change;
 			prd.rp += point_change;
+
 			if (p != null) {
 				if(point_change >= 0){
 					p.sendMessage(Component.text("You have gained " + Math.abs(point_change) + " rp.").color(GREEN).decoration(BOLD, true));
