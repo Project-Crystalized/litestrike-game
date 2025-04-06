@@ -341,7 +341,14 @@ public class GameController {
 				}
 			}
 		}.runTaskLater(Litestrike.getInstance(), FINISH_TIME - (20 * 2));
-	};
+
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			ByteArrayDataOutput out = ByteStreams.newDataOutput();
+			out.writeUTF("add_xp");
+			out.writeUTF("5"); //TODO change this maybe
+			p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
+		}
+	}
 
 	// called when we go from PostRound to PreRound and when the first round starts
 	private void next_round() {
