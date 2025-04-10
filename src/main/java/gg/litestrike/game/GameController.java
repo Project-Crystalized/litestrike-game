@@ -304,7 +304,9 @@ public class GameController {
 		teleport_players_podium(w);
 		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
-
+		for(Player p : Bukkit.getOnlinePlayers()){
+			LsDatabase.writeTemporaryData(p, 5, 20);
+		}
 		// summon fireworks
 		new BukkitRunnable() {
 			int i = 0;
@@ -341,13 +343,6 @@ public class GameController {
 				}
 			}
 		}.runTaskLater(Litestrike.getInstance(), FINISH_TIME - (20 * 2));
-
-		for(Player p : Bukkit.getOnlinePlayers()) {
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeUTF("add_xp");
-			out.writeUTF("5"); //TODO change this maybe
-			p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
-		}
 	}
 
 	// called when we go from PostRound to PreRound and when the first round starts
