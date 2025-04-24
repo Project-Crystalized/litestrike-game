@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
@@ -34,8 +35,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import static net.kyori.adventure.text.Component.text;
+import static org.bukkit.event.EventPriority.LOW;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
@@ -137,7 +140,8 @@ public class PlayerListener implements Listener {
 			return;
 		}
 
-		if(e.getItem() != null && e.getItem().getType() == Material.POTION && Litestrike.getInstance().game_controller.round_state == GameController.RoundState.PreRound){
+		if (e.getItem() != null && e.getItem().getType() == Material.POTION
+				&& Litestrike.getInstance().game_controller.round_state == GameController.RoundState.PreRound) {
 			e.setCancelled(true);
 			return;
 		}
@@ -200,6 +204,13 @@ public class PlayerListener implements Listener {
 		}
 		if (Teams.get_team(source.getUniqueId()) == Teams.get_team(e.getEntity().getUniqueId())) {
 			e.setCancelled(true);
+		}
+		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
+		double health = ((Player)e.getEntity()).getHealth();
+		if(health - e.getFinalDamage() <= 0) {
+			pd.total_damage += (long) Math.floor(health);
+		}else{
+			pd.total_damage += (long) Math.floor(e.getFinalDamage());
 		}
 	}
 

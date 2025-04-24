@@ -29,7 +29,8 @@ class TabListController {
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					p.sendPlayerListFooter(text("")
 							.append(
-									text("-------------------------------\uE101 / \uE103 / A---\uE104-------").color(NamedTextColor.GRAY))
+									text("-------------------------------\uE101 / \uE103 / A / dmg ---\uE104-------")
+											.color(NamedTextColor.GRAY))
 							.append(render_player_stat(p))
 							.append(text("\n---------------------------------------------------\n").color(NamedTextColor.GRAY)));
 
@@ -58,6 +59,8 @@ class TabListController {
 					.append(text(pd.deaths))
 					.append(text(" / "))
 					.append(text(pd.assists))
+					.append(text(" / "))
+					.append(text(pd.total_damage))
 					.append(text("    " + pd.getMoney()).color(TextColor.color(0x0ab1c4)));
 
 			Component player_status;
