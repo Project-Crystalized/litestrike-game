@@ -24,7 +24,7 @@ public class PlayerData {
 	private int total_money_spent = 0;
 	private int plants = 0;
 	private int breaks = 0;
-	public long total_damage = 0;
+	public float total_damage = 0;
 	public LastDamagerTracker ldt = new LastDamagerTracker();
 
 	// this keeps track of assits in the current round for this player

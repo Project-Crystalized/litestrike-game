@@ -42,6 +42,8 @@ class TabListController {
 		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 
+	//TODO idea to line this up: split in two (completely) parts that are the same size. balance them indiviually and then add them together
+
 	private static Component render_player_stat(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Team p_team = gc.teams.get_team(p);
@@ -54,30 +56,38 @@ class TabListController {
 
 		for (PlayerData pd : gc.playerDatas) {
 			Player player = Bukkit.getPlayer(pd.player);
-			Component player_stats = text(pd.kills)
+			Component player_stats = text(makeTwoDigits(pd.kills, 2))
 					.append(text(" / "))
-					.append(text(pd.deaths))
+					.append(text(makeTwoDigits(pd.deaths, 2)))
 					.append(text(" / "))
-					.append(text(pd.assists))
+					.append(text(makeTwoDigits(pd.assists, 2))
 					.append(text(" / "))
-					.append(text(pd.total_damage))
-					.append(text("    " + pd.getMoney()).color(TextColor.color(0x0ab1c4)));
+					.append(text(makeTwoDigits((int)Math.floor(pd.total_damage), 3)))
+					.append(text("    " + makeTwoDigits(pd.getMoney(), 4)).color(TextColor.color(0x0ab1c4))));
 
 			Component player_status;
+			int statusSize;
 			if (player == null) {
 				player_status = text("\n ").append(text("[Disconnected] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				statusSize = balance("[Disconnected] ");
 			} else if (player.getGameMode() == GameMode.SPECTATOR) {
 				player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				statusSize = balance("[Dead] ");
 			} else if (gc.teams.get_team(player) == Team.Placer) {
 				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
+				statusSize = balance("[Alive] ");
 			} else {
 				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
+				statusSize = balance("[Alive] ");
 			}
 
-			int left_size = PlainTextComponentSerializer.plainText().serialize(player_status).length();
-			int right_size = PlainTextComponentSerializer.plainText().serialize(player_stats).length();
-			int center_padding = 51 - left_size - right_size;
-			player_status = player_status.append(text(" ".repeat(center_padding))).append(player_stats);
+			int nameSize = balance(pd.player);
+
+
+			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
+			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
+			int center_padding = 220 - (nameSize + statusSize + balance(right_size));
+			player_status = player_status.append(text(".".repeat(center_padding))).append(player_stats);
 			// Bukkit.getLogger().severe("total_len: " + total_len);
 
 			if (player == null) {
@@ -104,5 +114,42 @@ class TabListController {
 		}
 
 		return footer;
+	}
+
+	public static int balance(String name){
+		char[] chars = name.toCharArray();
+		int sum = 0;
+		for(char c : chars){
+			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
+		}
+		return sum;
+	}
+
+	public static Component fillUp(String name){
+		char[] chars = name.toCharArray();
+		int sum = 0;
+		for(char c : chars){
+			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
+		}
+
+		Component comp = text(name);
+
+		for(int i = 0; i <= 80-sum; i++){
+			comp = comp.append(text("."));
+		}
+
+		return comp;
+	}
+
+	public static String makeTwoDigits(Integer num, int supposed){
+		String s = num.toString();
+		if(s.length() == supposed){
+			return s;
+		}
+
+		for(int i = 0; i < supposed - s.length(); i++){
+			s = "0" + s;
+		}
+		return s;
 	}
 }

@@ -208,9 +208,9 @@ public class PlayerListener implements Listener {
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
 		double health = ((Player)e.getEntity()).getHealth();
 		if(health - e.getFinalDamage() <= 0) {
-			pd.total_damage += (long) Math.floor(health);
+			pd.total_damage += health;
 		}else{
-			pd.total_damage += (long) Math.floor(e.getFinalDamage());
+			pd.total_damage += e.getFinalDamage();
 		}
 	}
 
