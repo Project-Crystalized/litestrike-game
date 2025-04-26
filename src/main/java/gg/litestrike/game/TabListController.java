@@ -44,7 +44,6 @@ class TabListController {
 		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 
-	//TODO idea to line this up: split in two (completely) parts that are the same size. balance them indiviually and then add them together
 
 	private static Component render_player_stat(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
@@ -84,13 +83,12 @@ class TabListController {
 				statusSize = balance("[Alive] ");
 			}
 
-			int nameSize = balance(pd.player);
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
-			int center_padding = 220 - (nameSize + statusSize + balance(right_size));
-			player_status = player_status.append(text(".".repeat(center_padding))).append(player_stats);
-			//Bukkit.getLogger().severe("total_len: " + balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
+			int center_padding = 220 - (balance(left_size) + balance(right_size));
+			player_status = text(left_size + ".".repeat(center_padding) + right_size);
+			//Bukkit.getLogger().severe(pd.player + " : " + balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
 
 			if (player == null) {
 				disc_list.add(player_status);
