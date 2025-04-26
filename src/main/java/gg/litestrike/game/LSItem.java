@@ -11,7 +11,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.SpectralArrow;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -257,7 +256,7 @@ public class LSItem {
 				new LSItem(respot, 750, null, ItemCategory.Consumable, 45, Component.text("Potion of Resistance"), null));
 
 		ItemStack spectralArrow = new ItemStack(SPECTRAL_ARROW, 3);
-		lsItems.add(new LSItem(spectralArrow, 125, null, ItemCategory.Ammunition, 51, null, null));
+		lsItems.add(new LSItem(spectralArrow, 150, null, ItemCategory.Ammunition, 51, null, null));
 
 		ItemStack dragonArrow = new ItemStack(ARROW, 3);
 		ItemMeta dragon_meta = dragonArrow.getItemMeta();
@@ -416,7 +415,7 @@ public class LSItem {
 		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
 		underDog_lore.add(Component.text(""));
 		underDog_lore
-				.add(Component.text("Current bonus: " + rounds_down + " damage.").color(WHITE).decoration(ITALIC, false));
+				.add(Component.text("Current bonus: " + ((double) rounds_down / 2) + " damage.").color(WHITE).decoration(ITALIC, false));
 		underDog_meta.lore(underDog_lore);
 		underDog_meta.setUnbreakable(true);
 

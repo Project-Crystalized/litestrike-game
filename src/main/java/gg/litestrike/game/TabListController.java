@@ -14,6 +14,8 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import static net.kyori.adventure.text.Component.text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 class TabListController {
@@ -65,6 +67,7 @@ class TabListController {
 					.append(text(makeTwoDigits((int)Math.floor(pd.total_damage), 3)))
 					.append(text("    " + makeTwoDigits(pd.getMoney(), 4)).color(TextColor.color(0x0ab1c4))));
 
+
 			Component player_status;
 			int statusSize;
 			if (player == null) {
@@ -83,12 +86,11 @@ class TabListController {
 
 			int nameSize = balance(pd.player);
 
-
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
 			int center_padding = 220 - (nameSize + statusSize + balance(right_size));
 			player_status = player_status.append(text(".".repeat(center_padding))).append(player_stats);
-			// Bukkit.getLogger().severe("total_len: " + total_len);
+			//Bukkit.getLogger().severe("total_len: " + balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
 
 			if (player == null) {
 				disc_list.add(player_status);
@@ -151,5 +153,51 @@ class TabListController {
 			s = "0" + s;
 		}
 		return s;
+	}
+
+	public static List<Component> selfCorrect(List<Component> list){
+		boolean isCorrected = true;
+
+		ArrayList<Integer> sizes = new ArrayList<>();
+
+		for(Component c : list){
+			sizes.add(balance(PlainTextComponentSerializer.plainText().serialize(c)));
+			for(Component comp : list){
+				if(balance(PlainTextComponentSerializer.plainText().serialize(c)) != balance(PlainTextComponentSerializer.plainText().serialize(comp))){
+					isCorrected = false;
+				}
+			}
+		}
+
+		if(isCorrected){
+			return list;
+		}
+
+		Bukkit.getLogger().warning("isn't correct");
+
+		Component[] array = new Component[list.size()];
+
+		Collections.sort(sizes);
+
+		for(Component c : list){
+			for(int j = 0; j < sizes.size(); j++){
+				Integer i = sizes.get(j);
+				if(balance(PlainTextComponentSerializer.plainText().serialize(c)) == i){
+					array[i] = c;
+				}
+			}
+		}
+
+		int difference = balance(PlainTextComponentSerializer.plainText().serialize(array[array.length - 1])) - balance(PlainTextComponentSerializer.plainText().serialize(array[0]));
+		String s = PlainTextComponentSerializer.plainText().serialize(array[0]);
+		int index = s.indexOf(".") + 1;
+		String s1 = s.substring(0, index);
+		String s2 = s.substring(index, s.length() -1);
+		s = s1 + ".".repeat(difference) + s2;
+		
+		array[0] = text(s); 
+		
+		selfCorrect(Arrays.asList(array));
+		return null;
 	}
 }
