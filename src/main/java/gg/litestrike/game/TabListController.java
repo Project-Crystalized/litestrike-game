@@ -12,6 +12,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.TextColor.fromHexString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,37 +58,33 @@ class TabListController {
 
 		for (PlayerData pd : gc.playerDatas) {
 			Player player = Bukkit.getPlayer(pd.player);
-			Component player_stats = text(makeTwoDigits(pd.kills, 2))
+			Component player_stats = text(pd.kills)
 					.append(text(" / "))
-					.append(text(makeTwoDigits(pd.deaths, 2)))
+					.append(text(pd.deaths))
 					.append(text(" / "))
-					.append(text(makeTwoDigits(pd.assists, 2))
+					.append(text(pd.assists))
 					.append(text(" / "))
-					.append(text(makeTwoDigits((int)Math.floor(pd.total_damage), 3)))
-					.append(text("    " + makeTwoDigits(pd.getMoney(), 4)).color(TextColor.color(0x0ab1c4))));
+					.append(text((int)Math.floor(pd.total_damage)))
+					.append(text("    " + pd.getMoney())).color(TextColor.color(0x0ab1c4));
 
 
 			Component player_status;
-			int statusSize;
 			if (player == null) {
 				player_status = text("\n ").append(text("[Disconnected] ")).append(text(pd.player).color(NamedTextColor.GRAY));
-				statusSize = balance("[Disconnected] ");
 			} else if (player.getGameMode() == GameMode.SPECTATOR) {
 				player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
-				statusSize = balance("[Dead] ");
 			} else if (gc.teams.get_team(player) == Team.Placer) {
 				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
-				statusSize = balance("[Alive] ");
 			} else {
 				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
-				statusSize = balance("[Alive] ");
 			}
 
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
-			int center_padding = 220 - (balance(left_size) + balance(right_size));
-			player_status = text(left_size + ".".repeat(center_padding) + right_size);
+			int center_padding = 150 - (balance(left_size) + balance(right_size));
+			String dots = ".".repeat(center_padding);
+			player_status = player_status.append(text(dots).color(NamedTextColor.GRAY)).append(player_stats);
 			//Bukkit.getLogger().severe(pd.player + " : " + balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
 
 			if (player == null) {
@@ -122,80 +119,21 @@ class TabListController {
 		for(char c : chars){
 			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
 		}
-		return sum;
+		sum += name.length() - 1;
+		return sum / 2;
 	}
-
-	public static Component fillUp(String name){
-		char[] chars = name.toCharArray();
-		int sum = 0;
-		for(char c : chars){
-			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
-		}
-
-		Component comp = text(name);
-
-		for(int i = 0; i <= 80-sum; i++){
-			comp = comp.append(text("."));
-		}
-
-		return comp;
-	}
-
+	/*
 	public static String makeTwoDigits(Integer num, int supposed){
 		String s = num.toString();
 		if(s.length() == supposed){
 			return s;
 		}
 
-		for(int i = 0; i < supposed - s.length(); i++){
-			s = "0" + s;
+		if(supposed - s.length() > 0) {
+			s = "_".repeat(supposed - s.length()) + s;
 		}
+
 		return s;
 	}
-
-	public static List<Component> selfCorrect(List<Component> list){
-		boolean isCorrected = true;
-
-		ArrayList<Integer> sizes = new ArrayList<>();
-
-		for(Component c : list){
-			sizes.add(balance(PlainTextComponentSerializer.plainText().serialize(c)));
-			for(Component comp : list){
-				if(balance(PlainTextComponentSerializer.plainText().serialize(c)) != balance(PlainTextComponentSerializer.plainText().serialize(comp))){
-					isCorrected = false;
-				}
-			}
-		}
-
-		if(isCorrected){
-			return list;
-		}
-
-		Bukkit.getLogger().warning("isn't correct");
-
-		Component[] array = new Component[list.size()];
-
-		Collections.sort(sizes);
-
-		for(Component c : list){
-			for(int j = 0; j < sizes.size(); j++){
-				Integer i = sizes.get(j);
-				if(balance(PlainTextComponentSerializer.plainText().serialize(c)) == i){
-					array[i] = c;
-				}
-			}
-		}
-
-		int difference = balance(PlainTextComponentSerializer.plainText().serialize(array[array.length - 1])) - balance(PlainTextComponentSerializer.plainText().serialize(array[0]));
-		String s = PlainTextComponentSerializer.plainText().serialize(array[0]);
-		int index = s.indexOf(".") + 1;
-		String s1 = s.substring(0, index);
-		String s2 = s.substring(index, s.length() -1);
-		s = s1 + ".".repeat(difference) + s2;
-		
-		array[0] = text(s); 
-		
-		selfCorrect(Arrays.asList(array));
-		return null;
-	}
+	 */
 }
