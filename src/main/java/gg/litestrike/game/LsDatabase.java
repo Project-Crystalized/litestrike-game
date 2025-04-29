@@ -1,11 +1,7 @@
 package gg.litestrike.game;
 
 import java.nio.ByteBuffer;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -109,12 +105,28 @@ public class LsDatabase {
 
 	public static void writeTemporaryData(Player p, int xp, int money){
 		try(Connection conn = DriverManager.getConnection(TEMPORARY_URL)){
-			String query = "INSERT INTO TemporaryData(player_uuid, xp_amount, money_amount) VALUES (?, ?, ?);";
-			PreparedStatement prep = conn.prepareStatement(query);
-			prep.setBytes(1, uuid_to_bytes(p));
-			prep.setInt(2, xp);
-			prep.setInt(3, money);
-			prep.executeUpdate();
+			PreparedStatement prepared = conn.prepareStatement("SELECT COUNT(*) AS count FROM TemporaryData WHERE player_uuid = ?;");
+			prepared.setBytes(1,uuid_to_bytes(p));
+			String query;
+
+			if(prepared.executeQuery().getInt("count") <= 0){
+				query = "INSERT INTO TemporaryData(player_uuid, xp_amount, money_amount) VALUES (?, ?, ?);";
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setBytes(1, uuid_to_bytes(p));
+				prep.setInt(2, xp);
+				prep.setInt(3, money);
+				prep.executeUpdate();
+			}else{
+				query = "UPDATE TemporaryData SET xp_amount = ?, money_amount = ? WHERE player_uuid = ?";
+				PreparedStatement prep_state = conn.prepareStatement("SELECT * FROM TemporaryData WHERE player_uuid = ?;");
+				prep_state.setBytes(1,uuid_to_bytes(p));
+				ResultSet set = prep_state.executeQuery();
+				PreparedStatement prep = conn.prepareStatement(query);
+				prep.setBytes(1, uuid_to_bytes(p));
+				prep.setInt(2, xp + set.getInt("xp_amount"));
+				prep.setInt(3, money + set.getInt("money_amount"));
+				prep.executeUpdate();
+			}
 		}catch(SQLException e){
 			Bukkit.getLogger().warning(e.getMessage());
 			Bukkit.getLogger().warning("didnt write data to temporary database");
