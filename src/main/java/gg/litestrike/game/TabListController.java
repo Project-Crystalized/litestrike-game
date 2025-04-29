@@ -32,7 +32,7 @@ class TabListController {
 				for (Player p : Bukkit.getOnlinePlayers()) {
 					p.sendPlayerListFooter(text("")
 							.append(
-									text("-------------------------------\uE101 / \uE103 / A / dmg ---\uE104-------")
+									text("----------------------------------\uE101 / \uE103 / A / dmg ---\uE104----")
 											.color(NamedTextColor.GRAY))
 							.append(render_player_stat(p))
 							.append(text("\n---------------------------------------------------\n").color(NamedTextColor.GRAY)));
