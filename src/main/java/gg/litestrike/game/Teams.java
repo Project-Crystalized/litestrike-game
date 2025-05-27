@@ -5,12 +5,11 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
-import java.util.logging.Level;
+
+import javax.swing.Spring;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
@@ -19,6 +18,7 @@ public class Teams {
 
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
+	public static final TextColor SPECTATOR_GREY = TextColor.color(0x4f4545);
 
 	// there are basically 3 ways to generate partys:
 	// skillbased: generate_fair_teams
@@ -106,8 +106,10 @@ public class Teams {
 	public List<Player> get_enemy_team_of(Player p) {
 		if (breakers.contains(p.getName())) {
 			return get_placers();
-		} else {
+		} else if (placers.contains(p.getName())) {
 			return get_breakers();
+		} else {
+			return null;
 		}
 	}
 
@@ -184,8 +186,10 @@ public class Teams {
 	public static TextColor get_team_color(Team t) {
 		if (t == Team.Breaker) {
 			return BREAKER_GREEN;
-		} else {
+		} else if (t == Team.Placer) {
 			return PLACER_RED;
+		} else {
+			return SPECTATOR_GREY;
 		}
 	}
 

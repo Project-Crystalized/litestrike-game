@@ -77,6 +77,9 @@ public class DeathHandler implements Listener {
 		gc.getShop(p).resetEquipCounters();
 
 		Team killed_team = gc.teams.get_team(p);
+		if (killed_team == null) {
+			Bukkit.getLogger().severe("ERROR did a spectator get killed?!?");
+		}
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (gc.teams.get_team(player) == killed_team) {
 				SoundEffects.ally_death(player);
@@ -116,7 +119,9 @@ public class DeathHandler implements Listener {
 		// Bukkit.getLogger().severe("damage dealt: " + e.getFinalDamage());
 		// Bukkit.getLogger().severe("raw damage dealt: " + e.getDamage());
 
-		if (gc.teams.get_team(damage_receiver) == gc.teams.get_team(damager)) {
+		Team damager_team = gc.teams.get_team(damager);
+		Team damaged_team = gc.teams.get_team(damage_receiver);
+		if (damager_team == null || damaged_team == null || damaged_team == damager_team) {
 			e.setCancelled(true);
 		} else {
 			Map<Player, Double> assist_list = gc.getPlayerData(damager).assist_list;
@@ -143,9 +148,9 @@ public class DeathHandler implements Listener {
 				return text(" \uE11F "); // PICKAXE death icon
 			}
 			return text(" \uE101 "); // SWORD death icon
-		} //else if(dt == DamageType.DRAGON_BREATH){
-			//return text("");//TODO
-		//}
+		} // else if(dt == DamageType.DRAGON_BREATH){
+			// return text("");//TODO
+		// }
 		else {
 			return text(" \uE103 "); // generic death icon
 		}

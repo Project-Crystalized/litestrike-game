@@ -157,7 +157,7 @@ public class BombListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
 		if (gc == null ||
-				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
+				gc.teams.get_team(e.getPlayer()) != Team.Breaker ||
 				!(gc.bomb instanceof PlacedBomb) ||
 				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
@@ -189,7 +189,7 @@ public class BombListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
 		if (gc == null ||
-				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
+				gc.teams.get_team(e.getPlayer()) != Team.Breaker ||
 				!(gc.bomb instanceof PlacedBomb) ||
 				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
@@ -277,8 +277,8 @@ public class BombListener implements Listener {
 		}
 
 		// sanity check
-		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
-			Bukkit.getLogger().severe("ERROR: A Breaker planted the bomb!");
+		if (gc.teams.get_team(e.getPlayer()) != Team.Placer) {
+			Bukkit.getLogger().severe("ERROR: A Not Placer planted the bomb!");
 		}
 
 		if (is_planting < 0) {

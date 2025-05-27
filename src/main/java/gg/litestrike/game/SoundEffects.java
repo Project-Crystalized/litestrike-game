@@ -153,7 +153,7 @@ public class SoundEffects {
 	public static void round_end_sound(Team winner) {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			Team player_team = Litestrike.getInstance().game_controller.teams.get_team(p);
-			if (player_team == winner) {
+			if (player_team == null || player_team == winner) {
 				p.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_won"), AMBIENT, 50, 1));
 			} else {
 				p.playSound(Sound.sound(Key.key("crystalized:effect.ls_game_lost"), AMBIENT, 50, 1));

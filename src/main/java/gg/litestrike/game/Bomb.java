@@ -206,7 +206,7 @@ class PlacedBomb implements Bomb {
 		block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, block.getLocation().add(0.5, 0.5, 0.5), 500, 1, 1, 1);
 		block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"), Sound.Source.AMBIENT, 20, 1),
 				block.getX(), block.getY(), block.getZ());
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : Litestrike.getInstance().game_controller.teams.get_all_players()) {
 			double distance = p.getLocation().distance(block.getLocation());
 			if (distance < 15) {
 				p.setHealth(0);

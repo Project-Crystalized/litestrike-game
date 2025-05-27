@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
@@ -35,10 +34,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import static net.kyori.adventure.text.Component.text;
-import static org.bukkit.event.EventPriority.LOW;
+
+import java.util.List;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
@@ -65,7 +64,7 @@ public class PlayerListener implements Listener {
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
+		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
 			return;
 		}
 		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
@@ -174,7 +173,14 @@ public class PlayerListener implements Listener {
 
 		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
 		if (!msg_text.startsWith("@a") && !msg_text.startsWith("@A")) {
-			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
+			List<Player> enemy_team = gc.teams.get_enemy_team_of(e.getPlayer());
+			if (enemy_team == null) {
+				// if enemy team is null, it means we got a spectator message, so all teamed
+				// players are removed
+				e.viewers().removeAll(gc.teams.get_all_players());
+			} else {
+				e.viewers().removeAll(enemy_team);
+			}
 		}
 
 		e.renderer(ChatRenderer.viewerUnaware(chat_renderer));
@@ -202,14 +208,17 @@ public class PlayerListener implements Listener {
 		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}
-		if (Teams.get_team(source.getUniqueId()) == Teams.get_team(e.getEntity().getUniqueId())) {
+		Team attacker_team = Teams.get_team(source.getUniqueId());
+		Team attacked_team = Teams.get_team(e.getEntity().getUniqueId());
+		if (attacker_team == null || attacked_team == null || attacked_team == attacker_team) {
 			e.setCancelled(true);
+			return;
 		}
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
-		double health = ((Player)e.getEntity()).getHealth();
-		if(health - e.getFinalDamage() <= 0) {
+		double health = ((Player) e.getEntity()).getHealth();
+		if (health - e.getFinalDamage() <= 0) {
 			pd.total_damage += health;
-		}else{
+		} else {
 			pd.total_damage += e.getFinalDamage();
 		}
 	}
@@ -276,7 +285,9 @@ class LSChatRenderer implements ChatRenderer.ViewerUnaware {
 	public Component render(Player source, Component sourceDisplayName, Component message) {
 		Team t = Litestrike.getInstance().game_controller.teams.get_team(source);
 		TextColor color;
-		if (t == Team.Breaker) {
+		if (t == null) {
+			color = Teams.SPECTATOR_GREY;
+		} else if (t == Team.Breaker) {
 			color = TextColor.color(0x22fb30);
 		} else {
 			color = TextColor.color(0xfb3922);
