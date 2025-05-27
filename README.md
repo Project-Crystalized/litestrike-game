@@ -65,6 +65,7 @@ move the directory containing the litestrike map into the server directory
 go into plugin folder
 	-download latest version of protocolib and move it here
 	-move compiled litestrike jar into here
+	-move compiled crystalized-essentials jar into here
 
 go back to server directory
 

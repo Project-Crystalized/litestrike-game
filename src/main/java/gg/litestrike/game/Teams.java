@@ -20,10 +20,20 @@ public class Teams {
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 
+	// there are basically 3 ways to generate partys:
+	// skillbased: generate_fair_teams
+	// random: generate_random_teams
+	// manual
+	// both skillbased and random will take partys into account
 	public Teams() {
-		List<String> list = generate_random_teams();
-		Bukkit.getLogger().info("the generated team list is: " + list.toString());
+		if (Litestrike.getInstance().manual_teams.is_enabled) {
+			Bukkit.getLogger().info("creating teams from manual selection");
+			placers = Litestrike.getInstance().manual_teams.placers;
+			breakers = Litestrike.getInstance().manual_teams.breakers;
+			return;
+		}
 		// List<String> list = generate_fair_teams();
+		List<String> list = generate_random_teams();
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
@@ -129,6 +139,14 @@ public class Teams {
 		return null;
 	}
 
+	// returns all players that are not spectators
+	public List<Player> get_all_players() {
+		List<Player> new_list = new ArrayList<>();
+		new_list.addAll(this.get_breakers());
+		new_list.addAll(this.get_placers());
+		return new_list;
+	}
+
 	public Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
@@ -137,23 +155,7 @@ public class Teams {
 		if (breakers.contains(p.getName())) {
 			return Team.Breaker;
 		}
-
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 1");
-		// Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-		Bukkit.getLogger().severe("name was: " + p.getName());
-		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
-		Bukkit.getLogger().severe("placers team: " + placers.toString());
-		Bukkit.getServer().sendMessage(Component.text("Error 002").color(NamedTextColor.RED));
-		Bukkit.getServer()
-				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
-				.color(NamedTextColor.RED));
-		new Exception().printStackTrace();
-		// disable plugin when failure
-		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-		breakers.add(p.getName());
-
-		return Team.Breaker;
+		return null;
 	}
 
 	public static Team get_team(UUID uuid) {
@@ -176,24 +178,7 @@ public class Teams {
 		if (breakers.contains(name)) {
 			return Team.Breaker;
 		}
-
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 2");
-		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-		Bukkit.getLogger().severe("name was: " + name);
-		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
-		Bukkit.getLogger().severe("placers team: " + placers.toString());
-		Bukkit.getServer().sendMessage(Component.text("Error 003").color(NamedTextColor.RED));
-		Bukkit.getServer()
-				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
-				.color(NamedTextColor.RED));
-		new Exception().printStackTrace();
-		// disable plugin when failure
-		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-
-		breakers.add(name);
-
-		return Team.Breaker;
+		return null;
 	}
 
 	public static TextColor get_team_color(Team t) {

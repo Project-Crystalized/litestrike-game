@@ -269,7 +269,7 @@ public class GameController {
 
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_all_players()) {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
 			pd.ldt.clear_damager();
