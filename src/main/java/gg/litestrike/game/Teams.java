@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
@@ -26,10 +27,28 @@ public class Teams {
 	// manual
 	// both skillbased and random will take partys into account
 	public Teams() {
-		if (Litestrike.getInstance().manual_teams.is_enabled) {
+		Litestrike.getInstance().reloadConfig();
+		FileConfiguration config = Litestrike.getInstance().getConfig();
+
+		if (config.getBoolean("teams.enable")) {
 			Bukkit.getLogger().info("creating teams from manual selection");
-			placers = Litestrike.getInstance().manual_teams.placers;
-			breakers = Litestrike.getInstance().manual_teams.breakers;
+			//placers = Litestrike.getInstance().manual_teams.placers;
+			//breakers = Litestrike.getInstance().manual_teams.breakers;
+
+			Object[] configSpectators = config.getList("teams.spectators").toArray(); //I dont know where spectators are specified
+			Object[] configPlacers = config.getList("teams.placers").toArray();
+			Object[] configBreakers = config.getList("teams.breakers").toArray();
+			placers = new ArrayList<>();
+			breakers = new ArrayList<>();
+			for (Object o : configPlacers) {
+				String s = (String) o;
+				placers.add(s);
+			}
+			for (Object o : configBreakers) {
+				String s = (String) o;
+				breakers.add(s);
+			}
+
 			return;
 		}
 		// List<String> list = generate_fair_teams();

@@ -19,6 +19,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.util.logging.Level;
+
 enum Team {
 	Placer,
 	Breaker,
@@ -73,9 +75,16 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
 
+		saveResource("config.yml", false);
+		int configVersion;
+		if (getConfig().getInt("version") != 1) {
+			configVersion = getConfig().getInt("version");
+			getLogger().log(Level.SEVERE, "Invalid Version, Please update your litestrike/config.yml file. Expecting 1 but found " + configVersion + ". You may experience fatal issues.");
+		}
+
 		// register the manual_teams command
-		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
-				event -> event.registrar().register("manual_teams", manual_teams));
+		//TODO deprecated in favor of a config file
+		//this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");

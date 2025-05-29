@@ -111,7 +111,7 @@ public class ShopListener implements Listener {
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item);
 		} else {
-			// underog
+			// underdog
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
@@ -197,7 +197,9 @@ public class ShopListener implements Listener {
 			// }
 			// }
 		}
-		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
+		if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+			gc.getPlayerData(p).giveMoneyBack(lsitem.price);
+		}
 		s.open_shop();
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 

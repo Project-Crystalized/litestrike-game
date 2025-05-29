@@ -6,7 +6,7 @@ load: POSTWORLD
 
 # softdepend: [Crystalized_Essentials]
 
-depend: [ProtocolLib, Crystalized_Essentials]
+depend: [ProtocolLib, Crystalized_Essentials, floodgate]
 
 commands:
   manual_teams:
