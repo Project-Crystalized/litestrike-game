@@ -12,11 +12,8 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import static net.kyori.adventure.text.Component.text;
-import static net.kyori.adventure.text.format.TextColor.fromHexString;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 class TabListController {
@@ -45,10 +42,8 @@ class TabListController {
 		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 
-
 	private static Component render_player_stat(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		Team p_team = gc.teams.get_team(p);
 
 		Component footer = text("");
 
@@ -64,9 +59,8 @@ class TabListController {
 					.append(text(" / "))
 					.append(text(pd.assists))
 					.append(text(" / "))
-					.append(text((int)Math.floor(pd.total_damage)))
+					.append(text((int) Math.floor(pd.total_damage)))
 					.append(text("    " + pd.getMoney())).color(TextColor.color(0x0ab1c4));
-
 
 			Component player_status;
 			if (player == null) {
@@ -79,14 +73,15 @@ class TabListController {
 				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
 			}
 
-
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
 			int center_padding = 150 - (balance(left_size) + balance(right_size));
 			String dots = ".".repeat(center_padding);
 			player_status = player_status.append(text(dots).color(NamedTextColor.GRAY)).append(player_stats);
-			//Bukkit.getLogger().severe(pd.player + " : " + balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
+			// Bukkit.getLogger().severe(pd.player + " : " +
+			// balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
 
+			Team p_team = gc.teams.get_team(p);
 			if (player == null) {
 				disc_list.add(player_status);
 			} else if (gc.teams.get_team(player) == p_team) {
@@ -113,27 +108,27 @@ class TabListController {
 		return footer;
 	}
 
-	public static int balance(String name){
+	public static int balance(String name) {
 		char[] chars = name.toCharArray();
 		int sum = 0;
-		for(char c : chars){
+		for (char c : chars) {
 			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
 		}
 		sum += name.length() - 1;
 		return sum / 2;
 	}
 	/*
-	public static String makeTwoDigits(Integer num, int supposed){
-		String s = num.toString();
-		if(s.length() == supposed){
-			return s;
-		}
-
-		if(supposed - s.length() > 0) {
-			s = "_".repeat(supposed - s.length()) + s;
-		}
-
-		return s;
-	}
+	 * public static String makeTwoDigits(Integer num, int supposed){
+	 * String s = num.toString();
+	 * if(s.length() == supposed){
+	 * return s;
+	 * }
+	 * 
+	 * if(supposed - s.length() > 0) {
+	 * s = "_".repeat(supposed - s.length()) + s;
+	 * }
+	 * 
+	 * return s;
+	 * }
 	 */
 }

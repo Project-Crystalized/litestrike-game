@@ -2,6 +2,9 @@ package gg.litestrike.game;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
@@ -32,6 +35,8 @@ public final class Litestrike extends JavaPlugin {
 	public ProtocolManager protocolManager;
 
 	public PartyManager party_manager = new PartyManager();
+
+	public ManualTeams manual_teams = new ManualTeams();
 
 	// player amount required to autostart
 	public static final int PLAYERS_TO_START = 6;
@@ -67,6 +72,10 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
+
+		// register the manual_teams command
+		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+				event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
