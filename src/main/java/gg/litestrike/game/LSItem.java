@@ -305,7 +305,7 @@ public class LSItem {
 		// 		translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack crossbow = new ItemStack(CROSSBOW);
-		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(crossbow, 1250, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
 		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
