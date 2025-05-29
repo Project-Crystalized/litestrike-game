@@ -2,7 +2,7 @@
 
 teams:
     # When true, enables the below options to work, allowing for teams to be created manually instead of randomly generated.
-    # These should be changed either when the server is shutdown, or whenthe game hasn't started (aka, in the waiting lobby)
+    # These should be changed either when the server is shutdown, or when the game hasn't started (aka, in the waiting lobby)
     enable: false
     
     # Configure Teams here
