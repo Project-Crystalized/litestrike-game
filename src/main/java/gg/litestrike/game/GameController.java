@@ -62,11 +62,9 @@ public class GameController {
 	// after this round, the sides get switched
 	public final static int SWITCH_ROUND = 4;
 
-	public final static int PRE_ROUND_TIME = (20 * 23);
-	// public final static int PRE_ROUND_TIME = (20 * 5);
+	public static int PRE_ROUND_TIME = (20 * 23);
 	public final static int RUNNING_TIME = (180 * 20);
-	public final static int POST_ROUND_TIME = (5 * 20);
-	// public final static int POST_ROUND_TIME = (1 * 20);
+	public static int POST_ROUND_TIME = (5 * 20);
 	public final static int FINISH_TIME = (20 * 12);
 
 	public enum RoundState {
@@ -78,6 +76,10 @@ public class GameController {
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
+		if (Litestrike.getInstance().getConfig().getBoolean("fast-game")) {
+			PRE_ROUND_TIME = (20 * 5);
+			POST_ROUND_TIME = (1 * 20);
+		}
 
 		new BukkitRunnable() {
 			@Override
@@ -304,7 +306,7 @@ public class GameController {
 		teleport_players_podium(w);
 		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
-		for(Player p : teams.get_all_players()){
+		for (Player p : teams.get_all_players()) {
 			LsDatabase.writeTemporaryData(p, 5, 20);
 		}
 		// summon fireworks

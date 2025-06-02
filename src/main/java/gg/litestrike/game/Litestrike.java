@@ -3,8 +3,6 @@ package gg.litestrike.game;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
@@ -79,12 +77,15 @@ public final class Litestrike extends JavaPlugin {
 		int configVersion;
 		if (getConfig().getInt("version") != 1) {
 			configVersion = getConfig().getInt("version");
-			getLogger().log(Level.SEVERE, "Invalid Version, Please update your litestrike/config.yml file. Expecting 1 but found " + configVersion + ". You may experience fatal issues.");
+			getLogger().log(Level.SEVERE,
+					"Invalid Version, Please update your litestrike/config.yml file. Expecting 1 but found " + configVersion
+							+ ". You may experience fatal issues.");
 		}
 
 		// register the manual_teams command
-		//TODO deprecated in favor of a config file
-		//this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register("manual_teams", manual_teams));
+		// TODO deprecated in favor of a config file
+		// this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+		// event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");

@@ -10,8 +10,6 @@ import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
 
-import javax.swing.Spring;
-
 public class Teams {
 	// these are the names of the players that where in the game when it started.
 	private static List<String> placers;
@@ -24,31 +22,14 @@ public class Teams {
 	// there are basically 3 ways to generate partys:
 	// skillbased: generate_fair_teams
 	// random: generate_random_teams
-	// manual
-	// both skillbased and random will take partys into account
+	// manual: both skillbased and random will take partys into account
 	public Teams() {
 		Litestrike.getInstance().reloadConfig();
-		FileConfiguration config = Litestrike.getInstance().getConfig();
-
-		if (config.getBoolean("teams.enable")) {
-			Bukkit.getLogger().info("creating teams from manual selection");
-			//placers = Litestrike.getInstance().manual_teams.placers;
-			//breakers = Litestrike.getInstance().manual_teams.breakers;
-
-			Object[] configSpectators = config.getList("teams.spectators").toArray(); //I dont know where spectators are specified
-			Object[] configPlacers = config.getList("teams.placers").toArray();
-			Object[] configBreakers = config.getList("teams.breakers").toArray();
-			placers = new ArrayList<>();
-			breakers = new ArrayList<>();
-			for (Object o : configPlacers) {
-				String s = (String) o;
-				placers.add(s);
+		if (Litestrike.getInstance().getConfig().getBoolean("teams.enable")) {
+			create_manual_teams();
+			if (breakers.size() == 0 || placers.size() == 0) {
+				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
 			}
-			for (Object o : configBreakers) {
-				String s = (String) o;
-				breakers.add(s);
-			}
-
 			return;
 		}
 		// List<String> list = generate_fair_teams();
@@ -58,6 +39,48 @@ public class Teams {
 		// if odd, breakers get more
 		breakers = list.subList(0, middle);
 		placers = list.subList(middle, list.size());
+	}
+
+	private void create_manual_teams() {
+		FileConfiguration config = Litestrike.getInstance().getConfig();
+		Bukkit.getLogger().info("creating teams from manual selection");
+		//placers = Litestrike.getInstance().manual_teams.placers;
+		//breakers = Litestrike.getInstance().manual_teams.breakers;
+
+		Object[] configSpectators = config.getList("teams.spectators").toArray(); //I dont know where spectators are specified
+		Object[] configPlacers = config.getList("teams.placers").toArray();
+		Object[] configBreakers = config.getList("teams.breakers").toArray();
+		placers = new ArrayList<>();
+		breakers = new ArrayList<>();
+		for (Object o : configPlacers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the placer team is not online. The player in question: "+s);
+				continue;
+			}
+			placers.add(s);
+		}
+		for (Object o : configBreakers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to be in both teams. The player in question: "+s);
+				continue;
+			}
+			if (breakers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the breaker team is not online. The player in question: "+s);
+				continue;
+			}
+			breakers.add(s);
+		}
+
 	}
 
 	private List<String> generate_random_teams() {
