@@ -44,19 +44,8 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		GameController gc = Litestrike.getInstance().game_controller;
 		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
 			event.disallow(PlayerLoginEvent.Result.KICK_FULL, text("The server is full.\n"));
-		}
-		if (gc == null) {
-			return;
-		}
-
-		// the if condition checks if the player is rejoining
-		if (gc.teams.wasInitialPlayer(event.getPlayer().getName()) == null) {
-			// player isnt rejoining, so we dont allow join
-			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, text("A game is already in Progress.\n")
-					.append(text("If you see this message, it is likely a bug, pls report it to the admins")));
 		}
 	}
 
