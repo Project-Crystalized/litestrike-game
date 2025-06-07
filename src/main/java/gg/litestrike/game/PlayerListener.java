@@ -101,13 +101,6 @@ public class PlayerListener implements Listener {
 			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
 			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
-
-			if (should_be_team == null) {
-				p.kick(text("a fatal logic error occured, pls report this as a bug"));
-				Bukkit.getLogger().severe("fatal logic error occured:" +
-						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible, name: "
-						+ p.getName());
-			}
 		}
 	}
 
