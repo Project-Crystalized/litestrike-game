@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 
 import static net.kyori.adventure.text.Component.text;
 import gg.litestrike.game.GameController.RoundState;
+import gg.litestrike.game.mapfeatures.MapFeatures;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -264,6 +265,15 @@ public class BombListener implements Listener {
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
 				e.getClickedBlock().getType() != Litestrike.getInstance().mapdata.bomb_plant_block ||
 				!(gc.bomb instanceof InvItemBomb)) {
+			return;
+		}
+
+		MapFeatures mf = Litestrike.getInstance().mapdata.map_features;
+		if (!mf.can_plant_below && e.getBlockFace() == BlockFace.DOWN) {
+			return;
+		}
+
+		if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
 			return;
 		}
 

@@ -43,10 +43,11 @@ public class MapData implements Listener {
 	// border gets placed 1 block above this block type
 	public Material border_marker;
 	public Material border_block_type;
-	public int border_height;
+	public int border_height = 7;
 
 	public Material bomb_plant_block = Material.TERRACOTTA;
 
+	// can be null if no podium is being used
 	public PodiumData podium;
 
 	public boolean ranked = false;
@@ -133,7 +134,10 @@ public class MapData implements Listener {
 			throw new RuntimeException("border_block_type needs to be a placable block");
 		}
 
-		this.border_height = json.get("border_height").getAsInt();
+		JsonElement border_height = json.get("border_height");
+		if (border_height != null) {
+			this.border_height = border_height.getAsInt();
+		}
 	}
 
 	private void parse_config_v2(JsonObject json) {
@@ -194,7 +198,7 @@ public class MapData implements Listener {
 
 			JsonElement v = json.get("version");
 			if (v == null) {
-				throw new Exception("incorrect map_config.java file version, please update your map_config.json");
+				throw new Exception("Your map_config.json is missing a version field, please update your map_config.json");
 			}
 			switch (v.getAsInt()) {
 				case 2:
@@ -206,7 +210,7 @@ public class MapData implements Listener {
 					parse_config_v3(json);
 					break;
 				default:
-					throw new Exception("incorrect map_config.java file version, please update your map_config.json");
+					throw new Exception("incorrect map_config.json file version, please update your map_config.json");
 			}
 
 		} catch (Exception e) {

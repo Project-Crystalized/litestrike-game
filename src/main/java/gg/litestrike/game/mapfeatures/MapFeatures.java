@@ -23,6 +23,9 @@ public class MapFeatures implements Listener {
 	protected static Material levi_pad_block;
 	protected static Material jump_pad_block;
 
+	public boolean can_plant_below = true;
+	public boolean can_plant_side = true;
+
 	public BigDoor bigDoor;
 
 	public MapFeatures(JsonObject json) {
@@ -48,6 +51,17 @@ public class MapFeatures implements Listener {
 		if (jo_big_door != null) {
 			bigDoor = new BigDoor(jo_big_door);
 		}
+
+		JsonElement plant_below = json.get("can_plant_below");
+		if (plant_below != null) {
+			can_plant_below = plant_below.getAsBoolean();
+		}
+
+		JsonElement plant_side = json.get("can_plant_side");
+		if (plant_side != null) {
+			can_plant_side = plant_side.getAsBoolean();
+		}
+
 	}
 
 	public String toString() {
