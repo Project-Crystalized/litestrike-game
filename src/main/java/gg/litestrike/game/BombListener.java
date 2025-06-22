@@ -263,6 +263,7 @@ public class BombListener implements Listener {
 				e.getItem() == null ||
 				!is_holding_bomb ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
+				!e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable() ||
 				e.getClickedBlock().getType() != Litestrike.getInstance().mapdata.bomb_plant_block ||
 				!(gc.bomb instanceof InvItemBomb)) {
 			return;
@@ -272,7 +273,6 @@ public class BombListener implements Listener {
 		if (!mf.can_plant_below && e.getBlockFace() == BlockFace.DOWN) {
 			return;
 		}
-
 		if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
 			return;
 		}
@@ -302,8 +302,7 @@ public class BombListener implements Listener {
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
-		if (!e.getClickedBlock().equals(last_planting_block)
-				|| !e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable()) {
+		if (!e.getClickedBlock().equals(last_planting_block)) {
 			is_planting = 0;
 		}
 		planting_face = e.getBlockFace();
