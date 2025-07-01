@@ -157,7 +157,7 @@ public class MapData implements Listener {
 		}
 	}
 
-	public void parse_config_v3(JsonObject json) {
+	public void sparse_config_v3(JsonObject json) {
 		load_spawn_coords(json);
 
 		this.map_name = json.get("map_name").getAsString();
