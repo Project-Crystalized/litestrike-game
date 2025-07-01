@@ -1,0 +1,24 @@
+# Crystalized: Litestrike config
+
+teams:
+    # When true, enables the below options to work, allowing for teams to be created manually instead of randomly generated.
+    # These should be changed either when the server is shutdown, or when the game hasn't started (aka, in the waiting lobby)
+    enable: false
+    
+    # Configure Teams here
+    # These values will be read when the game starts, no need for a server restart.
+    # When adding Bedrock players, make sure to include the floodgate prefix ("." by default) to their username.
+    spectators: ["iCorrosion", "Delieve"]
+    placers: [".CallumIsBad6502"]
+    breakers: ["cooltexture"]
+
+# When true, all the items in the shop are free and take away no money.
+# This is useful for practice servers for trying out things or demonstrating something to someone.
+free-shop: false
+
+# When true, the buy time is reduced, and the time after a round finishes is reduced.
+# This is useful for testing.
+fast-game: false
+
+# Don't change this
+version: 1

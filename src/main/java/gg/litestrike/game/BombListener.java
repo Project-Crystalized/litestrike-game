@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 
 import static net.kyori.adventure.text.Component.text;
 import gg.litestrike.game.GameController.RoundState;
+import gg.litestrike.game.mapfeatures.MapFeatures;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +158,7 @@ public class BombListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
 		if (gc == null ||
-				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
+				gc.teams.get_team(e.getPlayer()) != Team.Breaker ||
 				!(gc.bomb instanceof PlacedBomb) ||
 				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
@@ -189,7 +190,7 @@ public class BombListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Material held_item = e.getPlayer().getInventory().getItemInMainHand().getType();
 		if (gc == null ||
-				gc.teams.get_team(e.getPlayer()) == Team.Placer ||
+				gc.teams.get_team(e.getPlayer()) != Team.Breaker ||
 				!(gc.bomb instanceof PlacedBomb) ||
 				!(held_item == Material.STONE_PICKAXE || held_item == Material.IRON_PICKAXE) ||
 				e.getPlayer().getGameMode() != GameMode.SURVIVAL) {
@@ -262,8 +263,17 @@ public class BombListener implements Listener {
 				e.getItem() == null ||
 				!is_holding_bomb ||
 				e.getAction() != Action.RIGHT_CLICK_BLOCK ||
+				!e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable() ||
 				e.getClickedBlock().getType() != Litestrike.getInstance().mapdata.bomb_plant_block ||
 				!(gc.bomb instanceof InvItemBomb)) {
+			return;
+		}
+
+		MapFeatures mf = Litestrike.getInstance().mapdata.map_features;
+		if (!mf.can_plant_below && e.getBlockFace() == BlockFace.DOWN) {
+			return;
+		}
+		if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
 			return;
 		}
 
@@ -277,8 +287,8 @@ public class BombListener implements Listener {
 		}
 
 		// sanity check
-		if (gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
-			Bukkit.getLogger().severe("ERROR: A Breaker planted the bomb!");
+		if (gc.teams.get_team(e.getPlayer()) != Team.Placer) {
+			Bukkit.getLogger().severe("ERROR: A Not Placer planted the bomb!");
 		}
 
 		if (is_planting < 0) {
@@ -292,8 +302,7 @@ public class BombListener implements Listener {
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
-		if (!e.getClickedBlock().equals(last_planting_block)
-				|| !e.getClickedBlock().getRelative(e.getBlockFace()).isReplaceable()) {
+		if (!e.getClickedBlock().equals(last_planting_block)) {
 			is_planting = 0;
 		}
 		planting_face = e.getBlockFace();

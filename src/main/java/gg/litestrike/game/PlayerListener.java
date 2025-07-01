@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
@@ -35,29 +34,18 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import static net.kyori.adventure.text.Component.text;
-import static org.bukkit.event.EventPriority.LOW;
+
+import java.util.List;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
 
 	@EventHandler
 	public void onPlayerLogin(PlayerLoginEvent event) {
-		GameController gc = Litestrike.getInstance().game_controller;
 		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
 			event.disallow(PlayerLoginEvent.Result.KICK_FULL, text("The server is full.\n"));
-		}
-		if (gc == null) {
-			return;
-		}
-
-		// the if condition checks if the player is rejoining
-		if (gc.teams.wasInitialPlayer(event.getPlayer().getName()) == null) {
-			// player isnt rejoining, so we dont allow join
-			event.disallow(PlayerLoginEvent.Result.KICK_OTHER, text("A game is already in Progress.\n")
-					.append(text("If you see this message, it is likely a bug, pls report it to the admins")));
 		}
 	}
 
@@ -65,7 +53,7 @@ public class PlayerListener implements Listener {
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.teams.get_team(e.getPlayer()) == Team.Breaker) {
+		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
 			return;
 		}
 		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
@@ -113,13 +101,6 @@ public class PlayerListener implements Listener {
 			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
 			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
-
-			if (should_be_team == null) {
-				p.kick(text("a fatal logic error occured, pls report this as a bug"));
-				Bukkit.getLogger().severe("fatal logic error occured:" +
-						"a player was allowed to join during a game, but wasnt in any team previously. That should not be possible, name: "
-						+ p.getName());
-			}
 		}
 	}
 
@@ -174,7 +155,14 @@ public class PlayerListener implements Listener {
 
 		String msg_text = PlainTextComponentSerializer.plainText().serialize(e.message());
 		if (!msg_text.startsWith("@a") && !msg_text.startsWith("@A")) {
-			e.viewers().removeAll(gc.teams.get_enemy_team_of(e.getPlayer()));
+			List<Player> enemy_team = gc.teams.get_enemy_team_of(e.getPlayer());
+			if (enemy_team == null) {
+				// if enemy team is null, it means we got a spectator message, so all teamed
+				// players are removed
+				e.viewers().removeAll(gc.teams.get_all_players());
+			} else {
+				e.viewers().removeAll(enemy_team);
+			}
 		}
 
 		e.renderer(ChatRenderer.viewerUnaware(chat_renderer));
@@ -202,14 +190,17 @@ public class PlayerListener implements Listener {
 		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}
-		if (Teams.get_team(source.getUniqueId()) == Teams.get_team(e.getEntity().getUniqueId())) {
+		Team attacker_team = Teams.get_team(source.getUniqueId());
+		Team attacked_team = Teams.get_team(e.getEntity().getUniqueId());
+		if (attacker_team == null || attacked_team == null || attacked_team == attacker_team) {
 			e.setCancelled(true);
+			return;
 		}
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
-		double health = ((Player)e.getEntity()).getHealth();
-		if(health - e.getFinalDamage() <= 0) {
+		double health = ((Player) e.getEntity()).getHealth();
+		if (health - e.getFinalDamage() <= 0) {
 			pd.total_damage += health;
-		}else{
+		} else {
 			pd.total_damage += e.getFinalDamage();
 		}
 	}
@@ -276,7 +267,9 @@ class LSChatRenderer implements ChatRenderer.ViewerUnaware {
 	public Component render(Player source, Component sourceDisplayName, Component message) {
 		Team t = Litestrike.getInstance().game_controller.teams.get_team(source);
 		TextColor color;
-		if (t == Team.Breaker) {
+		if (t == null) {
+			color = Teams.SPECTATOR_GREY;
+		} else if (t == Team.Breaker) {
 			color = TextColor.color(0x22fb30);
 		} else {
 			color = TextColor.color(0xfb3922);

@@ -305,7 +305,7 @@ public class LSItem {
 		// 		translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack crossbow = new ItemStack(CROSSBOW);
-		lsItems.add(new LSItem(crossbow, 750, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(crossbow, 1250, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
 		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
@@ -350,10 +350,14 @@ public class LSItem {
 		}
 		Player p = Bukkit.getPlayer(p_name);
 		lore.add(Component.text("")); // add a newline so that the price is seperated
-		if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {
-			lore.add(Component.text("" + price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
+		if (Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+			lore.add(Component.text("FREE" + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
-			lore.add(Component.text("" + price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));
+			if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {
+				lore.add(Component.text(price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
+			} else {
+				lore.add(Component.text(price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));
+			}
 		}
 
 		ItemStack displayItem = item.clone();

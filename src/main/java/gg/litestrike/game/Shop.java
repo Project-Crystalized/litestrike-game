@@ -78,10 +78,10 @@ public class Shop {
 
 	// this is called once in next_round()
 	public static void giveShop_and_update() {
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			Shop s = Litestrike.getInstance().game_controller.getShop(p);
-			s.shopLog.add(null);
-			s.update_shop();
+		GameController gc = Litestrike.getInstance().game_controller;
+		for (Player p : gc.teams.get_all_players()) {
+			gc.getShop(p).shopLog.add(null);
+			gc.getShop(p).update_shop();
 
 			ItemStack shop = new ItemStack(EMERALD, 1);
 			ItemMeta meta = shop.getItemMeta();

@@ -40,19 +40,22 @@ public class Ranking {
 			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
 
 			double change = point_change;
-			int n = prd.rp/1000;
-			for(int i = n; i > 0; i--){
+			int n = prd.rp / 1000;
+			for (int i = n; i > 0; i--) {
 				change = point_change * 0.9;
 			}
-			point_change = (int)change;
+			point_change = (int) change;
 			prd.rp += point_change;
 
 			if (p != null) {
-				if(point_change >= 0){
-					p.sendMessage(Component.text("You have gained " + Math.abs(point_change) + " rp.").color(GREEN).decoration(BOLD, true));
+				if (point_change >= 0) {
+					p.sendMessage(
+							Component.text("You have gained " + Math.abs(point_change) + " rp.").color(GREEN).decoration(BOLD, true));
 					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(GREEN).decoration(BOLD, true));
-				}if(point_change < 0){
-					p.sendMessage(Component.text("You have lost " + Math.abs(point_change) + " rp.").color(RED).decoration(BOLD, true));
+				}
+				if (point_change < 0) {
+					p.sendMessage(
+							Component.text("You have lost " + Math.abs(point_change) + " rp.").color(RED).decoration(BOLD, true));
 					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(RED).decoration(BOLD, true));
 				}
 
@@ -91,6 +94,11 @@ public class Ranking {
 		Team initial_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Breaker : Team.Placer;
 		Team other_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Placer : Team.Breaker;
 
+		if (initial_team == other_team) {
+			// this happens for spectators
+			return null;
+		}
+
 		if (gc.round_number > GameController.SWITCH_ROUND) {
 			return other_team;
 		} else {
@@ -113,9 +121,9 @@ public class Ranking {
 
 			int win_loss = prd.recent_wins - prd.recent_losses;
 			if (win_loss > 0) {
-			total += prd.rp * Math.pow(1.12, win_loss);
+				total += prd.rp * Math.pow(1.12, win_loss);
 			} else if (win_loss < 0) {
-			total += prd.rp * Math.pow(0.88, -win_loss);
+				total += prd.rp * Math.pow(0.88, -win_loss);
 			}
 		}
 		return total;

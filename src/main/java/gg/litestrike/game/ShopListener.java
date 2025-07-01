@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +41,9 @@ public class ShopListener implements Listener {
 		}
 		Player p = (Player) event.getWhoClicked();
 		Shop s = gc.getShop(p);
+		if (s == null) {
+			return;
+		}
 
 		if (event.getInventory() != s.currentView) {
 			return;
@@ -109,7 +111,7 @@ public class ShopListener implements Listener {
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item);
 		} else {
-			// underog
+			// underdog
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
@@ -171,7 +173,8 @@ public class ShopListener implements Listener {
 			if (s.consAndAmmoCount.get(lsitem) <= 0) {
 				return;
 			}
-			// int amount = p.getInventory().getItem(invSlot).getAmount() / lsitem.item.getAmount() - 1;
+			// int amount = p.getInventory().getItem(invSlot).getAmount() /
+			// lsitem.item.getAmount() - 1;
 			int count = s.consAndAmmoCount.get(lsitem) - 1;
 			if (count < 0) {
 				return;
@@ -194,7 +197,9 @@ public class ShopListener implements Listener {
 			// }
 			// }
 		}
-		gc.getPlayerData(p).giveMoneyBack(lsitem.price);
+		if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+			gc.getPlayerData(p).giveMoneyBack(lsitem.price);
+		}
 		s.open_shop();
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));
 
@@ -205,7 +210,7 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	//deprecated in favour of identifyItemModel(ItemStack)
+	// deprecated in favour of identifyItemModel(ItemStack)
 	public static Integer identifyCustomModelData(ItemStack item) {
 		if (item.hasItemMeta()) {
 			if (item.getItemMeta().hasCustomModelData()) {
@@ -221,7 +226,8 @@ public class ShopListener implements Listener {
 	public static String identifyItemModel(ItemStack item) {
 		if (item.hasItemMeta()) {
 			if (item.getItemMeta().hasItemModel()) {
-				return item.getItemMeta().getItemModel().toString(); //hopefully this produces something like "crystalized:slime_sword"
+				return item.getItemMeta().getItemModel().toString(); // hopefully this produces something like
+																															// "crystalized:slime_sword"
 			} else {
 				return null;
 			}

@@ -6,9 +6,16 @@ load: POSTWORLD
 
 # softdepend: [Crystalized_Essentials]
 
-depend: [ProtocolLib, Crystalized_Essentials]
+depend: [ProtocolLib, Crystalized_Essentials, floodgate]
 
 commands:
+  manual_teams:
+    description: "to set up teams manually"
+    usage: "/manual_teams"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"
+
   mapdata:
     description: "For debugging purposes, get all loaded mapdata"
     usage: "/mapdata"

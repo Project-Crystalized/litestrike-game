@@ -62,11 +62,9 @@ public class GameController {
 	// after this round, the sides get switched
 	public final static int SWITCH_ROUND = 4;
 
-	public final static int PRE_ROUND_TIME = (20 * 23);
-	// public final static int PRE_ROUND_TIME = (20 * 5);
+	public static int PRE_ROUND_TIME = (20 * 23);
 	public final static int RUNNING_TIME = (180 * 20);
-	public final static int POST_ROUND_TIME = (5 * 20);
-	// public final static int POST_ROUND_TIME = (1 * 20);
+	public static int POST_ROUND_TIME = (5 * 20);
 	public final static int FINISH_TIME = (20 * 12);
 
 	public enum RoundState {
@@ -78,18 +76,22 @@ public class GameController {
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
+		if (Litestrike.getInstance().getConfig().getBoolean("fast-game")) {
+			PRE_ROUND_TIME = (20 * 5);
+			POST_ROUND_TIME = (1 * 20);
+		}
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				playerDatas = new ArrayList<PlayerData>();
-				for (Player player : Bukkit.getOnlinePlayers()) {
+				new TabListController();
+				for (Player player : teams.get_all_players()) {
 					PlayerData pd = new PlayerData(player);
 					playerDatas.add(pd);
 					Shop s = new Shop(player);
 					s.resetEquip();
 					s.resetEquipCounters();
-					new TabListController();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
 					}
@@ -215,7 +217,7 @@ public class GameController {
 		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:true");
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_all_players()) {
 			Shop.removeShop(p);
 			Inventory inv = p.getInventory();
 			for (int i = 0; i < inv.getSize(); i++) {
@@ -269,7 +271,7 @@ public class GameController {
 
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_all_players()) {
 			PlayerData pd = getPlayerData(p);
 			pd.assist_list.clear();
 			pd.ldt.clear_damager();
@@ -304,7 +306,7 @@ public class GameController {
 		teleport_players_podium(w);
 		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
-		for(Player p : Bukkit.getOnlinePlayers()){
+		for (Player p : teams.get_all_players()) {
 			LsDatabase.writeTemporaryData(p, 5, 20);
 		}
 		// summon fireworks
@@ -415,7 +417,7 @@ public class GameController {
 		}
 
 		// heal and set everyone to survival
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_all_players()) {
 			Shop.giveDefaultArmor(p);
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
@@ -427,6 +429,14 @@ public class GameController {
 			// this is needed because of some weird packet nonsense, to make everyone glow
 			p.setSneaking(true);
 			p.setSneaking(false);
+		}
+
+		// set spectators to spectator_mode every round
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (teams.get_all_players().contains(p)) {
+				continue;
+			}
+			p.setGameMode(GameMode.SPECTATOR);
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start
@@ -569,7 +579,7 @@ public class GameController {
 			// dont teleport if there are no podium coordinates
 			return;
 		}
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		for (Player p : teams.get_all_players()) {
 			p.setGameMode(GameMode.ADVENTURE);
 		}
 		Collections.sort(playerDatas, new PlayerDataComparator());

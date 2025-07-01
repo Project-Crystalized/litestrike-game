@@ -3,14 +3,12 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
@@ -19,16 +17,70 @@ public class Teams {
 
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
+	public static final TextColor SPECTATOR_GREY = TextColor.color(0x4f4545);
 
+	// there are basically 3 ways to generate partys:
+	// skillbased: generate_fair_teams
+	// random: generate_random_teams
+	// manual: both skillbased and random will take partys into account
 	public Teams() {
-		List<String> list = generate_random_teams();
-		Bukkit.getLogger().info("the generated team list is: " + list.toString());
+		Litestrike.getInstance().reloadConfig();
+		if (Litestrike.getInstance().getConfig().getBoolean("teams.enable")) {
+			create_manual_teams();
+			if (breakers.size() == 0 || placers.size() == 0) {
+				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
+			}
+			return;
+		}
 		// List<String> list = generate_fair_teams();
+		List<String> list = generate_random_teams();
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
 		breakers = list.subList(0, middle);
 		placers = list.subList(middle, list.size());
+	}
+
+	private void create_manual_teams() {
+		FileConfiguration config = Litestrike.getInstance().getConfig();
+		Bukkit.getLogger().info("creating teams from manual selection");
+		//placers = Litestrike.getInstance().manual_teams.placers;
+		//breakers = Litestrike.getInstance().manual_teams.breakers;
+
+		Object[] configSpectators = config.getList("teams.spectators").toArray(); //I dont know where spectators are specified
+		Object[] configPlacers = config.getList("teams.placers").toArray();
+		Object[] configBreakers = config.getList("teams.breakers").toArray();
+		placers = new ArrayList<>();
+		breakers = new ArrayList<>();
+		for (Object o : configPlacers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the placer team is not online. The player in question: "+s);
+				continue;
+			}
+			placers.add(s);
+		}
+		for (Object o : configBreakers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to be in both teams. The player in question: "+s);
+				continue;
+			}
+			if (breakers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the breaker team is not online. The player in question: "+s);
+				continue;
+			}
+			breakers.add(s);
+		}
+
 	}
 
 	private List<String> generate_random_teams() {
@@ -96,8 +148,10 @@ public class Teams {
 	public List<Player> get_enemy_team_of(Player p) {
 		if (breakers.contains(p.getName())) {
 			return get_placers();
-		} else {
+		} else if (placers.contains(p.getName())) {
 			return get_breakers();
+		} else {
+			return null;
 		}
 	}
 
@@ -129,6 +183,14 @@ public class Teams {
 		return null;
 	}
 
+	// returns all players that are not spectators
+	public List<Player> get_all_players() {
+		List<Player> new_list = new ArrayList<>();
+		new_list.addAll(this.get_breakers());
+		new_list.addAll(this.get_placers());
+		return new_list;
+	}
+
 	public Team get_team(Player p) {
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
@@ -137,23 +199,7 @@ public class Teams {
 		if (breakers.contains(p.getName())) {
 			return Team.Breaker;
 		}
-
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 1");
-		// Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-		Bukkit.getLogger().severe("name was: " + p.getName());
-		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
-		Bukkit.getLogger().severe("placers team: " + placers.toString());
-		Bukkit.getServer().sendMessage(Component.text("Error 002").color(NamedTextColor.RED));
-		Bukkit.getServer()
-				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
-				.color(NamedTextColor.RED));
-		new Exception().printStackTrace();
-		// disable plugin when failure
-		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-		breakers.add(p.getName());
-
-		return Team.Breaker;
+		return null;
 	}
 
 	public static Team get_team(UUID uuid) {
@@ -176,31 +222,16 @@ public class Teams {
 		if (breakers.contains(name)) {
 			return Team.Breaker;
 		}
-
-		Bukkit.getLogger().log(Level.SEVERE, "A player that wasnt in any Team was found, location 2");
-		Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-		Bukkit.getLogger().severe("name was: " + name);
-		Bukkit.getLogger().severe("breaker team: " + breakers.toString());
-		Bukkit.getLogger().severe("placers team: " + placers.toString());
-		Bukkit.getServer().sendMessage(Component.text("Error 003").color(NamedTextColor.RED));
-		Bukkit.getServer()
-				.sendMessage(Component.text("Someone pls screenshot this and send it to a admin").color(NamedTextColor.RED));
-		Bukkit.getServer().sendMessage(Component.text("game id: " + Litestrike.getInstance().game_controller.game_reference)
-				.color(NamedTextColor.RED));
-		new Exception().printStackTrace();
-		// disable plugin when failure
-		// Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-
-		breakers.add(name);
-
-		return Team.Breaker;
+		return null;
 	}
 
 	public static TextColor get_team_color(Team t) {
 		if (t == Team.Breaker) {
 			return BREAKER_GREEN;
-		} else {
+		} else if (t == Team.Placer) {
 			return PLACER_RED;
+		} else {
+			return SPECTATOR_GREY;
 		}
 	}
 
