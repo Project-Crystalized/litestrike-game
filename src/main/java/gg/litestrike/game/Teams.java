@@ -25,7 +25,7 @@ public class Teams {
 	// manual: both skillbased and random will take partys into account
 	public Teams() {
 		Litestrike.getInstance().reloadConfig();
-		if (Litestrike.getInstance().manual_teams.is_enabled) {
+		if (Litestrike.getInstance().getConfig().getBoolean("teams.enable")) {
 			create_manual_teams();
 			if (breakers.size() == 0 || placers.size() == 0) {
 				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
@@ -44,8 +44,42 @@ public class Teams {
 	private void create_manual_teams() {
 		FileConfiguration config = Litestrike.getInstance().getConfig();
 		Bukkit.getLogger().info("creating teams from manual selection");
-		placers = Litestrike.getInstance().manual_teams.placers;
-		breakers = Litestrike.getInstance().manual_teams.breakers;
+		//placers = Litestrike.getInstance().manual_teams.placers;
+		//breakers = Litestrike.getInstance().manual_teams.breakers;
+
+		Object[] configSpectators = config.getList("teams.spectators").toArray(); //I dont know where spectators are specified
+		Object[] configPlacers = config.getList("teams.placers").toArray();
+		Object[] configBreakers = config.getList("teams.breakers").toArray();
+		placers = new ArrayList<>();
+		breakers = new ArrayList<>();
+		for (Object o : configPlacers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the placer team is not online. The player in question: "+s);
+				continue;
+			}
+			placers.add(s);
+		}
+		for (Object o : configBreakers) {
+			String s = (String) o;
+			if (placers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to be in both teams. The player in question: "+s);
+				continue;
+			}
+			if (breakers.contains(s)) {
+				Bukkit.getLogger().warning("A player seems to appear twice in a team. The player in question: "+s);
+				continue;
+			}
+			if (Bukkit.getPlayer(s) == null || !Bukkit.getPlayer(s).isOnline()) {
+				Bukkit.getLogger().warning("A player in the breaker team is not online. The player in question: "+s);
+				continue;
+			}
+			breakers.add(s);
+		}
 
 	}
 
