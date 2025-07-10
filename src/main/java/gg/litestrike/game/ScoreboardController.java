@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
@@ -110,6 +111,10 @@ public class ScoreboardController {
 		obj.getScore("0").setScore(0);
 		obj.getScore("0").customName(text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ ").color(TextColor.color(0xc4b50a))
 				.append(text("" + game_id).color(NamedTextColor.GRAY)));
+
+		obj.getScore("-1").setScore(-1);
+		obj.getScore("-1").customName(MiniMessage.miniMessage().deserialize("<gradient:dark_red:red>Candy's Practise Server</gradient>"));
+
 
 		Team bomb_loc = sb.registerNewTeam("bomb_loc");
 		bomb_loc.addEntry("2");

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -535,6 +536,11 @@ public class GameController {
 	}
 
 	private void print_result_table(Team winner) {
+		if (Litestrike.getInstance().manual_teams.is_enabled) {
+			Litestrike.getInstance().getLogger().log(Level.INFO, "Running command to clear manual teams.");
+			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manual_teams clear");
+		}
+
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
 		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100").color(NamedTextColor.WHITE)));

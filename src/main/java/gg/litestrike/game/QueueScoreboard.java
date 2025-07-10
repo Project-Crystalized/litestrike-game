@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
@@ -50,6 +51,9 @@ public class QueueScoreboard {
 
 		obj.getScore("0").setScore(0);
 		obj.getScore("0").customName(text("ᴄʀʏꜱᴛᴀʟɪᴢᴇᴅ.ᴄᴄ ").color(TextColor.color(0xc4b50a)));
+
+		obj.getScore("-1").setScore(-1);
+		obj.getScore("-1").customName(MiniMessage.miniMessage().deserialize("<gradient:dark_red:red>Candy's Practise Server</gradient>"));
 
 		Team player_count = sb.registerNewTeam("player_count");
 		player_count.addEntry("5");
