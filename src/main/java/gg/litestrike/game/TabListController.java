@@ -60,7 +60,7 @@ class TabListController {
 					.append(text(pd.assists))
 					.append(text(" / "))
 					.append(text((int) Math.floor(pd.total_damage)))
-					.append(text("    " + pd.getMoney())).color(TextColor.color(0x0ab1c4));
+					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
 			Component player_status;
 			if (player == null) {
@@ -117,18 +117,18 @@ class TabListController {
 		sum += name.length() - 1;
 		return sum / 2;
 	}
-	/*
-	 * public static String makeTwoDigits(Integer num, int supposed){
-	 * String s = num.toString();
-	 * if(s.length() == supposed){
-	 * return s;
-	 * }
-	 * 
-	 * if(supposed - s.length() > 0) {
-	 * s = "_".repeat(supposed - s.length()) + s;
-	 * }
-	 * 
-	 * return s;
-	 * }
-	 */
+
+	 public static String makeTwoDigits(Integer num, int supposed){
+	 	String s = num.toString();
+	 	if(s.length() == supposed){
+	 		return s;
+	 	}
+
+	 	if(supposed - s.length() > 0) {
+	 		s = ".....".repeat(supposed - s.length()) + s;
+	 	}
+
+	 	return s;
+	 }
+
 }

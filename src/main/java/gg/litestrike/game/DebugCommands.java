@@ -1,5 +1,7 @@
 package gg.litestrike.game;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import org.bukkit.command.CommandExecutor;
 
 import java.util.logging.Level;
@@ -31,6 +33,8 @@ public class DebugCommands implements CommandExecutor {
 				return run_sound_info(args, commandSender);
 			case "big_door":
 				return run_big_door(args, commandSender);
+			case "debug_log":
+				return debug_log(args, commandSender);
 			default:
 				return false;
 		}
@@ -109,5 +113,12 @@ public class DebugCommands implements CommandExecutor {
 		}
 		return true;
 
+	}
+
+	private boolean debug_log(String[] args, CommandSender commandSender){
+		if(!(commandSender instanceof Player)){
+			return false;
+		}
+		return true;
 	}
 }

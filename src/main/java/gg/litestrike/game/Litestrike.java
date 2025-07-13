@@ -16,8 +16,15 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jspecify.annotations.NonNull;
 
+import java.io.IOException;
+import java.net.StandardProtocolFamily;
+import java.net.UnixDomainSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.file.Path;
 import java.util.logging.Level;
 
 enum Team {
@@ -26,6 +33,9 @@ enum Team {
 }
 
 public final class Litestrike extends JavaPlugin {
+	public static final Path socketPath = Path
+			.of(System.getProperty("user.home") + "/sockets")
+			.resolve("crystalized_lobby.socket");
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -73,6 +83,7 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
+		this.getCommand("debug_log").setExecutor(dc);
 
 		saveResource("config.yml", false);
 		int configVersion;
@@ -130,4 +141,5 @@ public final class Litestrike extends JavaPlugin {
 		out.writeUTF(message);
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
+
 }
