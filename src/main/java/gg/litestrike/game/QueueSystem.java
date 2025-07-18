@@ -63,7 +63,7 @@ public class QueueSystem implements PluginMessageListener {
 				} else {
 					if (countdown != 11) {
 						Audience.audience(Bukkit.getOnlinePlayers())
-								.sendMessage(text("Stopped Countdown, cause wrong number of players.").color(Litestrike.YELLOW));
+								.sendMessage(text("Stopped Countdown, wrong number of players.").color(Litestrike.YELLOW));
 					}
 					countdown = 11;
 					return;
@@ -82,6 +82,7 @@ public class QueueSystem implements PluginMessageListener {
 					out.writeUTF("start_game");
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						out.writeUTF(p.getName());
+						p.getInventory().clear();
 					}
 					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
 					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());

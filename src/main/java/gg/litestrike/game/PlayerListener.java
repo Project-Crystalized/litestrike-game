@@ -1,5 +1,7 @@
 package gg.litestrike.game;
 
+import gg.crystalized.lobby.App;
+import gg.crystalized.lobby.InventoryManager;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -78,6 +80,8 @@ public class PlayerListener implements Listener {
 
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
+		InventoryManager.giveLobbyItems(p);
+		p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);

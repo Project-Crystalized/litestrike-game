@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -313,6 +314,8 @@ public class GameController {
 
 		for(Player p : Bukkit.getOnlinePlayers()){
 			InventoryManager.giveLobbyItems(p);
+			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+			p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
 		}
 		// summon fireworks
 		new BukkitRunnable() {
