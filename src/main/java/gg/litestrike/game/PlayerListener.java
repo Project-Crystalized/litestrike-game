@@ -2,6 +2,7 @@ package gg.litestrike.game;
 
 import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
+import gg.crystalized.lobby.Ranks;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -38,6 +39,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
 
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
 import java.util.List;
 
@@ -81,6 +83,8 @@ public class PlayerListener implements Listener {
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
 		InventoryManager.giveLobbyItems(p);
+		Ranks.passiveNames(p, WHITE, null, null);
+		p.playerListName(Ranks.getName(p));
 		p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
@@ -278,6 +282,6 @@ class LSChatRenderer implements ChatRenderer.ViewerUnaware {
 		} else {
 			color = TextColor.color(0xfb3922);
 		}
-		return (text("<").append(sourceDisplayName).append(text("> ")).append(message)).color(color);
+		return text("<").color(color).append((sourceDisplayName)).append(text("> ")).color(color).append(message).color(color);
 	}
 }

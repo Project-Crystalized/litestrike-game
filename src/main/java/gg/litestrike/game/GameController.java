@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
+import gg.crystalized.lobby.Ranks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
@@ -96,6 +97,7 @@ public class GameController {
 					s.resetEquipCounters();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
+						Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
 					}
 				}
 				next_round();

@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import gg.crystalized.lobby.Ranks;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -63,14 +64,15 @@ class TabListController {
 					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
 			Component player_status;
+			Component rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
 			if (player == null) {
-				player_status = text("\n ").append(text("[Disconnected] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				player_status = text("\n ").append(text("[Disconnected] ")).append(rank).append(text(pd.player).color(NamedTextColor.GRAY));
 			} else if (player.getGameMode() == GameMode.SPECTATOR) {
-				player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				player_status = text("\n ").append(text("[Dead] ")).append(rank).append(text(pd.player).color(NamedTextColor.GRAY));
 			} else if (gc.teams.get_team(player) == Team.Placer) {
-				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
+				player_status = text("\n ").append(text("[Alive] ")).append(rank).append(text(pd.player).color(Teams.PLACER_RED));
 			} else {
-				player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
+				player_status = text("\n ").append(text("[Alive] ")).append(rank).append(text(pd.player).color(Teams.BREAKER_GREEN));
 			}
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
