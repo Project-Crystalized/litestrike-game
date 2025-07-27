@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
+import static java.util.Arrays.stream;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -108,6 +109,12 @@ public class ShopListener implements Listener {
 			s.consAndAmmoCount.put(clicked_item, i + 1);
 		}
 
+		int numberOfGaps = 0;
+		for(ItemStack it : p.getInventory().getContents()){
+			if(it == null || it.getType() != Material.GOLDEN_APPLE) continue;
+			numberOfGaps = it.getAmount() + numberOfGaps;
+		}
+
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item);
 		} else {
@@ -115,6 +122,9 @@ public class ShopListener implements Listener {
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
+				if(event.getSlot() == 48 && numberOfGaps >= 3){
+					return;
+				}
 				p.getInventory().addItem(clicked_item.item);
 			}
 		}
