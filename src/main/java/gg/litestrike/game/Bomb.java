@@ -173,6 +173,7 @@ class PlacedBomb implements Bomb {
 	private void start_explosion_timer() {
 		new BukkitRunnable() {
 			int last_beep = 0;
+			Sound sound;
 
 			@Override
 			public void run() {
@@ -180,14 +181,15 @@ class PlacedBomb implements Bomb {
 					cancel();
 					return;
 				}
+				bombSound();
 
 				timer += 1;
 
 				int freq = 20 + (int) (-0.025 * timer);
 				if (timer - last_beep > freq) {
 					last_beep = timer;
-					Sound sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
-					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
+					//sound = Sound.sound(Key.key("block.note_block.bit"), Sound.Source.AMBIENT, 1.9f, 1.8f);
+					//Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
 					block.getWorld().spawnParticle(RAID_OMEN, block.getLocation().add(0.5, 0.5, 0.5), 3);
 				}
 
@@ -197,6 +199,31 @@ class PlacedBomb implements Bomb {
 					cancel();
 				}
 			}
+
+			int soundTimer = 0;
+			void bombSound() {
+				if ((20 * 20) > timer) {
+					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_1"), Sound.Source.AMBIENT, 2, 1);
+				} else if ((30 * 20) > timer) {
+					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_2"), Sound.Source.AMBIENT, 2, 1);
+				} else {
+					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_3"), Sound.Source.AMBIENT, 2, 1);
+				}
+
+				soundTimer--;
+				if (soundTimer == 0 || soundTimer < 0) {
+					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
+					//Probably a better way of doing this, but I suck at maths - Callum
+					if ((20 * 20) > timer) {
+						soundTimer = 20;
+					} else if ((30 * 20) > timer) {
+						soundTimer = 15;
+					} else {
+						soundTimer = 10;
+					}
+				}
+
+			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 
@@ -204,7 +231,9 @@ class PlacedBomb implements Bomb {
 		is_detonated = true;
 		block.getWorld().spawnParticle(TRIAL_SPAWNER_DETECTION, block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
 		block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, block.getLocation().add(0.5, 0.5, 0.5), 500, 1, 1, 1);
-		block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"), Sound.Source.AMBIENT, 20, 1),
+		//block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"), Sound.Source.AMBIENT, 20, 1),
+		//		block.getX(), block.getY(), block.getZ());
+		block.getWorld().playSound(Sound.sound(Key.key("crystalized:effect.shard.detonation"), Sound.Source.AMBIENT, 20, 1),
 				block.getX(), block.getY(), block.getZ());
 		for (Player p : Litestrike.getInstance().game_controller.teams.get_all_players()) {
 			double distance = p.getLocation().distance(block.getLocation());
@@ -222,10 +251,10 @@ class PlacedBomb implements Bomb {
 
 			@Override
 			public void run() {
-				if (i % 10 == 0) {
-					block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
-							block.getX(), block.getY(), block.getZ());
-				}
+				//if (i % 10 == 0) {
+				//	block.getWorld().playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 1),
+				//			block.getX(), block.getY(), block.getZ());
+				//}
 				i += 1;
 				if (i == (20 * 4)) {
 					remove();
