@@ -34,7 +34,7 @@ public class BossBarDisplay {
 					return;
 				}
 
-				background_br.name(Component.text("\uE400"));
+				background_br.name(Component.text("\uE401"));
 				background.name(Component.text("\uE400"));
 				bb.name(Component.text(renderBossBar()));
 			}
