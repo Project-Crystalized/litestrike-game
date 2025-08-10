@@ -43,7 +43,7 @@ public class ScoreboardController {
 	public static void give_player_scoreboard(Player p, Teams teams, int game_id) {
 		Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
 		FloodgateApi floodgateapi = FloodgateApi.getInstance();
-		gg.litestrike.game.Team t = teams.get_team(p);
+		gg.litestrike.game.Team players_team = teams.get_team(p);
 
 		Team placers = sb.registerNewTeam("placers");
 		placers.color(NamedTextColor.RED);
@@ -63,7 +63,7 @@ public class ScoreboardController {
 
 		// Bedrock scoreboard
 		if (floodgateapi.isFloodgatePlayer(p.getUniqueId())) {
-			new BedrockScoreboard(p, t, teams, game_id);
+			new BedrockScoreboard(p, players_team, teams, game_id);
 			return;
 		}
 
@@ -75,10 +75,10 @@ public class ScoreboardController {
 		obj.getScore("11").setScore(11);
 		obj.getScore("11").customName(text(""));
 
-		if (t == null) {
+		if (players_team == null) {
 			obj.getScore("10").customName(
 					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(text("Spectator")));
-		} else if (t == gg.litestrike.game.Team.Breaker) {
+		} else if (players_team == gg.litestrike.game.Team.Breaker) {
 			obj.getScore("10").customName(
 					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
 		} else {
@@ -87,7 +87,7 @@ public class ScoreboardController {
 		}
 		obj.getScore("10").setScore(10);
 
-		if (t == null) {
+		if (players_team == null) {
 			obj.getScore("9").setScore(9);
 			obj.getScore("9").customName(text(""));
 		} else {
@@ -111,7 +111,7 @@ public class ScoreboardController {
 		obj.getScore("4").setScore(4);
 		obj.getScore("4").customName(text(""));
 
-		if (t == gg.litestrike.game.Team.Breaker) {
+		if (players_team == gg.litestrike.game.Team.Breaker) {
 			obj.getScore("3").customName(Component.text(""));
 		} else {
 			obj.getScore("3").customName(Component.text("Bomb Location:"));
@@ -134,7 +134,7 @@ public class ScoreboardController {
 		bomb_loc.prefix(text("Unknown"));
 		obj.getScore("2").setScore(2);
 
-		if (t != null) {
+		if (players_team != null) {
 			Team money_count = sb.registerNewTeam("money_count");
 			money_count.addEntry("9");
 			money_count.suffix(text("error"));
@@ -161,33 +161,36 @@ public class ScoreboardController {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		FloodgateApi floodgateapi = FloodgateApi.getInstance();
 		Bomb b = Litestrike.getInstance().game_controller.bomb;
-		for (Player p : t.get_breakers()) {
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			Team bomb_loc = p.getScoreboard().getTeam("bomb_loc");
-			if (b != null && b instanceof PlacedBomb) {
-				bomb_loc.prefix(Component.text("Bomb: "));
-				bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
+			gg.litestrike.game.Team players_team = t.get_team(p);
+			if (players_team == gg.litestrike.game.Team.Breaker) {
+				////// the scoreboard bomb display for breakers
+				if (b != null && b instanceof PlacedBomb) {
+					bomb_loc.prefix(Component.text("Bomb: "));
+					bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
+				} else {
+					bomb_loc.prefix(Component.text(""));
+					bomb_loc.suffix(Component.text(""));
+				}
 			} else {
-				bomb_loc.prefix(Component.text(""));
-				bomb_loc.suffix(Component.text(""));
-			}
-		}
-		for (Player p : t.get_placers()) {
-			String bomb_loc_string = "error";
-			if (b == null) {
-				bomb_loc_string = "Unknown";
-			} else if (b instanceof InvItemBomb) {
-				bomb_loc_string = ((InvItemBomb) b).get_bomb_loc_string(p);
-			} else if (b instanceof DroppedBomb) {
-				bomb_loc_string = ((DroppedBomb) b).get_bomb_loc_string(p);
-			} else if (b instanceof PlacedBomb) {
-				bomb_loc_string = ((PlacedBomb) b).get_bomb_loc_string(p);
-			}
+				////// the scoreboard bomb display for placers and spectators
+				String bomb_loc_string = "error";
+				if (b == null) {
+					bomb_loc_string = "Unknown";
+				} else if (b instanceof InvItemBomb) {
+					bomb_loc_string = ((InvItemBomb) b).get_bomb_loc_string(p);
+				} else if (b instanceof DroppedBomb) {
+					bomb_loc_string = ((DroppedBomb) b).get_bomb_loc_string(p);
+				} else if (b instanceof PlacedBomb) {
+					bomb_loc_string = ((PlacedBomb) b).get_bomb_loc_string(p);
+				}
 
-			Team bomb_loc = p.getScoreboard().getTeam("bomb_loc");
-			if (floodgateapi.isFloodgatePlayer(p.getUniqueId())) {
-				p.getScoreboard().getObjective("main").getScore("2").customName(text(bomb_loc_string));
-			} else {
-				bomb_loc.prefix(text(bomb_loc_string));
+				if (floodgateapi.isFloodgatePlayer(p.getUniqueId())) {
+					p.getScoreboard().getObjective("main").getScore("2").customName(text(bomb_loc_string));
+				} else {
+					bomb_loc.prefix(text(bomb_loc_string));
+				}
 			}
 		}
 	}
