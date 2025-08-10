@@ -250,7 +250,7 @@ public class GameController {
 			breaker_wins_amt += 1;
 		}
 
-		ScoreboardController.set_win_display(round_results);
+		ScoreboardController.set_win_display();
 
 		// remove arrows and items
 		for (Entity e : Bukkit.getWorld("world").getEntities()) {
@@ -314,7 +314,7 @@ public class GameController {
 			LsDatabase.writeTemporaryData(p, 5, 20);
 		}
 
-		for(Player p : Bukkit.getOnlinePlayers()){
+		for (Player p : Bukkit.getOnlinePlayers()) {
 			InventoryManager.giveLobbyItems(p);
 			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 			p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
@@ -392,7 +392,7 @@ public class GameController {
 			breaker_wins_amt = placer_wins_amt;
 			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
-			ScoreboardController.set_win_display(round_results);
+			ScoreboardController.set_win_display();
 			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();

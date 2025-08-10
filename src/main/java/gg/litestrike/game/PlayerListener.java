@@ -107,7 +107,7 @@ public class PlayerListener implements Listener {
 
 			// give player the scoreboard and bossbar again
 			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
-			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
+			ScoreboardController.give_player_scoreboard(p, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
 		}
 	}
@@ -282,6 +282,7 @@ class LSChatRenderer implements ChatRenderer.ViewerUnaware {
 		} else {
 			color = TextColor.color(0xfb3922);
 		}
-		return text("<").color(color).append((sourceDisplayName)).append(text("> ")).color(color).append(message).color(color);
+		return text("<").color(color).append((sourceDisplayName)).append(text("> ")).color(color).append(message)
+				.color(color);
 	}
 }
