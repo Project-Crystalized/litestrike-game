@@ -27,6 +27,17 @@ public class ScoreboardController {
 		for (Player p : t.get_all_players()) {
 			give_player_scoreboard(p, t, game_id);
 		}
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (Litestrike.getInstance().game_controller == null) {
+					cancel();
+					return;
+				}
+				render_bomb_display();
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 5, 6);
 	}
 
 	public static void give_player_scoreboard(Player p, Teams teams, int game_id) {
@@ -76,8 +87,13 @@ public class ScoreboardController {
 		}
 		obj.getScore("10").setScore(10);
 
-		obj.getScore("9").setScore(9);
-		obj.getScore("9").customName(Component.translatable("crystalized.game.generic.money").append(text(": ")));
+		if (t == null) {
+			obj.getScore("9").setScore(9);
+			obj.getScore("9").customName(text(""));
+		} else {
+			obj.getScore("9").setScore(9);
+			obj.getScore("9").customName(Component.translatable("crystalized.game.generic.money").append(text(": ")));
+		}
 
 		obj.getScore("8").setScore(8);
 		obj.getScore("8").customName(text(""));
@@ -118,10 +134,12 @@ public class ScoreboardController {
 		bomb_loc.prefix(text("Unknown"));
 		obj.getScore("2").setScore(2);
 
-		Team money_count = sb.registerNewTeam("money_count");
-		money_count.addEntry("9");
-		money_count.suffix(text("error"));
-		obj.getScore("9").setScore(9);
+		if (t != null) {
+			Team money_count = sb.registerNewTeam("money_count");
+			money_count.addEntry("9");
+			money_count.suffix(text("error"));
+			obj.getScore("9").setScore(9);
+		}
 
 		Team wins_placers = sb.registerNewTeam("wins_placers");
 		wins_placers.addEntry("6");
@@ -137,16 +155,6 @@ public class ScoreboardController {
 
 		p.setScoreboard(sb);
 
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				if (Litestrike.getInstance().game_controller == null) {
-					cancel();
-					return;
-				}
-				render_bomb_display();
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 6);
 	}
 
 	public static void render_bomb_display() {
@@ -229,6 +237,8 @@ public class ScoreboardController {
 	public static void set_player_money(String player, int money) {
 		Player p = Bukkit.getPlayer(player);
 		if (p == null) {
+			Bukkit.getLogger().warning("set_player_money was called for a player that doesnt exist. this is fine.");
+			Bukkit.getLogger().warning("But it could point to a logic error");
 			return;
 		}
 		Scoreboard sb = p.getScoreboard();
@@ -239,7 +249,6 @@ public class ScoreboardController {
 
 		money_count.suffix(text(money).color(TextColor.color(0x0ab1c4)).append(text("\uE104")));
 	}
-
 }
 
 class BedrockScoreboard {
