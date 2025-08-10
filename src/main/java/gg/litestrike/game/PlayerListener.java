@@ -82,10 +82,13 @@ public class PlayerListener implements Listener {
 
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
-		InventoryManager.giveLobbyItems(p);
-		Ranks.passiveNames(p, WHITE, null, null);
-		p.playerListName(Ranks.getName(p));
-		p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+		try {
+			InventoryManager.giveLobbyItems(p);
+			Ranks.passiveNames(p, WHITE, null, null);
+			p.playerListName(Ranks.getName(p));
+			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+		} catch (NoClassDefFoundError e) {
+		}
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);

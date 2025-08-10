@@ -97,7 +97,10 @@ public class GameController {
 					s.resetEquipCounters();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
-						Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+						try {
+							Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+						} catch (NoClassDefFoundError e) {
+						}
 					}
 				}
 				next_round();
@@ -314,10 +317,13 @@ public class GameController {
 			LsDatabase.writeTemporaryData(p, 5, 20);
 		}
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			InventoryManager.giveLobbyItems(p);
-			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
-			p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+		try {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				InventoryManager.giveLobbyItems(p);
+				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+			}
+		} catch (NoClassDefFoundError e) {
 		}
 		// summon fireworks
 		new BukkitRunnable() {
@@ -618,5 +624,4 @@ public class GameController {
 	public Shop getShop(Player p) {
 		return shopList.get(p.getName());
 	}
-
 }
