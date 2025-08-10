@@ -17,6 +17,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import static net.kyori.adventure.text.Component.text;
@@ -26,12 +27,6 @@ public class ScoreboardController {
 		for (Player p : t.get_all_players()) {
 			give_player_scoreboard(p, t, game_id);
 		}
-		// for (Player p : t.get_placers()) {
-		// 	give_player_scoreboard(p, gg.litestrike.game.Team.Placer, t, game_id);
-		// }
-		// for (Player p : t.get_breakers()) {
-		// 	give_player_scoreboard(p, gg.litestrike.game.Team.Breaker, t, game_id);
-		// }
 	}
 
 	public static void give_player_scoreboard(Player p, Teams teams, int game_id) {
@@ -71,7 +66,7 @@ public class ScoreboardController {
 
 		if (t == null) {
 			obj.getScore("10").customName(
-					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Component.text("Spectator")));
+					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(text("Spectator")));
 		} else if (t == gg.litestrike.game.Team.Breaker) {
 			obj.getScore("10").customName(
 					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
@@ -193,7 +188,7 @@ public class ScoreboardController {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Component placer_text = text(render_win_display(gc.placer_wins_amt));
 		Component breaker_text = text(render_win_display(gc.breaker_wins_amt));
-		for (Player p : gc.teams.get_all_players()) {
+		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 			Team breakers = p.getScoreboard().getTeam("wins_breakers");
 			Team placers = p.getScoreboard().getTeam("wins_placers");
 			if (breakers == null || placers == null) {
@@ -203,6 +198,9 @@ public class ScoreboardController {
 				placers.prefix(text("\uE109 ").decoration(TextDecoration.BOLD, true));
 			} else if (gc.teams.get_team(p) == gg.litestrike.game.Team.Breaker) {
 				breakers.prefix(text("\uE109 ").decoration(TextDecoration.BOLD, true));
+			} else {
+				placers.prefix(text("P ").color(Teams.PLACER_RED).decoration(TextDecoration.BOLD, true));
+				breakers.prefix(text("B ").color(Teams.BREAKER_GREEN).decoration(TextDecoration.BOLD, true));
 			}
 			breakers.suffix(breaker_text);
 			placers.suffix(placer_text);
@@ -230,7 +228,6 @@ public class ScoreboardController {
 
 	public static void set_player_money(String player, int money) {
 		Player p = Bukkit.getPlayer(player);
-		FloodgateApi floodgateapi = FloodgateApi.getInstance();
 		if (p == null) {
 			return;
 		}
@@ -259,7 +256,8 @@ class BedrockScoreboard {
 
 		if (t == null) {
 			obj.getScore("10").customName(
-					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Component.text("Spectator")));
+					Component.translatable("crystalized.game.generic.team").append(text(": "))
+							.append(Component.text("Spectator")));
 		} else if (t == gg.litestrike.game.Team.Breaker) {
 			obj.getScore("10").customName(
 					Component.translatable("crystalized.game.generic.team").append(text(": ")).append(Litestrike.BREAKER_TEXT));
@@ -330,14 +328,20 @@ class BedrockScoreboard {
 						.append(text("\uE104")));
 
 				if (t == null) {
-					obj.getScore("6").customName(text("  ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
-					obj.getScore("5").customName(text("  ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
+					obj.getScore("6").customName(
+							text("  ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
+					obj.getScore("5")
+							.customName(text("  ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
 				} else if (t == gg.litestrike.game.Team.Breaker) {
-					obj.getScore("6").customName(text("  ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
-					obj.getScore("5").customName(text("\uE109 ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
+					obj.getScore("6").customName(
+							text("  ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
+					obj.getScore("5")
+							.customName(text("\uE109 ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
 				} else {
-					obj.getScore("6").customName(text("\uE109 ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
-					obj.getScore("5").customName(text("  ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
+					obj.getScore("6").customName(
+							text("\uE109 ").append(text(ScoreboardController.render_win_display(placer_wins_amt))).append(text(" ")));
+					obj.getScore("5")
+							.customName(text("  ").append(text(ScoreboardController.render_win_display(breaker_wins_amt))));
 				}
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 0, 20);
