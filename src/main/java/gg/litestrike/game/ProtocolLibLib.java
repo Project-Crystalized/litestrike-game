@@ -25,8 +25,12 @@ public class ProtocolLibLib {
 				PacketContainer packet = event.getPacket();
 				Player updated_player = get_player_by_entity_id(packet.getIntegers().read(0));
 				if (gc == null
-						|| updated_player == null
-						|| gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())) {
+					|| updated_player == null) {
+					return;
+				}
+				Team receiving_player_team = gc.teams.get_team(event.getPlayer());
+				Team updated_player_team = gc.teams.get_team(updated_player);
+				if ((receiving_player_team != null) && (receiving_player_team != updated_player_team)) {
 					return;
 				}
 				event.setPacket(packet = packet.deepClone());
@@ -80,7 +84,7 @@ public class ProtocolLibLib {
 				Player updated_player = get_player_by_entity_id(packet.getIntegers().read(0));
 				if (gc == null
 						|| updated_player == null
-						|| gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer())
+						|| (gc.teams.get_team(event.getPlayer()) != null && gc.teams.get_team(updated_player) != gc.teams.get_team(event.getPlayer()))
 						|| !(gc.bomb instanceof InvItemBomb)
 						|| !(updated_player.equals(((InvItemBomb) gc.bomb).player))) {
 					return;
