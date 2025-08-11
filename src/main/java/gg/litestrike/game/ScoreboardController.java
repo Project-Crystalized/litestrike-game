@@ -24,7 +24,7 @@ import static net.kyori.adventure.text.Component.text;
 
 public class ScoreboardController {
 	public static void setup_scoreboard(Teams t, int game_id) {
-		for (Player p : t.get_all_players()) {
+		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 			give_player_scoreboard(p, t, game_id);
 		}
 
