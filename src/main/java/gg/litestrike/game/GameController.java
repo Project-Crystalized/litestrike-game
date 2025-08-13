@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Level;
 
+import gg.crystalized.lobby.App;
+import gg.crystalized.lobby.InventoryManager;
+import gg.crystalized.lobby.Ranks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
@@ -95,6 +97,10 @@ public class GameController {
 					s.resetEquipCounters();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
+						try {
+							Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+						} catch (NoClassDefFoundError e) {
+						}
 					}
 				}
 				next_round();
@@ -247,7 +253,7 @@ public class GameController {
 			breaker_wins_amt += 1;
 		}
 
-		ScoreboardController.set_win_display(round_results);
+		ScoreboardController.set_win_display();
 
 		// remove arrows and items
 		for (Entity e : Bukkit.getWorld("world").getEntities()) {
@@ -309,6 +315,15 @@ public class GameController {
 		LsDatabase.save_game(winner);
 		for (Player p : teams.get_all_players()) {
 			LsDatabase.writeTemporaryData(p, 5, 20);
+		}
+
+		try {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				InventoryManager.giveLobbyItems(p);
+				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+			}
+		} catch (NoClassDefFoundError e) {
 		}
 		// summon fireworks
 		new BukkitRunnable() {
@@ -383,7 +398,7 @@ public class GameController {
 			breaker_wins_amt = placer_wins_amt;
 			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
-			ScoreboardController.set_win_display(round_results);
+			ScoreboardController.set_win_display();
 			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();
@@ -536,11 +551,6 @@ public class GameController {
 	}
 
 	private void print_result_table(Team winner) {
-		if (Litestrike.getInstance().manual_teams.is_enabled) {
-			Litestrike.getInstance().getLogger().log(Level.INFO, "Running command to clear manual teams.");
-			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "manual_teams clear");
-		}
-
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
 		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100").color(NamedTextColor.WHITE)));
@@ -614,5 +624,4 @@ public class GameController {
 	public Shop getShop(Player p) {
 		return shopList.get(p.getName());
 	}
-
 }
