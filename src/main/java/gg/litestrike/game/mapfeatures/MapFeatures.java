@@ -70,16 +70,6 @@ public class MapFeatures implements Listener {
 				"\njump_pad_block: " + jump_pad_block;
 	}
 
-	// this constructor is for map data version 2, when pad blocks where hardcoded
-	public MapFeatures(boolean launch_pad, boolean levi_pad) {
-		if (launch_pad) {
-			launch_pad_block = Material.PURPLE_CONCRETE_POWDER;
-		}
-		if (levi_pad) {
-			levi_pad_block = Material.PURPUR_BLOCK;
-		}
-	}
-
 	public void register_listeners(Litestrike plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		if (launch_pad_block != null) {
@@ -121,4 +111,3 @@ public class MapFeatures implements Listener {
 		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 }
-

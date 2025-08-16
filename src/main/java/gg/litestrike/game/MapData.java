@@ -140,27 +140,6 @@ public class MapData implements Listener {
 		}
 	}
 
-	private void parse_config_v2(JsonObject json) {
-		load_spawn_coords(json);
-		this.map_name = json.get("map_name").getAsString();
-
-		load_border_values(json);
-
-		JsonElement jp = json.get("enable_jump_pads");
-		JsonElement launch_pad = json.get("enable_launch_pads");
-		boolean launch_pads = (jp != null && jp.getAsBoolean()) || (launch_pad != null && launch_pad.getAsBoolean());
-
-		JsonElement lp = json.get("enable_levitation_pads");
-		boolean levi_pads = (lp != null && lp.getAsBoolean());
-
-		map_features = new MapFeatures(launch_pads, levi_pads);
-
-		JsonObject jo_podium = json.getAsJsonObject("podium");
-		if (jo_podium != null) {
-			this.podium = new PodiumData(jo_podium);
-		}
-	}
-
 	public void parse_config_v3(JsonObject json) {
 		load_spawn_coords(json);
 
@@ -202,9 +181,10 @@ public class MapData implements Listener {
 			}
 			switch (v.getAsInt()) {
 				case 2:
-					Bukkit.getLogger().warning("[Litestrike] loading a version 2 map config file, consider updating it");
-					parse_config_v2(json);
-					break;
+					Bukkit.getLogger().severe("Version 2 Litestrike map_configs are no longer supported.");
+					Bukkit.getLogger().severe("Please update your map_config to a newer version.");
+					Bukkit.getLogger().severe("If you need help with this, contact a crystalized admin.");
+					throw new Exception("Map config version 2 is no longer supported");
 				case 3:
 					Bukkit.getLogger().info("[Litestrike] loading a version 3 map config file");
 					parse_config_v3(json);
