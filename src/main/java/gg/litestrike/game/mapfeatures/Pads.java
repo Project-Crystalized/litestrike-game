@@ -23,7 +23,11 @@ class LaunchPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
-			MapFeatures.fall_protect_player(p, 5);
+			if (p.getPing() > 180) {
+				MapFeatures.fall_protect_player(p, (20 * 4));
+			} else {
+				MapFeatures.fall_protect_player(p, (20 * 2));
+			}
 		}
 	}
 }
