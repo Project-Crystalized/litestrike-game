@@ -3,6 +3,7 @@ package gg.litestrike.game.mapfeatures;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,8 +28,10 @@ public class MapFeatures implements Listener {
 	public boolean can_plant_side = true;
 
 	public BigDoor bigDoor;
+	public CargoDoor cargoDoor;
 
-	public MapFeatures(JsonObject json) {
+	public MapFeatures(JsonObject json_main) {
+		JsonObject json = json_main.getAsJsonObject("map_features");
 		JsonElement lp_block = json.get("launch_pad_block");
 		if (lp_block != null) {
 			launch_pad_block = Material.matchMaterial(lp_block.getAsString());
@@ -50,6 +53,13 @@ public class MapFeatures implements Listener {
 		JsonObject jo_big_door = json.getAsJsonObject("big_door");
 		if (jo_big_door != null) {
 			bigDoor = new BigDoor(jo_big_door);
+		}
+
+		if (json_main.get("map_name").getAsString().contains("Cargo")) {
+			Bukkit.getLogger().info("");
+			Bukkit.getLogger().info("loaded a map with the Cargo door");
+			Bukkit.getLogger().info("");
+			cargoDoor = new CargoDoor();
 		}
 
 		JsonElement plant_below = json.get("can_plant_below");
@@ -84,6 +94,9 @@ public class MapFeatures implements Listener {
 		if (bigDoor != null) {
 			plugin.getServer().getPluginManager().registerEvents(bigDoor, plugin);
 		}
+		if (cargoDoor != null) {
+			plugin.getServer().getPluginManager().registerEvents(cargoDoor, plugin);
+		}
 	}
 
 	@EventHandler
@@ -92,6 +105,16 @@ public class MapFeatures implements Listener {
 			e.setCancelled(true);
 			fall_protected_players.remove(e.getEntity());
 			fall_protected_players.removeIf(pl -> !pl.isConnected());
+		}
+	}
+
+	// this is called from GameController next_round AND start_round
+	public void reset_structures() {
+		if (bigDoor != null) {
+			bigDoor.regenerate_door();
+		}
+		if (cargoDoor != null) {
+			cargoDoor.close_door();
 		}
 	}
 

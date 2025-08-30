@@ -129,7 +129,7 @@ public class MapData implements Listener {
 
 		JsonObject jo_map_features = json.getAsJsonObject("map_features");
 		if (jo_map_features != null) {
-			map_features = new MapFeatures(jo_map_features);
+			map_features = new MapFeatures(json);
 		}
 
 		JsonObject jo_podium = json.getAsJsonObject("podium");

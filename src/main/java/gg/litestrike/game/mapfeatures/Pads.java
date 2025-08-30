@@ -55,15 +55,15 @@ class LeviPadListener implements Listener {
 class JumpPadListener implements Listener {
 	// TODO remove this, it was testing a different way of jump pads
 	@EventHandler
-	public void onJump(PlayerJumpEvent e) {
+	public void onJump(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
 		if (p.getGameMode() == GameMode.SPECTATOR)
 			return;
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-		if (block_under.getType() == Material.BLUE_CONCRETE_POWDER) {
+		if (block_under.getType() == Material.BLUE_CONCRETE_POWDER && p.getVelocity().getY() <= 0) {
 			p.setVelocity(p.getVelocity().add(new Vector(0, 1.3, 0)));
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			MapFeatures.fall_protect_player(p, (20 * 4));
+			MapFeatures.fall_protect_player(p, 8);
 		}
 	}
 
@@ -76,7 +76,7 @@ class JumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protect_player(p, (20 * 4));
+			MapFeatures.fall_protect_player(p, 8);
 		}
 	}
 }
