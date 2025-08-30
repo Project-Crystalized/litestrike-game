@@ -98,6 +98,7 @@ public class GameController {
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
 						Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+
 					}
 				}
 				next_round();
