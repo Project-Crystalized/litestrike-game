@@ -64,15 +64,32 @@ class TabListController {
 					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
 			Component player_status;
-			Component rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
-			if (player == null) {
-				player_status = text("\n ").append(text("[Disconnected] ")).append(rank).append(text(pd.player).color(NamedTextColor.GRAY));
-			} else if (player.getGameMode() == GameMode.SPECTATOR) {
-				player_status = text("\n ").append(text("[Dead] ")).append(rank).append(text(pd.player).color(NamedTextColor.GRAY));
-			} else if (gc.teams.get_team(player) == Team.Placer) {
-				player_status = text("\n ").append(text("[Alive] ")).append(rank).append(text(pd.player).color(Teams.PLACER_RED));
-			} else {
-				player_status = text("\n ").append(text("[Alive] ")).append(rank).append(text(pd.player).color(Teams.BREAKER_GREEN));
+			try {
+				Component rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
+				if (player == null) {
+					player_status = text("\n ").append(text("[Disconnected] ")).append(rank)
+							.append(text(pd.player).color(NamedTextColor.GRAY));
+				} else if (player.getGameMode() == GameMode.SPECTATOR) {
+					player_status = text("\n ").append(text("[Dead] ")).append(rank)
+							.append(text(pd.player).color(NamedTextColor.GRAY));
+				} else if (gc.teams.get_team(player) == Team.Placer) {
+					player_status = text("\n ").append(text("[Alive] ")).append(rank)
+							.append(text(pd.player).color(Teams.PLACER_RED));
+				} else {
+					player_status = text("\n ").append(text("[Alive] ")).append(rank)
+							.append(text(pd.player).color(Teams.BREAKER_GREEN));
+				}
+			} catch (NoClassDefFoundError e) {
+				if (player == null) {
+					player_status = text("\n ").append(text("[Disconnected] "))
+							.append(text(pd.player).color(NamedTextColor.GRAY));
+				} else if (player.getGameMode() == GameMode.SPECTATOR) {
+					player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
+				} else if (gc.teams.get_team(player) == Team.Placer) {
+					player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
+				} else {
+					player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
+				}
 			}
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
@@ -120,17 +137,17 @@ class TabListController {
 		return sum / 2;
 	}
 
-	 public static String makeTwoDigits(Integer num, int supposed){
-	 	String s = num.toString();
-	 	if(s.length() == supposed){
-	 		return s;
-	 	}
+	public static String makeTwoDigits(Integer num, int supposed) {
+		String s = num.toString();
+		if (s.length() == supposed) {
+			return s;
+		}
 
-	 	if(supposed - s.length() > 0) {
-	 		s = ".....".repeat(supposed - s.length()) + s;
-	 	}
+		if (supposed - s.length() > 0) {
+			s = ".....".repeat(supposed - s.length()) + s;
+		}
 
-	 	return s;
-	 }
+		return s;
+	}
 
 }

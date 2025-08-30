@@ -97,8 +97,10 @@ public class GameController {
 					s.resetEquipCounters();
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
-						Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
-
+						try {
+							Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+						} catch (NoClassDefFoundError e) {
+						}
 					}
 				}
 				next_round();
@@ -215,9 +217,7 @@ public class GameController {
 		}
 
 		Litestrike ls = Litestrike.getInstance();
-		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
-			ls.mapdata.map_features.bigDoor.regenerate_door();
-		}
+
 		// remove the border
 		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:true");
@@ -251,7 +251,7 @@ public class GameController {
 			breaker_wins_amt += 1;
 		}
 
-		ScoreboardController.set_win_display(round_results);
+		ScoreboardController.set_win_display();
 
 		// remove arrows and items
 		for (Entity e : Bukkit.getWorld("world").getEntities()) {
@@ -315,10 +315,13 @@ public class GameController {
 			LsDatabase.writeTemporaryData(p, 5, 20);
 		}
 
-		for(Player p : Bukkit.getOnlinePlayers()){
-			InventoryManager.giveLobbyItems(p);
-			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
-			p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+		try {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				InventoryManager.giveLobbyItems(p);
+				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+			}
+		} catch (NoClassDefFoundError e) {
 		}
 		// summon fireworks
 		new BukkitRunnable() {
@@ -370,8 +373,9 @@ public class GameController {
 		}
 
 		Litestrike ls = Litestrike.getInstance();
-		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
-			ls.mapdata.map_features.bigDoor.regenerate_door();
+		if (ls.mapdata.map_features != null) {
+			// this resets movable parts of the map, like the door on Cargo
+			ls.mapdata.map_features.reset_structures();
 		}
 
 		if (round_number == SWITCH_ROUND + 1) {
@@ -393,7 +397,7 @@ public class GameController {
 			breaker_wins_amt = placer_wins_amt;
 			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
-			ScoreboardController.set_win_display(round_results);
+			ScoreboardController.set_win_display();
 			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();
@@ -619,5 +623,4 @@ public class GameController {
 	public Shop getShop(Player p) {
 		return shopList.get(p.getName());
 	}
-
 }

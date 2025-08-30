@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
@@ -16,14 +15,8 @@ import com.comphenix.protocol.ProtocolManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jspecify.annotations.NonNull;
 
-import java.io.IOException;
-import java.net.StandardProtocolFamily;
-import java.net.UnixDomainSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.nio.file.Path;
 import java.util.logging.Level;
 
@@ -96,7 +89,8 @@ public final class Litestrike extends JavaPlugin {
 
 		// register the manual_teams command
 		// TODO deprecated in favor of a config file
-		//this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register("manual_teams", manual_teams));
+		// this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+		// event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");

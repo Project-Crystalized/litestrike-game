@@ -3,6 +3,7 @@ package gg.litestrike.game.mapfeatures;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,8 +28,10 @@ public class MapFeatures implements Listener {
 	public boolean can_plant_side = true;
 
 	public BigDoor bigDoor;
+	public CargoDoor cargoDoor;
 
-	public MapFeatures(JsonObject json) {
+	public MapFeatures(JsonObject json_main) {
+		JsonObject json = json_main.getAsJsonObject("map_features");
 		JsonElement lp_block = json.get("launch_pad_block");
 		if (lp_block != null) {
 			launch_pad_block = Material.matchMaterial(lp_block.getAsString());
@@ -52,6 +55,13 @@ public class MapFeatures implements Listener {
 			bigDoor = new BigDoor(jo_big_door);
 		}
 
+		if (json_main.get("map_name").getAsString().contains("Cargo")) {
+			Bukkit.getLogger().info("");
+			Bukkit.getLogger().info("loaded a map with the Cargo door");
+			Bukkit.getLogger().info("");
+			cargoDoor = new CargoDoor();
+		}
+
 		JsonElement plant_below = json.get("can_plant_below");
 		if (plant_below != null) {
 			can_plant_below = plant_below.getAsBoolean();
@@ -70,16 +80,6 @@ public class MapFeatures implements Listener {
 				"\njump_pad_block: " + jump_pad_block;
 	}
 
-	// this constructor is for map data version 2, when pad blocks where hardcoded
-	public MapFeatures(boolean launch_pad, boolean levi_pad) {
-		if (launch_pad) {
-			launch_pad_block = Material.PURPLE_CONCRETE_POWDER;
-		}
-		if (levi_pad) {
-			levi_pad_block = Material.PURPUR_BLOCK;
-		}
-	}
-
 	public void register_listeners(Litestrike plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		if (launch_pad_block != null) {
@@ -94,6 +94,9 @@ public class MapFeatures implements Listener {
 		if (bigDoor != null) {
 			plugin.getServer().getPluginManager().registerEvents(bigDoor, plugin);
 		}
+		if (cargoDoor != null) {
+			plugin.getServer().getPluginManager().registerEvents(cargoDoor, plugin);
+		}
 	}
 
 	@EventHandler
@@ -102,6 +105,16 @@ public class MapFeatures implements Listener {
 			e.setCancelled(true);
 			fall_protected_players.remove(e.getEntity());
 			fall_protected_players.removeIf(pl -> !pl.isConnected());
+		}
+	}
+
+	// this is called from GameController next_round AND start_round
+	public void reset_structures() {
+		if (bigDoor != null) {
+			bigDoor.regenerate_door();
+		}
+		if (cargoDoor != null) {
+			cargoDoor.close_door();
 		}
 	}
 
@@ -121,4 +134,3 @@ public class MapFeatures implements Listener {
 		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
 	}
 }
-

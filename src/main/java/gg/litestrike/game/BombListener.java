@@ -123,6 +123,10 @@ public class BombListener implements Listener {
 								.spawnParticle(CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), breaking_counter / 20, 0, 0, 0);
 					}
 					if (breaking_counter >= BREAK_TIME) {
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							p.playSound(b.block.getLocation(), "crystalized:effect.shard.deactivation", 4, 1);
+						}
+
 						b.is_broken = true;
 						b.remove();
 						// mining_players.get(0).p.getWorld()

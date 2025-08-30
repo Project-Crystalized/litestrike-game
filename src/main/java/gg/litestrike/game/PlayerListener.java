@@ -82,10 +82,13 @@ public class PlayerListener implements Listener {
 
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
-		InventoryManager.giveLobbyItems(p);
-		Ranks.passiveNames(p, WHITE, null, null);
-		p.playerListName(Ranks.getName(p));
-		p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+		try {
+			InventoryManager.giveLobbyItems(p);
+			Ranks.passiveNames(p, WHITE, null, null);
+			p.playerListName(Ranks.getName(p));
+			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
+		} catch (NoClassDefFoundError e) {
+		}
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
 		p.lookAt(Litestrike.getInstance().mapdata.get_placer_spawn(p.getWorld()), LookAnchor.EYES);
@@ -107,7 +110,7 @@ public class PlayerListener implements Listener {
 
 			// give player the scoreboard and bossbar again
 			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
-			ScoreboardController.give_player_scoreboard(p, should_be_team, gc.teams, gc.game_reference);
+			ScoreboardController.give_player_scoreboard(p, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
 		}
 	}
@@ -282,6 +285,7 @@ class LSChatRenderer implements ChatRenderer.ViewerUnaware {
 		} else {
 			color = TextColor.color(0xfb3922);
 		}
-		return text("<").color(color).append((sourceDisplayName)).append(text("> ")).color(color).append(message).color(color);
+		return text("<").color(color).append((sourceDisplayName)).append(text("> ")).color(color).append(message)
+				.color(color);
 	}
 }

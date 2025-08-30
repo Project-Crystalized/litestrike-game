@@ -71,7 +71,10 @@ public class LSItem {
 
 		ItemMeta meta = item.getItemMeta();
 		if (item.getType().getMaxDurability() > 0) {
-			meta.setUnbreakable(true);
+			// meta.setUnbreakable(true);
+			// lol just discovered you dont even need to setUnbreakable
+			// if you add HIDE_UNBREAKABLE its enough
+			meta.addItemFlags(HIDE_UNBREAKABLE);
 		}
 
 		if (price != null && item.getType() != Material.ARROW) {
@@ -95,7 +98,6 @@ public class LSItem {
 		}
 
 		item.setItemMeta(meta);
-		item.addItemFlags(HIDE_UNBREAKABLE);
 	}
 
 	private static List<LSItem> createItems() {
