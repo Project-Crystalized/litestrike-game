@@ -113,6 +113,7 @@ public final class Litestrike extends JavaPlugin {
 		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
 		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 		w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+		w.setGameRule(GameRule.LOCATOR_BAR, false);
 
 		for (Chunk c : w.getLoadedChunks()) {
 			mapdata.check_chunk(c);
