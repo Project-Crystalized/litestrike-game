@@ -50,3 +50,10 @@ commands:
     aliases: []
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
+
+  debug_log:
+    description: "For debugging purposes, send plugin message"
+    usage: "/debug_log"
+    aliases: [ ]
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"

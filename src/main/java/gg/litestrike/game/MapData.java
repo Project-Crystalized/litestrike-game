@@ -54,30 +54,6 @@ public class MapData implements Listener {
 
 	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
 
-	public void raiseBorder(World w) {
-		setBorderBlock(border_block_type, w);
-	}
-
-	public void lowerBorder(World w) {
-		setBorderBlock(Material.AIR, w);
-	}
-
-	private void setBorderBlock(Material m, World w) {
-		if (m.isBlock()) {
-			for (int[] b : border_blocks) {
-				for (int i = 0; i < border_height; i++) { // go until border_height
-					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
-					if (block.isEmpty() || block.getType() == border_block_type || block.getType() == Material.LIGHT) {
-						block.setType(m);
-					}
-				}
-			}
-		} else {
-			Bukkit.getLogger().log(Level.SEVERE, "a Material that isnt a block was used for the border!!");
-		}
-
-	}
-
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
 		Chunk c = e.getChunk();
@@ -104,6 +80,90 @@ public class MapData implements Listener {
 					}
 				}
 			}.runTaskAsynchronously(Litestrike.getInstance());
+		}
+	}
+
+	public MapData() {
+		try {
+			String file_content = Files.readString(Paths.get("./world/map_config.json"));
+			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
+
+			JsonElement v = json.get("version");
+			if (v == null) {
+				throw new Exception("Your map_config.json is missing a version field, please update your map_config.json");
+			}
+			switch (v.getAsInt()) {
+				case 2:
+					Bukkit.getLogger().severe("Version 2 Litestrike map_configs are no longer supported.");
+					Bukkit.getLogger().severe("Please update your map_config to a newer version.");
+					Bukkit.getLogger().severe("If you need help with this, contact a crystalized admin.");
+					throw new Exception("Map config version 2 is no longer supported");
+				case 3:
+					Bukkit.getLogger().info("[Litestrike] loading a version 3 map config file");
+					parse_config_v3(json);
+					break;
+				default:
+					throw new Exception("incorrect map_config.json file version, please update your map_config.json");
+			}
+
+		} catch (Exception e) {
+			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
+			e.printStackTrace();
+			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
+			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
+			throw new RuntimeException(new Exception());
+		}
+	}
+
+	public void parse_config_v3(JsonObject json) {
+		load_spawn_coords(json);
+
+		this.map_name = json.get("map_name").getAsString();
+
+		load_border_values(json);
+
+		JsonElement plant_block = json.get("bomb_plant_block");
+		if (plant_block != null) {
+			bomb_plant_block = Material.matchMaterial(plant_block.getAsString());
+		}
+
+		JsonObject jo_map_features = json.getAsJsonObject("map_features");
+		if (jo_map_features != null) {
+			map_features = new MapFeatures(json);
+		}
+
+		JsonObject jo_podium = json.getAsJsonObject("podium");
+		if (jo_podium != null) {
+			this.podium = new PodiumData(jo_podium);
+		}
+
+		JsonElement ranked = json.get("is_ranked");
+		if (ranked != null && ranked.getAsBoolean() == true) {
+			Bukkit.getLogger().info("Registered this server to be a ranked Litestrike server!");
+			this.ranked = true;
+		}
+	}
+
+	public void raiseBorder(World w) {
+		setBorderBlock(border_block_type, w);
+	}
+
+	public void lowerBorder(World w) {
+		setBorderBlock(Material.AIR, w);
+	}
+
+	private void setBorderBlock(Material m, World w) {
+		if (m.isBlock()) {
+			for (int[] b : border_blocks) {
+				for (int i = 0; i < border_height; i++) { // go until border_height
+					Block block = w.getBlockAt(b[0], b[1] + 2 + i, b[2]);
+					if (block.isEmpty() || block.getType() == border_block_type || block.getType() == Material.LIGHT) {
+						block.setType(m);
+					}
+				}
+			}
+		} else {
+			Bukkit.getLogger().log(Level.SEVERE, "a Material that isnt a block was used for the border!!");
 		}
 	}
 
@@ -137,88 +197,6 @@ public class MapData implements Listener {
 		JsonElement border_height = json.get("border_height");
 		if (border_height != null) {
 			this.border_height = border_height.getAsInt();
-		}
-	}
-
-	private void parse_config_v2(JsonObject json) {
-		load_spawn_coords(json);
-		this.map_name = json.get("map_name").getAsString();
-
-		load_border_values(json);
-
-		JsonElement jp = json.get("enable_jump_pads");
-		JsonElement launch_pad = json.get("enable_launch_pads");
-		boolean launch_pads = (jp != null && jp.getAsBoolean()) || (launch_pad != null && launch_pad.getAsBoolean());
-
-		JsonElement lp = json.get("enable_levitation_pads");
-		boolean levi_pads = (lp != null && lp.getAsBoolean());
-
-		map_features = new MapFeatures(launch_pads, levi_pads);
-
-		JsonObject jo_podium = json.getAsJsonObject("podium");
-		if (jo_podium != null) {
-			this.podium = new PodiumData(jo_podium);
-		}
-	}
-
-	public void parse_config_v3(JsonObject json) {
-		load_spawn_coords(json);
-
-		this.map_name = json.get("map_name").getAsString();
-
-		load_border_values(json);
-
-		JsonElement plant_block = json.get("bomb_plant_block");
-		if (plant_block != null) {
-			bomb_plant_block = Material.matchMaterial(plant_block.getAsString());
-		}
-
-		JsonObject jo_map_features = json.getAsJsonObject("map_features");
-		if (jo_map_features != null) {
-			map_features = new MapFeatures(jo_map_features);
-		}
-
-		JsonObject jo_podium = json.getAsJsonObject("podium");
-		if (jo_podium != null) {
-			this.podium = new PodiumData(jo_podium);
-		}
-
-		JsonElement ranked = json.get("is_ranked");
-		if (ranked != null && ranked.getAsBoolean() == true) {
-			Bukkit.getLogger().info("Registered this server to be a ranked Litestrike server!");
-			this.ranked = true;
-		}
-
-	}
-
-	public MapData() {
-		try {
-			String file_content = Files.readString(Paths.get("./world/map_config.json"));
-			JsonObject json = JsonParser.parseString(file_content).getAsJsonObject();
-
-			JsonElement v = json.get("version");
-			if (v == null) {
-				throw new Exception("Your map_config.json is missing a version field, please update your map_config.json");
-			}
-			switch (v.getAsInt()) {
-				case 2:
-					Bukkit.getLogger().warning("[Litestrike] loading a version 2 map config file, consider updating it");
-					parse_config_v2(json);
-					break;
-				case 3:
-					Bukkit.getLogger().info("[Litestrike] loading a version 3 map config file");
-					parse_config_v3(json);
-					break;
-				default:
-					throw new Exception("incorrect map_config.json file version, please update your map_config.json");
-			}
-
-		} catch (Exception e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Could not load the maps configuration file!\n Error: " + e);
-			e.printStackTrace();
-			Bukkit.getLogger().log(Level.SEVERE, "The Plugin will be disabled!");
-			Bukkit.getPluginManager().disablePlugin(Litestrike.getInstance());
-			throw new RuntimeException(new Exception());
 		}
 	}
 

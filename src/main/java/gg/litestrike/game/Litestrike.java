@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
@@ -18,6 +17,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.nio.file.Path;
 import java.util.logging.Level;
 
 enum Team {
@@ -26,6 +26,9 @@ enum Team {
 }
 
 public final class Litestrike extends JavaPlugin {
+	public static final Path socketPath = Path
+			.of(System.getProperty("user.home") + "/sockets")
+			.resolve("crystalized_lobby.socket");
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -73,6 +76,7 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
+		this.getCommand("debug_log").setExecutor(dc);
 
 		saveResource("config.yml", false);
 		int configVersion;
@@ -85,7 +89,8 @@ public final class Litestrike extends JavaPlugin {
 
 		// register the manual_teams command
 		// TODO deprecated in favor of a config file
-		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> event.registrar().register("manual_teams", manual_teams));
+		// this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+		// event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
@@ -108,6 +113,7 @@ public final class Litestrike extends JavaPlugin {
 		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
 		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
 		w.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
+		w.setGameRule(GameRule.LOCATOR_BAR, false);
 
 		for (Chunk c : w.getLoadedChunks()) {
 			mapdata.check_chunk(c);
@@ -130,4 +136,5 @@ public final class Litestrike extends JavaPlugin {
 		out.writeUTF(message);
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
+
 }

@@ -13,6 +13,7 @@ public class LsDatabase {
 	public static final String TEMPORARY_URL = "jdbc:sqlite:" + System.getProperty("user.home")
 			+ "/databases/lobby_db.sql";
 
+	// this is run on server startup
 	public static void setup_databases() {
 		// we query the games by timestamp, so creating a index for it can improve perf.
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
@@ -35,6 +36,7 @@ public class LsDatabase {
 				+ "spent_money 		INTEGER,"
 				+ "bought_items 	BLOB,"
 				+ "was_winner			INTEGER"
+				+ "damage_dealt		REAL"
 				+ ");";
 
 		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
@@ -42,6 +44,9 @@ public class LsDatabase {
 				+ "rank						INTEGER,"
 				+ "rp							INTEGER"
 				+ ");";
+
+		// HINT this can be removed at some point, its only here cause damage_dealt didnt exist originaly so it is added if missing
+		create_damage_column();
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			Statement stmt = conn.createStatement();
@@ -51,6 +56,25 @@ public class LsDatabase {
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
 			Bukkit.getLogger().warning("continueing without database");
+		}
+	}
+
+	// TODO remove this at some point
+	private static void create_damage_column() {
+		String create_damage_column = "ALTER TABLE LsGamesPlayers ADD COLUMN damage_dealt REAL;";
+		String check_damage_column = "SELECT damage_dealt FROM LsGamesPlayers LIMIT 1;";
+
+		try (Connection conn = DriverManager.getConnection(URL)) {
+			Statement stmt = conn.createStatement();
+			stmt.execute(check_damage_column);
+		} catch (SQLException e) {
+			// if we catch a sql error, it mean the column doesnt exist, so we add it
+			try (Connection conn = DriverManager.getConnection(URL)) {
+				Statement stmt = conn.createStatement();
+				stmt.execute(create_damage_column);
+			} catch (SQLException ex) {
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-;");
+			}
 		}
 	}
 
@@ -77,8 +101,8 @@ public class LsDatabase {
 			int game_id = conn.prepareStatement("SELECT last_insert_rowid();").executeQuery().getInt("last_insert_rowid()");
 
 			String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, "
-					+ "kills, assists, gained_money, spent_money, bought_items, was_winner)"
-					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					+ "kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt)"
+					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (Player p : gc.teams.get_all_players()) {
 				PlayerData pd = gc.getPlayerData(p);
@@ -94,10 +118,11 @@ public class LsDatabase {
 				player_stmt.setInt(8, pd.getTotalMoneySpent());
 				player_stmt.setBytes(9, get_bought_items(p));
 				player_stmt.setInt(10, is_winner);
+				player_stmt.setFloat(11, pd.total_damage);
 				player_stmt.executeUpdate();
 			}
 
-			Bukkit.getLogger().info("Successfully worte data to LsDatabase");
+			Bukkit.getLogger().info("Successfully wrote data to LsDatabase");
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
 			Bukkit.getLogger().warning("didnt write data to database");

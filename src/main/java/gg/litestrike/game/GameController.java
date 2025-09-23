@@ -217,9 +217,7 @@ public class GameController {
 		}
 
 		Litestrike ls = Litestrike.getInstance();
-		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
-			ls.mapdata.map_features.bigDoor.regenerate_door();
-		}
+
 		// remove the border
 		ls.mapdata.lowerBorder(Bukkit.getWorld("world"));
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:true");
@@ -375,8 +373,9 @@ public class GameController {
 		}
 
 		Litestrike ls = Litestrike.getInstance();
-		if (ls.mapdata.map_features != null && ls.mapdata.map_features.bigDoor != null) {
-			ls.mapdata.map_features.bigDoor.regenerate_door();
+		if (ls.mapdata.map_features != null) {
+			// this resets movable parts of the map, like the door on Cargo
+			ls.mapdata.map_features.reset_structures();
 		}
 
 		if (round_number == SWITCH_ROUND + 1) {

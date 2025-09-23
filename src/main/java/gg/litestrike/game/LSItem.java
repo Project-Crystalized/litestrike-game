@@ -72,6 +72,7 @@ public class LSItem {
 		ItemMeta meta = item.getItemMeta();
 		if (item.getType().getMaxDurability() > 0) {
 			meta.setUnbreakable(true);
+			meta.addItemFlags(HIDE_UNBREAKABLE);
 		}
 
 		if (price != null && item.getType() != Material.ARROW) {
@@ -95,7 +96,6 @@ public class LSItem {
 		}
 
 		item.setItemMeta(meta);
-		item.addItemFlags(HIDE_UNBREAKABLE);
 	}
 
 	private static List<LSItem> createItems() {

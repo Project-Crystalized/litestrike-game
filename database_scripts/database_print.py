@@ -16,6 +16,5 @@ for row in res.fetchall():
         data = requests.get(f"https://sessionserver.mojang.com/session/minecraft/profile/{id1}").json()
 
         print(data["name"], "wins: ", row[1])
-    except requests.JSONDecodeError:
-        print()
-        # print(id1, "wins: ", row[1])
+    except requests.JSONDecodeError as e:
+        print(id1, "wins: ", row[1])
