@@ -38,6 +38,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
@@ -54,12 +56,22 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
+	public void onPlayerJump(PlayerJumpEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		gc.getPlayerData(e.getPlayer()).jumps += 1;
+	}
+
+	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
 			return;
 		}
+		gc.getPlayerData(e.getPlayer()).did_leave = true;
 		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
 			InvItemBomb bomb = (InvItemBomb) gc.bomb;
 			if (bomb.player.equals(e.getPlayer())) {

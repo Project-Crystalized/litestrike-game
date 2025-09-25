@@ -128,6 +128,7 @@ public class DeathHandler implements Listener {
 			assist_list.put(damage_receiver, assist_list.getOrDefault(damage_receiver, 0.0) + e.getFinalDamage());
 
 			gc.getPlayerData(damage_receiver).ldt.update_damager(damager);
+			gc.getPlayerData(damage_receiver).hits_dealt += 1;
 		}
 	}
 
