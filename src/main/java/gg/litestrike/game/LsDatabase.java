@@ -5,6 +5,7 @@ import java.sql.*;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 public class LsDatabase {
@@ -160,13 +161,13 @@ public class LsDatabase {
 					+ "kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, deaths, did_leave, jumps, hits_dealt)"
 					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
-			for (Player p : gc.teams.get_all_players()) {
-				PlayerData pd = gc.getPlayerData(p);
-				int is_winner = gc.teams.get_team(p) == winner ? 1 : 0;
+			for (PlayerData pd : gc.playerDatas) {
+				int is_winner = Teams.get_team(pd.player) == winner ? 1 : 0;
+				OfflinePlayer oplayer = Bukkit.getOfflinePlayer(pd.player);
 
 				int did_leave_int = pd.did_leave ? 1 : 0;
 
-				player_stmt.setBytes(1, uuid_to_bytes(p));
+				player_stmt.setBytes(1, uuid_to_bytes(oplayer));
 				player_stmt.setInt(2, game_id);
 				player_stmt.setInt(3, pd.getPlaced());
 				player_stmt.setInt(4, pd.getBroken());
@@ -174,7 +175,7 @@ public class LsDatabase {
 				player_stmt.setInt(6, pd.assists);
 				player_stmt.setInt(7, pd.getTotalMoneyGained());
 				player_stmt.setInt(8, pd.getTotalMoneySpent());
-				player_stmt.setBytes(9, get_bought_items(p));
+				player_stmt.setBytes(9, get_bought_items(oplayer));
 				player_stmt.setInt(10, is_winner);
 				player_stmt.setFloat(11, pd.total_damage);
 				player_stmt.setInt(12, pd.deaths);
@@ -222,7 +223,7 @@ public class LsDatabase {
 		}
 	}
 
-	private static byte[] get_bought_items(Player p) {
+	private static byte[] get_bought_items(OfflinePlayer p) {
 		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		ByteBuffer bb = ByteBuffer.allocate(s.shopLog.size() * 2);
 		for (LSItem lsi : s.shopLog) {
@@ -235,7 +236,7 @@ public class LsDatabase {
 		return bb.array();
 	}
 
-	private static byte[] uuid_to_bytes(Player p) {
+	private static byte[] uuid_to_bytes(OfflinePlayer p) {
 		ByteBuffer bb = ByteBuffer.allocate(16);
 		UUID uuid = p.getUniqueId();
 		bb.putLong(uuid.getMostSignificantBits());
