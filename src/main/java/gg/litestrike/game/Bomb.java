@@ -196,7 +196,6 @@ class PlacedBomb implements Bomb {
 						sound = Sound.sound(Key.key("crystalized:effect.shard.beep_3"), Sound.Source.AMBIENT, 2, 1);
 					}
 					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
-					Bukkit.getLogger().severe("played sound");
 					block.getWorld().spawnParticle(RAID_OMEN, block.getLocation().add(0.5, 0.5, 0.5), 3);
 				}
 
