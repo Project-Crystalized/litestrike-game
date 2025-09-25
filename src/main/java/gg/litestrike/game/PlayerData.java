@@ -26,6 +26,9 @@ public class PlayerData {
 	private int breaks = 0;
 	public float total_damage = 0;
 	public LastDamagerTracker ldt = new LastDamagerTracker();
+	public boolean did_leave = false;
+	public int jumps = 0;
+	public int hits_dealt = 0;
 
 	// this keeps track of assits in the current round for this player
 	public Map<Player, Double> assist_list = new HashMap<Player, Double>();

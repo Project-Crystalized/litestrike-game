@@ -181,13 +181,21 @@ class PlacedBomb implements Bomb {
 					cancel();
 					return;
 				}
-				bombSound();
 
 				timer += 1;
 
 				int freq = 20 + (int) (-0.025 * timer);
 				if (timer - last_beep > freq) {
 					last_beep = timer;
+
+					if ((20 * 20) > timer) {
+						sound = Sound.sound(Key.key("crystalized:effect.shard.beep_1"), Sound.Source.AMBIENT, 2, 1);
+					} else if ((30 * 20) > timer) {
+						sound = Sound.sound(Key.key("crystalized:effect.shard.beep_2"), Sound.Source.AMBIENT, 2, 1);
+					} else {
+						sound = Sound.sound(Key.key("crystalized:effect.shard.beep_3"), Sound.Source.AMBIENT, 2, 1);
+					}
+					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
 					block.getWorld().spawnParticle(RAID_OMEN, block.getLocation().add(0.5, 0.5, 0.5), 3);
 				}
 
@@ -198,29 +206,6 @@ class PlacedBomb implements Bomb {
 				}
 			}
 
-			int soundTimer = 0;
-			void bombSound() {
-				if ((20 * 20) > timer) {
-					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_1"), Sound.Source.AMBIENT, 2, 1);
-				} else if ((30 * 20) > timer) {
-					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_2"), Sound.Source.AMBIENT, 2, 1);
-				} else {
-					sound = Sound.sound(Key.key("crystalized:effect.shard.beep_3"), Sound.Source.AMBIENT, 2, 1);
-				}
-
-				soundTimer--;
-				if (soundTimer == 0 || soundTimer < 0) {
-					Bukkit.getServer().playSound(sound, block.getX(), block.getY(), block.getZ());
-					if ((20 * 20) > timer) {
-						soundTimer = 20;
-					} else if ((30 * 20) > timer) {
-						soundTimer = 15;
-					} else {
-						soundTimer = 10;
-					}
-				}
-
-			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 1);
 	}
 

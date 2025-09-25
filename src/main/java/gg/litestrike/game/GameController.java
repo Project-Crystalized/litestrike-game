@@ -620,7 +620,7 @@ public class GameController {
 		}
 	}
 
-	public Shop getShop(Player p) {
+	public Shop getShop(OfflinePlayer p) {
 		return shopList.get(p.getName());
 	}
 }

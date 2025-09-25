@@ -15,7 +15,8 @@ import java.util.List;
 public class BossBarDisplay {
 	BossBar bb;
 	BossBar background;
-	BossBar background_br; //exists because bedrock is an inconsistent piece of shit and the bossbar isn't aligned properly, so I make another unicode thats offsetted to work - Callum
+	BossBar background_br; // exists because bedrock is an inconsistent piece of shit and the bossbar isn't
+													// aligned properly, so I make another unicode thats offsetted to work - Callum
 
 	public BossBarDisplay() {
 		bb = BossBar.bossBar(Component.text(), 0f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
@@ -58,7 +59,7 @@ public class BossBarDisplay {
 		GameController gc = Litestrike.getInstance().game_controller;
 		int player_tiles = Math.max(gc.teams.get_placers().size(), gc.teams.get_placers().size());
 
-		//String bar = "\uE200"; // green start tile
+		// String bar = "\uE200"; // green start tile
 		String bar = "";
 		for (String name : gc.teams.get_initial_breakers()) {
 			Player p = Bukkit.getPlayer(name);
@@ -74,7 +75,7 @@ public class BossBarDisplay {
 		for (int i = 0; i < filler_tiles; i++) {
 			bar += " ".repeat(2);
 		}
-		//bar += "\uE201"; // green end tile
+		// bar += "\uE201"; // green end tile
 
 		List<Team> wins = Litestrike.getInstance().game_controller.round_results;
 		int placer_wins_amt = 0;
@@ -88,10 +89,10 @@ public class BossBarDisplay {
 		}
 
 		bar += " ".repeat(4) + getGreenScore(breaker_wins_amt);
-		bar += " ".repeat(3) + "." + get_current_timer_formated() + "." + " ".repeat(3);
+		bar += " ".repeat(3) + get_current_timer_formated() + " ".repeat(3);
 		bar += getRedScore(placer_wins_amt) + " ".repeat(4);
 
-		//bar += "\uE206"; // red start tile
+		// bar += "\uE206"; // red start tile
 		for (String name : gc.teams.get_initial_placers()) {
 			Player p = Bukkit.getPlayer(name);
 			if (p == null) {
@@ -106,53 +107,68 @@ public class BossBarDisplay {
 		for (int i = 0; i < filler_tiles; i++) {
 			bar += " ".repeat(2);
 		}
-		//bar += "\uE207"; // red end tile
+		// bar += "\uE207"; // red end tile
 
 		return bar;
 	}
 
 	private String getGreenScore(int score) {
 		switch (score) {
-			case 5 -> {return "\uE150";}
-			case 4 -> {return "\uE151";}
-			case 3 -> {return "\uE152";}
-			case 2 -> {return "\uE153";}
-			case 1 -> {return "\uE154";}
-			case 0 -> {return "\uE155";}
+			case 5 -> {
+				return "\uE150";
+			}
+			case 4 -> {
+				return "\uE151";
+			}
+			case 3 -> {
+				return "\uE152";
+			}
+			case 2 -> {
+				return "\uE153";
+			}
+			case 1 -> {
+				return "\uE154";
+			}
+			case 0 -> {
+				return "\uE155";
+			}
 		}
 		return "?";
 	}
 
 	private String getRedScore(int score) {
 		switch (score) {
-			case 5 -> {return "\uE15B";}
-			case 4 -> {return "\uE15A";}
-			case 3 -> {return "\uE159";}
-			case 2 -> {return "\uE158";}
-			case 1 -> {return "\uE157";}
-			case 0 -> {return "\uE156";}
+			case 5 -> {
+				return "\uE15B";
+			}
+			case 4 -> {
+				return "\uE15A";
+			}
+			case 3 -> {
+				return "\uE159";
+			}
+			case 2 -> {
+				return "\uE158";
+			}
+			case 1 -> {
+				return "\uE157";
+			}
+			case 0 -> {
+				return "\uE156";
+			}
 		}
 		return "?";
 	}
 
 	private String get_current_timer_formated() {
-		int timer = get_current_timer() / 20;
-		String output = "";
-		char[] timerArray = ("" + timer).toCharArray();
-		//Keeping the length exactly 3 characters if possible
-		switch (timerArray.length) {
-			case 2 -> {output = "0";}
-			case 1 -> {output = "00";}
+		int timer = get_current_timer();
+		if (timer >= (20 * 100)) {
+			return "." + (timer / 20) + ".";
+		} else if (timer >= (20 * 10)) {
+			return ".0" + (timer / 20) + ".";
+		} else {
+			return String.format("%.2f.", (timer / 20.0));
 		}
-		output += "" + timer;
-		return output;
-
-		//Can mess up the positioning of the newer bossbar, commented out - Callum
-		//if (timer >= (20 * 10)) {
-		//	return "" + ((timer / 20));
-		//} else {
-		//	return String.format("%.2f", (timer / 20.0));
-		//}
 	}
 
 	private int get_current_timer() {
