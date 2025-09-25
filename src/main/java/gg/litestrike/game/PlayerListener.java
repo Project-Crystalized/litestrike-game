@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
 import gg.crystalized.lobby.Ranks;
+import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -22,7 +23,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -47,9 +47,9 @@ public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
 
 	@EventHandler
-	public void onPlayerLogin(PlayerLoginEvent event) {
+	public void onPlayerLogin(PlayerConnectionValidateLoginEvent event) {
 		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
-			event.disallow(PlayerLoginEvent.Result.KICK_FULL, text("The server is full.\n"));
+			event.kickMessage(text("The server is full.\n"));
 		}
 	}
 
