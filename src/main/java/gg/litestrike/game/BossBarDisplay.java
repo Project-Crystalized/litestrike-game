@@ -89,7 +89,7 @@ public class BossBarDisplay {
 		}
 
 		bar += " ".repeat(4) + getGreenScore(breaker_wins_amt);
-		bar += " ".repeat(3) + "." + get_current_timer_formated() + "." + " ".repeat(3);
+		bar += " ".repeat(3) + get_current_timer_formated() + " ".repeat(3);
 		bar += getRedScore(placer_wins_amt) + " ".repeat(4);
 
 		// bar += "\uE206"; // red start tile
@@ -161,27 +161,13 @@ public class BossBarDisplay {
 	}
 
 	private String get_current_timer_formated() {
-		// int timer = get_current_timer() / 20;
-		// String output = "";
-		// char[] timerArray = ("" + timer).toCharArray();
-		// // Keeping the length exactly 3 characters if possible
-		// switch (timerArray.length) {
-		// case 2 -> {
-		// output = "0";
-		// }
-		// case 1 -> {
-		// output = "00";
-		// }
-		// }
-		// output += "" + timer;
-		// return output;
-
-		// Can mess up the positioning of the newer bossbar, commented out - Callum
 		int timer = get_current_timer();
-		if (timer >= (20 * 10)) {
-			return "" + ((timer / 20));
+		if (timer >= (20 * 100)) {
+			return "." + (timer / 20) + ".";
+		} else if (timer >= (20 * 10)) {
+			return ".0" + (timer / 20) + ".";
 		} else {
-			return String.format("%.2f", (timer / 20.0));
+			return String.format("%.2f.", (timer / 20.0));
 		}
 	}
 
