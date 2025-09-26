@@ -77,6 +77,7 @@ public final class Litestrike extends JavaPlugin {
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
 		this.getCommand("debug_log").setExecutor(dc);
+		this.registerCommand("manual_teams", manual_teams);
 
 		saveResource("config.yml", false);
 		int configVersion;

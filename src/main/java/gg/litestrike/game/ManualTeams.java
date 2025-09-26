@@ -68,11 +68,13 @@ public class ManualTeams implements BasicCommand {
 				}
 				if (args[1].startsWith("b")) {
 					breakers.add(args[2]);
+					placers.remove(args[2]);
 					is_enabled = true;
 					commandSource.getSender().sendMessage("added "+args[2]+" to the breaker team.");
 				} else if (args[1].startsWith("p")) {
 					is_enabled = true;
 					placers.add(args[2]);
+					breakers.remove(args[2]);
 					commandSource.getSender().sendMessage("added "+args[2]+" to the placer team.");
 				} else {
 					commandSource.getSender().sendMessage("Error: The team "+args[1]+" doesnt seem to exist");
