@@ -71,9 +71,7 @@ public class LSItem {
 
 		ItemMeta meta = item.getItemMeta();
 		if (item.getType().getMaxDurability() > 0) {
-			// meta.setUnbreakable(true);
-			// lol just discovered you dont even need to setUnbreakable
-			// if you add HIDE_UNBREAKABLE its enough
+			meta.setUnbreakable(true);
 			meta.addItemFlags(HIDE_UNBREAKABLE);
 		}
 

@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
 import gg.crystalized.lobby.Ranks;
+import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -22,7 +23,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -38,6 +38,8 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
@@ -47,10 +49,19 @@ public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
 
 	@EventHandler
-	public void onPlayerLogin(PlayerLoginEvent event) {
+	public void onPlayerLogin(PlayerConnectionValidateLoginEvent event) {
 		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
-			event.disallow(PlayerLoginEvent.Result.KICK_FULL, text("The server is full.\n"));
+			event.kickMessage(text("The server is full.\n"));
 		}
+	}
+
+	@EventHandler
+	public void onPlayerJump(PlayerJumpEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		gc.getPlayerData(e.getPlayer()).jumps += 1;
 	}
 
 	@EventHandler
@@ -60,6 +71,7 @@ public class PlayerListener implements Listener {
 		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
 			return;
 		}
+		gc.getPlayerData(e.getPlayer()).did_leave = true;
 		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
 			InvItemBomb bomb = (InvItemBomb) gc.bomb;
 			if (bomb.player.equals(e.getPlayer())) {
@@ -209,10 +221,11 @@ public class PlayerListener implements Listener {
 		}
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
 		double health = ((Player) e.getEntity()).getHealth();
+		double absorption_damage_done = -e.getDamage(EntityDamageEvent.DamageModifier.ABSORPTION);
 		if (health - e.getFinalDamage() <= 0) {
-			pd.total_damage += health;
+			pd.total_damage += health + absorption_damage_done;
 		} else {
-			pd.total_damage += e.getFinalDamage();
+			pd.total_damage += e.getFinalDamage() + absorption_damage_done;
 		}
 	}
 

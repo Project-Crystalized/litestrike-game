@@ -23,6 +23,7 @@ public class MapFeatures implements Listener {
 	protected static Material launch_pad_block;
 	protected static Material levi_pad_block;
 	protected static Material jump_pad_block;
+	protected static Material auto_jump_pad_block;
 
 	public boolean can_plant_below = true;
 	public boolean can_plant_side = true;
@@ -48,6 +49,11 @@ public class MapFeatures implements Listener {
 		JsonElement jump_block = json.get("jump_pad_block");
 		if (jump_block != null) {
 			jump_pad_block = Material.matchMaterial(jump_block.getAsString());
+		}
+
+		JsonElement auto_jump_block = json.get("auto_jump_pad_block");
+		if (auto_jump_block != null) {
+			auto_jump_pad_block = Material.matchMaterial(auto_jump_block.getAsString());
 		}
 
 		JsonObject jo_big_door = json.getAsJsonObject("big_door");
@@ -77,7 +83,8 @@ public class MapFeatures implements Listener {
 	public String toString() {
 		return "\nlaunch_pad_block: " + launch_pad_block +
 				"\nlevi_pad_block: " + levi_pad_block +
-				"\njump_pad_block: " + jump_pad_block;
+				"\njump_pad_block: " + jump_pad_block +
+				"\nauto_jump_pad_block: " + auto_jump_pad_block;
 	}
 
 	public void register_listeners(Litestrike plugin) {
@@ -90,6 +97,9 @@ public class MapFeatures implements Listener {
 		}
 		if (jump_pad_block != null) {
 			plugin.getServer().getPluginManager().registerEvents(new JumpPadListener(), plugin);
+		}
+		if (auto_jump_pad_block != null) {
+			plugin.getServer().getPluginManager().registerEvents(new AutoJumpPadListener(), plugin);
 		}
 		if (bigDoor != null) {
 			plugin.getServer().getPluginManager().registerEvents(bigDoor, plugin);
