@@ -42,11 +42,12 @@ public class Teams {
 	}
 
 	private void create_manual_teams() {
-		FileConfiguration config = Litestrike.getInstance().getConfig();
 		Bukkit.getLogger().info("creating teams from manual selection");
 		placers = Litestrike.getInstance().manual_teams.placers;
 		breakers = Litestrike.getInstance().manual_teams.breakers;
 
+		placers.removeIf(placer -> Bukkit.getPlayer(placer) == null);
+		breakers.removeIf(breaker -> Bukkit.getPlayer(breaker) == null);
 	}
 
 	private List<String> generate_random_teams() {
