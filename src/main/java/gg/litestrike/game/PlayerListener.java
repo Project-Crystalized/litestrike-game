@@ -99,7 +99,7 @@ public class PlayerListener implements Listener {
 			Ranks.passiveNames(p, WHITE, null, null);
 			p.playerListName(Ranks.getName(p));
 			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
-		} catch (Exception e) {
+		} catch (NoClassDefFoundError e) {
 		}
 		p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 		p.setFoodLevel(20);
