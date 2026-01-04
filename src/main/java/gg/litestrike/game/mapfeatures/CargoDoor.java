@@ -12,7 +12,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import gg.litestrike.game.GameController;
 import gg.litestrike.game.Litestrike;
+import gg.litestrike.game.GameController.RoundState;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
@@ -23,6 +25,9 @@ public class CargoDoor implements Listener {
 
 	@EventHandler
 	public void onInteractLever(PlayerInteractEvent e) {
+		if (Litestrike.getInstance().game_controller == null) {
+			return;
+		}
 		if (e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.LEVER) {
 			open_door();
 		}
@@ -37,6 +42,13 @@ public class CargoDoor implements Listener {
 			private int i = 0;
 			@Override
 			public void run() {
+
+				GameController gc = Litestrike.getInstance().game_controller;
+				if (gc == null || gc.round_state != RoundState.Running) {
+					cancel();
+					return;
+				}
+
 				i++;
 				switch (i) {
 					case 1:
