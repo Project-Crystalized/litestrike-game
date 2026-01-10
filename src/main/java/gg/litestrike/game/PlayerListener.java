@@ -13,6 +13,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -160,6 +161,15 @@ public class PlayerListener implements Listener {
 				e.getPlayer().getInventory().setItemInOffHand(null);
 			}
 		}
+
+		// prevent stripping with axes
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getMaterial().name().contains("AXE")) {
+			String clicked_name = e.getClickedBlock().getType().name();
+			if (clicked_name.contains("LOG") || clicked_name.contains("COPPER")) {
+				e.setCancelled(true);
+			}
+		}
+
 	}
 
 	@EventHandler
