@@ -18,7 +18,6 @@ import gg.litestrike.game.GameController.RoundState;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
-
 public class CargoDoor implements Listener {
 	private boolean is_door_open = false;
 	final int DOOR_Y = 23;
@@ -40,6 +39,7 @@ public class CargoDoor implements Listener {
 		is_door_open = true;
 		new BukkitRunnable() {
 			private int i = 0;
+
 			@Override
 			public void run() {
 
@@ -87,7 +87,7 @@ public class CargoDoor implements Listener {
 
 				// set particle
 				if (ran.nextInt(3) == 2) { // 33% chance
-					w.spawnParticle(Particle.LARGE_SMOKE, x, DOOR_Y, z, 20);
+					w.spawnParticle(Particle.LARGE_SMOKE, x, DOOR_Y, z, 10);
 				}
 			}
 		}
