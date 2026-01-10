@@ -220,6 +220,10 @@ public class PlayerListener implements Listener {
 		}
 
 		Entity source = e.getDamageSource().getCausingEntity();
+		if (e.getEntity() instanceof ArmorStand) {
+			e.setCancelled(true);
+			return;
+		}
 		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}

@@ -140,6 +140,7 @@ class DroppedBomb implements Bomb {
 class PlacedBomb implements Bomb {
 	public Block block;
 	private BombModel bomb_model;
+	private BlockFace bf;
 
 	public boolean is_detonated = false;
 	public boolean is_broken = false;
@@ -148,6 +149,7 @@ class PlacedBomb implements Bomb {
 	public PlacedBomb(Block block, BombModel bm, BlockFace bf) {
 		this.block = block;
 		this.bomb_model = bm;
+		this.bf = bf;
 
 		SoundEffects.bomb_plant_finish(block.getLocation());
 		block.setType(Material.BARRIER);
@@ -155,6 +157,8 @@ class PlacedBomb implements Bomb {
 				.title(Component.translatable("crystalized.game.litestrike.bombplanted").color(Litestrike.YELLOW), text("")));
 		start_explosion_timer();
 		bomb_model.bomb_plant(block.getLocation(), bf);
+
+		start_bomb_falling_logic();
 
 		ProtocolLibLib.update_armor();
 	}
@@ -168,6 +172,30 @@ class PlacedBomb implements Bomb {
 	public void remove() {
 		block.setType(Material.AIR);
 		bomb_model.remove();
+	}
+
+	private void start_bomb_falling_logic() {
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (!(Litestrike.getInstance().game_controller.bomb instanceof PlacedBomb) || is_broken || is_detonated) {
+					cancel();
+					return;
+				}
+
+				timer += 1;
+
+				Block new_block = block.getRelative(bf.getOppositeFace());
+				if (new_block.isEmpty()) {
+					block.setType(Material.AIR);
+					new_block.setType(Material.BARRIER);
+					bomb_model.bomb_plant(new_block.getLocation(), bf);
+					block = new_block;
+				}
+
+			}
+
+		}.runTaskTimer(Litestrike.getInstance(), 1, 10);
 	}
 
 	private void start_explosion_timer() {
