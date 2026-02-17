@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
@@ -7,8 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.jetbrains.annotations.NotNull;
+
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
@@ -25,7 +29,7 @@ enum Team {
 	Breaker,
 }
 
-public final class Litestrike extends JavaPlugin {
+public final class Litestrike extends JavaPlugin implements PluginMessageListener {
 	public static final Path socketPath = Path
 			.of(System.getProperty("user.home") + "/sockets")
 			.resolve("crystalized_lobby.socket");
@@ -93,6 +97,7 @@ public final class Litestrike extends JavaPlugin {
 		// event -> event.registrar().register("manual_teams", manual_teams));
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
+		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", party_manager);
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", new QueueSystem());
@@ -136,4 +141,21 @@ public final class Litestrike extends JavaPlugin {
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 
+
+	@Override
+	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+		if (!channel.equals("crystalized:litestrike")) {
+			return;
+		}
+
+		ByteArrayDataInput in = ByteStreams.newDataInput(message);
+		String message1 = in.readUTF();
+		if (message1.contains("ranked_on")) {
+			this.mapdata.ranked = false;
+			Bukkit.getLogger().info("set ranked on");
+		} else if (message1.contains("ranked_off")) {
+			this.mapdata.ranked = false;
+			Bukkit.getLogger().info("set ranked off");
+		}
+	}
 }
