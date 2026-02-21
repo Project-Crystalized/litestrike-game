@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
@@ -17,7 +16,7 @@ public class Teams {
 
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
-	public static final TextColor SPECTATOR_GREY = TextColor.color(0x4f4545);
+	public static final TextColor SPECTATOR_GREY = TextColor.color(0xb0a2a2);
 
 	// there are basically 3 ways to generate partys:
 	// skillbased: generate_fair_teams
