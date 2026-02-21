@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -125,6 +126,8 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		protocolManager.addPacketListener(ProtocolLibLib.change_bomb_carrier_armor_color());
 		protocolManager.addPacketListener(ProtocolLibLib.make_allys_glow());
+
+		teleportBackUp();
 	}
 
 	@Override
@@ -135,12 +138,33 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		return getPlugin(Litestrike.class);
 	}
 
+	public void teleportBackUp() {
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				World w = Bukkit.getWorld("world");
+				try {
+					if (game_controller != null) {
+						return;
+					}
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						if (p.getY() < w.getMinHeight() - w.getVoidDamageMinBuildHeightOffset()) {
+							p.teleport(mapdata.get_queue_spawn(w));
+						}
+					}
+				} catch (Exception e) {
+					Bukkit.getLogger().severe("stopped teleportBackUp method");
+					cancel();
+				}
+			}
+		}.runTaskTimer(this, 1, 20);
+	}
+
 	public void sendPluginMessage(@NonNull String channel, @NonNull String message) {
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
 		out.writeUTF(message);
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
-
 
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
