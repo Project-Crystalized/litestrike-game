@@ -18,10 +18,9 @@ print("printing out information on game with reference: ", game_ref)
 
 con = sqlite3.connect(Path.home() / "databases/litestrike_db.sql")
 cur = con.cursor()
-res = cur.execute("SELECT * FROM LitestrikeGames WHERE game_ref = ?;", (game_ref,));
+res = cur.execute("SELECT * FROM LitestrikeGames WHERE game_id = ?;", (game_ref,));
 
 row = res.fetchone()
-    # print(row)
 print()
 game_id, placer_wins, breaker_wins, timestamp, map, winner, gr = row
 print("The game happened at: ", datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))
@@ -43,7 +42,7 @@ number_of_player = 0
 res = cur.execute("SELECT * FROM LsGamesPlayers WHERE game = ?;", (game_id,));
 for row in res.fetchall():
     print()
-    uuid_bytes, game_id, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt = row
+    uuid_bytes, game_id, placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, _, _,_,_ = row
 
     uuid_player = uuid.UUID(bytes=uuid_bytes)
     try:

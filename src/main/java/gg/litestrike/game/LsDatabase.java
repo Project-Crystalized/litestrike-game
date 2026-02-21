@@ -10,50 +10,46 @@ import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
-	public static final String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sql";
+	public static final String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sqlite";
 	public static final String TEMPORARY_URL = "jdbc:sqlite:" + System.getProperty("user.home")
 			+ "/databases/lobby_db.sql";
 
 	// this is run on server startup
 	public static void setup_databases() {
-		// we query the games by timestamp, so creating an index for it can improve perf.
+		// we query the games by timestamp, so creating an index for it can improve
+		// perf.
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
 				+ "game_id 			INTEGER PRIMARY KEY,"
 				+ "placer_wins 	INTEGER,"
 				+ "breaker_wins INTEGER,"
-				+ "timestamp 		INTEGER,"
 				+ "map 					STRING,"
 				+ "winner 			INTEGER,"
+				+ "timestamp 		INTEGER,"
 				+ "game_ref			INTEGER"
 				+ ");";
 		String create_ls_players = "CREATE TABLE IF NOT EXISTS LsGamesPlayers ("
-				+ "player_uuid 		BLOB,"
+				+ "player_uuid 		TEXT,"
 				+ "game 					INTEGER REFERENCES LiteStrikeGames(game_id),"
-				+ "placed_bombs 	INTEGER,"
-				+ "broken_bombs 	INTEGER,"
 				+ "kills 					INTEGER,"
 				+ "assists 				INTEGER,"
+				+ "was_winner			INTEGER,"
+				+ "damage_dealt		REAL,"
+				+ "deaths					INTEGER,"
+				+ "did_leave			INTEGER,"
+				+ "jumps					INTEGER,"
+				+ "hits_dealt			INTEGER,"
+				+ "placed_bombs 	INTEGER,"
+				+ "broken_bombs 	INTEGER,"
 				+ "gained_money 	INTEGER,"
 				+ "spent_money 		INTEGER,"
-				+ "bought_items 	BLOB,"
-				+ "was_winner			INTEGER"
-				+ "damage_dealt		REAL"
-				+ "deaths					INTEGER"
-				+ "did_leave			INTEGER"
-				+ "jumps					INTEGER"
-				+ "hits_dealt			INTEGER"
+				+ "bought_items 	BLOB"
 				+ ");";
 
 		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
-				+ "player_uuid 		BLOB UNIQUE,"
+				+ "player_uuid 		TEXT UNIQUE,"
 				+ "rank						INTEGER,"
 				+ "rp							INTEGER"
 				+ ");";
-
-		// HINT this can be removed at some point, its only here cause damage_dealt
-		// didnt exist originaly so it is added if missing
-		// it also not adds the deaths column which didnt exist before
-		create_damage_deaths_column();
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			Statement stmt = conn.createStatement();
@@ -63,75 +59,6 @@ public class LsDatabase {
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());
 			Bukkit.getLogger().warning("continueing without database");
-		}
-	}
-
-	// TODO remove this at some point
-	private static void create_damage_deaths_column() {
-		String create_damage_column = "ALTER TABLE LsGamesPlayers ADD COLUMN damage_dealt REAL;";
-		String check_damage_column = "SELECT damage_dealt FROM LsGamesPlayers LIMIT 1;";
-
-		String create_deaths_column = "ALTER TABLE LsGamesPlayers ADD COLUMN deaths INTEGER;";
-		String check_deaths_column = "SELECT deaths FROM LsGamesPlayers LIMIT 1;";
-
-		String create_did_leave_column = "ALTER TABLE LsGamesPlayers ADD COLUMN did_leave INTEGER;";
-		String check_did_leave_column = "SELECT did_leave FROM LsGamesPlayers LIMIT 1;";
-
-		String create_jumps_column = "ALTER TABLE LsGamesPlayers ADD COLUMN jumps INTEGER;";
-		String check_jumps_column = "SELECT jumps FROM LsGamesPlayers LIMIT 1;";
-
-		String create_hits_dealt_column = "ALTER TABLE LsGamesPlayers ADD COLUMN hits_dealt INTEGER;";
-		String check_hits_dealt_column = "SELECT hits_dealt FROM LsGamesPlayers LIMIT 1;";
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_damage_column);
-		} catch (SQLException e) {
-			// if we catch a sql error, it mean the column doesnt exist, so we add it
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_damage_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (damage)");
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_deaths_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_deaths_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (deaths)");
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_did_leave_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_did_leave_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (did_leave)");
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_jumps_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_jumps_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (jumps)");
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_hits_dealt_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_hits_dealt_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (hits_dealt)");
-			}
 		}
 	}
 
@@ -167,7 +94,7 @@ public class LsDatabase {
 
 				int did_leave_int = pd.did_leave ? 1 : 0;
 
-				player_stmt.setBytes(1, uuid_to_bytes(oplayer));
+				player_stmt.setString(1, oplayer.getUniqueId().toString());
 				player_stmt.setInt(2, game_id);
 				player_stmt.setInt(3, pd.getPlaced());
 				player_stmt.setInt(4, pd.getBroken());

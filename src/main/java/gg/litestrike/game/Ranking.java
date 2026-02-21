@@ -1,6 +1,5 @@
 package gg.litestrike.game;
 
-import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -236,8 +235,8 @@ class PlayerRankedData {
 			for (String player_name : player_names) {
 				UUID uuid = Bukkit.getOfflinePlayer(player_name).getUniqueId();
 
-				ps.setBytes(1, uuid_to_bytes(uuid));
-				ps_last_games.setBytes(1, uuid_to_bytes(uuid));
+				ps.setString(1, uuid.toString());
+				ps_last_games.setString(1, uuid.toString());
 				ResultSet rs = ps.executeQuery();
 				ResultSet rs_last_games = ps_last_games.executeQuery();
 				player_ranks.add(new PlayerRankedData(rs, rs_last_games, uuid));
@@ -249,13 +248,6 @@ class PlayerRankedData {
 		return player_ranks;
 	}
 
-	public static byte[] uuid_to_bytes(UUID uuid) {
-		ByteBuffer bb = ByteBuffer.allocate(16);
-		bb.putLong(uuid.getMostSignificantBits());
-		bb.putLong(uuid.getLeastSignificantBits());
-		return bb.array();
-	}
-
 	public static void save_players(List<PlayerRankedData> player_ranks) {
 		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
 			for (PlayerRankedData prd : player_ranks) {
@@ -264,7 +256,7 @@ class PlayerRankedData {
 				PreparedStatement ps = conn.prepareStatement(update);
 				ps.setInt(1, prd.rank);
 				ps.setInt(2, prd.rp);
-				ps.setBytes(3, uuid_to_bytes(prd.uuid));
+				ps.setString(3, prd.uuid.toString());
 				ps.executeUpdate();
 			}
 		} catch (SQLException e) {
