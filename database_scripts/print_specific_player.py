@@ -24,7 +24,7 @@ except requests.JSONDecodeError as e:
 
 con = sqlite3.connect(Path.home() / "databases/litestrike_db.sql")
 cur = con.cursor()
-res = cur.execute("SELECT placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt FROM LsGamesPlayers WHERE player_uuid = ?;", (uuid.bytes,));
+res = cur.execute("SELECT placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, jumps FROM LsGamesPlayers WHERE player_uuid = ?;", (uuid.bytes,));
 
 total_games = 0
 total_placed_bombs = 0
@@ -36,9 +36,10 @@ total_spent_money = 0
 total_bought_items = 0
 total_wins = 0
 total_damage = 0
+total_jumps = 0
 
 for row in res.fetchall():
-    placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt = row
+    placed_bombs, broken_bombs, kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, jumps = row
 
     total_games += 1
     total_placed_bombs += placed_bombs
@@ -49,6 +50,8 @@ for row in res.fetchall():
     total_spent_money += spent_money
     total_wins += was_winner
     total_damage += damage_dealt if damage_dealt else 0
+    total_jumps += jumps
+
 
     total_bought_items += len(bought_items)
 
@@ -62,4 +65,5 @@ print("spent_money: ", total_spent_money)
 print("items bought: ", total_bought_items)
 print()
 print("damage_dealt: ", total_damage)
+print("total_jumps: ", total_jumps)
 print("NOTE: the total damage statistic wasnt present in old versions of litestrike, so it might not include older games")
