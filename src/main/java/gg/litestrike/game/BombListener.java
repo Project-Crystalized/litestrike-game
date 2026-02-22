@@ -30,9 +30,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.min;
 
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 
 import static org.bukkit.Particle.*;
 
@@ -132,8 +134,19 @@ public class BombListener implements Listener {
 						// mining_players.get(0).p.getWorld()
 						// .spawnParticle(CHERRY_LEAVES, b.block.getLocation().add(0.5, 0.5, 0.5), 5000,
 						// 1, 1, 1);
+						Component broken_by_text = text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ ʙʏ: ").color(Litestrike.YELLOW);
+						int i = 0;
+						for (MiningPlayer mp : mining_players) {
+							if (i == 0) {
+								broken_by_text = broken_by_text.append(text(mp.p.getName()).color(Teams.BREAKER_GREEN));
+							} else {
+								broken_by_text = broken_by_text.append(text("& " + mp.p.getName()).color(Teams.BREAKER_GREEN));
+							}
+							i++;
+						}
+						broken_by_text = broken_by_text.append(text("!").color(Litestrike.YELLOW));
 						Audience.audience(Bukkit.getOnlinePlayers())
-								.sendMessage(text("ᴛʜᴇ ʙᴏᴍʙ ʜᴀꜱ ʙᴇᴇɴ ʙʀᴏᴋᴇɴ!").color(Litestrike.YELLOW));
+								.sendMessage(broken_by_text);
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
 						reset();
 					}
