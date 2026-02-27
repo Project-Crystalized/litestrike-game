@@ -463,6 +463,7 @@ public class GameController {
 		Bomb.give_bomb(teams.get_placers().get(random));
 
 		Shop.giveShop_and_update();
+		Communicator.giveRadio();
 	}
 
 	// this will determine the winner of the round and return it.
