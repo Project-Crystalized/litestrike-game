@@ -13,6 +13,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -43,8 +44,10 @@ public interface Bomb {
 				.decoration(TextDecoration.ITALIC, false));
 		im.lore(lore);
 
-		im.setCustomModelData(BombModel.MODEL_ACTIVE);
 		im.setItemModel(new NamespacedKey("crystalized", "models/bomb/shard"));
+		CustomModelDataComponent cmdc = im.getCustomModelDataComponent();
+		cmdc.setFloats(List.of(BombModel.MODEL_ACTIVE));
+		im.setCustomModelDataComponent(cmdc);
 
 		im.displayName(Component.translatable("crystalized.item.bomb.name").color(TextColor.color(0xe64cce))
 				.decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));

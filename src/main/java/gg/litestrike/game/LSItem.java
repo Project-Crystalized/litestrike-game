@@ -15,6 +15,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -412,7 +413,9 @@ public class LSItem {
 		ItemStack underDog = new ItemStack(STONE_SWORD);
 		ItemMeta underDog_meta = underDog.getItemMeta();
 		underDog_meta.setItemModel(new NamespacedKey("crystalized", "underdog_sword"));
-		underDog_meta.setCustomModelData(rounds_down);
+		CustomModelDataComponent cmdc = underDog_meta.getCustomModelDataComponent();
+		cmdc.setFloats(List.of((float) rounds_down));
+		underDog_meta.setCustomModelDataComponent(cmdc);
 		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false)
 				.color(TextColor.color(0x8f5805)));
 		List<Component> underDog_lore = new ArrayList<>();

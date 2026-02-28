@@ -1,5 +1,7 @@
 package gg.litestrike.game;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -8,14 +10,15 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.util.EulerAngle;
 
 public class BombModel {
 	private ArmorStand model;
 	private Location after_plant_loc;
 
-	public static final int MODEL_ACTIVE = 0;
-	public static final int MODEL_BREAKING = 1;
+	public static final float MODEL_ACTIVE = 0.0f;
+	public static final float MODEL_BREAKING = 1.0f;
 
 	// creates the model one block below the ground so it can rise
 	// takes in, the block location where the bomb will be after planting
@@ -32,7 +35,10 @@ public class BombModel {
 
 			ItemStack item = Bomb.bomb_item();
 			ItemMeta im = item.getItemMeta();
-			im.setCustomModelData(MODEL_ACTIVE);
+
+			CustomModelDataComponent cmdc = im.getCustomModelDataComponent();
+			cmdc.setFloats(List.of(BombModel.MODEL_ACTIVE));
+			im.setCustomModelDataComponent(cmdc);
 			item.setItemMeta(im);
 			model.getEquipment().setHelmet(item);
 		});
@@ -40,17 +46,18 @@ public class BombModel {
 		model.teleport(loc);
 	}
 
-	private void change_custom_model_to(int custom_model) {
+	private void change_custom_model_to(float custom_model) {
 		if (model == null) {
 			Bukkit.getLogger().severe("tried to put bombmodel into mining state when it didnt exist");
 		}
 		ItemStack helmet = model.getEquipment().getHelmet();
 		ItemMeta im = helmet.getItemMeta();
-		im.setCustomModelData(custom_model);
 		im.setItemModel(new NamespacedKey("crystalized", "models/bomb/shard"));
+		CustomModelDataComponent cmdc = im.getCustomModelDataComponent();
+		cmdc.setFloats(List.of(custom_model));
+		im.setCustomModelDataComponent(cmdc);
 		helmet.setItemMeta(im);
 		model.getEquipment().setHelmet(helmet);
-
 	}
 
 	public void bomb_mining() {
