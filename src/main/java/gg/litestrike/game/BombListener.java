@@ -274,6 +274,10 @@ public class BombListener implements Listener {
 
 		boolean is_holding_bomb = held_item_main.equals(Bomb.bomb_item()) || held_item_off.equals(Bomb.bomb_item());
 
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && is_holding_bomb) {
+			e.setCancelled(true);
+		}
+
 		if (gc == null ||
 				gc.round_state != RoundState.Running ||
 				e.getItem() == null ||
@@ -291,15 +295,6 @@ public class BombListener implements Listener {
 		}
 		if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
 			return;
-		}
-
-		boolean is_holding_bow = held_item_main.getType() == Material.BOW ||
-				held_item_main.getType() == Material.CROSSBOW ||
-				held_item_off.getType() == Material.BOW ||
-				held_item_off.getType() == Material.CROSSBOW;
-
-		if (is_holding_bow) {
-			e.setCancelled(true);
 		}
 
 		// sanity check

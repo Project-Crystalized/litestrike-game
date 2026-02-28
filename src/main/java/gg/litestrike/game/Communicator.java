@@ -251,7 +251,6 @@ class PingArrow {
 		EnemySeen,
 	}
 
-
 	public PingArrow(Player p, ArrowType at) {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		this.p = p;
@@ -271,7 +270,7 @@ class PingArrow {
 		transparents.add(Material.WATER);
 
 		Location lookingAt = p.getTargetBlock(transparents, 40).getLocation().add(0.5, 2, 0.5);
-    Vector direction = p.getLocation().toVector().subtract(lookingAt.toVector()).normalize();
+		Vector direction = p.getLocation().toVector().subtract(lookingAt.toVector()).normalize();
 
 		this.armor_stand = p.getWorld().spawn(lookingAt.add(direction), ArmorStand.class, as -> {
 			as.lookAt(p.getLocation(), LookAnchor.EYES);
@@ -283,13 +282,14 @@ class PingArrow {
 			as.setMarker(true);
 			as.setGlowing(true);
 			as.addScoreboardTag("arrow");
+
+			ItemStack is = new ItemStack(Material.POINTED_DRIPSTONE);
+			ItemMeta im = is.getItemMeta();
+			im.setItemModel(NamespacedKey.fromString("crystalized:models/ping_arrow"));
+			is.setItemMeta(im);
+			as.getEquipment().setHelmet(is);
 		});
 
-		ItemStack is = new ItemStack(Material.POINTED_DRIPSTONE);
-		ItemMeta im = is.getItemMeta();
-		im.setItemModel(NamespacedKey.fromString("crystalized:models/ping_arrow"));
-		is.setItemMeta(im);
-		armor_stand.getEquipment().setHelmet(is);
 		for (Player player : t.get_enemy_team_of(p)) {
 			player.hideEntity(Litestrike.getInstance(), armor_stand);
 		}

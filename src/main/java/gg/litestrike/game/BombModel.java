@@ -22,19 +22,22 @@ public class BombModel {
 	public void spawn_model(Location loc) {
 		this.remove();
 		after_plant_loc = loc.clone();
-		model = (ArmorStand) loc.getWorld().spawn(loc.clone().add(0, -100, 0), ArmorStand.class);
-		model.getAttribute(Attribute.SCALE).setBaseValue(0.5);
-		model.setGravity(false);
-		model.setCanPickupItems(false);
-		model.setVisible(false);
-		model.setMarker(true);
-		model.teleport(loc);
+		model = (ArmorStand) loc.getWorld().spawn(loc.clone().add(0, -100, 0), ArmorStand.class, model -> {
 
-		ItemStack item = Bomb.bomb_item();
-		ItemMeta im = item.getItemMeta();
-		im.setCustomModelData(MODEL_ACTIVE);
-		item.setItemMeta(im);
-		model.getEquipment().setHelmet(item);
+			model.getAttribute(Attribute.SCALE).setBaseValue(0.5);
+			model.setGravity(false);
+			model.setCanPickupItems(false);
+			model.setVisible(false);
+			model.setMarker(true);
+
+			ItemStack item = Bomb.bomb_item();
+			ItemMeta im = item.getItemMeta();
+			im.setCustomModelData(MODEL_ACTIVE);
+			item.setItemMeta(im);
+			model.getEquipment().setHelmet(item);
+		});
+
+		model.teleport(loc);
 	}
 
 	private void change_custom_model_to(int custom_model) {

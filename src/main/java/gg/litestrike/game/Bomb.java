@@ -30,7 +30,7 @@ public interface Bomb {
 	static final int DETONATION_TIME = (20 * 40);
 
 	public static ItemStack bomb_item() {
-		ItemStack item = new ItemStack(Material.CHARCOAL);
+		ItemStack item = new ItemStack(Material.ZOMBIE_SPAWN_EGG);
 		ItemMeta im = item.getItemMeta();
 
 		// set item lore
