@@ -242,7 +242,7 @@ class PingArrow {
 	Player p;
 	int Age;
 	ArmorStand armor_stand;
-	ArrowType aT;
+	ArrowType arrowType;
 	double lastYOffset;
 	Team team;
 
@@ -251,11 +251,11 @@ class PingArrow {
 		EnemySeen,
 	}
 
-	public PingArrow(Player p, ArrowType at) {
+	public PingArrow(Player p, ArrowType arrowType) {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		this.p = p;
 		this.Age = 0;
-		this.aT = at;
+		this.arrowType = arrowType;
 		this.lastYOffset = 0;
 
 		HashSet<Material> transparents = new HashSet<>();
@@ -283,9 +283,15 @@ class PingArrow {
 			as.setGlowing(true);
 			as.addScoreboardTag("arrow");
 
+			NamespacedKey arrow_model = null;
+			if (arrowType == ArrowType.GoHere) {
+				arrow_model = NamespacedKey.fromString("crystalized:models/ping_arrow_green");
+			} else if (arrowType == ArrowType.EnemySeen) {
+				arrow_model = NamespacedKey.fromString("crystalized:models/ping_arrow_red");
+			}
 			ItemStack is = new ItemStack(Material.POINTED_DRIPSTONE);
 			ItemMeta im = is.getItemMeta();
-			im.setItemModel(NamespacedKey.fromString("crystalized:models/ping_arrow"));
+			im.setItemModel(arrow_model);
 			is.setItemMeta(im);
 			as.getEquipment().setHelmet(is);
 		});
