@@ -310,6 +310,7 @@ class PingArrow {
 		// check if player of own team is nearby
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		Collection<Player> nearby_players = armor_stand.getLocation().getNearbyPlayers(2);
+		nearby_players.remove(p);
 		Team own_team = t.get_team(p);
 		boolean player_nearby = nearby_players.stream().anyMatch(nearby -> t.get_team(nearby) == own_team);
 

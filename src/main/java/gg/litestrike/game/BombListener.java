@@ -139,7 +139,7 @@ public class BombListener implements Listener {
 							if (i == 0) {
 								broken_by_text = broken_by_text.append(text(mp.p.getName()).color(Teams.BREAKER_GREEN));
 							} else {
-								broken_by_text = broken_by_text.append(text("& " + mp.p.getName()).color(Teams.BREAKER_GREEN));
+								broken_by_text = broken_by_text.append(text(" & " + mp.p.getName()).color(Teams.BREAKER_GREEN));
 							}
 							i++;
 						}
