@@ -230,8 +230,8 @@ public class Communicator implements Listener {
 				continue;
 			}
 
-			if (p.getInventory().getItem(7) == null || p.getInventory().getItem(7).isEmpty()) {
-				p.getInventory().setItem(7, radio);
+			if (p.getInventory().getItem(8) == null || p.getInventory().getItem(8).isEmpty()) {
+				p.getInventory().setItem(8, radio);
 			} else {
 				p.getInventory().addItem(radio);
 			}

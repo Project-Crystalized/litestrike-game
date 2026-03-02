@@ -90,8 +90,8 @@ public class Shop {
 			list.add(Component.text("right click").color(GRAY).decoration(ITALIC, false));
 			meta.lore(list);
 			shop.setItemMeta(meta);
-			if (p.getInventory().getItem(8) == null || p.getInventory().getItem(8).isEmpty()) {
-				p.getInventory().setItem(8, shop);
+			if (p.getInventory().getItem(7) == null || p.getInventory().getItem(7).isEmpty()) {
+				p.getInventory().setItem(7, shop);
 			} else {
 				p.getInventory().addItem(shop);
 			}
