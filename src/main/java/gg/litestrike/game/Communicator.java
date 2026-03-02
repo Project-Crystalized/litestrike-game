@@ -253,7 +253,6 @@ class PingArrow {
 	}
 
 	public PingArrow(Player p, ArrowType arrowType) {
-		Teams t = Litestrike.getInstance().game_controller.teams;
 		this.p = p;
 		this.Age = 0;
 		this.arrowType = arrowType;
@@ -269,6 +268,7 @@ class PingArrow {
 		transparents.add(Material.VOID_AIR);
 		transparents.add(Material.TINTED_GLASS);
 		transparents.add(Material.WATER);
+		transparents.add(Litestrike.getInstance().mapdata.border_block_type);
 
 		Location lookingAt = p.getTargetBlock(transparents, 40).getLocation().add(0.5, 2, 0.5);
 		Vector direction = p.getLocation().toVector().subtract(lookingAt.toVector()).normalize();
@@ -297,6 +297,7 @@ class PingArrow {
 			as.getEquipment().setHelmet(is);
 		});
 
+		Teams t = Litestrike.getInstance().game_controller.teams;
 		for (Player player : t.get_enemy_team_of(p)) {
 			player.hideEntity(Litestrike.getInstance(), armor_stand);
 		}
