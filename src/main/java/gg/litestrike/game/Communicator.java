@@ -127,10 +127,10 @@ public class Communicator implements Listener {
 		e.setCancelled(true);
 		Player p = e.getPlayer();
 
-		if (e.getPlayer().isSneaking()) {
-			sendCommunication(p, "wait_here", 0x7278CF); // light blue
-		} else if (isCarrieing(p)) {
-			sendCommunication(p, "get_carried", 0xE32DB1); // purple
+		if (isCarrieing(p)) {
+			sendCommunication(p, "get_carried", 0x7278CF); // light blue
+		} else if (e.getPlayer().isSneaking()) {
+			sendCommunication(p, "wait_here", 0xE32DB1); // purple
 		} else {
 			sendCommunication(p, "retreat", 0xE3AF34); // orange
 		}
@@ -144,12 +144,12 @@ public class Communicator implements Listener {
 		e.setCancelled(true);
 		Player p = e.getPlayer();
 
-		if (e.getPlayer().isSneaking()) {
-			sendCommunication(p, "drop_please", 0xDE83C5); // pink
+		if (isCooked(p)) {
+			sendCommunication(p, "cooked", 0xDE83C5); // pink
 		} else if (isInMeowSituation(p)) {
 			sendCommunication(p, "meow", 0xE32DB1); // purple
-		} else if (isCooked(p)) {
-			sendCommunication(p, "cooked", 0xC7BC95); // light brown
+		} else if (e.getPlayer().isSneaking()) {
+			sendCommunication(p, "drop_please", 0xC7BC95); // light brown
 		} else {
 			sendCommunication(p, "help_me", 0xDE83C5); // pink
 		}
@@ -204,10 +204,11 @@ public class Communicator implements Listener {
 			}
 			if (maybe_cat.getName().contains("cat") || maybe_cat.getName().contains("Cat")) {
 				catNearby = true;
+				break;
 			}
 		}
 
-		return catNearby && p.isJumping();
+		return catNearby && p.isInRain();
 	}
 
 	public static void giveRadio() {

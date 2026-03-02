@@ -149,7 +149,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 						return;
 					}
 					for (Player p : Bukkit.getOnlinePlayers()) {
-						if (p.getY() < w.getMinHeight() - w.getVoidDamageMinBuildHeightOffset()) {
+						if (p.getY() < -64) {
 							p.teleport(mapdata.get_queue_spawn(w));
 						}
 					}
