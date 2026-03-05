@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -89,6 +90,7 @@ public class Shop {
 			List<TextComponent> list = new ArrayList<>();
 			list.add(Component.text("right click").color(GRAY).decoration(ITALIC, false));
 			meta.lore(list);
+			meta.setItemModel(NamespacedKey.fromString("crystalized:models/ls_shop/ls_shop"));
 			shop.setItemMeta(meta);
 			if (p.getInventory().getItem(7) == null || p.getInventory().getItem(7).isEmpty()) {
 				p.getInventory().setItem(7, shop);
