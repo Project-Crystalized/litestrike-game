@@ -90,7 +90,7 @@ public class LsDatabase {
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_damage_column);
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (damage)");
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (damage)\n" + ex);
 			}
 		}
 
@@ -100,7 +100,7 @@ public class LsDatabase {
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_deaths_column);
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (deaths)");
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (deaths)\n" + ex);
 			}
 		}
 
@@ -110,7 +110,7 @@ public class LsDatabase {
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_did_leave_column);
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (did_leave)");
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (did_leave)\n" + ex);
 			}
 		}
 
@@ -120,7 +120,7 @@ public class LsDatabase {
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_jumps_column);
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (jumps)");
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (jumps)\n" + ex);
 			}
 		}
 
@@ -130,7 +130,7 @@ public class LsDatabase {
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_hits_dealt_column);
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (hits_dealt)");
+				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (hits_dealt)\n" + ex);
 			}
 		}
 	}
