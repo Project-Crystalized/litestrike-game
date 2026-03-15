@@ -22,9 +22,7 @@ import gg.litestrike.game.mapfeatures.MapFeatures;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.Arrays;
 
 // this will read a file, map_config.json, in the current world directory,
@@ -52,7 +50,7 @@ public class MapData implements Listener {
 
 	public boolean ranked = false;
 
-	public Set<int[]> border_blocks = Collections.synchronizedSet(new HashSet<int[]>());
+	public CopyOnWriteArraySet<int[]> border_blocks = new CopyOnWriteArraySet<int[]>();
 
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
