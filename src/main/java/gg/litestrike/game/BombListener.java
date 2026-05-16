@@ -290,11 +290,13 @@ public class BombListener implements Listener {
 		}
 
 		MapFeatures mf = Litestrike.getInstance().mapdata.map_features;
-		if (!mf.can_plant_below && e.getBlockFace() == BlockFace.DOWN) {
-			return;
-		}
-		if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
-			return;
+		if (mf != null) {
+			if (!mf.can_plant_below && e.getBlockFace() == BlockFace.DOWN) {
+				return;
+			}
+			if (!mf.can_plant_side && !(e.getBlockFace() == BlockFace.DOWN || e.getBlockFace() == BlockFace.UP)) {
+				return;
+			}
 		}
 
 		// sanity check
