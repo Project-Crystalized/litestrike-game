@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.InventoryManager;
+import gg.crystalized.lobby.LevelManager;
 import gg.crystalized.lobby.Ranks;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -312,7 +313,10 @@ public class GameController {
 		SoundEffects.round_end_sound(winner);
 		LsDatabase.save_game(winner);
 		for (Player p : teams.get_all_players()) {
-			LsDatabase.writeTemporaryData(p, 5, 20);
+			try {
+				LevelManager.giveExperience(p, 5);
+				LevelManager.giveMoney(p, 20);
+			}catch(NoClassDefFoundError e){}
 		}
 
 		try {
