@@ -96,7 +96,7 @@ public class PlayerListener implements Listener {
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
 		try {
-			InventoryManager.giveLobbyItems(p);
+			//InventoryManager.giveLobbyItems(p); //why - Callum
 			Ranks.passiveNames(p, WHITE, null, null);
 			p.playerListName(Ranks.getName(p));
 			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());

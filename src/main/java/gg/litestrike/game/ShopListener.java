@@ -9,8 +9,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -131,6 +134,32 @@ public class ShopListener implements Listener {
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 		s.open_shop();
 		s.shopLog.add(clicked_item);
+
+		//achievement shit, not giving but setup for ls_onlyweapons
+		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		switch (clicked_item.item.getType()) {
+			case GOLDEN_APPLE,
+				 POTION, SPLASH_POTION, LINGERING_POTION,
+				 IRON_CHESTPLATE, DIAMOND_CHESTPLATE
+					-> {
+				pd.eligibleForOnlyWeaponsAchievement = false;
+			}
+		}
+	}
+
+	@EventHandler
+	public void onItemPickup(EntityPickupItemEvent e) {
+		if (e.getEntity() instanceof Player p) {
+			//achievement shit, not giving but setup for ls_onlyweapons
+			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+			switch (e.getItem().getItemStack().getType()) {
+				case GOLDEN_APPLE,
+					 POTION, SPLASH_POTION, LINGERING_POTION
+						-> {
+					pd.eligibleForOnlyWeaponsAchievement = false;
+				}
+			}
+		}
 	}
 
 	public void undoBuy(ItemStack item, Player p, int slot) {
@@ -220,24 +249,10 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	// deprecated in favour of identifyItemModel(ItemStack)
-	public static Integer identifyCustomModelData(ItemStack item) {
-		if (item.hasItemMeta()) {
-			if (item.getItemMeta().hasCustomModelData()) {
-				return item.getItemMeta().getCustomModelData();
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-
 	public static String identifyItemModel(ItemStack item) {
 		if (item.hasItemMeta()) {
 			if (item.getItemMeta().hasItemModel()) {
-				return item.getItemMeta().getItemModel().toString(); // hopefully this produces something like
-																															// "crystalized:slime_sword"
+				return item.getItemMeta().getItemModel().toString();
 			} else {
 				return null;
 			}

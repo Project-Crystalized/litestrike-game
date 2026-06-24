@@ -6,10 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import gg.crystalized.lobby.App;
-import gg.crystalized.lobby.InventoryManager;
-import gg.crystalized.lobby.LevelManager;
-import gg.crystalized.lobby.Ranks;
+import gg.crystalized.lobby.*;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
@@ -19,6 +16,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -225,7 +223,7 @@ public class GameController {
 
 		for (Player p : teams.get_all_players()) {
 			Shop.removeShop(p);
-			Inventory inv = p.getInventory();
+			PlayerInventory inv = p.getInventory();
 			for (int i = 0; i < inv.getSize(); i++) {
 				if (LSItem.isBreezeDagger(inv.getItem(i))) {
 					ItemMeta meta = inv.getItem(i).getItemMeta();
@@ -234,6 +232,13 @@ public class GameController {
 					cont.set(key, PersistentDataType.INTEGER, 2);
 					inv.getItem(i).setItemMeta(meta);
 				}
+			}
+
+			//achievement shit, check if we can allow ls_onlyweapon achievement progress for this round
+			if (inv.getChestplate().equals(Material.LEATHER_CHESTPLATE) &&
+					!inv.contains(Material.GOLDEN_APPLE) || !inv.contains(Material.POTION)
+			) {
+				getPlayerData(p).eligibleForOnlyWeaponsAchievement = true;
 			}
 		}
 	}
@@ -277,8 +282,19 @@ public class GameController {
 
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
+		//achievement shit, ls_lastalive achievement
+		List<Player> alivePlacers = teams.get_alive_placers();
+		if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
+			Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
+		}
+		List<Player> aliveBreakers = teams.get_alive_breakers();
+		if (aliveBreakers.size() == 1 && winner.equals(Team.Breaker)) {
+			Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
+		}
+
 		for (Player p : teams.get_all_players()) {
 			PlayerData pd = getPlayerData(p);
+			pd.killsThisRound = 0;
 			pd.assist_list.clear();
 			pd.ldt.clear_damager();
 			Inventory inv = p.getInventory();
@@ -290,9 +306,26 @@ public class GameController {
 			if (teams.get_team(p) == winner) {
 				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
+
+				//achievement shit
+				if (pd.killsThisRound >= teams.get_enemy_team_of(p).size()) {
+					/*TODO probably a better way of doing this, we could take the 2 ints from
+					the if statement and turn it into a percentage, but im bad at maths - Callum */
+					Achievement.getAchievement("ls_ace", p).setProgress(100);
+				}
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
 				SoundEffects.round_lost(p);
+			}
+
+			//achievement shit, ls_onlyweapon checked and given here
+			if (pd.eligibleForOnlyWeaponsAchievement && pd.roundWinsOnlyWeapons != 4 && pd.killsThisRound == teams.get_enemy_team_of(p).size()) {
+				if (!teams.get_team(p).equals(winner)) {
+					return;
+				}
+				pd.roundWinsOnlyWeapons++;
+				Achievement a = Achievement.getAchievement("ls_onlyweapons", p);
+				a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); //100% on 4 round wins
 			}
 		}
 	}
@@ -316,6 +349,11 @@ public class GameController {
 			try {
 				LevelManager.giveExperience(p, 5);
 				LevelManager.giveMoney(p, 20);
+
+				//achievement shit
+				if (teams.get_team(p).equals(winner)) {
+					Achievement.getAchievement("ls_win", p).setProgress(100);
+				}
 			}catch(NoClassDefFoundError e){}
 		}
 

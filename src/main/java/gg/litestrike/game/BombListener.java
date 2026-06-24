@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import gg.crystalized.lobby.Achievement;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -146,6 +147,16 @@ public class BombListener implements Listener {
 						broken_by_text = broken_by_text.append(text("!").color(Litestrike.YELLOW));
 						Audience.audience(Bukkit.getOnlinePlayers())
 								.sendMessage(broken_by_text);
+
+						//achievement shit, ls_quickdefuser achievement
+						if (Litestrike.getInstance().game_controller.phase_timer >= 20 &&
+								Litestrike.getInstance().game_controller.teams.get_alive_placers().size() == Litestrike.getInstance().game_controller.teams.get_placers().size()
+						) {
+							for (MiningPlayer mp : mining_players) {
+								Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
+							}
+						}
+
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
 						reset();
 					}
