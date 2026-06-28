@@ -285,11 +285,15 @@ public class GameController {
 		//achievement shit, ls_lastalive achievement
 		List<Player> alivePlacers = teams.get_alive_placers();
 		if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
-			Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
+			try {
+				Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
+			} catch (NoClassDefFoundError ex) {}
 		}
 		List<Player> aliveBreakers = teams.get_alive_breakers();
 		if (aliveBreakers.size() == 1 && winner.equals(Team.Breaker)) {
-			Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
+			try {
+				Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
+			} catch (NoClassDefFoundError ex) {}
 		}
 
 		for (Player p : teams.get_all_players()) {
@@ -311,7 +315,9 @@ public class GameController {
 				if (pd.killsThisRound >= teams.get_enemy_team_of(p).size()) {
 					/*TODO probably a better way of doing this, we could take the 2 ints from
 					the if statement and turn it into a percentage, but im bad at maths - Callum */
-					Achievement.getAchievement("ls_ace", p).setProgress(100);
+					try {
+						Achievement.getAchievement("ls_ace", p).setProgress(100);
+					} catch (NoClassDefFoundError e) {}
 				}
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
@@ -324,8 +330,10 @@ public class GameController {
 					return;
 				}
 				pd.roundWinsOnlyWeapons++;
-				Achievement a = Achievement.getAchievement("ls_onlyweapons", p);
-				a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); //100% on 4 round wins
+				try {
+					Achievement a = Achievement.getAchievement("ls_onlyweapons", p);
+					a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); //100% on 4 round wins
+				} catch (NoClassDefFoundError e) {}
 			}
 		}
 	}

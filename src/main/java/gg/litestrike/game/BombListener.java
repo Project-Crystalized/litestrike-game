@@ -153,7 +153,9 @@ public class BombListener implements Listener {
 								Litestrike.getInstance().game_controller.teams.get_alive_placers().size() == Litestrike.getInstance().game_controller.teams.get_placers().size()
 						) {
 							for (MiningPlayer mp : mining_players) {
-								Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
+								try {
+									Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
+								} catch (NoClassDefFoundError e) {}
 							}
 						}
 
