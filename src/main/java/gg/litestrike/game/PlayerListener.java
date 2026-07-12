@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -63,6 +64,13 @@ public class PlayerListener implements Listener {
 			return;
 		}
 		gc.getPlayerData(e.getPlayer()).jumps += 1;
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onArrowDamage(EntityDamageByEntityEvent event) {
+		if (!(event.getDamager() instanceof Arrow)) return;
+
+		event.setDamage(6.0);
 	}
 
 	@EventHandler
