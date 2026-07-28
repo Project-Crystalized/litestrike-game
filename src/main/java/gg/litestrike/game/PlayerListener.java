@@ -66,11 +66,17 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(e.getPlayer()).jumps += 1;
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.LOW)
 	public void onArrowDamage(EntityDamageByEntityEvent event) {
-		if (!(event.getDamager() instanceof Arrow)) return;
+		if (!(event.getDamager() instanceof AbstractArrow)) return;
 
-		event.setDamage(6.0);
+		AbstractArrow arrow = (AbstractArrow) event.getDamager();
+		double speed = arrow.getVelocity().length();
+		double damage = Math.ceil(speed * arrow.getDamage());
+
+		if (arrow.isCritical()) {
+    	damage += (damage / 4.0) + 0.5;
+		}
 	}
 
 	@EventHandler
