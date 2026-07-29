@@ -66,6 +66,10 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(e.getPlayer()).jumps += 1;
 	}
 
+	//TODO the logic for arrows crosbows will be in crystalized essentiials - Mish
+	//I started a brach on Crystalized essentials where I will be experimenting with arrow damage - Mish
+	//I comented it out for now
+	/*
 	@EventHandler(priority = EventPriority.LOW)
 	public void onArrowDamage(EntityDamageByEntityEvent event) {
 		if (!(event.getDamager() instanceof AbstractArrow)) return;
@@ -78,6 +82,7 @@ public class PlayerListener implements Listener {
     	damage += (damage / 4.0) + 0.5;
 		}
 	}
+	*/
 
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
