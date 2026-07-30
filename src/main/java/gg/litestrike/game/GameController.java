@@ -234,10 +234,10 @@ public class GameController {
 				}
 			}
 
-			//achievement shit, check if we can allow ls_onlyweapon achievement progress for this round
+			// achievement shit, check if we can allow ls_onlyweapon achievement progress
+			// for this round
 			if (inv.getChestplate().equals(Material.LEATHER_CHESTPLATE) &&
-					!inv.contains(Material.GOLDEN_APPLE) || !inv.contains(Material.POTION)
-			) {
+					!inv.contains(Material.GOLDEN_APPLE) || !inv.contains(Material.POTION)) {
 				getPlayerData(p).eligibleForOnlyWeaponsAchievement = true;
 			}
 		}
@@ -282,18 +282,17 @@ public class GameController {
 
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
-		//achievement shit, ls_lastalive achievement
-		List<Player> alivePlacers = teams.get_alive_placers();
-		if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
-			try {
+		// achievement shit, ls_lastalive achievement
+		try {
+			List<Player> alivePlacers = teams.get_alive_placers();
+			if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
 				Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
-			} catch (NoClassDefFoundError ex) {}
-		}
-		List<Player> aliveBreakers = teams.get_alive_breakers();
-		if (aliveBreakers.size() == 1 && winner.equals(Team.Breaker)) {
-			try {
+			}
+			List<Player> aliveBreakers = teams.get_alive_breakers();
+			if (aliveBreakers.size() == 1 && winner.equals(Team.Placer)) {
 				Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
-			} catch (NoClassDefFoundError ex) {}
+			}
+		} catch (NoClassDefFoundError ex) {
 		}
 
 		for (Player p : teams.get_all_players()) {
@@ -311,29 +310,29 @@ public class GameController {
 				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 
-				//achievement shit
-				if (pd.killsThisRound >= teams.get_enemy_team_of(p).size()) {
-					/*TODO probably a better way of doing this, we could take the 2 ints from
-					the if statement and turn it into a percentage, but im bad at maths - Callum */
-					try {
-						Achievement.getAchievement("ls_ace", p).setProgress(100);
-					} catch (NoClassDefFoundError e) {}
+				// achievement shit
+				int killed_percentage = pd.killsThisRound / teams.get_enemy_team_of(p).size() * 100;
+				try {
+					Achievement.getAchievement("ls_ace", p).setProgress(killed_percentage);
+				} catch (NoClassDefFoundError e) {
 				}
 			} else {
 				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
 				SoundEffects.round_lost(p);
 			}
 
-			//achievement shit, ls_onlyweapon checked and given here
-			if (pd.eligibleForOnlyWeaponsAchievement && pd.roundWinsOnlyWeapons != 4 && pd.killsThisRound == teams.get_enemy_team_of(p).size()) {
+			// achievement shit, ls_onlyweapon checked and given here
+			if (pd.eligibleForOnlyWeaponsAchievement && pd.roundWinsOnlyWeapons != 4
+					&& pd.killsThisRound == teams.get_enemy_team_of(p).size()) {
 				if (!teams.get_team(p).equals(winner)) {
 					return;
 				}
 				pd.roundWinsOnlyWeapons++;
 				try {
 					Achievement a = Achievement.getAchievement("ls_onlyweapons", p);
-					a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); //100% on 4 round wins
-				} catch (NoClassDefFoundError e) {}
+					a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); // 100% on 4 round wins
+				} catch (NoClassDefFoundError e) {
+				}
 			}
 		}
 	}
@@ -358,11 +357,12 @@ public class GameController {
 				LevelManager.giveExperience(p, 5);
 				LevelManager.giveMoney(p, 20);
 
-				//achievement shit
+				// achievement shit
 				if (teams.get_team(p).equals(winner)) {
 					Achievement.getAchievement("ls_win", p).setProgress(100);
 				}
-			}catch(NoClassDefFoundError e){}
+			} catch (NoClassDefFoundError e) {
+			}
 		}
 
 		try {

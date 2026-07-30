@@ -46,7 +46,6 @@ public class Shop {
 		player = p.getName();
 		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
 		shopLog = new ArrayList<>();
-		// TODO make the Shop its own item
 	}
 
 	private void setItems() {

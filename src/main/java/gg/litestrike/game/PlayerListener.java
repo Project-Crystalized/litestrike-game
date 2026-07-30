@@ -1,7 +1,6 @@
 package gg.litestrike.game;
 
 import gg.crystalized.lobby.App;
-import gg.crystalized.lobby.InventoryManager;
 import gg.crystalized.lobby.Ranks;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
@@ -12,7 +11,6 @@ import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -66,24 +64,6 @@ public class PlayerListener implements Listener {
 		gc.getPlayerData(e.getPlayer()).jumps += 1;
 	}
 
-	//TODO the logic for arrows crosbows will be in crystalized essentiials - Mish
-	//I started a brach on Crystalized essentials where I will be experimenting with arrow damage - Mish
-	//I comented it out for now
-	/*
-	@EventHandler(priority = EventPriority.LOW)
-	public void onArrowDamage(EntityDamageByEntityEvent event) {
-		if (!(event.getDamager() instanceof AbstractArrow)) return;
-
-		AbstractArrow arrow = (AbstractArrow) event.getDamager();
-		double speed = arrow.getVelocity().length();
-		double damage = Math.ceil(speed * arrow.getDamage());
-
-		if (arrow.isCritical()) {
-    	damage += (damage / 4.0) + 0.5;
-		}
-	}
-	*/
-
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		e.quitMessage(text(""));
@@ -115,7 +95,7 @@ public class PlayerListener implements Listener {
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
 		p.getInventory().clear();
 		try {
-			//InventoryManager.giveLobbyItems(p); //why - Callum
+			// InventoryManager.giveLobbyItems(p); //why - Callum
 			Ranks.passiveNames(p, WHITE, null, null);
 			p.playerListName(Ranks.getName(p));
 			p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
@@ -138,7 +118,7 @@ public class PlayerListener implements Listener {
 				gc.getShop(p).player = p.getName();
 			}
 
-			Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
+			// Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
 
 			// give player the scoreboard and bossbar again
 			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
