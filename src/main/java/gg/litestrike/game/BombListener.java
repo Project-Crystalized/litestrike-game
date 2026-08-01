@@ -346,18 +346,22 @@ public class BombListener implements Listener {
 	public void onDrop(PlayerDropItemEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (!e.getItemDrop().getItemStack().equals(Bomb.bomb_item())) {
-			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
-				e.setCancelled(true);
-			}
 			String item_name = e.getItemDrop().getItemStack().getType().toString().toLowerCase();
+			//Changed so that people can share arrows, potions and apples during the round. - Mish
+			//Because why shouldn't they
 			if (item_name.contains("arrow")
 					|| e.getItemDrop().getItemStack().getType() == Material.POTION
 					|| e.getItemDrop().getItemStack().getType() == Material.GOLDEN_APPLE) {
 				return;
 			} else {
+				//Prevent's anything else from being droped
 				e.setCancelled(true);
+				//Prevents the bomb code from excecuting if it is not a bomb
 				return;
 			}
+//			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
+//				e.setCancelled(true);
+//			}
 		}
 		reset();
 		InvItemBomb ib = (InvItemBomb) gc.bomb;
