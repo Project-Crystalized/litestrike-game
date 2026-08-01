@@ -25,6 +25,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -43,6 +45,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerListener implements Listener {
@@ -280,14 +283,35 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onBowShot(EntityShootBowEvent event) {
-		if (Litestrike.getInstance().game_controller.round_state == RoundState.PreRound) {
-			event.setCancelled(true);
-			if (event.getProjectile() instanceof Arrow) {
-				((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
-			} else if (event.getProjectile() instanceof SpectralArrow) {
-				((Player) event.getEntity()).getInventory().addItem(((SpectralArrow) event.getProjectile()).getItemStack());
-			}
+		//This is a method that cancels and returns the crosbow shot in pre round.
+		//I slightly modified it, to improve it while fixing the visual display bug, now fixed.
+		//Makes sure that it will only cancel in pre round
+		if (!(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound)) {
+			return;
 		}
+		event.setCancelled(true);
+		//If not player than nothing happens
+		if (!(event.getEntity() instanceof Player)) {
+			return;
+		}
+		//This parts makes sure that crosbow becomes empty.
+		//Takes on the crosbow
+		ItemStack weapon = event.getBow();
+		//checks if it is a crosbow meta
+		if (weapon != null && weapon.getItemMeta() instanceof CrossbowMeta) {
+			CrossbowMeta crossbowMeta = (CrossbowMeta) weapon.getItemMeta();
+			//makes sure all projectiles have been cleared from it
+			crossbowMeta.setChargedProjectiles(null);
+			//sets the meta again.
+			weapon.setItemMeta(crossbowMeta);
+		}
+		//The previous working arrow return logic, moved here
+		if (event.getProjectile() instanceof Arrow) {
+			((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
+		} else if (event.getProjectile() instanceof SpectralArrow) {
+			((Player) event.getEntity()).getInventory().addItem(((SpectralArrow) event.getProjectile()).getItemStack());
+		}
+
 	}
 
 	@EventHandler
