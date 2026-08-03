@@ -4,6 +4,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -82,6 +83,29 @@ public class ShopListener implements Listener {
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
+
+		/*
+		Old rule
+		int numberOfGapsInInventory = 0;
+		for(ItemStack it : p.getInventory().getContents()){
+			if(it == null || it.getType() != Material.GOLDEN_APPLE) continue;
+			numberOfGapsInInventory = it.getAmount() + numberOfGapsInInventory;
+		}*/
+
+		//This fixes the bug with the apples, that it stole the money of the user while cancleing the buy
+		//As well fixes the issue where the player throughs apples on the floor and buys more.
+		//Here it will get the amount of apples bought, if no apples bought in this round buying sesion then returns 0
+		//Warning: It will reset per round so technicly you can buy more apples if you saved them up, but that is fair.
+		int applesBought = s.consAndAmmoCount.getOrDefault(clicked_item, 0);
+		//Cheks if it is a golden apple and the amount is less or or equal to three
+		//So per round the player can buy max 3 apples. Resets each round.
+		if(clicked_item.item.getType() == Material.GOLDEN_APPLE && applesBought >= 3){
+			//Let's the player know that only apples allowed per the sesion.
+			p.sendMessage(Component.text("We won't sell you more, you got more than you need.", RED));
+			//Plays the villager noice
+			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+			return;
+		}
 		// check that we have enough money
 		if (!gc.getPlayerData(p).removeMoney(clicked_item.price)) {
 			p.sendMessage(Component.text("Cant afford this").color(RED));
@@ -112,11 +136,7 @@ public class ShopListener implements Listener {
 			s.consAndAmmoCount.put(clicked_item, i + 1);
 		}
 
-		int numberOfGaps = 0;
-		for(ItemStack it : p.getInventory().getContents()){
-			if(it == null || it.getType() != Material.GOLDEN_APPLE) continue;
-			numberOfGaps = it.getAmount() + numberOfGaps;
-		}
+
 
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item);
@@ -125,9 +145,8 @@ public class ShopListener implements Listener {
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
-				if(event.getSlot() == 48 && numberOfGaps >= 3){
-					return;
-				}
+				//Code for apples was here before, moved up before money deduction to ensure it ain't stolen.
+
 				p.getInventory().addItem(clicked_item.item);
 			}
 		}
