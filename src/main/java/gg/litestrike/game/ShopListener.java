@@ -4,7 +4,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,15 +11,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
-import static java.util.Arrays.stream;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -79,36 +75,22 @@ public class ShopListener implements Listener {
 		// it, then we cant buy it
 		if (clicked_item.categ != ItemCategory.Ammunition && clicked_item.categ != ItemCategory.Consumable
 				&& s.alreadyHasThis(clicked_item.item)) {
-			p.sendMessage(Component.text("You already have this item").color(RED));
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.have_already").color(RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
 
-		/*
-		Old rule
-		int numberOfGapsInInventory = 0;
-		for(ItemStack it : p.getInventory().getContents()){
-			if(it == null || it.getType() != Material.GOLDEN_APPLE) continue;
-			numberOfGapsInInventory = it.getAmount() + numberOfGapsInInventory;
-		}*/
-
-		//This fixes the bug with the apples, that it stole the money of the user while cancleing the buy
-		//As well fixes the issue where the player throughs apples on the floor and buys more.
 		//Here it will get the amount of apples bought, if no apples bought in this round buying sesion then returns 0
 		//Warning: It will reset per round so technicly you can buy more apples if you saved them up, but that is fair.
 		int applesBought = s.consAndAmmoCount.getOrDefault(clicked_item, 0);
-		//Cheks if it is a golden apple and the amount is less or or equal to three
-		//So per round the player can buy max 3 apples. Resets each round.
 		if(clicked_item.item.getType() == Material.GOLDEN_APPLE && applesBought >= 3){
-			//Let's the player know that only apples allowed per the sesion.
-			p.sendMessage(Component.text("We won't sell you more, you got more than you need.", RED));
-			//Plays the villager noice
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.enough", RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
 		// check that we have enough money
 		if (!gc.getPlayerData(p).removeMoney(clicked_item.price)) {
-			p.sendMessage(Component.text("Cant afford this").color(RED));
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.cant_afford").color(RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
@@ -163,6 +145,7 @@ public class ShopListener implements Listener {
 					-> {
 				pd.eligibleForOnlyWeaponsAchievement = false;
 			}
+			default -> {}
 		}
 	}
 
@@ -177,6 +160,7 @@ public class ShopListener implements Listener {
 						-> {
 					pd.eligibleForOnlyWeaponsAchievement = false;
 				}
+				default -> {}
 			}
 		}
 	}
@@ -246,14 +230,6 @@ public class ShopListener implements Listener {
 			}
 			item_in_slot.setAmount(item_in_slot.getAmount() - lsitem.item.getAmount());
 			inv.setItem(invSlot, item_in_slot);
-			// inv.clear(invSlot);
-			// for (int i = amount; i > 0; i--) {
-			// if (i == amount) {
-			// inv.setItem(invSlot, lsitem.item);
-			// } else {
-			// inv.addItem(lsitem.item);
-			// }
-			// }
 		}
 		if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
 			gc.getPlayerData(p).giveMoneyBack(lsitem.price);

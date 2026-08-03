@@ -169,6 +169,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+
 		if (!channel.equals("crystalized:litestrike")) {
 			return;
 		}
@@ -176,7 +177,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 		String message1 = in.readUTF();
 		if (message1.contains("ranked_on")) {
-			this.mapdata.ranked = false;
+			this.mapdata.ranked = true;
 			Bukkit.getLogger().info("set ranked on");
 		} else if (message1.contains("ranked_off")) {
 			this.mapdata.ranked = false;
