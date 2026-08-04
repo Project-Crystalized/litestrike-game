@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import gg.crystalized.lobby.App;
+import gg.crystalized.lobby.Cosmetic;
 import gg.crystalized.lobby.InventoryManager;
 import gg.crystalized.lobby.Ranks;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;

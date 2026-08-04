@@ -103,6 +103,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:main");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", party_manager);
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", new QueueSystem());
+		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:main", this);
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:essentials");
 
 		bbd = new BossBarDisplay();
@@ -169,14 +170,13 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-		if (!channel.equals("crystalized:litestrike")) {
+		if (!channel.equals("crystalized:main")) {
 			return;
 		}
-
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 		String message1 = in.readUTF();
 		if (message1.contains("ranked_on")) {
-			this.mapdata.ranked = false;
+			this.mapdata.ranked = true;
 			Bukkit.getLogger().info("set ranked on");
 		} else if (message1.contains("ranked_off")) {
 			this.mapdata.ranked = false;

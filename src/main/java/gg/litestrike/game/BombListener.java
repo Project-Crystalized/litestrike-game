@@ -332,6 +332,9 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
+		if(gc == null){
+			e.setCancelled(true);
+		}
 		if (!e.getItemDrop().getItemStack().equals(Bomb.bomb_item())) {
 			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
 				e.setCancelled(true);
