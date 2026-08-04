@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 public class LsDatabase {
 
@@ -16,7 +15,8 @@ public class LsDatabase {
 
 	// this is run on server startup
 	public static void setup_databases() {
-		// we query the games by timestamp, so creating an index for it can improve perf.
+		// we query the games by timestamp, so creating an index for it can improve
+		// perf.
 		String create_ls_games = "CREATE TABLE IF NOT EXISTS LiteStrikeGames ("
 				+ "game_id 			INTEGER PRIMARY KEY,"
 				+ "placer_wins 	INTEGER,"
@@ -66,7 +66,6 @@ public class LsDatabase {
 		}
 	}
 
-	// TODO remove this at some point
 	private static void create_damage_deaths_column() {
 		String create_damage_column = "ALTER TABLE LsGamesPlayers ADD COLUMN damage_dealt REAL;";
 		String check_damage_column = "SELECT damage_dealt FROM LsGamesPlayers LIMIT 1;";

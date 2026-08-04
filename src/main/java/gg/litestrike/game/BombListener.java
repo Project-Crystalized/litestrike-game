@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import gg.crystalized.lobby.Achievement;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -146,6 +147,18 @@ public class BombListener implements Listener {
 						broken_by_text = broken_by_text.append(text("!").color(Litestrike.YELLOW));
 						Audience.audience(Bukkit.getOnlinePlayers())
 								.sendMessage(broken_by_text);
+
+						//achievement shit, ls_quickdefuser achievement
+						if (Litestrike.getInstance().game_controller.phase_timer >= 20 &&
+								Litestrike.getInstance().game_controller.teams.get_alive_placers().size() == Litestrike.getInstance().game_controller.teams.get_placers().size()
+						) {
+							for (MiningPlayer mp : mining_players) {
+								try {
+									Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
+								} catch (NoClassDefFoundError e) {}
+							}
+						}
+
 						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
 						reset();
 					}
@@ -336,18 +349,22 @@ public class BombListener implements Listener {
 			e.setCancelled(true);
 		}
 		if (!e.getItemDrop().getItemStack().equals(Bomb.bomb_item())) {
-			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
-				e.setCancelled(true);
-			}
 			String item_name = e.getItemDrop().getItemStack().getType().toString().toLowerCase();
+			//Changed so that people can share arrows, potions and apples during the round. - Mish
+			//Because why shouldn't they
 			if (item_name.contains("arrow")
 					|| e.getItemDrop().getItemStack().getType() == Material.POTION
 					|| e.getItemDrop().getItemStack().getType() == Material.GOLDEN_APPLE) {
 				return;
 			} else {
+				//Prevent's anything else from being droped
 				e.setCancelled(true);
+				//Prevents the bomb code from excecuting if it is not a bomb
 				return;
 			}
+//			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
+//				e.setCancelled(true);
+//			}
 		}
 		reset();
 		InvItemBomb ib = (InvItemBomb) gc.bomb;

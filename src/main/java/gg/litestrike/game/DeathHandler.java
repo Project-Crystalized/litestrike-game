@@ -57,6 +57,7 @@ public class DeathHandler implements Listener {
 		gc.getPlayerData(p).deaths += 1;
 		if (killer != null) {
 			gc.getPlayerData(killer).kills += 1;
+			gc.getPlayerData(killer).killsThisRound += 1;
 			gc.getPlayerData(killer).addMoney(400,
 					translatable("crystalized.game.litestrike.money.kill")
 							.append(text(p.getName()))
@@ -149,10 +150,7 @@ public class DeathHandler implements Listener {
 				return text(" \uE11F "); // PICKAXE death icon
 			}
 			return text(" \uE101 "); // SWORD death icon
-		} // else if(dt == DamageType.DRAGON_BREATH){
-			// return text("");//TODO
-		// }
-		else {
+		} else {
 			return text(" \uE103 "); // generic death icon
 		}
 	}

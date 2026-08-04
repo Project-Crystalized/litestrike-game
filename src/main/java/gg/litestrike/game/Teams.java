@@ -3,6 +3,7 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
@@ -101,10 +102,30 @@ public class Teams {
 		return placer_list;
 	}
 
+	public List<Player> get_alive_placers() {
+		List<Player> placer_list = new ArrayList<>();
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (placers.contains(p.getName()) && p.isConnected() && !p.getGameMode().equals(GameMode.SPECTATOR)) {
+				placer_list.add(p);
+			}
+		}
+		return placer_list;
+	}
+
 	public List<Player> get_breakers() {
 		List<Player> breaker_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (breakers.contains(p.getName()) && p.isConnected()) {
+				breaker_list.add(p);
+			}
+		}
+		return breaker_list;
+	}
+
+	public List<Player> get_alive_breakers() {
+		List<Player> breaker_list = new ArrayList<>();
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (breakers.contains(p.getName()) && p.isConnected() && !p.getGameMode().equals(GameMode.SPECTATOR)) {
 				breaker_list.add(p);
 			}
 		}

@@ -30,6 +30,11 @@ public class PlayerData {
 	public int jumps = 0;
 	public int hits_dealt = 0;
 
+	//shit for achievements
+	public int killsThisRound = 0;
+	public boolean eligibleForOnlyWeaponsAchievement = true; //true by default, false when violated.
+	public int roundWinsOnlyWeapons = 0;
+
 	// this keeps track of assits in the current round for this player
 	public Map<Player, Double> assist_list = new HashMap<Player, Double>();
 

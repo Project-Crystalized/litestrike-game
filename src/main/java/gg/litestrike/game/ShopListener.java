@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -16,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 
-import static java.util.Arrays.stream;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -75,13 +75,22 @@ public class ShopListener implements Listener {
 		// it, then we cant buy it
 		if (clicked_item.categ != ItemCategory.Ammunition && clicked_item.categ != ItemCategory.Consumable
 				&& s.alreadyHasThis(clicked_item.item)) {
-			p.sendMessage(Component.text("You already have this item").color(RED));
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.have_already").color(RED));
+			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
+			return;
+		}
+
+		//Here it will get the amount of apples bought, if no apples bought in this round buying sesion then returns 0
+		//Warning: It will reset per round so technicly you can buy more apples if you saved them up, but that is fair.
+		int applesBought = s.consAndAmmoCount.getOrDefault(clicked_item, 0);
+		if(clicked_item.item.getType() == Material.GOLDEN_APPLE && applesBought >= 3){
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.enough", RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
 		// check that we have enough money
 		if (!gc.getPlayerData(p).removeMoney(clicked_item.price)) {
-			p.sendMessage(Component.text("Cant afford this").color(RED));
+			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.cant_afford").color(RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
 		}
@@ -109,11 +118,7 @@ public class ShopListener implements Listener {
 			s.consAndAmmoCount.put(clicked_item, i + 1);
 		}
 
-		int numberOfGaps = 0;
-		for(ItemStack it : p.getInventory().getContents()){
-			if(it == null || it.getType() != Material.GOLDEN_APPLE) continue;
-			numberOfGaps = it.getAmount() + numberOfGaps;
-		}
+
 
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item);
@@ -122,15 +127,42 @@ public class ShopListener implements Listener {
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
-				if(event.getSlot() == 48 && numberOfGaps >= 3){
-					return;
-				}
+				//Code for apples was here before, moved up before money deduction to ensure it ain't stolen.
+
 				p.getInventory().addItem(clicked_item.item);
 			}
 		}
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
 		s.open_shop();
 		s.shopLog.add(clicked_item);
+
+		//achievement shit, not giving but setup for ls_onlyweapons
+		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		switch (clicked_item.item.getType()) {
+			case GOLDEN_APPLE,
+				 POTION, SPLASH_POTION, LINGERING_POTION,
+				 IRON_CHESTPLATE, DIAMOND_CHESTPLATE
+					-> {
+				pd.eligibleForOnlyWeaponsAchievement = false;
+			}
+			default -> {}
+		}
+	}
+
+	@EventHandler
+	public void onItemPickup(EntityPickupItemEvent e) {
+		if (e.getEntity() instanceof Player p) {
+			//achievement shit, not giving but setup for ls_onlyweapons
+			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+			switch (e.getItem().getItemStack().getType()) {
+				case GOLDEN_APPLE,
+					 POTION, SPLASH_POTION, LINGERING_POTION
+						-> {
+					pd.eligibleForOnlyWeaponsAchievement = false;
+				}
+				default -> {}
+			}
+		}
 	}
 
 	public void undoBuy(ItemStack item, Player p, int slot) {
@@ -198,14 +230,6 @@ public class ShopListener implements Listener {
 			}
 			item_in_slot.setAmount(item_in_slot.getAmount() - lsitem.item.getAmount());
 			inv.setItem(invSlot, item_in_slot);
-			// inv.clear(invSlot);
-			// for (int i = amount; i > 0; i--) {
-			// if (i == amount) {
-			// inv.setItem(invSlot, lsitem.item);
-			// } else {
-			// inv.addItem(lsitem.item);
-			// }
-			// }
 		}
 		if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
 			gc.getPlayerData(p).giveMoneyBack(lsitem.price);
@@ -220,24 +244,10 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	// deprecated in favour of identifyItemModel(ItemStack)
-	public static Integer identifyCustomModelData(ItemStack item) {
-		if (item.hasItemMeta()) {
-			if (item.getItemMeta().hasCustomModelData()) {
-				return item.getItemMeta().getCustomModelData();
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-
 	public static String identifyItemModel(ItemStack item) {
 		if (item.hasItemMeta()) {
 			if (item.getItemMeta().hasItemModel()) {
-				return item.getItemMeta().getItemModel().toString(); // hopefully this produces something like
-																															// "crystalized:slime_sword"
+				return item.getItemMeta().getItemModel().toString();
 			} else {
 				return null;
 			}

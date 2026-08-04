@@ -229,7 +229,7 @@ public class LSItem {
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
 		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, null,
+		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 25,
 				translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
 
 		ItemStack speed2pot = new ItemStack(POTION);
@@ -325,6 +325,18 @@ public class LSItem {
 		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
 		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, null,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
+
+		//I tried to add here the Presies CrossBow for testing purposes
+		ItemStack preciseCrossbow = new ItemStack(CROSSBOW);
+		//preciseCrossbow.addEnchantment(QUICK_CHARGE, 1);
+		ItemMeta preciseCrossbowMeta  = preciseCrossbow.getItemMeta();
+		preciseCrossbowMeta.setItemModel(new NamespacedKey("crystalized", "precise_crossbow"));
+		preciseCrossbowMeta.displayName(translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false));
+		preciseCrossbow.setItemMeta(preciseCrossbowMeta);
+		List<Component> preciseCrossbowLore = new ArrayList<>();
+		preciseCrossbowLore.add(translatable("crystalized.crossbow.precise.desc").color(WHITE).decoration(ITALIC, false));
+		lsItems.add(new LSItem(preciseCrossbow, 2500, preciseCrossbowLore, ItemCategory.Range, 43,
+				translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false), 3));
 
 		creation_number = 1; // reset id
 
