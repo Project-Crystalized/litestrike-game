@@ -129,7 +129,9 @@ public class ShopListener implements Listener {
 			} else {
 				//Code for apples was here before, moved up before money deduction to ensure it ain't stolen.
 
-				p.getInventory().addItem(clicked_item.item);
+				//Made sure this is set to clone, to prevent the arrow ocasionaly being re written to be 1 in the shop
+				//Cloning is safter than direcly putting it into the inventory
+				p.getInventory().addItem(clicked_item.item.clone());
 			}
 		}
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
@@ -208,7 +210,9 @@ public class ShopListener implements Listener {
 			if (LSItem.is_underdog_sword(s.previousEquip.get(lsitem.categ).item)) {
 				inv.setItem(invSlot, LSItem.do_underdog_sword(Teams.get_team(p.getName())));
 			} else {
-				inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item);
+				//Also made sure this is cloning as well, to prevent potential arrow over writting due to this
+				//Again cloning is safer than directly putting stuff in
+				inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item.clone());
 			}
 			s.previousEquip.remove(lsitem.categ);
 		} else {
