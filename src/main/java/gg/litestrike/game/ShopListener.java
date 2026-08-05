@@ -121,7 +121,7 @@ public class ShopListener implements Listener {
 
 
 		if (clicked_item.categ == ItemCategory.Armor) {
-			p.getInventory().setChestplate(clicked_item.item);
+			p.getInventory().setChestplate(clicked_item.item.clone());
 		} else {
 			// underdog
 			if (LSItem.is_underdog_sword(clicked_item.item)) {

@@ -225,6 +225,9 @@ public class LSItem {
 		ItemStack charged = new ItemStack(CROSSBOW);
 		ItemMeta charged_meta = charged.getItemMeta();
 		charged_meta.setItemModel(new NamespacedKey("crystalized", "charged_crossbow"));
+		//Added the enchanting glint to the charged crosbow.
+		charged_meta.setEnchantable(100);
+		charged_meta.addEnchant(UNBREAKING, 1, false);
 		charged_meta.displayName(translatable("crystalized.crossbow.charged.name"));
 		charged.setItemMeta(charged_meta);
 		List<Component> charged_lore = new ArrayList<>();
@@ -335,7 +338,8 @@ public class LSItem {
 		preciseCrossbow.setItemMeta(preciseCrossbowMeta);
 		List<Component> preciseCrossbowLore = new ArrayList<>();
 		preciseCrossbowLore.add(translatable("crystalized.crossbow.precise.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(preciseCrossbow, 2500, preciseCrossbowLore, ItemCategory.Range, 43,
+		//Adjusted the price so it is worth buying it over charged crosbow
+		lsItems.add(new LSItem(preciseCrossbow, 1750, preciseCrossbowLore, ItemCategory.Range, 43,
 				translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false), 3));
 
 		creation_number = 1; // reset id
