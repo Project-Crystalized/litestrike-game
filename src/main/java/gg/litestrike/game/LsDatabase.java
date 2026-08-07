@@ -36,11 +36,11 @@ public class LsDatabase {
 				+ "gained_money 	INTEGER,"
 				+ "spent_money 		INTEGER,"
 				+ "bought_items 	BLOB,"
-				+ "was_winner			INTEGER"
-				+ "damage_dealt		REAL"
-				+ "deaths					INTEGER"
-				+ "did_leave			INTEGER"
-				+ "jumps					INTEGER"
+				+ "was_winner			INTEGER,"
+				+ "damage_dealt		REAL,"
+				+ "deaths					INTEGER,"
+				+ "did_leave			INTEGER,"
+				+ "jumps					INTEGER,"
 				+ "hits_dealt			INTEGER"
 				+ ");";
 
@@ -61,75 +61,45 @@ public class LsDatabase {
 			stmt.execute(create_ls_players);
 			stmt.execute(create_ls_ranks);
 		} catch (SQLException e) {
-			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("continueing without database");
+			Bukkit.getLogger().severe("Failed to set up the Litestrike database at " + URL + ".");
+			Bukkit.getLogger().severe("The plugin will keep running, but no game data will be recorded until this is fixed.");
+			Bukkit.getLogger().severe("Error: " + e.getMessage());
 		}
 	}
 
+	// the LsGamesPlayers table has grown over time, so databases created by older
+	// versions of the plugin are missing some columns. this checks if a column
+	// exists and adds it if it doesnt.
 	private static void create_damage_deaths_column() {
-		String create_damage_column = "ALTER TABLE LsGamesPlayers ADD COLUMN damage_dealt REAL;";
-		String check_damage_column = "SELECT damage_dealt FROM LsGamesPlayers LIMIT 1;";
+		String[][] columns = {
+				{ "damage_dealt", "damage_dealt REAL" },
+				{ "deaths", "deaths INTEGER" },
+				{ "did_leave", "did_leave INTEGER" },
+				{ "jumps", "jumps INTEGER" },
+				{ "hits_dealt", "hits_dealt INTEGER" },
+		};
 
-		String create_deaths_column = "ALTER TABLE LsGamesPlayers ADD COLUMN deaths INTEGER;";
-		String check_deaths_column = "SELECT deaths FROM LsGamesPlayers LIMIT 1;";
-
-		String create_did_leave_column = "ALTER TABLE LsGamesPlayers ADD COLUMN did_leave INTEGER;";
-		String check_did_leave_column = "SELECT did_leave FROM LsGamesPlayers LIMIT 1;";
-
-		String create_jumps_column = "ALTER TABLE LsGamesPlayers ADD COLUMN jumps INTEGER;";
-		String check_jumps_column = "SELECT jumps FROM LsGamesPlayers LIMIT 1;";
-
-		String create_hits_dealt_column = "ALTER TABLE LsGamesPlayers ADD COLUMN hits_dealt INTEGER;";
-		String check_hits_dealt_column = "SELECT hits_dealt FROM LsGamesPlayers LIMIT 1;";
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_damage_column);
-		} catch (SQLException e) {
-			// if we catch a sql error, it mean the column doesnt exist, so we add it
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_damage_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (damage)\n" + ex);
-			}
+		for (String[] column : columns) {
+			ensure_column(column[0], column[1]);
 		}
+	}
+
+	private static void ensure_column(String column_name, String definition) {
+		String check_column = "SELECT " + column_name + " FROM LsGamesPlayers LIMIT 1;";
+		String create_column = "ALTER TABLE LsGamesPlayers ADD COLUMN " + definition + ";";
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_deaths_column);
+			conn.createStatement().execute(check_column);
 		} catch (SQLException e) {
+			// the query failed, which usually means the column is missing, so we add it
 			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_deaths_column);
+				conn.createStatement().execute(create_column);
+				Bukkit.getLogger().info("Added missing column '" + column_name + "' to the LsGamesPlayers table.");
 			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (deaths)\n" + ex);
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_did_leave_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_did_leave_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (did_leave)\n" + ex);
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_jumps_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_jumps_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (jumps)\n" + ex);
-			}
-		}
-
-		try (Connection conn = DriverManager.getConnection(URL)) {
-			conn.createStatement().execute(check_hits_dealt_column);
-		} catch (SQLException e) {
-			try (Connection conn = DriverManager.getConnection(URL)) {
-				conn.createStatement().execute(create_hits_dealt_column);
-			} catch (SQLException ex) {
-				Bukkit.getLogger().severe("uh weird error, idk bro ;-; (hits_dealt)\n" + ex);
+				Bukkit.getLogger().severe("Could not add missing column '" + column_name
+						+ "' to the LsGamesPlayers table. The database is either corrupted or missing entirely.");
+				Bukkit.getLogger().severe("Backup or delete the file at " + URL + " and restart the server.");
+				Bukkit.getLogger().severe("Error: " + ex.getMessage());
 			}
 		}
 	}
@@ -186,8 +156,9 @@ public class LsDatabase {
 
 			Bukkit.getLogger().info("Successfully wrote data to LsDatabase");
 		} catch (SQLException e) {
-			Bukkit.getLogger().warning(e.getMessage());
-			Bukkit.getLogger().warning("didnt write data to database");
+			Bukkit.getLogger().severe("Failed to save this game to the Litestrike database. "
+					+ "The stats of this game will not be recorded.");
+			Bukkit.getLogger().severe("Error: " + e.getMessage());
 		}
 	}
 
