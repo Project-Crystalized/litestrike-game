@@ -135,7 +135,7 @@ public class MapFeatures implements Listener {
 
 			@Override
 			public void run() {
-				i++;
+				i += 20;
 				if (i > time || !fall_protected_players.contains(p)) {
 					fall_protected_players.remove(p);
 					cancel();

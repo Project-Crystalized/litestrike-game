@@ -236,8 +236,8 @@ public class GameController {
 
 			// achievement shit, check if we can allow ls_onlyweapon achievement progress
 			// for this round
-			if (inv.getChestplate().equals(Material.LEATHER_CHESTPLATE) &&
-					!inv.contains(Material.GOLDEN_APPLE) || !inv.contains(Material.POTION)) {
+			if (inv.getChestplate().getType().equals(Material.LEATHER_CHESTPLATE) &&
+					!inv.contains(Material.GOLDEN_APPLE) && !inv.contains(Material.POTION)) {
 				getPlayerData(p).eligibleForOnlyWeaponsAchievement = true;
 			}
 		}
@@ -297,7 +297,6 @@ public class GameController {
 
 		for (Player p : teams.get_all_players()) {
 			PlayerData pd = getPlayerData(p);
-			pd.killsThisRound = 0;
 			pd.assist_list.clear();
 			pd.ldt.clear_damager();
 			Inventory inv = p.getInventory();
@@ -311,7 +310,7 @@ public class GameController {
 				SoundEffects.round_won(p);
 
 				// achievement shit
-				int killed_percentage = pd.killsThisRound / teams.get_enemy_team_of(p).size() * 100;
+				int killed_percentage = (pd.killsThisRound * 100) / teams.get_enemy_team_of(p).size();
 				try {
 					Achievement.getAchievement("ls_ace", p).setProgress(killed_percentage);
 				} catch (NoClassDefFoundError e) {
@@ -325,15 +324,16 @@ public class GameController {
 			if (pd.eligibleForOnlyWeaponsAchievement && pd.roundWinsOnlyWeapons != 4
 					&& pd.killsThisRound == teams.get_enemy_team_of(p).size()) {
 				if (!teams.get_team(p).equals(winner)) {
-					return;
+					continue;
 				}
 				pd.roundWinsOnlyWeapons++;
 				try {
 					Achievement a = Achievement.getAchievement("ls_onlyweapons", p);
-					a.setProgress(pd.roundWinsOnlyWeapons / 4 * 100); // 100% on 4 round wins
+					a.setProgress((pd.roundWinsOnlyWeapons * 100) / 4); // 100% on 4 round wins
 				} catch (NoClassDefFoundError e) {
 				}
 			}
+			pd.killsThisRound = 0;
 		}
 	}
 

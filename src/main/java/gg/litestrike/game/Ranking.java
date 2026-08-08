@@ -42,7 +42,7 @@ public class Ranking {
 			double change = point_change;
 			int n = prd.rp / 1000;
 			for (int i = n; i > 0; i--) {
-				change = point_change * 0.9;
+				change = change * 0.9;
 			}
 			point_change = (int) change;
 			prd.rp += point_change;
@@ -95,7 +95,7 @@ public class Ranking {
 		Team other_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Placer : Team.Breaker;
 
 		if (initial_team == other_team) {
-			// this happens for spectators
+			// this happens for spectators // FIXME this is wrong, fix it
 			return null;
 		}
 

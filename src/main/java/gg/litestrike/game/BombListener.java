@@ -105,7 +105,7 @@ public class BombListener implements Listener {
 				// always decrease timer
 				is_planting -= 1;
 
-				////// BReaking from here ///////
+				////// BReaking from here
 
 				for (MiningPlayer mp : mining_players) {
 					mp.timer -= 1;
@@ -148,14 +148,15 @@ public class BombListener implements Listener {
 						Audience.audience(Bukkit.getOnlinePlayers())
 								.sendMessage(broken_by_text);
 
-						//achievement shit, ls_quickdefuser achievement
+						// achievement shit, ls_quickdefuser achievement
 						if (Litestrike.getInstance().game_controller.phase_timer >= 20 &&
-								Litestrike.getInstance().game_controller.teams.get_alive_placers().size() == Litestrike.getInstance().game_controller.teams.get_placers().size()
-						) {
+								Litestrike.getInstance().game_controller.teams.get_alive_placers()
+										.size() == Litestrike.getInstance().game_controller.teams.get_placers().size()) {
 							for (MiningPlayer mp : mining_players) {
 								try {
 									Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
-								} catch (NoClassDefFoundError e) {}
+								} catch (NoClassDefFoundError e) {
+								}
 							}
 						}
 
@@ -328,6 +329,8 @@ public class BombListener implements Listener {
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
+		// FIXME last_planting_block is null on the first planting tick, so the first
+		// tick is wasted
 		if (!e.getClickedBlock().equals(last_planting_block)) {
 			is_planting = 0;
 		}
@@ -345,26 +348,25 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onDrop(PlayerDropItemEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if(gc == null){
+		if (gc == null) {
 			e.setCancelled(true);
+			return;
 		}
 		if (!e.getItemDrop().getItemStack().equals(Bomb.bomb_item())) {
 			String item_name = e.getItemDrop().getItemStack().getType().toString().toLowerCase();
-			//Changed so that people can share arrows, potions and apples during the round. - Mish
-			//Because why shouldn't they
+			// Changed so that people can share arrows, potions and apples during the round.
+			// - Mish
+			// Because why shouldn't they
 			if (item_name.contains("arrow")
 					|| e.getItemDrop().getItemStack().getType() == Material.POTION
 					|| e.getItemDrop().getItemStack().getType() == Material.GOLDEN_APPLE) {
 				return;
 			} else {
-				//Prevent's anything else from being droped
+				// Prevent's anything else from being droped
 				e.setCancelled(true);
-				//Prevents the bomb code from excecuting if it is not a bomb
+				// Prevents the bomb code from excecuting if it is not a bomb
 				return;
 			}
-//			if (gc.round_state != RoundState.PreRound || e.getItemDrop().getItemStack().getType() == Material.EMERALD) {
-//				e.setCancelled(true);
-//			}
 		}
 		reset();
 		InvItemBomb ib = (InvItemBomb) gc.bomb;

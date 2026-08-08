@@ -177,6 +177,8 @@ class PlacedBomb implements Bomb {
 		bomb_model.remove();
 	}
 
+	// if the bomb is planted and the block under it disappears it should fall down
+	// if its planted upside down or on the side, what should happen?
 	private void start_bomb_falling_logic() {
 		new BukkitRunnable() {
 			@Override
@@ -185,8 +187,6 @@ class PlacedBomb implements Bomb {
 					cancel();
 					return;
 				}
-
-				timer += 1;
 
 				Block new_block = block.getRelative(bf.getOppositeFace());
 				if (new_block.isEmpty()) {
