@@ -57,7 +57,7 @@ public class BossBarDisplay {
 
 	private String renderBossBar() {
 		GameController gc = Litestrike.getInstance().game_controller;
-		int player_tiles = Math.max(gc.teams.get_placers().size(), gc.teams.get_placers().size());
+		int player_tiles = Math.max(gc.teams.get_placers().size(), gc.teams.get_breakers().size());
 
 		// String bar = "\uE200"; // green start tile
 		String bar = "";

@@ -87,7 +87,7 @@ public class Ranking {
 	private static Team get_current_team(UUID uuid) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-		Team online_team = Teams.get_team(p.getName());
+		Team online_team = gc.teams.get_team(p.getName());
 		if (online_team != null)
 			return online_team;
 
@@ -95,7 +95,8 @@ public class Ranking {
 		Team other_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Placer : Team.Breaker;
 
 		if (initial_team == other_team) {
-			// this happens for spectators // FIXME this is wrong, fix it
+			// FIXME they can literally never be the same
+			// this happens for spectators
 			return null;
 		}
 

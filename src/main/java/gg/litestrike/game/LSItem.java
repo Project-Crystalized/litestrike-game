@@ -225,7 +225,7 @@ public class LSItem {
 		ItemStack charged = new ItemStack(CROSSBOW);
 		ItemMeta charged_meta = charged.getItemMeta();
 		charged_meta.setItemModel(new NamespacedKey("crystalized", "charged_crossbow"));
-		//Added the enchanting glint to the charged crosbow.
+		// Added the enchanting glint to the charged crosbow.
 		charged_meta.setEnchantable(100);
 		charged_meta.addEnchant(UNBREAKING, 1, false);
 		charged_meta.displayName(translatable("crystalized.crossbow.charged.name"));
@@ -301,20 +301,24 @@ public class LSItem {
 		// ItemStack angled = new ItemStack(BOW);
 		// ItemMeta angled_meta = angled.getItemMeta();
 		// angled_meta.setItemModel(new NamespacedKey("crystalized", "angled_bow"));
-		// angled_meta.displayName(translatable("crystalized.bow.angled.name").decoration(ITALIC, false));
+		// angled_meta.displayName(translatable("crystalized.bow.angled.name").decoration(ITALIC,
+		// false));
 		// angled.setItemMeta(angled_meta);
 		// List<Component> angled_lore = new ArrayList<>();
-		// marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC, false));
+		// marksman_lore.add(translatable("crystalized.bow.angled.desc").color(WHITE).decoration(ITALIC,
+		// false));
 		// lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, 44,
-		// 		translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		// translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		ItemStack crossbow = new ItemStack(CROSSBOW);
-		lsItems.add(new LSItem(crossbow, 1250, null, ItemCategory.Range, 44, translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		lsItems.add(new LSItem(crossbow, 1250, null, ItemCategory.Range, 44,
+				translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
 		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
 		// ItemStack wooden_axe = new ItemStack(GOAT_HORN);
-		// lsItems.add(new LSItem(wooden_axe, 100, null, ItemCategory.Range, 13, null, 1));
+		// lsItems.add(new LSItem(wooden_axe, 100, null, ItemCategory.Range, 13, null,
+		// 1));
 
 		ItemStack breeze = new ItemStack(STONE_SWORD);
 		ItemMeta breeze_meta = breeze.getItemMeta();
@@ -329,16 +333,16 @@ public class LSItem {
 		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, null,
 				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
 
-		//I tried to add here the Presies CrossBow for testing purposes
+		// I tried to add here the Presies CrossBow for testing purposes
 		ItemStack preciseCrossbow = new ItemStack(CROSSBOW);
-		//preciseCrossbow.addEnchantment(QUICK_CHARGE, 1);
-		ItemMeta preciseCrossbowMeta  = preciseCrossbow.getItemMeta();
+		// preciseCrossbow.addEnchantment(QUICK_CHARGE, 1);
+		ItemMeta preciseCrossbowMeta = preciseCrossbow.getItemMeta();
 		preciseCrossbowMeta.setItemModel(new NamespacedKey("crystalized", "precise_crossbow"));
 		preciseCrossbowMeta.displayName(translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false));
 		preciseCrossbow.setItemMeta(preciseCrossbowMeta);
 		List<Component> preciseCrossbowLore = new ArrayList<>();
 		preciseCrossbowLore.add(translatable("crystalized.crossbow.precise.desc").color(WHITE).decoration(ITALIC, false));
-		//Adjusted the price so it is worth buying it over charged crosbow
+		// Adjusted the price so it is worth buying it over charged crosbow
 		lsItems.add(new LSItem(preciseCrossbow, 1750, preciseCrossbowLore, ItemCategory.Range, 43,
 				translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false), 3));
 
@@ -358,11 +362,11 @@ public class LSItem {
 		} else {
 			lore = new ArrayList<>(description);
 		}
-		if((item.getType() == ARROW || item.getType() == SPECTRAL_ARROW)&& modelData == null){
+		if ((item.getType() == ARROW || item.getType() == SPECTRAL_ARROW) && modelData == null) {
 			lore.add(Component.text("\uE12C \uE12D").color(WHITE).decoration(ITALIC, false));
-		}else if(item.getType() == ARROW && modelData == 1){
+		} else if (item.getType() == ARROW && modelData == 1) {
 			lore.add(Component.text("\uE12C").color(WHITE).decoration(ITALIC, false));
-		}else if(item.getType() == ARROW && modelData == 2){
+		} else if (item.getType() == ARROW && modelData == 2) {
 			lore.add(Component.text("\uE12C \uE12C").color(WHITE).decoration(ITALIC, false));
 		}
 		Player p = Bukkit.getPlayer(p_name);
@@ -383,7 +387,7 @@ public class LSItem {
 		displayItem.setItemMeta(meta);
 
 		if (is_underdog_sword(item)) {
-			displayItem = do_underdog_sword(Teams.get_team(p_name));
+			displayItem = do_underdog_sword(Litestrike.getInstance().game_controller.teams.get_team(p_name));
 			ItemMeta dog_meta = displayItem.getItemMeta();
 			var dog_lore = dog_meta.lore();
 			dog_lore.addAll(lore);
@@ -438,7 +442,8 @@ public class LSItem {
 		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
 		underDog_lore.add(Component.text(""));
 		underDog_lore
-				.add(Component.text("Current bonus: " + ((double) rounds_down / 2) + " damage.").color(WHITE).decoration(ITALIC, false));
+				.add(Component.text("Current bonus: " + ((double) rounds_down / 2) + " damage.").color(WHITE).decoration(ITALIC,
+						false));
 		underDog_meta.lore(underDog_lore);
 		underDog_meta.setUnbreakable(true);
 
@@ -456,15 +461,17 @@ public class LSItem {
 		return false;
 
 		/*
-		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasCustomModelData()) {
-			return false;
-		}
-		return (item.getType() == Material.STONE_SWORD
-				&& (item.getItemMeta().getCustomModelData() >= 3 && item.getItemMeta().getCustomModelData() <= 7));
+		 * if (item == null || !item.hasItemMeta() ||
+		 * !item.getItemMeta().hasCustomModelData()) {
+		 * return false;
+		 * }
+		 * return (item.getType() == Material.STONE_SWORD
+		 * && (item.getItemMeta().getCustomModelData() >= 3 &&
+		 * item.getItemMeta().getCustomModelData() <= 7));
 		 */
 	}
 
-	public static boolean isBreezeDagger(ItemStack item){
+	public static boolean isBreezeDagger(ItemStack item) {
 		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasItemModel()) {
 			return false;
 		}

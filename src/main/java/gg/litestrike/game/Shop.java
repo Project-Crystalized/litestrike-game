@@ -48,19 +48,6 @@ public class Shop {
 		shopLog = new ArrayList<>();
 	}
 
-	private void setItems() {
-		for (LSItem item : LSItem.shopItems) {
-			if (item == null || item.slot == null) {
-				continue;
-			}
-			if (item.categ == ItemCategory.Defuser
-					&& Teams.get_team(player) != Team.Breaker) {
-				continue;
-			}
-			currentView.setItem(item.slot, item.buildDisplayItem(player));
-		}
-	}
-
 	private static Component title(String p) {
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
@@ -68,7 +55,17 @@ public class Shop {
 
 	public void update_shop() {
 		currentView = Bukkit.getServer().createInventory(null, 54, title(player));
-		setItems();
+
+		for (LSItem item : LSItem.shopItems) {
+			if (item == null || item.slot == null) {
+				continue;
+			}
+			if (item.categ == ItemCategory.Defuser
+					&& Litestrike.getInstance().game_controller.teams.get_team(player) != Team.Breaker) {
+				continue;
+			}
+			currentView.setItem(item.slot, item.buildDisplayItem(player));
+		}
 	}
 
 	public void open_shop() {
@@ -238,7 +235,7 @@ public class Shop {
 		currentEquip.clear();
 		currentEquip.put(LSItem.ItemCategory.Melee, LSItem.shopItems.get(2));
 		currentEquip.put(LSItem.ItemCategory.Range, LSItem.shopItems.get(4));
-		if (Teams.get_team(player) == Team.Placer) {
+		if (Litestrike.getInstance().game_controller.teams.get_team(player) == Team.Placer) {
 			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(7));
 		} else {
 			currentEquip.put(LSItem.ItemCategory.Armor, LSItem.shopItems.get(6));

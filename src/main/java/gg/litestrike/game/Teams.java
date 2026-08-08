@@ -12,8 +12,8 @@ import java.util.UUID;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
-	private static List<String> placers;
-	private static List<String> breakers;
+	private List<String> placers;
+	private List<String> breakers;
 
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
@@ -189,7 +189,7 @@ public class Teams {
 		return null;
 	}
 
-	public static Team get_team(UUID uuid) {
+	public Team get_team(UUID uuid) {
 		Player p = Bukkit.getPlayer(uuid);
 		if (placers.contains(p.getName())) {
 			return Team.Placer;
@@ -201,7 +201,7 @@ public class Teams {
 		return null;
 	}
 
-	public static Team get_team(String name) {
+	public Team get_team(String name) {
 		if (placers.contains(name)) {
 			return Team.Placer;
 		}
@@ -222,7 +222,7 @@ public class Teams {
 		}
 	}
 
-	public static int get_team_breaks(Team t) {
+	public int get_team_breaks(Team t) {
 		int breaks = 0;
 		List<String> team;
 		if (t == Team.Breaker) {
@@ -236,7 +236,7 @@ public class Teams {
 		return breaks;
 	}
 
-	public static int get_team_plants(Team t) {
+	public int get_team_plants(Team t) {
 		int breaks = 0;
 		List<String> team;
 		if (t == Team.Breaker) {

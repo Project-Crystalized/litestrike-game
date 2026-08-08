@@ -388,12 +388,17 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onPickup(EntityPickupItemEvent e) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			e.setCancelled(true);
+			return;
+		}
 		if (!e.getItem().getItemStack().equals(Bomb.bomb_item())) {
 			return;
 		}
 		e.setCancelled(true);
 		if (e.getEntity() instanceof Player
-				&& Teams.get_team(e.getEntity().getName()) == Team.Placer) {
+				&& gc.teams.get_team(e.getEntity().getName()) == Team.Placer) {
 			// if it got picked up by a player and that player is placer, then proceed
 			Player p = (Player) e.getEntity();
 			Bomb.give_bomb(p);

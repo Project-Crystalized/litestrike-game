@@ -166,7 +166,7 @@ public class Communicator implements Listener {
 		}
 		Audience a = Audience.audience(audience);
 
-		TextColor team_color = Teams.get_team_color(Teams.get_team(p.getName()));
+		TextColor team_color = Teams.get_team_color(t.get_team(p.getName()));
 
 		a.sendMessage(Component.text("<" + p.getName() + "> ").color(team_color)
 				.append(translatable("crystalized.game.litestrike.communicator." + text).color(TextColor.color(color))));

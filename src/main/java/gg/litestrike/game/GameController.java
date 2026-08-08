@@ -97,7 +97,7 @@ public class GameController {
 					for (Player p : Bukkit.getOnlinePlayers()) {
 						player.unlistPlayer(p);
 						try {
-							Ranks.passiveNames(p, Teams.get_team_color(Teams.get_team(p.getName())), null, null);
+							Ranks.passiveNames(p, Teams.get_team_color(teams.get_team(p.getName())), null, null);
 						} catch (NoClassDefFoundError e) {
 						}
 					}

@@ -30,9 +30,9 @@ public class PlayerData {
 	public int jumps = 0;
 	public int hits_dealt = 0;
 
-	//shit for achievements
+	// shit for achievements
 	public int killsThisRound = 0;
-	public boolean eligibleForOnlyWeaponsAchievement = true; //true by default, false when violated.
+	public boolean eligibleForOnlyWeaponsAchievement = true; // true by default, false when violated.
 	public int roundWinsOnlyWeapons = 0;
 
 	// this keeps track of assits in the current round for this player
@@ -104,9 +104,10 @@ public class PlayerData {
 	}
 
 	public int calc_player_score() {
-		Team team = Teams.get_team(player);
-		int team_breaks = Teams.get_team_breaks(team);
-		int team_plants = Teams.get_team_plants(team);
+		Teams t = Litestrike.getInstance().game_controller.teams;
+		Team team = t.get_team(player);
+		int team_breaks = t.get_team_breaks(team);
+		int team_plants = t.get_team_plants(team);
 		return (int) Math.ceil((kills * 0.34) + (assists * 0.16) + ((team_breaks + team_plants) * 0.24));
 	}
 

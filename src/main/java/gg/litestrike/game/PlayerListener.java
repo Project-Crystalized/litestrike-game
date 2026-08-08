@@ -229,8 +229,8 @@ public class PlayerListener implements Listener {
 		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}
-		Team attacker_team = Teams.get_team(source.getUniqueId());
-		Team attacked_team = Teams.get_team(e.getEntity().getUniqueId());
+		Team attacker_team = gc.teams.get_team(source.getUniqueId());
+		Team attacked_team = gc.teams.get_team(e.getEntity().getUniqueId());
 		if (attacker_team == null || attacked_team == null || attacked_team == attacker_team) {
 			e.setCancelled(true);
 			return;

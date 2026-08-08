@@ -80,10 +80,12 @@ public class ShopListener implements Listener {
 			return;
 		}
 
-		//Here it will get the amount of apples bought, if no apples bought in this round buying sesion then returns 0
-		//Warning: It will reset per round so technicly you can buy more apples if you saved them up, but that is fair.
+		// Here it will get the amount of apples bought, if no apples bought in this
+		// round buying sesion then returns 0
+		// Warning: It will reset per round so technicly you can buy more apples if you
+		// saved them up, but that is fair.
 		int applesBought = s.consAndAmmoCount.getOrDefault(clicked_item, 0);
-		if(clicked_item.item.getType() == Material.GOLDEN_APPLE && applesBought >= 3){
+		if (clicked_item.item.getType() == Material.GOLDEN_APPLE && applesBought >= 3) {
 			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.enough", RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
@@ -118,8 +120,6 @@ public class ShopListener implements Listener {
 			s.consAndAmmoCount.put(clicked_item, i + 1);
 		}
 
-
-
 		if (clicked_item.categ == ItemCategory.Armor) {
 			p.getInventory().setChestplate(clicked_item.item.clone());
 		} else {
@@ -127,10 +127,12 @@ public class ShopListener implements Listener {
 			if (LSItem.is_underdog_sword(clicked_item.item)) {
 				p.getInventory().addItem(LSItem.do_underdog_sword(gc.teams.get_team(p)));
 			} else {
-				//Code for apples was here before, moved up before money deduction to ensure it ain't stolen.
+				// Code for apples was here before, moved up before money deduction to ensure it
+				// ain't stolen.
 
-				//Made sure this is set to clone, to prevent the arrow ocasionaly being re written to be 1 in the shop
-				//Cloning is safter than direcly putting it into the inventory
+				// Made sure this is set to clone, to prevent the arrow ocasionaly being re
+				// written to be 1 in the shop
+				// Cloning is safter than direcly putting it into the inventory
 				p.getInventory().addItem(clicked_item.item.clone());
 			}
 		}
@@ -138,31 +140,31 @@ public class ShopListener implements Listener {
 		s.open_shop();
 		s.shopLog.add(clicked_item);
 
-		//achievement shit, not giving but setup for ls_onlyweapons
+		// achievement shit, not giving but setup for ls_onlyweapons
 		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 		switch (clicked_item.item.getType()) {
 			case GOLDEN_APPLE,
-				 POTION, SPLASH_POTION, LINGERING_POTION,
-				 IRON_CHESTPLATE, DIAMOND_CHESTPLATE
-					-> {
+					POTION, SPLASH_POTION, LINGERING_POTION,
+					IRON_CHESTPLATE, DIAMOND_CHESTPLATE -> {
 				pd.eligibleForOnlyWeaponsAchievement = false;
 			}
-			default -> {}
+			default -> {
+			}
 		}
 	}
 
 	@EventHandler
 	public void onItemPickup(EntityPickupItemEvent e) {
 		if (e.getEntity() instanceof Player p) {
-			//achievement shit, not giving but setup for ls_onlyweapons
+			// achievement shit, not giving but setup for ls_onlyweapons
 			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
 			switch (e.getItem().getItemStack().getType()) {
 				case GOLDEN_APPLE,
-					 POTION, SPLASH_POTION, LINGERING_POTION
-						-> {
+						POTION, SPLASH_POTION, LINGERING_POTION -> {
 					pd.eligibleForOnlyWeaponsAchievement = false;
 				}
-				default -> {}
+				default -> {
+				}
 			}
 		}
 	}
@@ -208,10 +210,11 @@ public class ShopListener implements Listener {
 			}
 			s.currentEquip.replace(lsitem.categ, s.previousEquip.get(lsitem.categ));
 			if (LSItem.is_underdog_sword(s.previousEquip.get(lsitem.categ).item)) {
-				inv.setItem(invSlot, LSItem.do_underdog_sword(Teams.get_team(p.getName())));
+				inv.setItem(invSlot, LSItem.do_underdog_sword(gc.teams.get_team(p.getName())));
 			} else {
-				//Also made sure this is cloning as well, to prevent potential arrow over writting due to this
-				//Again cloning is safer than directly putting stuff in
+				// Also made sure this is cloning as well, to prevent potential arrow over
+				// writting due to this
+				// Again cloning is safer than directly putting stuff in
 				inv.setItem(invSlot, s.previousEquip.get(lsitem.categ).item.clone());
 			}
 			s.previousEquip.remove(lsitem.categ);

@@ -131,7 +131,7 @@ public class LsDatabase {
 					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (PlayerData pd : gc.playerDatas) {
-				int is_winner = Teams.get_team(pd.player) == winner ? 1 : 0;
+				int is_winner = gc.teams.get_team(pd.player) == winner ? 1 : 0;
 				OfflinePlayer oplayer = Bukkit.getOfflinePlayer(pd.player);
 
 				int did_leave_int = pd.did_leave ? 1 : 0;
