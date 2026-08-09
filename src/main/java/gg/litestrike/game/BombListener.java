@@ -14,6 +14,7 @@ import gg.litestrike.game.mapfeatures.MapFeatures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
@@ -259,21 +260,11 @@ public class BombListener implements Listener {
 	}
 
 	private boolean is_player_mining(Player p) {
-		for (MiningPlayer mp : mining_players) {
-			if (mp.p == p) {
-				return true;
-			}
-		}
-		return false;
+		return mining_players.stream().anyMatch(mp -> mp.p == p);
 	}
 
 	private boolean is_anyone_mining_with_iron_pick() {
-		for (MiningPlayer mp : mining_players) {
-			if (mp.p.getInventory().getItemInMainHand().getType() == Material.IRON_PICKAXE) {
-				return true;
-			}
-		}
-		return false;
+		return mining_players.stream().anyMatch(mp -> mp.p.getInventory().getItemInMainHand().getType() == Material.IRON_PICKAXE);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
@@ -407,43 +398,22 @@ public class BombListener implements Listener {
 
 	// renders the breakingprogres for the action bar
 	private String renderBreakingProgress() {
-		double percentage = (double) breaking_counter / (double) BREAK_TIME;
-		String s = "[";
-		boolean b = false;
-		for (double i = 0.1; i < 1; i += 0.1) {
-			if (b) {
-				s += " ";
-				continue;
-			}
-			if (i < percentage) {
-				s += "=";
-				continue;
-			}
-			s += ">";
-			b = true;
-		}
-		s += "]";
-		return s;
+		return renderProgress(breaking_counter, BREAK_TIME);
 	}
 
 	private String renderPlacingProgress() {
-		double percentage = (double) planting_counter / (double) PLANT_TIME;
-		String s = "[";
-		boolean b = false;
-		for (double i = 0.1; i < 1; i += 0.1) {
-			if (b) {
-				s += " ";
-				continue;
-			}
-			if (i < percentage) {
-				s += "=";
-				continue;
-			}
-			s += ">";
-			b = true;
+		return renderProgress(planting_counter, PLANT_TIME);
+	}
+
+	private String renderProgress(int counter, int time) {
+		int done = Math.min(counter * 10 / time, 10);
+		StringBuilder bar = new StringBuilder("[");
+		bar.append("=".repeat(done));
+		if (done < 10) {
+			bar.append(">");
+			bar.append(" ".repeat(9 - done));
 		}
-		s += "]";
-		return s;
+		return bar.append("]").toString();
 	}
 
 	private void reset() {
@@ -458,70 +428,17 @@ public class BombListener implements Listener {
 		return Math.min(p.getPing() / 50, 10);
 	}
 
-	// i got this from here:
-	// https://www.spigotmc.org/threads/check-if-a-block-is-interactable.535861/
+	private static final Set<Material> NON_INTERACTABLE = Set.of(
+			Material.PUMPKIN, Material.REDSTONE_ORE, Material.REDSTONE_WIRE,
+			Material.FLOWER_POT);
+
 	public static boolean isInteractable(Material type) {
-		boolean interactable = type.isInteractable();
-		if (!interactable)
+		if (!type.isInteractable()) {
 			return false;
-
-		switch (type) {
-			case ACACIA_STAIRS:
-			case ANDESITE_STAIRS:
-			case BIRCH_STAIRS:
-			case BLACKSTONE_STAIRS:
-			case BRICK_STAIRS:
-			case COBBLESTONE_STAIRS:
-			case CRIMSON_STAIRS:
-			case DARK_OAK_STAIRS:
-			case DARK_PRISMARINE_STAIRS:
-			case DIORITE_STAIRS:
-			case END_STONE_BRICK_STAIRS:
-			case GRANITE_STAIRS:
-			case JUNGLE_STAIRS:
-			case MOSSY_COBBLESTONE_STAIRS:
-			case MOSSY_STONE_BRICK_STAIRS:
-			case NETHER_BRICK_STAIRS:
-			case OAK_STAIRS:
-			case POLISHED_ANDESITE_STAIRS:
-			case POLISHED_BLACKSTONE_BRICK_STAIRS:
-			case POLISHED_BLACKSTONE_STAIRS:
-			case POLISHED_DIORITE_STAIRS:
-			case POLISHED_GRANITE_STAIRS:
-			case PRISMARINE_BRICK_STAIRS:
-			case PRISMARINE_STAIRS:
-			case PURPUR_STAIRS:
-			case QUARTZ_STAIRS:
-			case RED_NETHER_BRICK_STAIRS:
-			case RED_SANDSTONE_STAIRS:
-			case SANDSTONE_STAIRS:
-			case SMOOTH_QUARTZ_STAIRS:
-			case SMOOTH_RED_SANDSTONE_STAIRS:
-			case SMOOTH_SANDSTONE_STAIRS:
-			case SPRUCE_STAIRS:
-			case STONE_BRICK_STAIRS:
-			case STONE_STAIRS:
-			case WARPED_STAIRS:
-
-			case ACACIA_FENCE:
-			case BIRCH_FENCE:
-			case CRIMSON_FENCE:
-			case DARK_OAK_FENCE:
-			case JUNGLE_FENCE:
-			case MOVING_PISTON:
-			case NETHER_BRICK_FENCE:
-			case OAK_FENCE:
-			case PUMPKIN:
-			case REDSTONE_ORE:
-			case REDSTONE_WIRE:
-			case SPRUCE_FENCE:
-			case WARPED_FENCE:
-			case IRON_TRAPDOOR:
-				return false;
-			default:
-				return true;
 		}
-
+		String name = type.name();
+		return !name.endsWith("_STAIRS") && !name.endsWith("_TRAPDOOR")
+				&& !name.endsWith("_FENCE_GATE") && !NON_INTERACTABLE.contains(type);
 	}
 }
 
