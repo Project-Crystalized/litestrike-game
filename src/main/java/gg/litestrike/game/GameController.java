@@ -604,37 +604,25 @@ public class GameController {
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
 		s.sendMessage(text(" ʟɪᴛᴇsᴛʀɪᴋᴇ").color(NamedTextColor.GREEN).append(text(" \uE100").color(NamedTextColor.WHITE)));
-		Component winner_text = text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD);
-		if (winner == Team.Placer) {
-			s.sendMessage(winner_text.append(Litestrike.PLACER_TEXT));
-		} else {
-			s.sendMessage(winner_text.append(Litestrike.BREAKER_TEXT));
-		}
+		s.sendMessage(text("Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD)
+				.append(winner == Team.Placer ? Litestrike.PLACER_TEXT : Litestrike.BREAKER_TEXT));
 		s.sendMessage(translatable("crystalized.game.generic.gameresults").color(NamedTextColor.BLUE)
 				.decorate(TextDecoration.BOLD)
-				.append(text(":")).color(NamedTextColor.BLUE).decorate(TextDecoration.BOLD));
+				.append(text(":")));
 
 		Collections.sort(playerDatas, new PlayerDataComparator());
 		Collections.reverse(playerDatas);
-		if (playerDatas.size() > 0) {
-			PlayerData first = playerDatas.get(0);
-			s.sendMessage(text(" \uE108").color(NamedTextColor.WHITE).append(text(" 1st. ").color(NamedTextColor.GREEN)
-					.append(text(first.player)).append(text(" ".repeat(20 - first.player.length())))
-					.append(text(first.kills + " / " + first.deaths + " / " + first.assists))));
+		String[] labels = { " 1st. ", "   2nd. ", "   3rd. " };
+		NamedTextColor[] colors = { NamedTextColor.GREEN, NamedTextColor.YELLOW, NamedTextColor.YELLOW };
+
+		for (int i = 0; i < Math.min(3, playerDatas.size()); i++) {
+			PlayerData pd = playerDatas.get(i);
+			Component prefix = i == 0 ? text(" \uE108").color(NamedTextColor.WHITE) : text("");
+			s.sendMessage(prefix.append(text(labels[i]).color(colors[i]))
+					.append(text(pd.player)).append(text(" ".repeat(20 - pd.player.length())))
+					.append(text(pd.kills + " / " + pd.deaths + " / " + pd.assists)));
 		}
-		if (playerDatas.size() > 1) {
-			PlayerData second = playerDatas.get(1);
-			s.sendMessage(text("   2nd. ").color(NamedTextColor.YELLOW)
-					.append(text(second.player)).append(text(" ".repeat(20 - second.player.length())))
-					.append(text(second.kills + " / " + second.deaths + " / " + second.assists)));
-		}
-		if (playerDatas.size() > 2) {
-			PlayerData third = playerDatas.get(2);
-			s.sendMessage(text("   3rd. ").color(NamedTextColor.YELLOW)
-					.append(text(third.player)).append(text(" ".repeat(20 - third.player.length())))
-					.append(text(third.kills + " / " + third.deaths + " / " + third.assists)));
-			s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
-		}
+		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
 	}
 
 	// teleports players to the podium
@@ -650,24 +638,13 @@ public class GameController {
 		}
 		Collections.sort(playerDatas, new PlayerDataComparator());
 		Collections.reverse(playerDatas);
+		Location[] podium = { md.podium.get_first(w), md.podium.get_second(w), md.podium.get_third(w) };
 		for (int i = 0; i < playerDatas.size(); i++) {
 			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
 			if (p == null) {
 				continue;
 			}
-			switch (i) {
-				case 0:
-					p.teleport(md.podium.get_first(w));
-					break;
-				case 1:
-					p.teleport(md.podium.get_second(w));
-					break;
-				case 2:
-					p.teleport(md.podium.get_third(w));
-					break;
-				default:
-					p.teleport(md.podium.get_spawn(w));
-			}
+			p.teleport(i < 3 ? podium[i] : md.podium.get_spawn(w));
 		}
 	}
 
