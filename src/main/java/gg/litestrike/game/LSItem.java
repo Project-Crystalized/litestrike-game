@@ -11,20 +11,29 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.components.CustomModelDataComponent;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.enchantments.Enchantment.*;
@@ -41,6 +50,7 @@ public class LSItem {
 	public final Integer slot;
 	public final Component name;
 	public final Integer modelData;
+	public final String key;
 	private static short creation_number = 1;
 	public final Short id;
 	public static HashMap<String, LSItem> importantEquip = new HashMap<>();
@@ -59,7 +69,7 @@ public class LSItem {
 	public final ItemCategory categ;
 
 	public LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot,
-			Component name, Integer modelData) {
+			Component name, Integer modelData, String key) {
 		this.price = price;
 		this.description = description;
 		this.categ = cate;
@@ -67,6 +77,7 @@ public class LSItem {
 		this.slot = slot;
 		this.name = name;
 		this.modelData = modelData;
+		this.key = key;
 		this.id = creation_number;
 		creation_number++;
 
@@ -100,203 +111,226 @@ public class LSItem {
 	}
 
 	private static List<LSItem> createItems() {
-		List<LSItem> lsItems = new ArrayList<>();
-
 		// IMPORTANT: the order in which the items are created must be preserved
 		// because it is used as a id in the database, also better not remove items from
 		// the list
-		ItemStack diamondChestplate = new ItemStack(DIAMOND_CHESTPLATE);
-		diamondChestplate.addEnchantment(PROTECTION, 1);
-		lsItems.add(new LSItem(diamondChestplate, 500, null, ItemCategory.Armor, 31, null, null));
+		List<Builder> builders = default_builders();
+		Map<Object, JsonObject> overrides = load_item_overrides();
 
-		ItemStack ironSword = new ItemStack(IRON_SWORD);
-		List<Component> ironSword_lore = new ArrayList<>();
-		ironSword_lore.add(translatable("crystalized.sword.iron.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(ironSword, 750, ironSword_lore, ItemCategory.Melee, 0, null, null));
+		List<LSItem> lsItems = new ArrayList<>();
+		for (int i = 0; i < builders.size(); i++) {
+			Builder builder = builders.get(i);
+			JsonObject o = overrides.get(builder.key);
+			if (o == null) {
+				o = overrides.get(i + 1);
+			}
+			if (o != null) {
+				builder.applyOverrides(o);
+			}
+			lsItems.add(builder.build());
+		}
 
-		ItemStack stoneSword = new ItemStack(STONE_SWORD);
-		lsItems.add(new LSItem(stoneSword, null, null, ItemCategory.Melee, null, null, null));
+		creation_number = 1; // reset id
 
-		ItemStack ironAxe = new ItemStack(IRON_AXE);
-		lsItems.add(new LSItem(ironAxe, 1750, null, ItemCategory.Melee, 2, null, null));
+		return lsItems;
+	}
 
-		ItemStack bow = new ItemStack(BOW);
-		lsItems.add(new LSItem(bow, null, null, ItemCategory.Range, null, null, null));
+	// reads items.json from the plugin data folder, which can override the price
+	// and shop slot of items. entries are matched by their internal item name (the
+	// "name" field); a numeric "id" (= 1-based creation order) is still accepted.
+	// any missing or invalid file just falls back to the default items.
+	private static Map<Object, JsonObject> load_item_overrides() {
+		Map<Object, JsonObject> overrides = new HashMap<>();
+		try {
+			Path path = Litestrike.getInstance().getDataFolder().toPath().resolve("items.json");
+			if (Files.notExists(path)) {
+				return overrides;
+			}
+			JsonArray items = JsonParser.parseString(Files.readString(path)).getAsJsonObject().getAsJsonArray("items");
+			for (JsonElement element : items) {
+				JsonObject o = element.getAsJsonObject();
+				if (o.has("name")) {
+					overrides.put(o.get("name").getAsString(), o);
+				} else if (o.has("id")) {
+					overrides.put(o.get("id").getAsInt(), o);
+				}
+			}
+		} catch (Exception e) {
+			Bukkit.getLogger().log(Level.WARNING, "[Litestrike] Could not load items.json, using the default item list: " + e);
+		}
+		return overrides;
+	}
 
-		ItemStack arrow = new ItemStack(ARROW, 6);
-		lsItems.add(new LSItem(arrow, 150, null, ItemCategory.Ammunition, 50, null, null));
+	private static List<Builder> default_builders() {
+		List<Builder> builders = new ArrayList<>();
 
-		ItemStack breakerAmour = new ItemStack(LEATHER_CHESTPLATE);
-		breakerAmour = Shop.colorArmor(Color.fromRGB(0x0f9415), breakerAmour, 1);
-		lsItems.add(new LSItem(breakerAmour, null, null, ItemCategory.Armor, null, null, null));
+		builders.add(Builder.of(DIAMOND_CHESTPLATE)
+				.key("diamond_chestplate")
+				.enchantment(PROTECTION, 1)
+				.price(500).slot(31).category(ItemCategory.Armor));
 
-		ItemStack placerAmour = new ItemStack(LEATHER_CHESTPLATE);
-		placerAmour = Shop.colorArmor(Color.fromRGB(0xe31724), placerAmour, 1);
-		lsItems.add(new LSItem(placerAmour, null, null, ItemCategory.Armor, null, null, null));
+		builders.add(Builder.of(IRON_SWORD)
+				.key("iron_sword")
+				.description("crystalized.sword.iron.desc")
+				.price(750).slot(0).category(ItemCategory.Melee));
 
-		ItemStack defuser = new ItemStack(IRON_PICKAXE);
-		ItemMeta defuser_meta = defuser.getItemMeta();
-		defuser_meta.displayName(translatable("crystalized.item.defuser.name").decoration(ITALIC, false));
-		defuser_meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, new AttributeModifier(
-				NamespacedKey.minecraft("foo"), 0d, AttributeModifier.Operation.MULTIPLY_SCALAR_1, EquipmentSlotGroup.ANY));
-		defuser.setItemMeta(defuser_meta);
-		defuser.addItemFlags(HIDE_ATTRIBUTES);
-		List<Component> defuser_lore = new ArrayList<>();
-		defuser_lore.add(translatable("crystalized.item.defuser.desc1").color(WHITE).decoration(ITALIC, false));
-		defuser_lore.add(translatable("crystalized.item.defuser.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(defuser, 500, defuser_lore, ItemCategory.Defuser, Shop.DEFUSER_SLOT,
-				translatable("crystalized.item.defuser.name").decoration(ITALIC, false), null));
+		builders.add(Builder.of(STONE_SWORD)
+				.key("stone_sword")
+				.category(ItemCategory.Melee));
 
-		ItemStack gapple = new ItemStack(GOLDEN_APPLE);
-		List<Component> gapple_lore = new ArrayList<>();
-		gapple_lore.add(translatable("crystalized.item.gapple.desc1").color(WHITE).decoration(ITALIC, false));
-		gapple_lore.add(translatable("crystalized.item.gapple.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(gapple, 750, gapple_lore, ItemCategory.Consumable, 48, null, null));
+		builders.add(Builder.of(IRON_AXE)
+				.key("iron_axe")
+				.price(1750).slot(2).category(ItemCategory.Melee));
 
-		ItemStack ironChestplate = new ItemStack(IRON_CHESTPLATE);
-		ironChestplate.addEnchantment(PROTECTION, 1);
-		lsItems.add(new LSItem(ironChestplate, 250, null, ItemCategory.Armor, 40, null, null));
+		builders.add(Builder.of(BOW)
+				.key("bow")
+				.category(ItemCategory.Range));
 
-		ItemStack quickdraw = new ItemStack(CROSSBOW);
-		quickdraw.addEnchantment(QUICK_CHARGE, 1);
-		ItemMeta quickdraw_meta = quickdraw.getItemMeta();
-		quickdraw_meta.setItemModel(new NamespacedKey("crystalized", "quick_charge_crossbow"));
-		quickdraw_meta.displayName(translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false));
-		quickdraw.setItemMeta(quickdraw_meta);
-		List<Component> quickdraw_lore = new ArrayList<>();
-		quickdraw_lore.add(translatable("crystalized.crossbow.quickcharge.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(quickdraw, 2000, quickdraw_lore, ItemCategory.Range, 24,
-				translatable("crystalized.crossbow.quickcharge.name").decoration(ITALIC, false), 2));
+		builders.add(Builder.of(ARROW, 6)
+				.key("arrow")
+				.price(150).slot(50).category(ItemCategory.Ammunition));
 
-		ItemStack pufferFish = new ItemStack(STONE_SWORD);
-		ItemMeta pufferFish_meta = pufferFish.getItemMeta();
-		pufferFish_meta.setItemModel(new NamespacedKey("crystalized", "pufferfish_sword"));
-		pufferFish_meta.displayName(translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false));
-		pufferFish.setItemMeta(pufferFish_meta);
-		List<Component> pufferFish_lore = new ArrayList<>();
-		pufferFish_lore.add(translatable("crystalized.sword.pufferfish.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(pufferFish, 1000, pufferFish_lore, ItemCategory.Melee, 18,
-				translatable("crystalized.sword.pufferfish.name").decoration(ITALIC, false), 2));
+		builders.add(Builder.of(LEATHER_CHESTPLATE)
+				.key("breaker_armor")
+				.leatherColor(Color.fromRGB(0x0f9415), 1)
+				.category(ItemCategory.Armor));
 
-		ItemStack slimeSword = new ItemStack(STONE_SWORD);
-		slimeSword.addEnchantment(KNOCKBACK, 1);
-		ItemMeta slimeSword_meta = slimeSword.getItemMeta();
-		slimeSword_meta.setItemModel(new NamespacedKey("crystalized", "slime_sword"));
-		slimeSword_meta.displayName(translatable("crystalized.sword.slime.name").decoration(ITALIC, false));
-		slimeSword.setItemMeta(slimeSword_meta);
-		List<Component> slimeSword_lore = new ArrayList<>();
-		slimeSword_lore.add(translatable("crystalized.sword.slime.desc1").color(WHITE).decoration(ITALIC, false));
-		slimeSword_lore.add(translatable("crystalized.sword.slime.desc2").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(slimeSword, 1000, slimeSword_lore, ItemCategory.Melee, 20,
-				translatable("crystalized.sword.slime.name").decoration(ITALIC, false), 1));
+		builders.add(Builder.of(LEATHER_CHESTPLATE)
+				.key("placer_armor")
+				.leatherColor(Color.fromRGB(0xe31724), 1)
+				.category(ItemCategory.Armor));
 
-		ItemStack marksman = new ItemStack(BOW);
-		ItemMeta marksman_meta = marksman.getItemMeta();
-		marksman_meta.setItemModel(new NamespacedKey("crystalized", "marksman_bow"));
-		marksman_meta.displayName(translatable("crystalized.bow.marksman.name").decoration(ITALIC, false));
-		marksman.setItemMeta(marksman_meta);
-		List<Component> marksman_lore = new ArrayList<>();
-		marksman_lore.add(translatable("crystalized.bow.marksman.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(marksman, 750, marksman_lore, ItemCategory.Range, 6,
-				translatable("crystalized.bow.marksman.name").decoration(ITALIC, false), 1));
+		builders.add(Builder.of(IRON_PICKAXE)
+				.key("defuser")
+				.name("crystalized.item.defuser.name")
+				.attributeModifier(Attribute.ATTACK_DAMAGE, 0d, AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+						EquipmentSlotGroup.ANY)
+				.hideAttributes()
+				.description("crystalized.item.defuser.desc1")
+				.description("crystalized.item.defuser.desc2")
+				.price(500).slot(Shop.DEFUSER_SLOT).category(ItemCategory.Defuser));
 
-		ItemStack ricochet = new ItemStack(BOW);
-		ricochet.addEnchantment(PUNCH, 1);
-		ItemMeta ricochet_meta = ricochet.getItemMeta();
-		ricochet_meta.setItemModel(new NamespacedKey("crystalized", "ricochet_bow"));
-		ricochet_meta.displayName(translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false));
-		ricochet.setItemMeta(ricochet_meta);
-		List<Component> ricochet_lore = new ArrayList<>();
-		ricochet_lore.add(translatable("crystalized.bow.ricochet.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(ricochet, 1500, ricochet_lore, ItemCategory.Range, 8,
-				translatable("crystalized.bow.ricochet.name").decoration(ITALIC, false), 3));
+		builders.add(Builder.of(GOLDEN_APPLE)
+				.key("golden_apple")
+				.description("crystalized.item.gapple.desc1")
+				.description("crystalized.item.gapple.desc2")
+				.price(750).slot(48).category(ItemCategory.Consumable));
 
-		ItemStack multishot = new ItemStack(CROSSBOW);
-		multishot.addEnchantment(MULTISHOT, 1);
-		ItemMeta multishot_meta = multishot.getItemMeta();
-		multishot_meta.setItemModel(new NamespacedKey("crystalized", "multishot_crossbow"));
-		multishot_meta.displayName(translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false));
-		multishot.setItemMeta(multishot_meta);
-		List<Component> multishot_lore = new ArrayList<>();
-		multishot_lore.add(translatable("crystalized.crossbow.multi.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(multishot, 2000, multishot_lore, ItemCategory.Range, 26,
-				translatable("crystalized.crossbow.multi.name").decoration(ITALIC, false), 1));
+		builders.add(Builder.of(IRON_CHESTPLATE)
+				.key("iron_chestplate")
+				.enchantment(PROTECTION, 1)
+				.price(250).slot(40).category(ItemCategory.Armor));
 
-		ItemStack charged = new ItemStack(CROSSBOW);
-		ItemMeta charged_meta = charged.getItemMeta();
-		charged_meta.setItemModel(new NamespacedKey("crystalized", "charged_crossbow"));
-		// Added the enchanting glint to the charged crosbow.
-		charged_meta.setEnchantable(100);
-		charged_meta.addEnchant(UNBREAKING, 1, false);
-		charged_meta.displayName(translatable("crystalized.crossbow.charged.name"));
-		charged.setItemMeta(charged_meta);
-		List<Component> charged_lore = new ArrayList<>();
-		charged_lore.add(translatable("crystalized.crossbow.charged.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(charged, 2500, charged_lore, ItemCategory.Range, 25,
-				translatable("crystalized.crossbow.charged.name").decoration(ITALIC, false), 3));
+		builders.add(Builder.of(CROSSBOW)
+				.key("quickdraw")
+				.enchantment(QUICK_CHARGE, 1)
+				.model("quick_charge_crossbow")
+				.name("crystalized.crossbow.quickcharge.name")
+				.description("crystalized.crossbow.quickcharge.desc")
+				.price(2000).slot(24).category(ItemCategory.Range).modelData(2));
 
-		ItemStack speed2pot = new ItemStack(POTION);
-		PotionMeta speed2potMeta = (PotionMeta) speed2pot.getItemMeta();
-		speed2potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 10, 1, true, true, true), true);
-		speed2potMeta.displayName(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false));
-		speed2pot.setItemMeta(speed2potMeta);
-		lsItems.add(
-				new LSItem(speed2pot, 1000, null, ItemCategory.Consumable, 46, Component.text("Potion of Swiftness"), null));
+		builders.add(Builder.of(STONE_SWORD)
+				.key("pufferfish_sword")
+				.model("pufferfish_sword")
+				.name("crystalized.sword.pufferfish.name")
+				.description("crystalized.sword.pufferfish.desc")
+				.price(1000).slot(18).category(ItemCategory.Melee).modelData(2));
 
-		ItemStack speed1pot = new ItemStack(POTION);
-		PotionMeta speed1potMeta = (PotionMeta) speed1pot.getItemMeta();
-		speed1potMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 25, 0, true, true, true), true);
-		speed1potMeta.displayName(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false));
-		speed1pot.setItemMeta(speed1potMeta);
-		lsItems.add(
-				new LSItem(speed1pot, 750, null, ItemCategory.Consumable, 47, Component.text("Potion of Swiftness"), null));
+		builders.add(Builder.of(STONE_SWORD)
+				.key("slime_sword")
+				.enchantment(KNOCKBACK, 1)
+				.model("slime_sword")
+				.name("crystalized.sword.slime.name")
+				.description("crystalized.sword.slime.desc1")
+				.description("crystalized.sword.slime.desc2")
+				.price(1000).slot(20).category(ItemCategory.Melee).modelData(1));
 
-		ItemStack respot = new ItemStack(POTION);
-		PotionMeta respotMeta = (PotionMeta) respot.getItemMeta();
-		respotMeta.addCustomEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0, true, true, true), true);
-		respotMeta.displayName(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false));
-		respot.setItemMeta(respotMeta);
-		lsItems.add(
-				new LSItem(respot, 750, null, ItemCategory.Consumable, 45, Component.text("Potion of Resistance"), null));
+		builders.add(Builder.of(BOW)
+				.key("marksman_bow")
+				.model("marksman_bow")
+				.name("crystalized.bow.marksman.name")
+				.description("crystalized.bow.marksman.desc")
+				.price(750).slot(6).category(ItemCategory.Range).modelData(1));
 
-		ItemStack spectralArrow = new ItemStack(SPECTRAL_ARROW, 3);
-		lsItems.add(new LSItem(spectralArrow, 150, null, ItemCategory.Ammunition, 51, null, null));
+		builders.add(Builder.of(BOW)
+				.key("ricochet_bow")
+				.enchantment(PUNCH, 1)
+				.model("ricochet_bow")
+				.name("crystalized.bow.ricochet.name")
+				.description("crystalized.bow.ricochet.desc")
+				.price(1500).slot(8).category(ItemCategory.Range).modelData(3));
 
-		ItemStack dragonArrow = new ItemStack(ARROW, 3);
-		ItemMeta dragon_meta = dragonArrow.getItemMeta();
-		dragon_meta.setItemModel(new NamespacedKey("crystalized", "dragon_arrow"));
-		dragon_meta.displayName(translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false));
-		List<Component> dragon_lore = new ArrayList<>();
-		dragon_lore.add(translatable("crystalized.item.dragonarrow.desc").color(WHITE).decoration(ITALIC, false));
-		dragon_meta.lore(dragon_lore);
-		dragonArrow.setItemMeta(dragon_meta);
-		lsItems.add(new LSItem(dragonArrow, 350, dragon_lore, ItemCategory.Ammunition, 52,
-				translatable("crystalized.item.dragonarrow.name").decoration(ITALIC, false), 1));
+		builders.add(Builder.of(CROSSBOW)
+				.key("multishot_crossbow")
+				.enchantment(MULTISHOT, 1)
+				.model("multishot_crossbow")
+				.name("crystalized.crossbow.multi.name")
+				.description("crystalized.crossbow.multi.desc")
+				.price(2000).slot(26).category(ItemCategory.Range).modelData(1));
 
-		ItemStack exploArrow = new ItemStack(ARROW, 3);
-		ItemMeta explo_meta = exploArrow.getItemMeta();
-		explo_meta.setItemModel(new NamespacedKey("crystalized", "explosive_arrow"));
-		explo_meta.displayName(translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false));
-		List<Component> explo_lore = new ArrayList<>();
-		explo_lore.add(translatable("crystalized.item.explosivearrow.desc").color(WHITE).decoration(ITALIC, false));
-		explo_meta.lore(explo_lore);
-		exploArrow.setItemMeta(explo_meta);
-		lsItems.add(new LSItem(exploArrow, 350, explo_lore, ItemCategory.Ammunition, 53,
-				translatable("crystalized.item.explosivearrow.name").decoration(ITALIC, false), 2));
+		builders.add(Builder.of(CROSSBOW)
+				.key("charged_crossbow")
+				.model("charged_crossbow")
+				.enchantable(100)
+				.metaEnchant(UNBREAKING, 1)
+				// Added the enchanting glint to the charged crosbow.
+				.nameRaw("crystalized.crossbow.charged.name")
+				.description("crystalized.crossbow.charged.desc")
+				.price(2500).slot(25).category(ItemCategory.Range).modelData(3));
 
-		ItemStack underDog = new ItemStack(STONE_SWORD);
-		ItemMeta underDog_meta = underDog.getItemMeta();
-		underDog_meta.setItemModel(new NamespacedKey("crystalized", "underdog_sword"));
-		underDog_meta.displayName(Component.translatable("crystalized.sword.underdog.name").decoration(ITALIC, false));
-		List<Component> underDog_lore = new ArrayList<>();
-		underDog_lore.add(Component.translatable("crystalized.sword.underdog.desc").color(WHITE).decoration(ITALIC, false));
-		underDog_meta.lore(underDog_lore);
-		underDog.setItemMeta(underDog_meta);
-		lsItems.add(new LSItem(underDog, 750, underDog_lore, ItemCategory.Melee, 36,
-				Component.text("Underdog Sword").decoration(ITALIC, false), 3));
+		builders.add(Builder.of(POTION)
+				.key("speed2_potion")
+				.potionEffect(PotionEffectType.SPEED, 20 * 10, 1)
+				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
+				.nameField(Component.text("Potion of Swiftness"))
+				.price(1000).slot(46).category(ItemCategory.Consumable));
 
-		ItemStack stonePick = new ItemStack(STONE_PICKAXE);
-		lsItems.add(new LSItem(stonePick, null, null, ItemCategory.Defuser, null, null, null));
+		builders.add(Builder.of(POTION)
+				.key("speed1_potion")
+				.potionEffect(PotionEffectType.SPEED, 20 * 25, 0)
+				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
+				.nameField(Component.text("Potion of Swiftness"))
+				.price(750).slot(47).category(ItemCategory.Consumable));
+
+		builders.add(Builder.of(POTION)
+				.key("resistance_potion")
+				.potionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0)
+				.name(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false))
+				.nameField(Component.text("Potion of Resistance"))
+				.price(750).slot(45).category(ItemCategory.Consumable));
+
+		builders.add(Builder.of(SPECTRAL_ARROW, 3)
+				.key("spectral_arrow")
+				.price(150).slot(51).category(ItemCategory.Ammunition));
+
+		builders.add(Builder.of(ARROW, 3)
+				.key("dragon_arrow")
+				.model("dragon_arrow")
+				.name("crystalized.item.dragonarrow.name")
+				.description("crystalized.item.dragonarrow.desc")
+				.loreOnItem()
+				.price(350).slot(52).category(ItemCategory.Ammunition).modelData(1));
+
+		builders.add(Builder.of(ARROW, 3)
+				.key("explosive_arrow")
+				.model("explosive_arrow")
+				.name("crystalized.item.explosivearrow.name")
+				.description("crystalized.item.explosivearrow.desc")
+				.loreOnItem()
+				.price(350).slot(53).category(ItemCategory.Ammunition).modelData(2));
+
+		builders.add(Builder.of(STONE_SWORD)
+				.key("underdog_sword")
+				.model("underdog_sword")
+				.name("crystalized.sword.underdog.name")
+				.description("crystalized.sword.underdog.desc")
+				.loreOnItem()
+				.nameField(Component.text("Underdog Sword").decoration(ITALIC, false))
+				.price(750).slot(36).category(ItemCategory.Melee).modelData(3));
+
+		builders.add(Builder.of(STONE_PICKAXE)
+				.key("stone_pickaxe")
+				.category(ItemCategory.Defuser));
 
 		// ItemStack angled = new ItemStack(BOW);
 		// ItemMeta angled_meta = angled.getItemMeta();
@@ -310,9 +344,10 @@ public class LSItem {
 		// lsItems.add(new LSItem(angled, 500, angled_lore, ItemCategory.Range, 44,
 		// translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
 
-		ItemStack crossbow = new ItemStack(CROSSBOW);
-		lsItems.add(new LSItem(crossbow, 1250, null, ItemCategory.Range, 44,
-				translatable("crystalized.bow.angled.name").decoration(ITALIC, false), 1));
+		builders.add(Builder.of(CROSSBOW)
+				.key("crossbow")
+				.nameField(translatable("crystalized.bow.angled.name").decoration(ITALIC, false))
+				.price(1250).slot(44).category(ItemCategory.Range).modelData(1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
 		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
@@ -320,35 +355,197 @@ public class LSItem {
 		// lsItems.add(new LSItem(wooden_axe, 100, null, ItemCategory.Range, 13, null,
 		// 1));
 
-		ItemStack breeze = new ItemStack(STONE_SWORD);
-		ItemMeta breeze_meta = breeze.getItemMeta();
-		breeze_meta.setItemModel(new NamespacedKey("crystalized", "breeze_dagger"));
-		breeze_meta.displayName(translatable("crystalized.sword.wind.name").decoration(ITALIC, false));
-		NamespacedKey key = new NamespacedKey("namespace", "key");
-		PersistentDataContainer cont = breeze_meta.getPersistentDataContainer();
-		cont.set(key, PersistentDataType.INTEGER, 0);
-		breeze.setItemMeta(breeze_meta);
-		List<Component> breeze_lore = new ArrayList<>();
-		breeze_lore.add(translatable("crystalized.sword.wind.desc").color(WHITE).decoration(ITALIC, false));
-		lsItems.add(new LSItem(breeze, 800, breeze_lore, ItemCategory.Melee, null,
-				translatable("crystalized.sword.wind.name").decoration(ITALIC, false), 2));
+		builders.add(Builder.of(STONE_SWORD)
+				.key("breeze_dagger")
+				.model("breeze_dagger")
+				.name("crystalized.sword.wind.name")
+				.description("crystalized.sword.wind.desc")
+				.persistentData(0)
+				.price(800).category(ItemCategory.Melee).modelData(2));
 
 		// I tried to add here the Presies CrossBow for testing purposes
-		ItemStack preciseCrossbow = new ItemStack(CROSSBOW);
-		// preciseCrossbow.addEnchantment(QUICK_CHARGE, 1);
-		ItemMeta preciseCrossbowMeta = preciseCrossbow.getItemMeta();
-		preciseCrossbowMeta.setItemModel(new NamespacedKey("crystalized", "precise_crossbow"));
-		preciseCrossbowMeta.displayName(translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false));
-		preciseCrossbow.setItemMeta(preciseCrossbowMeta);
-		List<Component> preciseCrossbowLore = new ArrayList<>();
-		preciseCrossbowLore.add(translatable("crystalized.crossbow.precise.desc").color(WHITE).decoration(ITALIC, false));
-		// Adjusted the price so it is worth buying it over charged crosbow
-		lsItems.add(new LSItem(preciseCrossbow, 1750, preciseCrossbowLore, ItemCategory.Range, 43,
-				translatable("crystalized.crossbow.precise.name").decoration(ITALIC, false), 3));
+		builders.add(Builder.of(CROSSBOW)
+				.key("precise_crossbow")
+				.model("precise_crossbow")
+				.name("crystalized.crossbow.precise.name")
+				.description("crystalized.crossbow.precise.desc")
+				// Adjusted the price so it is worth buying it over charged crosbow
+				.price(1750).slot(43).category(ItemCategory.Range).modelData(3));
 
-		creation_number = 1; // reset id
+		return builders;
+	}
 
-		return lsItems;
+	// a small builder to avoid repeating the getItemMeta/setItemModel/displayName/
+	// setItemMeta/lore boilerplate for every item
+	public static class Builder {
+		private final ItemStack item;
+		private final List<Component> description = new ArrayList<>();
+		private Integer price;
+		private Integer slot;
+		private ItemCategory categ;
+		private Component name;
+		private Integer modelData;
+		private boolean lore_on_item;
+		private String key;
+
+		private Builder(ItemStack item) {
+			this.item = item;
+		}
+
+		public static Builder of(Material material) {
+			return of(material, 1);
+		}
+
+		public static Builder of(Material material, int amount) {
+			return new Builder(new ItemStack(material, amount));
+		}
+
+		// stable internal name, used to reference this item in items.json
+		public Builder key(String key) {
+			this.key = key;
+			return this;
+		}
+
+		public Builder price(int price) {
+			this.price = price;
+			return this;
+		}
+
+		public Builder slot(int slot) {
+			this.slot = slot;
+			return this;
+		}
+
+		public Builder category(ItemCategory categ) {
+			this.categ = categ;
+			return this;
+		}
+
+		public Builder modelData(int modelData) {
+			this.modelData = modelData;
+			return this;
+		}
+
+		public Builder enchantment(Enchantment enchantment, int level) {
+			item.addEnchantment(enchantment, level);
+			return this;
+		}
+
+		// adds an enchant to the item meta, keeping its level restriction check
+		public Builder metaEnchant(Enchantment enchantment, int level) {
+			ItemMeta meta = item.getItemMeta();
+			meta.addEnchant(enchantment, level, false);
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		public Builder enchantable(int value) {
+			ItemMeta meta = item.getItemMeta();
+			meta.setEnchantable(value);
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		public Builder model(String key) {
+			ItemMeta meta = item.getItemMeta();
+			meta.setItemModel(new NamespacedKey("crystalized", key));
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		public Builder name(String translationKey) {
+			return name(translatable(translationKey).decoration(ITALIC, false));
+		}
+
+		// name that keeps the default translatable style (no italic:false),
+		// used by the charged crossbow
+		public Builder nameRaw(String translationKey) {
+			setDisplayName(translatable(translationKey));
+			this.name = translatable(translationKey).decoration(ITALIC, false);
+			return this;
+		}
+
+		public Builder name(Component component) {
+			setDisplayName(component);
+			this.name = component;
+			return this;
+		}
+
+		// sets only the LSItem name field, not the item display name
+		public Builder nameField(Component component) {
+			this.name = component;
+			return this;
+		}
+
+		public Builder description(String translationKey) {
+			description.add(translatable(translationKey).color(WHITE).decoration(ITALIC, false));
+			return this;
+		}
+
+		// also writes the description to the item meta lore
+		public Builder loreOnItem() {
+			this.lore_on_item = true;
+			return this;
+		}
+
+		public Builder leatherColor(Color color, int enchantLevel) {
+			Shop.colorArmor(color, item, enchantLevel);
+			return this;
+		}
+
+		public Builder hideAttributes() {
+			item.addItemFlags(HIDE_ATTRIBUTES);
+			return this;
+		}
+
+		public Builder attributeModifier(Attribute attribute, double amount, AttributeModifier.Operation operation,
+				EquipmentSlotGroup slotGroup) {
+			ItemMeta meta = item.getItemMeta();
+			meta.addAttributeModifier(attribute,
+					new AttributeModifier(NamespacedKey.minecraft("foo"), amount, operation, slotGroup));
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		public Builder potionEffect(PotionEffectType type, int durationTicks, int amplifier) {
+			PotionMeta meta = (PotionMeta) item.getItemMeta();
+			meta.addCustomEffect(new PotionEffect(type, durationTicks, amplifier, true, true, true), true);
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		public Builder persistentData(int value) {
+			ItemMeta meta = item.getItemMeta();
+			meta.getPersistentDataContainer().set(new NamespacedKey("namespace", "key"), PersistentDataType.INTEGER,
+					value);
+			item.setItemMeta(meta);
+			return this;
+		}
+
+		private void setDisplayName(Component component) {
+			ItemMeta meta = item.getItemMeta();
+			meta.displayName(component);
+			item.setItemMeta(meta);
+		}
+
+		private void applyOverrides(JsonObject json) {
+			if (json.has("price") && !json.get("price").isJsonNull()) {
+				this.price = json.get("price").getAsInt();
+			}
+			if (json.has("slot") && !json.get("slot").isJsonNull()) {
+				this.slot = json.get("slot").getAsInt();
+			}
+		}
+
+		public LSItem build() {
+			if (lore_on_item && !description.isEmpty()) {
+				ItemMeta meta = item.getItemMeta();
+				meta.lore(description);
+				item.setItemMeta(meta);
+			}
+			return new LSItem(item, price, description.isEmpty() ? null : description, categ, slot, name, modelData,
+					key);
+		}
 	}
 
 	// this can handle null being passed in
