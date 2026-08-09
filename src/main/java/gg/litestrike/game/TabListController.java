@@ -63,34 +63,12 @@ class TabListController {
 					.append(text((int) Math.floor(pd.total_damage)))
 					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
-			Component player_status;
+			Component rank = null;
 			try {
-				Component rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
-				if (player == null) {
-					player_status = text("\n ").append(text("[Disconnected] ")).append(rank)
-							.append(text(pd.player).color(NamedTextColor.GRAY));
-				} else if (player.getGameMode() == GameMode.SPECTATOR) {
-					player_status = text("\n ").append(text("[Dead] ")).append(rank)
-							.append(text(pd.player).color(NamedTextColor.GRAY));
-				} else if (gc.teams.get_team(player) == Team.Placer) {
-					player_status = text("\n ").append(text("[Alive] ")).append(rank)
-							.append(text(pd.player).color(Teams.PLACER_RED));
-				} else {
-					player_status = text("\n ").append(text("[Alive] ")).append(rank)
-							.append(text(pd.player).color(Teams.BREAKER_GREEN));
-				}
+				rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
 			} catch (NoClassDefFoundError e) {
-				if (player == null) {
-					player_status = text("\n ").append(text("[Disconnected] "))
-							.append(text(pd.player).color(NamedTextColor.GRAY));
-				} else if (player.getGameMode() == GameMode.SPECTATOR) {
-					player_status = text("\n ").append(text("[Dead] ")).append(text(pd.player).color(NamedTextColor.GRAY));
-				} else if (gc.teams.get_team(player) == Team.Placer) {
-					player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.PLACER_RED));
-				} else {
-					player_status = text("\n ").append(text("[Alive] ")).append(text(pd.player).color(Teams.BREAKER_GREEN));
-				}
 			}
+			Component player_status = build_player_status(rank, player, pd, gc);
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
@@ -125,6 +103,30 @@ class TabListController {
 		}
 
 		return footer;
+	}
+
+	private static Component build_player_status(Component rank, Player player, PlayerData pd, GameController gc) {
+		String tag;
+		TextColor name_color;
+		if (player == null) {
+			tag = "[Disconnected] ";
+			name_color = NamedTextColor.GRAY;
+		} else if (player.getGameMode() == GameMode.SPECTATOR) {
+			tag = "[Dead] ";
+			name_color = NamedTextColor.GRAY;
+		} else if (gc.teams.get_team(player) == Team.Placer) {
+			tag = "[Alive] ";
+			name_color = Teams.PLACER_RED;
+		} else {
+			tag = "[Alive] ";
+			name_color = Teams.BREAKER_GREEN;
+		}
+
+		Component status = text("\n ").append(text(tag));
+		if (rank != null) {
+			status = status.append(rank);
+		}
+		return status.append(text(pd.player).color(name_color));
 	}
 
 	public static int balance(String name) {

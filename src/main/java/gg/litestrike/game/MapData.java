@@ -165,18 +165,15 @@ public class MapData implements Listener {
 		}
 	}
 
+	static double[] parseCoords(JsonElement e) {
+		JsonArray arr = e.getAsJsonArray();
+		return new double[] { arr.get(0).getAsDouble(), arr.get(1).getAsDouble(), arr.get(2).getAsDouble() };
+	}
+
 	private void load_spawn_coords(JsonObject json) {
-		JsonArray p_spawn = json.get("placer_spawn").getAsJsonArray();
-		this.placer_spawn = new double[] { p_spawn.get(0).getAsDouble(), p_spawn.get(1).getAsDouble(),
-				p_spawn.get(2).getAsDouble() };
-
-		JsonArray b_spawn = json.get("breaker_spawn").getAsJsonArray();
-		this.breaker_spawn = new double[] { b_spawn.get(0).getAsDouble(), b_spawn.get(1).getAsDouble(),
-				b_spawn.get(2).getAsDouble() };
-
-		JsonArray q_spawn = json.get("queue_spawn").getAsJsonArray();
-		this.queue_spawn = new double[] { q_spawn.get(0).getAsDouble(), q_spawn.get(1).getAsDouble(),
-				q_spawn.get(2).getAsDouble() };
+		this.placer_spawn = parseCoords(json.get("placer_spawn"));
+		this.breaker_spawn = parseCoords(json.get("breaker_spawn"));
+		this.queue_spawn = parseCoords(json.get("queue_spawn"));
 	}
 
 	private void load_border_values(JsonObject json) {
@@ -233,32 +230,14 @@ public class MapData implements Listener {
 	// if this returns true for a chunk, the chunk is searched for border blocks.
 	// this returns true if the chunk is within 5 chunks of the spawn points
 	private boolean is_search_chunk(int chunk_x, int chunk_z, World w) {
+		return within_border_search_radius(chunk_x, chunk_z, get_placer_spawn(w))
+				|| within_border_search_radius(chunk_x, chunk_z, get_breaker_spawn(w));
+	}
 
-		// check in range of placer spawn
-		Chunk placer_spawn_chunk = get_placer_spawn(w).getChunk();
-		int lower_x_bound = placer_spawn_chunk.getX() - 5;
-		int upper_x_bound = placer_spawn_chunk.getX() + 5;
-		int lower_z_bound = placer_spawn_chunk.getZ() - 5;
-		int upper_z_bound = placer_spawn_chunk.getZ() + 5;
-		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound)
-				&& (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
-			return true;
-		}
-
-		// check in range of braeker spawn
-		Chunk breaker_spawn_chunk = get_breaker_spawn(w).getChunk();
-		lower_x_bound = breaker_spawn_chunk.getX() - 5;
-		upper_x_bound = breaker_spawn_chunk.getX() + 5;
-		lower_z_bound = breaker_spawn_chunk.getZ() - 5;
-		upper_z_bound = breaker_spawn_chunk.getZ() + 5;
-		if ((chunk_x >= lower_x_bound && chunk_x <= upper_x_bound)
-				&& (chunk_z >= lower_z_bound && chunk_z <= upper_z_bound)) {
-			return true;
-		}
-
-		// if not in range of either, return false
-		return false;
-	};
+	private boolean within_border_search_radius(int chunk_x, int chunk_z, Location spawn) {
+		Chunk chunk = spawn.getChunk();
+		return Math.abs(chunk_x - chunk.getX()) <= 5 && Math.abs(chunk_z - chunk.getZ()) <= 5;
+	}
 }
 
 class PodiumData {
@@ -268,21 +247,10 @@ class PodiumData {
 	public final double[] third;
 
 	public PodiumData(JsonObject jo) {
-		JsonArray j_spawn = jo.get("spawn").getAsJsonArray();
-		this.spawn = new double[] { j_spawn.get(0).getAsDouble(), j_spawn.get(1).getAsDouble(),
-				j_spawn.get(2).getAsDouble() };
-
-		JsonArray j_first = jo.get("first").getAsJsonArray();
-		this.first = new double[] { j_first.get(0).getAsDouble(), j_first.get(1).getAsDouble(),
-				j_first.get(2).getAsDouble() };
-
-		JsonArray j_second = jo.get("second").getAsJsonArray();
-		this.second = new double[] { j_second.get(0).getAsDouble(), j_second.get(1).getAsDouble(),
-				j_second.get(2).getAsDouble() };
-
-		JsonArray j_third = jo.get("third").getAsJsonArray();
-		this.third = new double[] { j_third.get(0).getAsDouble(), j_third.get(1).getAsDouble(),
-				j_third.get(2).getAsDouble() };
+		this.spawn = MapData.parseCoords(jo.get("spawn"));
+		this.first = MapData.parseCoords(jo.get("first"));
+		this.second = MapData.parseCoords(jo.get("second"));
+		this.third = MapData.parseCoords(jo.get("third"));
 	}
 
 	public Location get_spawn(World w) {

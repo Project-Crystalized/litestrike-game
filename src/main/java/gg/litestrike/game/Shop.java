@@ -19,6 +19,7 @@ import gg.litestrike.game.LSItem.ItemCategory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -164,49 +165,22 @@ public class Shop {
 	}
 
 	public boolean alreadyHasThis(ItemStack item) {
-		for (int i = 0; i <= 40; i++) {
-			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
-				continue;
-			}
-			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
-			if (it == null) {
-				continue;
-			}
-			if (LSItem.is_same_ls_item(it, item)) {
-				return true;
-			}
-		}
-		return false;
+		return findInInventory(it -> LSItem.is_same_ls_item(it, item)) != -1;
 	}
 
 	public int findInvIndex(ItemStack item) {
-		for (int i = 0; i <= 40; i++) {
-			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
-				continue;
-			}
-			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
-			if (it == null) {
-				continue;
-			}
-
-			if (LSItem.is_same_ls_item(it, item)) {
-				return i;
-			}
-		}
-		return -1;
+		return findInInventory(it -> LSItem.is_same_ls_item(it, item));
 	}
 
 	public int findInvIndex(LSItem.ItemCategory categ) {
-		for (int i = 0; i <= 40; i++) {
-			if (Bukkit.getPlayer(player).getInventory().getItem(i) == null) {
-				continue;
-			}
-			ItemStack it = Bukkit.getPlayer(player).getInventory().getItem(i);
-			if (it == null) {
-				continue;
-			}
+		return findInInventory(it -> LSItem.getItemCategory(it) == categ);
+	}
 
-			if (LSItem.getItemCategory(it) == categ) {
+	private int findInInventory(Predicate<ItemStack> matches) {
+		PlayerInventory inv = Bukkit.getPlayer(player).getInventory();
+		for (int i = 0; i <= 40; i++) {
+			ItemStack it = inv.getItem(i);
+			if (it != null && matches.test(it)) {
 				return i;
 			}
 		}
