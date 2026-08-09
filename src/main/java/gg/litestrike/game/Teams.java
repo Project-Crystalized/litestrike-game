@@ -2,13 +2,13 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
-
-import java.util.UUID;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
@@ -93,43 +93,29 @@ public class Teams {
 	}
 
 	public List<Player> get_placers() {
-		List<Player> placer_list = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (placers.contains(p.getName()) && p.isConnected()) {
-				placer_list.add(p);
-			}
-		}
-		return placer_list;
+		return get_players(placers, false);
 	}
 
 	public List<Player> get_alive_placers() {
-		List<Player> placer_list = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (placers.contains(p.getName()) && p.isConnected() && !p.getGameMode().equals(GameMode.SPECTATOR)) {
-				placer_list.add(p);
-			}
-		}
-		return placer_list;
+		return get_players(placers, true);
 	}
 
 	public List<Player> get_breakers() {
-		List<Player> breaker_list = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (breakers.contains(p.getName()) && p.isConnected()) {
-				breaker_list.add(p);
-			}
-		}
-		return breaker_list;
+		return get_players(breakers, false);
 	}
 
 	public List<Player> get_alive_breakers() {
-		List<Player> breaker_list = new ArrayList<>();
+		return get_players(breakers, true);
+	}
+
+	private List<Player> get_players(List<String> team, boolean alive) {
+		List<Player> player_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (breakers.contains(p.getName()) && p.isConnected() && !p.getGameMode().equals(GameMode.SPECTATOR)) {
-				breaker_list.add(p);
+			if (team.contains(p.getName()) && p.isConnected() && (!alive || !p.getGameMode().equals(GameMode.SPECTATOR))) {
+				player_list.add(p);
 			}
 		}
-		return breaker_list;
+		return player_list;
 	}
 
 	public List<Player> get_enemy_team_of(Player p) {
@@ -179,26 +165,11 @@ public class Teams {
 	}
 
 	public Team get_team(Player p) {
-		if (placers.contains(p.getName())) {
-			return Team.Placer;
-		}
-
-		if (breakers.contains(p.getName())) {
-			return Team.Breaker;
-		}
-		return null;
+		return get_team(p.getName());
 	}
 
 	public Team get_team(UUID uuid) {
-		Player p = Bukkit.getPlayer(uuid);
-		if (placers.contains(p.getName())) {
-			return Team.Placer;
-		}
-
-		if (breakers.contains(p.getName())) {
-			return Team.Breaker;
-		}
-		return null;
+		return get_team(Bukkit.getPlayer(uuid).getName());
 	}
 
 	public Team get_team(String name) {
@@ -223,30 +194,24 @@ public class Teams {
 	}
 
 	public int get_team_breaks(Team t) {
-		int breaks = 0;
-		List<String> team;
-		if (t == Team.Breaker) {
-			team = breakers;
-		} else {
-			team = placers;
-		}
-		for (String name : team) {
-			breaks += Litestrike.getInstance().game_controller.getPlayerData(name).getBroken();
-		}
-		return breaks;
+		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.getPlayerData(name).getBroken());
 	}
 
 	public int get_team_plants(Team t) {
-		int breaks = 0;
+		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.getPlayerData(name).getPlaced());
+	}
+
+	private int sum_team_stats(Team t, Function<String, Integer> stat_getter) {
 		List<String> team;
 		if (t == Team.Breaker) {
 			team = breakers;
 		} else {
 			team = placers;
 		}
+		int sum = 0;
 		for (String name : team) {
-			breaks += Litestrike.getInstance().game_controller.getPlayerData(name).getPlaced();
+			sum += stat_getter.apply(name);
 		}
-		return breaks;
+		return sum;
 	}
 }
