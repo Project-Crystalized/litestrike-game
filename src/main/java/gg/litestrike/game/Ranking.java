@@ -38,7 +38,10 @@ public class Ranking {
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
 			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName());
-			if (pd != null) {
+			if (pd == null) {
+				Bukkit.getLogger().warning("ranking: no player data for '" + offline_p.getName()
+						+ "', skipping the performance bonus");
+			} else {
 				point_change += pd.calc_player_score();
 			}
 			double change = point_change;
@@ -113,8 +116,12 @@ public class Ranking {
 		int total = 0;
 
 		for (PlayerRankedData prd : player_ranks) {
-			Player p = Bukkit.getPlayer(prd.uuid);
-			if (p == null || !team.contains(p.getName())) {
+			String name = Bukkit.getOfflinePlayer(prd.uuid).getName();
+			if (name == null) {
+				Bukkit.getLogger().warning("ranking: could not resolve the name of ranked player uuid " + prd.uuid);
+				continue;
+			}
+			if (!team.contains(name)) {
 				continue;
 			}
 			if (prd.rp < 0) {

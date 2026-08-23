@@ -163,6 +163,8 @@ public class ShopListener implements Listener {
 			// achievement shit, not giving but setup for ls_onlyweapons
 			PlayerData pd = gc.getPlayerData(p);
 			if (pd == null) {
+				Bukkit.getLogger().warning("skipped pickup handler for '" + p.getName()
+						+ "', no player data found, is this player part of the current game?");
 				return;
 			}
 			switch (e.getItem().getItemStack().getType()) {
