@@ -533,7 +533,13 @@ public class LSItem {
 				this.price = json.get("price").getAsInt();
 			}
 			if (json.has("slot") && !json.get("slot").isJsonNull()) {
-				this.slot = json.get("slot").getAsInt();
+				int slot = json.get("slot").getAsInt();
+				if (slot < 0 || slot > 53) {
+					Bukkit.getLogger().warning("[Litestrike] items.json: ignoring out of range slot " + slot
+							+ " for item '" + key + "', the shop inventory has slots 0-53");
+					return;
+				}
+				this.slot = slot;
 			}
 		}
 

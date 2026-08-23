@@ -72,8 +72,14 @@ public class QueueSystem implements PluginMessageListener {
 				// if countdown reaches zero, we start the game
 				if (countdown == 0 || is_force_starting) {
 					countdown = 11;
-					Litestrike.getInstance().game_controller = new GameController();
 					is_force_starting = false;
+
+					if (Bukkit.getOnlinePlayers().isEmpty()) {
+						Bukkit.getLogger().warning("A game start was triggered but nobody is online, skipping game start");
+						return;
+					}
+
+					Litestrike.getInstance().game_controller = new GameController();
 					Bukkit.getLogger().info("A GAME is starting!");
 					SoundEffects.game_start();
 
