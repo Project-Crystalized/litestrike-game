@@ -169,7 +169,11 @@ public class Teams {
 	}
 
 	public Team get_team(UUID uuid) {
-		return get_team(Bukkit.getPlayer(uuid).getName());
+		Player p = Bukkit.getPlayer(uuid);
+		if (p == null) {
+			return null;
+		}
+		return get_team(p.getName());
 	}
 
 	public Team get_team(String name) {

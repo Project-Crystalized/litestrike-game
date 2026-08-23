@@ -37,8 +37,10 @@ public class Ranking {
 			boolean did_win = players_team == winner_team;
 			int point_change = get_win_loss_points(did_win, prd.rank);
 
-			point_change += Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName()).calc_player_score();
-
+			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName());
+			if (pd != null) {
+				point_change += pd.calc_player_score();
+			}
 			double change = point_change;
 			int n = prd.rp / 1000;
 			for (int i = n; i > 0; i--) {
@@ -111,7 +113,8 @@ public class Ranking {
 		int total = 0;
 
 		for (PlayerRankedData prd : player_ranks) {
-			if (!team.contains(Bukkit.getPlayer(prd.uuid).getName())) {
+			Player p = Bukkit.getPlayer(prd.uuid);
+			if (p == null || !team.contains(p.getName())) {
 				continue;
 			}
 			if (prd.rp < 0) {
@@ -191,9 +194,11 @@ class PlayerRankedData {
 
 	private PlayerRankedData(ResultSet rs, ResultSet rs_last_games, UUID uuid) throws SQLException {
 		this.uuid = uuid;
-		rs.next();
-		this.rank = rs.getInt("rank");
-		this.rp = rs.getInt("rp");
+		if (rs.next()) {
+			this.rank = rs.getInt("rank");
+			this.rp = rs.getInt("rp");
+		}
+		// a missing row or a zeroed entry means this is a new player
 		if (rank == 0 && rp == 0) {
 			Bukkit.getLogger().warning("initialized ranks for a new player");
 			rank = 2;

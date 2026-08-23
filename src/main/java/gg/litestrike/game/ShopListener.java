@@ -156,8 +156,15 @@ public class ShopListener implements Listener {
 	@EventHandler
 	public void onItemPickup(EntityPickupItemEvent e) {
 		if (e.getEntity() instanceof Player p) {
+			GameController gc = Litestrike.getInstance().game_controller;
+			if (gc == null) {
+				return;
+			}
 			// achievement shit, not giving but setup for ls_onlyweapons
-			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+			PlayerData pd = gc.getPlayerData(p);
+			if (pd == null) {
+				return;
+			}
 			switch (e.getItem().getItemStack().getType()) {
 				case GOLDEN_APPLE,
 						POTION, SPLASH_POTION, LINGERING_POTION -> {
