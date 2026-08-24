@@ -86,12 +86,12 @@ public class BombListener implements Listener {
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
 					if (planting_counter == PLANT_TIME) {
-						InvItemBomb iib = (InvItemBomb) Litestrike.getInstance().game_controller.bomb;
+						InvItemBomb iib = (InvItemBomb) gc.bomb;
 						iib.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
 						last_planting_block.getWorld()
 								.spawnParticle(REVERSE_PORTAL, last_planting_block.getLocation().add(0.5, 0.5, 0.5), 5000);
 						reset();
-						Litestrike.getInstance().game_controller.getPlayerData(last_planting_player).add_plant();
+						gc.getPlayerData(last_planting_player).add_plant();
 
 					}
 				} else {
@@ -120,7 +120,7 @@ public class BombListener implements Listener {
 						breaking_counter += 1;
 					}
 					breaking_counter += 1;
-					PlacedBomb b = (PlacedBomb) Litestrike.getInstance().game_controller.bomb;
+					PlacedBomb b = (PlacedBomb) gc.bomb;
 					if ((breaking_counter < 60 && breaking_counter % 2 == 0) || breaking_counter > 60) {
 						mining_players.get(0).p.getWorld()
 								.spawnParticle(CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), breaking_counter / 20, 0, 0, 0);
@@ -150,9 +150,9 @@ public class BombListener implements Listener {
 								.sendMessage(broken_by_text);
 
 						// achievement shit, ls_quickdefuser achievement
-						if (Litestrike.getInstance().game_controller.phase_timer >= 20 &&
-								Litestrike.getInstance().game_controller.teams.get_alive_placers()
-										.size() == Litestrike.getInstance().game_controller.teams.get_placers().size()) {
+						if (gc.phase_timer >= 20 &&
+								gc.teams.get_alive_placers()
+										.size() == gc.teams.get_placers().size()) {
 							for (MiningPlayer mp : mining_players) {
 								try {
 									Achievement.getAchievement("ls_quickdefuser", mp.p).setProgress(100);
@@ -161,7 +161,7 @@ public class BombListener implements Listener {
 							}
 						}
 
-						Litestrike.getInstance().game_controller.getPlayerData(mining_players.get(0).p).add_break();
+						gc.getPlayerData(mining_players.get(0).p).add_break();
 						reset();
 					}
 				} else {
@@ -366,7 +366,11 @@ public class BombListener implements Listener {
 
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
-		Bomb b = Litestrike.getInstance().game_controller.bomb;
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		Bomb b = gc.bomb;
 		if (b == null) {
 			Bukkit.getLogger().severe("a player died while no bomb existed? is that possible?");
 			return;

@@ -141,7 +141,7 @@ public class ShopListener implements Listener {
 		s.shopLog.add(clicked_item);
 
 		// achievement shit, not giving but setup for ls_onlyweapons
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		PlayerData pd = gc.getPlayerData(p);
 		switch (clicked_item.item.getType()) {
 			case GOLDEN_APPLE,
 					POTION, SPLASH_POTION, LINGERING_POTION,

@@ -448,7 +448,7 @@ public class GameController {
 			placer_wins_amt = tmp;
 			ScoreboardController.setup_scoreboard(teams, game_reference);
 			ScoreboardController.set_win_display();
-			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
+			for (Shop s : this.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();
 			}
@@ -460,7 +460,7 @@ public class GameController {
 				pd.removeMoney();
 				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
 			}
-			for (Shop s : Litestrike.getInstance().game_controller.shopList.values()) {
+			for (Shop s : this.shopList.values()) {
 				s.resetEquip();
 				s.resetEquipCounters();
 			}
@@ -488,7 +488,7 @@ public class GameController {
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
 			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
-			Shop s = Litestrike.getInstance().game_controller.getShop(p);
+			Shop s = this.getShop(p);
 			s.resetEquipCounters();
 			s.previousEquip.clear();
 			// this is needed because of some weird packet nonsense, to make everyone glow

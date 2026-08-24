@@ -318,11 +318,13 @@ class BedrockScoreboard {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (Litestrike.getInstance().game_controller == null) {
+				GameController gc = Litestrike.getInstance().game_controller;
+				if (gc == null) {
 					cancel();
+					return;
 				}
 
-				List<gg.litestrike.game.Team> wins = Litestrike.getInstance().game_controller.round_results;
+				List<gg.litestrike.game.Team> wins = gc.round_results;
 				int placer_wins_amt = 0;
 				int breaker_wins_amt = 0;
 				for (gg.litestrike.game.Team w : wins) {
@@ -333,7 +335,7 @@ class BedrockScoreboard {
 					}
 				}
 
-				PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+				PlayerData pd = gc.getPlayerData(p);
 				obj.getScore("9").customName(Component.translatable("crystalized.game.generic.money")
 						.append(text(": "))
 						.append(text(pd.getMoney()).color(TextColor.color(0x0ab1c4)))
