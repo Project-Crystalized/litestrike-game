@@ -44,6 +44,23 @@ public class GameConfig {
 	public List<String> placers = new ArrayList<>();
 	public List<String> breakers = new ArrayList<>();
 
+	public void defaults() {
+		playersToStart = 6;
+		playerCap = 8;
+		switchRound = 4;
+		preRoundTime = 20 * 23;
+		runningTime = 180 * 20;
+		postRoundTime = 5 * 20;
+		finishTime = 20 * 12;
+		plantTime = 20 * 5;
+		breakTime = 20 * 7;
+		freeShop = false;
+		fastGame = false;
+		manualTeamsEnabled = false;
+		placers = new ArrayList<>();
+		breakers = new ArrayList<>();
+	}
+
 	public GameConfig(FileConfiguration config) {
 		fastGame = config.getBoolean("fast-game");
 		manualTeamsEnabled = config.getBoolean("teams.enable");

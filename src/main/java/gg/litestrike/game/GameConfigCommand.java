@@ -33,6 +33,8 @@ public class GameConfigCommand implements CommandExecutor, TabCompleter {
 				return runGet(sender, args);
 			case "set":
 				return runSet(sender, args);
+			case "defaults":
+				return runDefaults(sender);
 			default:
 				return false;
 		}
@@ -60,6 +62,12 @@ public class GameConfigCommand implements CommandExecutor, TabCompleter {
 		return true;
 	}
 
+	private boolean runDefaults(CommandSender sender) {
+		gameConfig.defaults();
+		sender.sendMessage(Component.text("All settings reset to defaults.").color(NamedTextColor.GREEN));
+		return true;
+	}
+
 	private boolean runSet(CommandSender sender, String[] args) {
 		if (args.length < 3) {
 			return false;
@@ -84,7 +92,7 @@ public class GameConfigCommand implements CommandExecutor, TabCompleter {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
 		if (args.length == 1) {
-			return filterPartial(args[0], List.of("show", "get", "set"));
+			return filterPartial(args[0], List.of("show", "get", "set", "defaults"));
 		}
 		if (args.length == 2 && (args[0].equals("set") || args[0].equals("get"))) {
 			return filterPartial(args[1], settingKeys());
