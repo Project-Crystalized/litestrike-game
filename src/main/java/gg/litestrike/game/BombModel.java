@@ -93,7 +93,7 @@ public class BombModel {
 	}
 
 	// takes in the planting timer
-	// to get a planting percentage, divide it by the BombListener.PLANT_TIME
+		// to get a planting percentage, divide it by the plantTime config
 	public void raise_bomb(int planting_timer, BlockFace bf) {
 		if (model == null) {
 			Bukkit.getLogger().severe("tried to raise bombmodel when it didnt exist");
@@ -101,7 +101,7 @@ public class BombModel {
 		if (!bf.isCartesian()) {
 			Bukkit.getLogger().severe("non cartesian block face???");
 		}
-		double plant_percentage = ((double) planting_timer / (double) BombListener.PLANT_TIME) / 2.0;
+		double plant_percentage = ((double) planting_timer / (double) Litestrike.getInstance().gameConfig.plantTime) / 2.0;
 		model.teleport(
 				after_plant_loc.clone().add(0.5, 0, 0.5)
 						.add(bf.getDirection().multiply(plant_percentage)));

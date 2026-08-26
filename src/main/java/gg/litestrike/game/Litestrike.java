@@ -45,11 +45,9 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 	public PartyManager party_manager = new PartyManager();
 
-	public ManualTeams manual_teams = new ManualTeams();
+	public ManualTeams manual_teams;
 
-	// player amount required to autostart
-	public static final int PLAYERS_TO_START = 6;
-	public static final int PLAYER_CAP = 8;
+	public GameConfig gameConfig;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
@@ -77,13 +75,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 			mapdata.map_features.register_listeners(this);
 		}
 
-		DebugCommands dc = new DebugCommands();
-		this.getCommand("mapdata").setExecutor(dc);
-		this.getCommand("force_start").setExecutor(dc);
-		this.getCommand("player_info").setExecutor(dc);
-		this.getCommand("soundd").setExecutor(dc);
-		this.getCommand("debug_log").setExecutor(dc);
-
 		saveResource("config.yml", false);
 		saveResource("items.json", false);
 		int configVersion;
@@ -94,10 +85,19 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 							+ ". You may experience fatal issues.");
 		}
 
-		// register the manual_teams command
-		// TODO deprecated in favor of a config file
-		// this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
-		// event -> event.registrar().register("manual_teams", manual_teams));
+		gameConfig = new GameConfig(getConfig());
+		manual_teams = new ManualTeams(gameConfig);
+
+		DebugCommands dc = new DebugCommands();
+		this.getCommand("mapdata").setExecutor(dc);
+		this.getCommand("force_start").setExecutor(dc);
+		this.getCommand("player_info").setExecutor(dc);
+		this.getCommand("soundd").setExecutor(dc);
+		this.getCommand("debug_log").setExecutor(dc);
+
+		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
+		this.getCommand("game_config").setExecutor(gcc);
+		this.getCommand("game_config").setTabCompleter(gcc);
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);

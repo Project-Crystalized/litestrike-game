@@ -114,9 +114,9 @@ public class Shop {
 			inv.addItem(arrows_item);
 		}
 
-		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
-				|| gc.round_number == GameController.SWITCH_ROUND + 1
-				|| gc.round_number == (GameController.SWITCH_ROUND * 2) + 1)) {
+if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
+			|| gc.round_number == Litestrike.getInstance().gameConfig.switchRound + 1
+			|| gc.round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1)) {
 			// no need to give equipment
 			return;
 		}

@@ -181,13 +181,13 @@ public class BossBarDisplay {
 
 		switch (gc.round_state) {
 			case RoundState.PreRound:
-				return GameController.PRE_ROUND_TIME - gc.phase_timer;
+				return Litestrike.getInstance().gameConfig.preRoundTime - gc.phase_timer;
 			case RoundState.Running:
-				return GameController.RUNNING_TIME - gc.phase_timer;
+				return Litestrike.getInstance().gameConfig.runningTime - gc.phase_timer;
 			case RoundState.PostRound:
-				return GameController.POST_ROUND_TIME - gc.phase_timer;
+				return Litestrike.getInstance().gameConfig.postRoundTime - gc.phase_timer;
 			case RoundState.GameFinished:
-				return GameController.FINISH_TIME - gc.phase_timer;
+				return Litestrike.getInstance().gameConfig.finishTime - gc.phase_timer;
 		}
 		throw new RuntimeException("a error occurred rendering tablist");
 	}

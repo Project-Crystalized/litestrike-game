@@ -574,7 +574,7 @@ public class LSItem {
 		}
 		Player p = Bukkit.getPlayer(p_name);
 		lore.add(Component.text("")); // add a newline so that the price is seperated
-		if (Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+		if (Litestrike.getInstance().gameConfig.freeShop) {
 			lore.add(Component.text("FREE" + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
 			if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {

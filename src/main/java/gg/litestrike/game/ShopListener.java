@@ -247,7 +247,7 @@ public class ShopListener implements Listener {
 			item_in_slot.setAmount(item_in_slot.getAmount() - lsitem.item.getAmount());
 			inv.setItem(invSlot, item_in_slot);
 		}
-		if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+		if (!Litestrike.getInstance().gameConfig.freeShop) {
 			gc.getPlayerData(p).giveMoneyBack(lsitem.price);
 		}
 		s.open_shop();

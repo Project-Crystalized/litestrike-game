@@ -82,7 +82,7 @@ public class PlayerData {
 		if (amt > money) {
 			return false;
 		} else {
-			if (!Litestrike.getInstance().getConfig().getBoolean("free-shop")) {
+			if (!Litestrike.getInstance().gameConfig.freeShop) {
 				money -= amt;
 				total_money_spent += amt;
 				ScoreboardController.set_player_money(player, money);

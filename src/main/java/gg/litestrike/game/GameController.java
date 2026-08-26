@@ -61,14 +61,6 @@ public class GameController {
 	// number in the chat logs
 	public final int game_reference = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE - 1);
 
-	// after this round, the sides get switched
-	public final static int SWITCH_ROUND = 4;
-
-	public static int PRE_ROUND_TIME = (20 * 23);
-	public final static int RUNNING_TIME = (180 * 20);
-	public static int POST_ROUND_TIME = (5 * 20);
-	public final static int FINISH_TIME = (20 * 12);
-
 	public enum RoundState {
 		PreRound,
 		Running,
@@ -78,10 +70,6 @@ public class GameController {
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
-		if (Litestrike.getInstance().getConfig().getBoolean("fast-game")) {
-			PRE_ROUND_TIME = (20 * 5);
-			POST_ROUND_TIME = (1 * 20);
-		}
 
 		new BukkitRunnable() {
 			@Override
@@ -142,7 +130,7 @@ public class GameController {
 		// if the condition is met, call a method to advance to the next state
 		switch (round_state) {
 			case RoundState.PreRound: {
-				if (phase_timer == PRE_ROUND_TIME) {
+				if (phase_timer == Litestrike.getInstance().gameConfig.preRoundTime) {
 					start_round();
 				}
 			}
@@ -154,13 +142,13 @@ public class GameController {
 			}
 				break;
 			case RoundState.PostRound: {
-				if (phase_timer == POST_ROUND_TIME) {
+				if (phase_timer == Litestrike.getInstance().gameConfig.postRoundTime) {
 					next_round();
 				}
 			}
 				break;
 			case RoundState.GameFinished: {
-				if (phase_timer == FINISH_TIME) {
+				if (phase_timer == Litestrike.getInstance().gameConfig.finishTime) {
 					return true; // remove the update_game_state task
 				}
 			}
@@ -179,10 +167,10 @@ public class GameController {
 
 		// if the enemy team is empty, or if the team has reached the required rounds,
 		// win
-		if (teams.get_placers().size() == 0 || breaker_wins_amt == SWITCH_ROUND + 1) {
+		if (teams.get_placers().size() == 0 || breaker_wins_amt == Litestrike.getInstance().gameConfig.switchRound + 1) {
 			return Team.Breaker;
 		}
-		if (teams.get_breakers().size() == 0 || placer_wins_amt == SWITCH_ROUND + 1) {
+		if (teams.get_breakers().size() == 0 || placer_wins_amt == Litestrike.getInstance().gameConfig.switchRound + 1) {
 			return Team.Placer;
 		}
 
@@ -408,7 +396,7 @@ public class GameController {
 					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
 				}
 			}
-		}.runTaskLater(Litestrike.getInstance(), FINISH_TIME - (20 * 2));
+		}.runTaskLater(Litestrike.getInstance(), Litestrike.getInstance().gameConfig.finishTime - (20 * 2));
 	}
 
 	// called when we go from PostRound to PreRound and when the first round starts
@@ -428,7 +416,7 @@ public class GameController {
 			ls.mapdata.map_features.reset_structures();
 		}
 
-		if (round_number == SWITCH_ROUND + 1) {
+		if (round_number == Litestrike.getInstance().gameConfig.switchRound + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
 			Bukkit.getLogger().info("Switching the Sides");
@@ -453,7 +441,7 @@ public class GameController {
 				s.resetEquipCounters();
 			}
 		}
-		if (round_number == (SWITCH_ROUND * 2) + 1) {
+		if (round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
 			for (PlayerData pd : playerDatas) {
@@ -546,7 +534,7 @@ public class GameController {
 			return null;
 		}
 
-		if (phase_timer == RUNNING_TIME) {
+		if (phase_timer == Litestrike.getInstance().gameConfig.runningTime) {
 			return Team.Breaker;
 		}
 

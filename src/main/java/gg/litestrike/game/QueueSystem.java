@@ -54,8 +54,8 @@ public class QueueSystem implements PluginMessageListener {
 
 				int in_que = people_in_que();
 				// if more then 6 players online, count down, else reset countdown
-				if ((in_que >= Litestrike.PLAYERS_TO_START && in_que % 2 == 0) || is_force_starting) {
-					if (in_que >= Litestrike.PLAYER_CAP) {
+				if ((in_que >= Litestrike.getInstance().gameConfig.playersToStart && in_que % 2 == 0) || is_force_starting) {
+					if (in_que >= Litestrike.getInstance().gameConfig.playerCap) {
 						is_force_starting = true;
 					}
 					countdown -= 1;

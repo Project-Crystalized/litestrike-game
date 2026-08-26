@@ -220,14 +220,15 @@ public class ScoreboardController {
 
 	public static String render_win_display(int amt) {
 		String s = "";
-		for (int i = 1; i <= GameController.SWITCH_ROUND; i++) {
+		int switchRound = Litestrike.getInstance().gameConfig.switchRound;
+		for (int i = 1; i <= switchRound; i++) {
 			if (i <= amt) {
 				s += "\uE106";
 			} else {
 				s += "\uE105";
 			}
 		}
-		if (GameController.SWITCH_ROUND + 1 == amt) {
+		if (switchRound + 1 == amt) {
 			s += "\uE108";
 		} else {
 			s += "\uE107";

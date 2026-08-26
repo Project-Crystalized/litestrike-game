@@ -54,7 +54,6 @@ public class QueueScoreboard {
 		Team player_count = sb.registerNewTeam("player_count");
 		player_count.addEntry("5");
 		player_count.prefix(text("0"));
-		player_count.suffix(text("/" + Litestrike.PLAYERS_TO_START));
 		obj.getScore("5").setScore(5);
 
 	}
@@ -65,6 +64,7 @@ public class QueueScoreboard {
 	}
 
 	public void update_player_count() {
-		sb.getTeam("player_count").prefix(text("" + QueueSystem.people_in_que()));
+		sb.getTeam("player_count")
+				.prefix(text("" + QueueSystem.people_in_que() + " / " + Litestrike.getInstance().gameConfig.playersToStart));
 	}
 }

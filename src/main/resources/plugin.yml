@@ -16,6 +16,13 @@ commands:
     permission: litestrike.command.game
     permission-message: "you dont have permission to run the command"
 
+  game_config:
+    description: "View and modify game settings"
+    usage: "/game_config <show|get|set> [key] [value]"
+    aliases: []
+    permission: litestrike.command.game
+    permission-message: "you dont have permission to run the command"
+
   mapdata:
     description: "For debugging purposes, get all loaded mapdata"
     usage: "/mapdata"

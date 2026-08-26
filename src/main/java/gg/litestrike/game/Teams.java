@@ -24,9 +24,9 @@ public class Teams {
 	// random: generate_random_teams
 	// manual: both skillbased and random will take partys into account
 	public Teams() {
-		Litestrike.getInstance().reloadConfig();
-		if (Litestrike.getInstance().manual_teams.is_enabled) {
-			create_manual_teams();
+		GameConfig gc = Litestrike.getInstance().gameConfig;
+		if (gc.manualTeamsEnabled) {
+			create_manual_teams(gc);
 			if (breakers.size() == 0 || placers.size() == 0) {
 				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
 			}
@@ -41,10 +41,10 @@ public class Teams {
 		placers = list.subList(middle, list.size());
 	}
 
-	private void create_manual_teams() {
+	private void create_manual_teams(GameConfig gc) {
 		Bukkit.getLogger().info("creating teams from manual selection");
-		placers = Litestrike.getInstance().manual_teams.placers;
-		breakers = Litestrike.getInstance().manual_teams.breakers;
+		placers = new ArrayList<>(gc.placers);
+		breakers = new ArrayList<>(gc.breakers);
 
 		placers.removeIf(placer -> Bukkit.getPlayer(placer) == null);
 		breakers.removeIf(breaker -> Bukkit.getPlayer(breaker) == null);

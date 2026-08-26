@@ -53,7 +53,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPlayerLogin(PlayerConnectionValidateLoginEvent event) {
-		if (Bukkit.getOnlinePlayers().size() > Litestrike.PLAYER_CAP) {
+		if (Bukkit.getOnlinePlayers().size() > Litestrike.getInstance().gameConfig.playerCap) {
 			event.kickMessage(text("The server is full.\n"));
 		}
 	}

@@ -41,12 +41,6 @@ import static org.bukkit.Particle.*;
 
 public class BombListener implements Listener {
 
-	// 5 seconds to place
-	final static int PLANT_TIME = (20 * 5);
-
-	// 7 seconds to break
-	final static int BREAK_TIME = (20 * 7);
-
 	int is_planting = 0;
 
 	int planting_counter = 0;
@@ -85,7 +79,7 @@ public class BombListener implements Listener {
 				if (is_planting > 0) {
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
-					if (planting_counter == PLANT_TIME) {
+					if (planting_counter == Litestrike.getInstance().gameConfig.plantTime) {
 						InvItemBomb iib = (InvItemBomb) gc.bomb;
 						iib.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
 						last_planting_block.getWorld()
@@ -125,7 +119,7 @@ public class BombListener implements Listener {
 						mining_players.get(0).p.getWorld()
 								.spawnParticle(CRIMSON_SPORE, b.block.getLocation().add(0.5, 0.5, 0.5), breaking_counter / 20, 0, 0, 0);
 					}
-					if (breaking_counter >= BREAK_TIME) {
+					if (breaking_counter >= Litestrike.getInstance().gameConfig.breakTime) {
 						for (Player p : Bukkit.getOnlinePlayers()) {
 							p.playSound(b.block.getLocation(), "crystalized:effect.shard.deactivation", 4, 1);
 						}
@@ -231,7 +225,7 @@ public class BombListener implements Listener {
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				mp.timer = 5 + ping_compensation_ticks(e.getPlayer());
-				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
+				e.getPlayer().sendActionBar(text(renderBreakingProgress(gc)));
 				return;
 			}
 		}
@@ -316,7 +310,7 @@ public class BombListener implements Listener {
 		}
 		is_planting = 6 + ping_compensation_ticks(e.getPlayer());
 
-		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
+		e.getPlayer().sendActionBar(text(renderPlacingProgress(gc)));
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
@@ -401,12 +395,12 @@ public class BombListener implements Listener {
 	}
 
 	// renders the breakingprogres for the action bar
-	private String renderBreakingProgress() {
-		return renderProgress(breaking_counter, BREAK_TIME);
+	private String renderBreakingProgress(GameController gc) {
+		return renderProgress(breaking_counter, Litestrike.getInstance().gameConfig.breakTime);
 	}
 
-	private String renderPlacingProgress() {
-		return renderProgress(planting_counter, PLANT_TIME);
+	private String renderPlacingProgress(GameController gc) {
+		return renderProgress(planting_counter, Litestrike.getInstance().gameConfig.plantTime);
 	}
 
 	private String renderProgress(int counter, int time) {

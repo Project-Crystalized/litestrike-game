@@ -105,7 +105,7 @@ public class Ranking {
 			return null;
 		}
 
-		if (gc.round_number > GameController.SWITCH_ROUND) {
+		if (gc.round_number > Litestrike.getInstance().gameConfig.switchRound) {
 			return other_team;
 		} else {
 			return initial_team;

@@ -24,7 +24,7 @@ public class SoundEffects {
 				if (gc.round_state != GameController.RoundState.PreRound) {
 					cancel();
 				}
-				if (gc.phase_timer == GameController.PRE_ROUND_TIME - 80) {
+				if (gc.phase_timer == Litestrike.getInstance().gameConfig.preRoundTime - 80) {
 					Bukkit.getServer().playSound(Sound.sound(Key.key("crystalized:effect.ls_round_start"), AMBIENT, 1f, 1f));
 					cancel();
 				}
