@@ -35,10 +35,6 @@ public class PlayerDataManager {
 				.sorted(Collections.reverseOrder(new PlayerDataComparator()))
 				.collect(Collectors.toList());
 	}
-
-	public void clear() {
-		dataMap.clear();
-	}
 }
 
 class PlayerDataComparator implements Comparator<PlayerData> {

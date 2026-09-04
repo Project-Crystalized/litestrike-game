@@ -70,13 +70,15 @@ public class GameController {
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
 
+		for (Player player : teams.get_all_players()) {
+			playerDataManager.addPlayer(player);
+		}
+
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				playerDataManager.clear();
 				new TabListController();
 				for (Player player : teams.get_all_players()) {
-					playerDataManager.addPlayer(player);
 					Shop s = new Shop(player);
 					s.resetEquip();
 					s.resetEquipCounters();
