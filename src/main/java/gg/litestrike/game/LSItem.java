@@ -577,7 +577,7 @@ public class LSItem {
 		if (Litestrike.getInstance().gameConfig.freeShop) {
 			lore.add(Component.text("FREE" + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 		} else {
-			if (p != null && (Litestrike.getInstance().game_controller.getPlayerData(p_name).getMoney() - price) >= 0) {
+			if (p != null && (Litestrike.getInstance().game_controller.playerDataManager.get(p_name).getMoney() - price) >= 0) {
 				lore.add(Component.text(price + "\uE104").color(WHITE).decoration(TextDecoration.ITALIC, false));
 			} else {
 				lore.add(Component.text(price + "\uE104").color(RED).decoration(TextDecoration.ITALIC, false));

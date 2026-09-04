@@ -198,11 +198,11 @@ public class Teams {
 	}
 
 	public int get_team_breaks(Team t) {
-		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.getPlayerData(name).getBroken());
+		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.playerDataManager.get(name).getBroken());
 	}
 
 	public int get_team_plants(Team t) {
-		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.getPlayerData(name).getPlaced());
+		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.playerDataManager.get(name).getPlaced());
 	}
 
 	private int sum_team_stats(Team t, Function<String, Integer> stat_getter) {

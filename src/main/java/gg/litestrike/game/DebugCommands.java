@@ -102,7 +102,7 @@ public class DebugCommands implements CommandExecutor {
 
 		try {
 			Player p = Bukkit.getPlayer(args[0]);
-			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(p);
 
 			commandSender.sendMessage(pd.toString());
 		} catch (Exception e) {

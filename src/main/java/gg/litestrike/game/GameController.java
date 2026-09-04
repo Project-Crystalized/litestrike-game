@@ -1,7 +1,6 @@
 package gg.litestrike.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,7 +38,7 @@ import static net.kyori.adventure.text.Component.translatable;
 // and no game is currently going
 public class GameController {
 	public Teams teams = new Teams();
-	public List<PlayerData> playerDatas;
+	public PlayerDataManager playerDataManager = new PlayerDataManager();
 	public Bomb bomb;
 
 	public int round_number = 0;
@@ -74,11 +73,10 @@ public class GameController {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				playerDatas = new ArrayList<PlayerData>();
+				playerDataManager.clear();
 				new TabListController();
 				for (Player player : teams.get_all_players()) {
-					PlayerData pd = new PlayerData(player);
-					playerDatas.add(pd);
+					playerDataManager.addPlayer(player);
 					Shop s = new Shop(player);
 					s.resetEquip();
 					s.resetEquipCounters();
@@ -226,7 +224,7 @@ public class GameController {
 			// for this round
 			if (inv.getChestplate().getType().equals(Material.LEATHER_CHESTPLATE) &&
 					!inv.contains(Material.GOLDEN_APPLE) && !inv.contains(Material.POTION)) {
-				getPlayerData(p).eligibleForOnlyWeaponsAchievement = true;
+				playerDataManager.get(p).eligibleForOnlyWeaponsAchievement = true;
 			}
 		}
 	}
@@ -284,7 +282,7 @@ public class GameController {
 		}
 
 		for (Player p : teams.get_all_players()) {
-			PlayerData pd = getPlayerData(p);
+			PlayerData pd = playerDataManager.get(p);
 			pd.assist_list.clear();
 			pd.ldt.clear_damager();
 			Inventory inv = p.getInventory();
@@ -421,7 +419,7 @@ public class GameController {
 					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
 			Bukkit.getLogger().info("Switching the Sides");
 			teams.switch_teams();
-			for (PlayerData pd : playerDatas) {
+			for (PlayerData pd : playerDataManager.getAll()) {
 				pd.removeMoney();
 			}
 			for (int i = 0; i < round_results.size(); i++) {
@@ -444,7 +442,7 @@ public class GameController {
 		if (round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
-			for (PlayerData pd : playerDatas) {
+			for (PlayerData pd : playerDataManager.getAll()) {
 				pd.removeMoney();
 				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
 			}
@@ -475,7 +473,7 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
-			getPlayerData(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
+			playerDataManager.get(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
 			Shop s = this.getShop(p);
 			s.resetEquipCounters();
 			s.previousEquip.clear();
@@ -554,40 +552,6 @@ public class GameController {
 		return null;
 	}
 
-	public PlayerData getPlayerData(Player p) {
-		for (PlayerData pd : playerDatas) {
-			if (pd.player.equals(p.getName())) {
-				return pd;
-			}
-		}
-		Bukkit.getServer().sendMessage(text("error occured, a player didnt have associated data"));
-		Bukkit.getLogger().warning("player name: " + p.getName());
-		Bukkit.getLogger().warning("known names: ");
-
-		for (PlayerData pd : playerDatas) {
-			Bukkit.getLogger().warning(pd.player);
-		}
-
-		return null;
-	}
-
-	public PlayerData getPlayerData(String p) {
-		for (PlayerData pd : playerDatas) {
-			if (pd.player.equals(p)) {
-				return pd;
-			}
-		}
-		Bukkit.getServer().sendMessage(text("error occured, a player didnt have associated data"));
-		Bukkit.getLogger().warning("player name: " + p);
-		Bukkit.getLogger().warning("known names: ");
-
-		for (PlayerData pd : playerDatas) {
-			Bukkit.getLogger().warning(pd.player);
-		}
-
-		return null;
-	}
-
 	private void print_result_table(Team winner) {
 		Server s = Bukkit.getServer();
 		s.sendMessage(text("-----------------------------\n").color(NamedTextColor.GOLD));
@@ -598,13 +562,12 @@ public class GameController {
 				.decorate(TextDecoration.BOLD)
 				.append(text(":")));
 
-		Collections.sort(playerDatas, new PlayerDataComparator());
-		Collections.reverse(playerDatas);
+		List<PlayerData> sorted = playerDataManager.getSortedByScore();
 		String[] labels = { " 1st. ", "   2nd. ", "   3rd. " };
 		NamedTextColor[] colors = { NamedTextColor.GREEN, NamedTextColor.YELLOW, NamedTextColor.YELLOW };
 
-		for (int i = 0; i < Math.min(3, playerDatas.size()); i++) {
-			PlayerData pd = playerDatas.get(i);
+		for (int i = 0; i < Math.min(3, sorted.size()); i++) {
+			PlayerData pd = sorted.get(i);
 			Component prefix = i == 0 ? text(" \uE108").color(NamedTextColor.WHITE) : text("");
 			s.sendMessage(prefix.append(text(labels[i]).color(colors[i]))
 					.append(text(pd.player)).append(text(" ".repeat(20 - pd.player.length())))
@@ -624,11 +587,10 @@ public class GameController {
 		for (Player p : teams.get_all_players()) {
 			p.setGameMode(GameMode.ADVENTURE);
 		}
-		Collections.sort(playerDatas, new PlayerDataComparator());
-		Collections.reverse(playerDatas);
+		List<PlayerData> sorted = playerDataManager.getSortedByScore();
 		Location[] podium = { md.podium.get_first(w), md.podium.get_second(w), md.podium.get_third(w) };
-		for (int i = 0; i < playerDatas.size(); i++) {
-			Player p = Bukkit.getPlayer(playerDatas.get(i).player);
+		for (int i = 0; i < sorted.size(); i++) {
+			Player p = Bukkit.getPlayer(sorted.get(i).player);
 			if (p == null) {
 				continue;
 			}

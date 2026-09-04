@@ -336,7 +336,7 @@ class BedrockScoreboard {
 					}
 				}
 
-				PlayerData pd = gc.getPlayerData(p);
+				PlayerData pd = gc.playerDataManager.get(p);
 				obj.getScore("9").customName(Component.translatable("crystalized.game.generic.money")
 						.append(text(": "))
 						.append(text(pd.getMoney()).color(TextColor.color(0x0ab1c4)))

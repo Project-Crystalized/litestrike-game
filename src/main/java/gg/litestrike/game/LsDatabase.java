@@ -130,7 +130,7 @@ public class LsDatabase {
 					+ "kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, deaths, did_leave, jumps, hits_dealt)"
 					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
-			for (PlayerData pd : gc.playerDatas) {
+			for (PlayerData pd : gc.playerDataManager.getAll()) {
 				int is_winner = gc.teams.get_team(pd.player) == winner ? 1 : 0;
 				OfflinePlayer oplayer = Bukkit.getOfflinePlayer(pd.player);
 

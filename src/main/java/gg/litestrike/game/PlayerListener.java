@@ -64,7 +64,7 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			return;
 		}
-		gc.getPlayerData(e.getPlayer()).jumps += 1;
+		gc.playerDataManager.get(e.getPlayer()).jumps += 1;
 	}
 
 	@EventHandler
@@ -74,7 +74,7 @@ public class PlayerListener implements Listener {
 		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
 			return;
 		}
-		gc.getPlayerData(e.getPlayer()).did_leave = true;
+		gc.playerDataManager.get(e.getPlayer()).did_leave = true;
 		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
 			InvItemBomb bomb = (InvItemBomb) gc.bomb;
 			if (bomb.player.equals(e.getPlayer())) {
@@ -235,7 +235,7 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData((Player) source);
+		PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get((Player) source);
 		double health = ((Player) e.getEntity()).getHealth();
 		double absorption_damage_done = -e.getDamage(EntityDamageEvent.DamageModifier.ABSORPTION);
 		if (health - e.getFinalDamage() <= 0) {

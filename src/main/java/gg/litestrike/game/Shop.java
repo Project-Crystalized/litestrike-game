@@ -50,7 +50,7 @@ public class Shop {
 	}
 
 	private static Component title(String p) {
-		PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(p);
+		PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(p);
 		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 

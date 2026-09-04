@@ -46,7 +46,7 @@ public class DeathHandler implements Listener {
 			killer = (Player) entity;
 		}
 		if (killer == null) {
-			killer = gc.getPlayerData(p).ldt.get_last_damager();
+			killer = gc.playerDataManager.get(p).ldt.get_last_damager();
 			// this might still be null!
 		}
 
@@ -54,11 +54,11 @@ public class DeathHandler implements Listener {
 		log_death_message(p, killer);
 
 		// give death/kill and money
-		gc.getPlayerData(p).deaths += 1;
+		gc.playerDataManager.get(p).deaths += 1;
 		if (killer != null) {
-			gc.getPlayerData(killer).kills += 1;
-			gc.getPlayerData(killer).killsThisRound += 1;
-			gc.getPlayerData(killer).addMoney(400,
+			gc.playerDataManager.get(killer).kills += 1;
+			gc.playerDataManager.get(killer).killsThisRound += 1;
+			gc.playerDataManager.get(killer).addMoney(400,
 					translatable("crystalized.game.litestrike.money.kill")
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(killer))));
@@ -67,8 +67,8 @@ public class DeathHandler implements Listener {
 		List<Player> assisters = get_assisters(p);
 		assisters.remove(killer);
 		for (Player assister : assisters) {
-			gc.getPlayerData(assister).assists += 1;
-			gc.getPlayerData(assister).addMoney(50,
+			gc.playerDataManager.get(assister).assists += 1;
+			gc.playerDataManager.get(assister).addMoney(50,
 					translatable("crystalized.game.litestrike.money.assist")
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(p))));
@@ -93,7 +93,7 @@ public class DeathHandler implements Listener {
 	private List<Player> get_assisters(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		List<Player> assiters = new ArrayList<>();
-		for (PlayerData pd : gc.playerDatas) {
+		for (PlayerData pd : gc.playerDataManager.getAll()) {
 			if (pd.assist_list.get(p) != null && pd.assist_list.get(p) > 3.9) {
 				Player player = Bukkit.getPlayer(pd.player);
 				if (player != null) {
@@ -125,11 +125,11 @@ public class DeathHandler implements Listener {
 		if (damager_team == null || damaged_team == null || damaged_team == damager_team) {
 			e.setCancelled(true);
 		} else {
-			Map<Player, Double> assist_list = gc.getPlayerData(damager).assist_list;
+			Map<Player, Double> assist_list = gc.playerDataManager.get(damager).assist_list;
 			assist_list.put(damage_receiver, assist_list.getOrDefault(damage_receiver, 0.0) + e.getFinalDamage());
 
-			gc.getPlayerData(damage_receiver).ldt.update_damager(damager);
-			gc.getPlayerData(damager).hits_dealt += 1;
+			gc.playerDataManager.get(damage_receiver).ldt.update_damager(damager);
+			gc.playerDataManager.get(damager).hits_dealt += 1;
 		}
 	}
 

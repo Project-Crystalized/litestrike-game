@@ -2,7 +2,6 @@ package gg.litestrike.game;
 
 import static net.kyori.adventure.text.Component.translatable;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +37,7 @@ public class PlayerData {
 	// this keeps track of assits in the current round for this player
 	public Map<Player, Double> assist_list = new HashMap<Player, Double>();
 
+	// ONLY construct this from PlayerDataManager pls
 	public PlayerData(Player p) {
 		player = p.getName();
 	}
@@ -100,15 +100,16 @@ public class PlayerData {
 				"\nmoney: " + money +
 				"\nkills: " + kills +
 				"\ndeaths: " + deaths +
-				"\n assists: " + assists;
+				"\n assists: " + assists +
+				"\nscore: " + calc_player_score();
 	}
 
-	public int calc_player_score() {
+	public double calc_player_score() {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		Team team = t.get_team(player);
 		int team_breaks = t.get_team_breaks(team);
 		int team_plants = t.get_team_plants(team);
-		return (int) Math.ceil((kills * 0.34) + (assists * 0.16) + ((team_breaks + team_plants) * 0.24));
+		return (kills * 0.34) + (assists * 0.16) + ((team_breaks + team_plants) * 0.24);
 	}
 
 	public int getTotalMoneyGained() {
@@ -156,12 +157,5 @@ class LastDamagerTracker {
 	public void clear_damager() {
 		counter = 0;
 		player = null;
-	}
-}
-
-class PlayerDataComparator implements Comparator<PlayerData> {
-	@Override
-	public int compare(PlayerData arg0, PlayerData arg1) {
-		return arg0.calc_player_score() - arg1.calc_player_score();
 	}
 }

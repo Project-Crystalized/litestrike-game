@@ -52,7 +52,7 @@ class TabListController {
 		List<Component> enemy = new ArrayList<>();
 		List<Component> allay = new ArrayList<>();
 
-		for (PlayerData pd : gc.playerDatas) {
+		for (PlayerData pd : gc.playerDataManager.getAll()) {
 			Player player = Bukkit.getPlayer(pd.player);
 			Component player_stats = text(pd.kills)
 					.append(text(" / "))

@@ -91,7 +91,7 @@ public class ShopListener implements Listener {
 			return;
 		}
 		// check that we have enough money
-		if (!gc.getPlayerData(p).removeMoney(clicked_item.price)) {
+		if (!gc.playerDataManager.get(p).removeMoney(clicked_item.price)) {
 			p.sendMessage(Component.translatable("crystalized.game.litestrike.shop.cant_afford").color(RED));
 			p.playSound(Sound.sound(Key.key("entity.villager.no"), Sound.Source.AMBIENT, 1, 1));
 			return;
@@ -141,7 +141,7 @@ public class ShopListener implements Listener {
 		s.shopLog.add(clicked_item);
 
 		// achievement shit, not giving but setup for ls_onlyweapons
-		PlayerData pd = gc.getPlayerData(p);
+		PlayerData pd = gc.playerDataManager.get(p);
 		switch (clicked_item.item.getType()) {
 			case GOLDEN_APPLE,
 					POTION, SPLASH_POTION, LINGERING_POTION,
@@ -161,7 +161,7 @@ public class ShopListener implements Listener {
 				return;
 			}
 			// achievement shit, not giving but setup for ls_onlyweapons
-			PlayerData pd = gc.getPlayerData(p);
+			PlayerData pd = gc.playerDataManager.get(p);
 			if (pd == null) {
 				Bukkit.getLogger().warning("skipped pickup handler for '" + p.getName()
 						+ "', no player data found, is this player part of the current game?");
@@ -248,7 +248,7 @@ public class ShopListener implements Listener {
 			inv.setItem(invSlot, item_in_slot);
 		}
 		if (!Litestrike.getInstance().gameConfig.freeShop) {
-			gc.getPlayerData(p).giveMoneyBack(lsitem.price);
+			gc.playerDataManager.get(p).giveMoneyBack(lsitem.price);
 		}
 		s.open_shop();
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 3));

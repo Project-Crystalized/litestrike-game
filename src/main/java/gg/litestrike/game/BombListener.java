@@ -85,7 +85,7 @@ public class BombListener implements Listener {
 						last_planting_block.getWorld()
 								.spawnParticle(REVERSE_PORTAL, last_planting_block.getLocation().add(0.5, 0.5, 0.5), 5000);
 						reset();
-						gc.getPlayerData(last_planting_player).add_plant();
+						gc.playerDataManager.get(last_planting_player).add_plant();
 
 					}
 				} else {
@@ -155,7 +155,7 @@ public class BombListener implements Listener {
 							}
 						}
 
-						gc.getPlayerData(mining_players.get(0).p).add_break();
+						gc.playerDataManager.get(mining_players.get(0).p).add_break();
 						reset();
 					}
 				} else {

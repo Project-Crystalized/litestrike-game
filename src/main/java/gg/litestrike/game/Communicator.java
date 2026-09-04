@@ -190,10 +190,10 @@ public class Communicator implements Listener {
 		float remaining_team_damage = 0;
 		for (Player team_member : gc.teams.get_team_of(gc.teams.get_team(p))) {
 			if (team_member != p) {
-				remaining_team_damage += gc.getPlayerData(team_member).total_damage;
+				remaining_team_damage += gc.playerDataManager.get(team_member).total_damage;
 			}
 		}
-		return remaining_team_damage > 100.0 && gc.getPlayerData(p).total_damage > remaining_team_damage;
+		return remaining_team_damage > 100.0 && gc.playerDataManager.get(p).total_damage > remaining_team_damage;
 	}
 
 	private boolean isInMeowSituation(Player p) {

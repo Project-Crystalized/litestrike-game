@@ -35,9 +35,9 @@ public class Ranking {
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
 
 			boolean did_win = players_team == winner_team;
-			int point_change = get_win_loss_points(did_win, prd.rank);
+			double point_change = get_win_loss_points(did_win, prd.rank);
 
-			PlayerData pd = Litestrike.getInstance().game_controller.getPlayerData(offline_p.getName());
+			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(offline_p.getName());
 			if (pd == null) {
 				Bukkit.getLogger().warning("ranking: no player data for '" + offline_p.getName()
 						+ "', skipping the performance bonus");
