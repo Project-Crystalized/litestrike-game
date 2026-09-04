@@ -225,7 +225,7 @@ public class BombListener implements Listener {
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
 				mp.timer = 5 + ping_compensation_ticks(e.getPlayer());
-				e.getPlayer().sendActionBar(text(renderBreakingProgress(gc)));
+				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
 				return;
 			}
 		}
@@ -310,7 +310,7 @@ public class BombListener implements Listener {
 		}
 		is_planting = 6 + ping_compensation_ticks(e.getPlayer());
 
-		e.getPlayer().sendActionBar(text(renderPlacingProgress(gc)));
+		e.getPlayer().sendActionBar(text(renderPlacingProgress()));
 		last_planting_player = e.getPlayer();
 
 		// if player starts looking at a different block, reset planting progress
@@ -395,11 +395,11 @@ public class BombListener implements Listener {
 	}
 
 	// renders the breakingprogres for the action bar
-	private String renderBreakingProgress(GameController gc) {
+	private String renderBreakingProgress() {
 		return renderProgress(breaking_counter, Litestrike.getInstance().gameConfig.breakTime);
 	}
 
-	private String renderPlacingProgress(GameController gc) {
+	private String renderPlacingProgress() {
 		return renderProgress(planting_counter, Litestrike.getInstance().gameConfig.plantTime);
 	}
 

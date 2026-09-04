@@ -231,14 +231,8 @@ public class ShopListener implements Listener {
 			if (s.consAndAmmoCount.get(lsitem) <= 0) {
 				return;
 			}
-			// int amount = p.getInventory().getItem(invSlot).getAmount() /
-			// lsitem.item.getAmount() - 1;
-			int count = s.consAndAmmoCount.get(lsitem) - 1;
-			if (count < 0) {
-				return;
-			}
 			s.consAndAmmoCount.remove(lsitem);
-			s.consAndAmmoCount.put(lsitem, count);
+			s.consAndAmmoCount.put(lsitem, s.consAndAmmoCount.get(lsitem) - 1);
 
 			ItemStack item_in_slot = inv.getItem(invSlot);
 			if (item_in_slot.getAmount() - lsitem.item.getAmount() < 0) {

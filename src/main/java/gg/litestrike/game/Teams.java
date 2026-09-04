@@ -23,16 +23,21 @@ public class Teams {
 	// random: generate_random_teams
 	// manual: both skillbased and random will take partys into account
 	public Teams() {
-		GameConfig gc = Litestrike.getInstance().gameConfig;
-		if (gc.manualTeamsEnabled) {
-			create_manual_teams(gc);
+		GameConfig game_conf = Litestrike.getInstance().gameConfig;
+		if (game_conf.manualTeamsEnabled) {
+			create_manual_teams(game_conf);
 			if (breakers.size() == 0 || placers.size() == 0) {
 				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
 			}
 			return;
 		}
-		// List<String> list = generate_fair_teams();
-		List<String> list = generate_random_teams();
+
+		List<String> list;
+		if (game_conf.ranked) {
+			 list = generate_fair_teams();
+		} else {
+			 list = generate_random_teams();
+		}
 		int middle = list.size() / 2;
 
 		// if odd, breakers get more
@@ -57,7 +62,7 @@ public class Teams {
 		List<String> best_team = Litestrike.getInstance().party_manager.generate_teams();
 		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
 
-		if (Litestrike.getInstance().mapdata.ranked) {
+		if (Litestrike.getInstance().gameConfig.ranked) {
 			int best_diff_score = get_diff_score(best_team, player_ranks);
 			for (int i = 0; i < 3; i++) {
 				List<String> new_team = Litestrike.getInstance().party_manager.generate_teams();
@@ -141,18 +146,6 @@ public class Teams {
 
 	public List<String> get_initial_breakers() {
 		return breakers;
-	}
-
-	// returns null if the player wasnt a initial player
-	// otherwise returns the team that the player should be in
-	public Team wasInitialPlayer(String name) {
-		if (breakers.contains(name)) {
-			return Team.Breaker;
-		}
-		if (placers.contains(name)) {
-			return Team.Placer;
-		}
-		return null;
 	}
 
 	// returns all players that are not spectators

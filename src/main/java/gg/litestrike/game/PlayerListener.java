@@ -116,15 +116,13 @@ public class PlayerListener implements Listener {
 		} else {
 			// if we are here, it means the player is rejoining
 			p.setGameMode(GameMode.SPECTATOR);
+			Shop s = gc.getShop(p);
 
-			if (gc.getShop(p) != null) {
-				gc.getShop(p).player = p.getName();
+			if (s != null) {
+				s.player = p.getName();
 			}
 
-			// Team should_be_team = gc.teams.wasInitialPlayer(event.getPlayer().getName());
-
 			// give player the scoreboard and bossbar again
-			// ScoreboardController.setup_scoreboard(gc.teams, gc.game_reference);
 			ScoreboardController.give_player_scoreboard(p, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
 		}

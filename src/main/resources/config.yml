@@ -16,6 +16,10 @@ teams:
 # This is useful for practice servers for trying out things or demonstrating something to someone.
 free-shop: false
 
+# When true, this server counts as a ranked Litestrike server: ranked matchmaking (RP) and fair
+# team balancing are applied to games played here.
+ranked: false
+
 # When true, the buy time is reduced, and the time after a round finishes is reduced.
 # This is useful for testing.
 fast-game: false

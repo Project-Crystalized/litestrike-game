@@ -21,11 +21,12 @@ public class GameConfig {
 		freeShop,
 		fastGame,
 		manualTeamsEnabled,
+		ranked,
 		placers,
 		breakers;
 
 		public boolean isBoolean() {
-			return this == freeShop || this == fastGame || this == manualTeamsEnabled;
+			return this == freeShop || this == fastGame || this == manualTeamsEnabled || this == ranked;
 		}
 	}
 
@@ -41,6 +42,7 @@ public class GameConfig {
 	public boolean freeShop = false;
 	public boolean fastGame = false;
 	public boolean manualTeamsEnabled = false;
+	public boolean ranked = false;
 	public List<String> placers = new ArrayList<>();
 	public List<String> breakers = new ArrayList<>();
 
@@ -57,6 +59,7 @@ public class GameConfig {
 		freeShop = false;
 		fastGame = false;
 		manualTeamsEnabled = false;
+		ranked = false;
 		placers = new ArrayList<>();
 		breakers = new ArrayList<>();
 	}
@@ -64,6 +67,7 @@ public class GameConfig {
 	public GameConfig(FileConfiguration config) {
 		fastGame = config.getBoolean("fast-game");
 		manualTeamsEnabled = config.getBoolean("teams.enable");
+		ranked = config.getBoolean("ranked");
 		placers = new ArrayList<>(config.getStringList("teams.placers"));
 		breakers = new ArrayList<>(config.getStringList("teams.breakers"));
 
@@ -104,6 +108,7 @@ public class GameConfig {
 				applyFastGame();
 			}
 			case manualTeamsEnabled -> manualTeamsEnabled = Boolean.parseBoolean(value);
+			case ranked -> ranked = Boolean.parseBoolean(value);
 			case placers -> placers = parsePlayerList(value);
 			case breakers -> breakers = parsePlayerList(value);
 		}
@@ -140,6 +145,7 @@ public class GameConfig {
 			case freeShop -> String.valueOf(freeShop);
 			case fastGame -> String.valueOf(fastGame);
 			case manualTeamsEnabled -> String.valueOf(manualTeamsEnabled);
+			case ranked -> String.valueOf(ranked);
 			case placers -> String.join(",", placers);
 			case breakers -> String.join(",", breakers);
 		};

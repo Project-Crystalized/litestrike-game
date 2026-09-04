@@ -22,7 +22,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
-import java.nio.file.Path;
 import java.util.logging.Level;
 
 enum Team {
@@ -31,9 +30,6 @@ enum Team {
 }
 
 public final class Litestrike extends JavaPlugin implements PluginMessageListener {
-	public static final Path socketPath = Path
-			.of(System.getProperty("user.home") + "/sockets")
-			.resolve("crystalized_lobby.socket");
 
 	// holds all the config about a map, like the spawn/border coordinates
 	public final MapData mapdata = new MapData();
@@ -93,7 +89,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
-		this.getCommand("debug_log").setExecutor(dc);
 
 		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
 		this.getCommand("game_config").setExecutor(gcc);
@@ -169,6 +164,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
 		if (!channel.equals("crystalized:main")) {
@@ -177,10 +173,10 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 		String message1 = in.readUTF();
 		if (message1.contains("ranked_on")) {
-			this.mapdata.ranked = true;
+			this.gameConfig.ranked = true;
 			Bukkit.getLogger().info("set ranked on");
 		} else if (message1.contains("ranked_off")) {
-			this.mapdata.ranked = false;
+			this.gameConfig.ranked = false;
 			Bukkit.getLogger().info("set ranked off");
 		}
 	}

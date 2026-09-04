@@ -49,6 +49,7 @@ public class BombModel {
 	private void change_custom_model_to(float custom_model) {
 		if (model == null) {
 			Bukkit.getLogger().severe("tried to put bombmodel into mining state when it didnt exist");
+			return;
 		}
 		ItemStack helmet = model.getEquipment().getHelmet();
 		ItemMeta im = helmet.getItemMeta();

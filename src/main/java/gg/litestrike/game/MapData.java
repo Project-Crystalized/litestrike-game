@@ -48,8 +48,6 @@ public class MapData implements Listener {
 	// can be null if no podium is being used
 	public PodiumData podium;
 
-	public boolean ranked = false;
-
 	public CopyOnWriteArraySet<int[]> border_blocks = new CopyOnWriteArraySet<int[]>();
 
 	@EventHandler
@@ -133,12 +131,6 @@ public class MapData implements Listener {
 		JsonObject jo_podium = json.getAsJsonObject("podium");
 		if (jo_podium != null) {
 			this.podium = new PodiumData(jo_podium);
-		}
-
-		JsonElement ranked = json.get("is_ranked");
-		if (ranked != null && ranked.getAsBoolean() == true) {
-			Bukkit.getLogger().info("Registered this server to be a ranked Litestrike server!");
-			this.ranked = true;
 		}
 	}
 

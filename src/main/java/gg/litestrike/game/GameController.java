@@ -121,8 +121,9 @@ public class GameController {
 		phase_timer += 1;
 
 		// if round_state is GameFinished then the podium is already running
-		if (check_if_podium_start() != null) {
-			start_podium(check_if_podium_start());
+		Team winner = check_if_podium_start();
+		if (winner != null) {
+			start_podium(winner);
 		}
 
 		// this is like a state-machine, it will check the current state, check a
@@ -233,9 +234,6 @@ public class GameController {
 
 	// this is called when we switch from Running to PostRound
 	private void finish_round(Team winner) {
-		if (winner == null) {
-			Bukkit.getLogger().severe("critical error: finish_round() was called with null as input");
-		}
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
 		round_results.add(winner);

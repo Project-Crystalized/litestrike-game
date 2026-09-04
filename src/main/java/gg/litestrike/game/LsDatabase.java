@@ -107,7 +107,7 @@ public class LsDatabase {
 	public static void save_game(Team winner) {
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		if (Litestrike.getInstance().mapdata.ranked) {
+		if (Litestrike.getInstance().gameConfig.ranked) {
 			Ranking.do_ranking(winner);
 		}
 

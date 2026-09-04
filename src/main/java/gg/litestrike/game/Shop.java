@@ -124,7 +124,6 @@ if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 		Team player_team = gc.teams.get_team(p);
 		inv.clear();
 		p.setItemOnCursor(null);
-		p.setItemOnCursor(null);
 		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		inv.setItem(1, new ItemStack(Material.BOW));
 		arrows_item.setAmount(6);
@@ -225,9 +224,4 @@ if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 			}
 		}
 	}
-
-	public void add_item(ItemStack item) {
-	}
-
-	// public void remove_item(ItemStack item) {}
 }

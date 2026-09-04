@@ -29,17 +29,9 @@ public class DebugCommands implements CommandExecutor {
 				return run_force_start(args, commandSender);
 			case "soundd":
 				return run_sound_info(args, commandSender);
-			case "big_door":
-				return run_big_door(args, commandSender);
-			case "debug_log":
-				return debug_log(args, commandSender);
 			default:
 				return false;
 		}
-	}
-
-	private boolean run_big_door(String[] args, CommandSender commandSender) {
-		return true;
 	}
 
 	private boolean run_sound_info(String[] args, CommandSender commandSender) {
@@ -111,12 +103,5 @@ public class DebugCommands implements CommandExecutor {
 		}
 		return true;
 
-	}
-
-	private boolean debug_log(String[] args, CommandSender commandSender){
-		if(!(commandSender instanceof Player)){
-			return false;
-		}
-		return true;
 	}
 }

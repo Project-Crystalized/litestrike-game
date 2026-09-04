@@ -53,7 +53,6 @@ public class LSItem {
 	public final String key;
 	private static short creation_number = 1;
 	public final Short id;
-	public static HashMap<String, LSItem> importantEquip = new HashMap<>();
 
 	public static List<LSItem> shopItems = createItems();
 
@@ -658,30 +657,14 @@ public class LSItem {
 		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasItemModel()) {
 			return false;
 		}
-		if (item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "underdog_sword"))) {
-			return true;
-		}
-		return false;
-
-		/*
-		 * if (item == null || !item.hasItemMeta() ||
-		 * !item.getItemMeta().hasCustomModelData()) {
-		 * return false;
-		 * }
-		 * return (item.getType() == Material.STONE_SWORD
-		 * && (item.getItemMeta().getCustomModelData() >= 3 &&
-		 * item.getItemMeta().getCustomModelData() <= 7));
-		 */
+		return item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "underdog_sword"));
 	}
 
 	public static boolean isBreezeDagger(ItemStack item) {
 		if (item == null || !item.hasItemMeta() || !item.getItemMeta().hasItemModel()) {
 			return false;
 		}
-		if (item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "breeze_dagger"))) {
-			return true;
-		}
-		return false;
+		return item.getItemMeta().getItemModel().equals(new NamespacedKey("crystalized", "breeze_dagger"));
 	}
 
 	public static ItemCategory getItemCategory(ItemStack i) {
