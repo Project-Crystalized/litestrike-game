@@ -138,8 +138,8 @@ public class LsDatabase {
 
 				player_stmt.setBytes(1, uuid_to_bytes(oplayer));
 				player_stmt.setInt(2, game_id);
-				player_stmt.setInt(3, pd.getPlaced());
-				player_stmt.setInt(4, pd.getBroken());
+				player_stmt.setInt(3, pd.plants);
+				player_stmt.setInt(4, pd.breaks);
 				player_stmt.setInt(5, pd.kills);
 				player_stmt.setInt(6, pd.assists);
 				player_stmt.setInt(7, pd.getTotalMoneyGained());

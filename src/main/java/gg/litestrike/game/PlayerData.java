@@ -21,8 +21,8 @@ public class PlayerData {
 	public int assists = 0;
 	private int total_money_gained = 0;
 	private int total_money_spent = 0;
-	private int plants = 0;
-	private int breaks = 0;
+	public int plants = 0;
+	public int breaks = 0;
 	public float total_damage = 0;
 	public LastDamagerTracker ldt = new LastDamagerTracker();
 	public boolean did_leave = false;
@@ -40,14 +40,6 @@ public class PlayerData {
 	// ONLY construct this from PlayerDataManager pls
 	public PlayerData(Player p) {
 		player = p.getName();
-	}
-
-	public void add_break() {
-		breaks += 1;
-	}
-
-	public void add_plant() {
-		plants += 1;
 	}
 
 	// used for reseting money when switching teams
@@ -107,9 +99,8 @@ public class PlayerData {
 	public double calc_player_score() {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		Team team = t.get_team(player);
-		int team_breaks = t.get_team_breaks(team);
-		int team_plants = t.get_team_plants(team);
-		return (kills * 0.34) + (assists * 0.16) + ((team_breaks + team_plants) * 0.24);
+		int team_objectives = t.getTeamBreaksAndPlants(team);
+		return (kills * 0.34) + (assists * 0.16) + (team_objectives * 0.24);
 	}
 
 	public int getTotalMoneyGained() {
@@ -120,13 +111,6 @@ public class PlayerData {
 		return total_money_spent;
 	}
 
-	public int getPlaced() {
-		return plants;
-	}
-
-	public int getBroken() {
-		return breaks;
-	}
 }
 
 class LastDamagerTracker {

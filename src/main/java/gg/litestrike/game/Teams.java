@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -197,24 +196,12 @@ public class Teams {
 		}
 	}
 
-	public int get_team_breaks(Team t) {
-		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.playerDataManager.get(name).getBroken());
-	}
-
-	public int get_team_plants(Team t) {
-		return sum_team_stats(t, name -> Litestrike.getInstance().game_controller.playerDataManager.get(name).getPlaced());
-	}
-
-	private int sum_team_stats(Team t, Function<String, Integer> stat_getter) {
-		List<String> team;
-		if (t == Team.Breaker) {
-			team = breakers;
-		} else {
-			team = placers;
-		}
+	public int getTeamBreaksAndPlants(Team t) {
 		int sum = 0;
+		List<String> team = (t == Team.Breaker ? breakers : placers);
 		for (String name : team) {
-			sum += stat_getter.apply(name);
+			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(name);
+			sum += pd.plants + pd.breaks;
 		}
 		return sum;
 	}
