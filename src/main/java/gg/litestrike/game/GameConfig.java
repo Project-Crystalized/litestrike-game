@@ -160,7 +160,12 @@ public class GameConfig {
 			case freeShop -> freeShop = Boolean.parseBoolean(value);
 			case fastGame -> {
 				fastGame = Boolean.parseBoolean(value);
-				applyFastGame();
+				if (fastGame) {
+					applyFastGame();
+				} else {
+					preRoundTime = 20 * 23;
+					postRoundTime = 5 * 20;
+				}
 			}
 			case manualTeamsEnabled -> manualTeamsEnabled = Boolean.parseBoolean(value);
 			case ranked -> ranked = Boolean.parseBoolean(value);
