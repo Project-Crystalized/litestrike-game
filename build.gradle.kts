@@ -14,9 +14,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.121-stable")
     implementation("org.xerial:sqlite-jdbc:3.47.0.0")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     compileOnly("org.geysermc.floodgate:api:2.2.3-SNAPSHOT")
     implementation("gg.crystalized.lobby:Lobby_plugin:1.0-SNAPSHOT")
 }

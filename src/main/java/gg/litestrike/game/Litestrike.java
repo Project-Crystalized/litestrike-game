@@ -6,7 +6,7 @@ import com.google.common.io.ByteStreams;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.GameRule;
+import org.bukkit.GameRules;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -114,15 +114,15 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		World w = Bukkit.getWorld("world");
 
-		w.setGameRule(GameRule.NATURAL_REGENERATION, false);
-		w.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
-		w.setGameRule(GameRule.DO_INSOMNIA, false);
-		w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-		w.setGameRule(GameRule.MOB_GRIEFING, false);
-		w.setGameRule(GameRule.DO_FIRE_TICK, false);
-		w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
-		w.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-		w.setGameRule(GameRule.LOCATOR_BAR, false);
+		w.setGameRule(GameRules.NATURAL_HEALTH_REGENERATION, false);
+		w.setGameRule(GameRules.SHOW_DEATH_MESSAGES, false);
+		w.setGameRule(GameRules.SPAWN_PHANTOMS, false);
+		w.setGameRule(GameRules.SPAWN_MOBS, false);
+		w.setGameRule(GameRules.MOB_GRIEFING, false);
+		w.setGameRule(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 0);
+		w.setGameRule(GameRules.RANDOM_TICK_SPEED, 0);
+		w.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES, false);
+		w.setGameRule(GameRules.LOCATOR_BAR, false);
 
 		for (Chunk c : w.getLoadedChunks()) {
 			mapdata.check_chunk(c);
