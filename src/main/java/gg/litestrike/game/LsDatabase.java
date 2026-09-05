@@ -41,7 +41,8 @@ public class LsDatabase {
 				+ "deaths					INTEGER,"
 				+ "did_leave			INTEGER,"
 				+ "jumps					INTEGER,"
-				+ "hits_dealt			INTEGER"
+				+ "hits_dealt			INTEGER,"
+				+ "bow_shots			INTEGER"
 				+ ");";
 
 		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
@@ -77,6 +78,7 @@ public class LsDatabase {
 				{ "did_leave", "did_leave INTEGER" },
 				{ "jumps", "jumps INTEGER" },
 				{ "hits_dealt", "hits_dealt INTEGER" },
+				{ "bow_shots", "bow_shots INTEGER" },
 		};
 
 		for (String[] column : columns) {
@@ -127,8 +129,8 @@ public class LsDatabase {
 			int game_id = conn.prepareStatement("SELECT last_insert_rowid();").executeQuery().getInt("last_insert_rowid()");
 
 			String save_player = "INSERT INTO LsGamesPlayers(player_uuid, game, placed_bombs, broken_bombs, "
-					+ "kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, deaths, did_leave, jumps, hits_dealt)"
-					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+					+ "kills, assists, gained_money, spent_money, bought_items, was_winner, damage_dealt, deaths, did_leave, jumps, hits_dealt, bow_shots)"
+					+ " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement player_stmt = conn.prepareStatement(save_player);
 			for (PlayerData pd : gc.playerDataManager.getAll()) {
 				int is_winner = gc.teams.get_team(pd.player) == winner ? 1 : 0;
@@ -151,6 +153,7 @@ public class LsDatabase {
 				player_stmt.setInt(13, did_leave_int);
 				player_stmt.setInt(14, pd.jumps);
 				player_stmt.setInt(15, pd.hits_dealt);
+				player_stmt.setInt(16, pd.bow_shots);
 				player_stmt.executeUpdate();
 			}
 

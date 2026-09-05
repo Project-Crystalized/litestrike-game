@@ -281,11 +281,12 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onBowShot(EntityShootBowEvent event) {
-		// This is a method that cancels and returns the crosbow shot in pre round.
-		// I slightly modified it, to improve it while fixing the visual display bug,
-		// now fixed.
-		// Makes sure that it will only cancel in pre round
-		if (!(Litestrike.getInstance().game_controller.round_state == RoundState.PreRound)) {
+		// count one shot per trigger pull (bow or crossbow) during rounds
+		if (Litestrike.getInstance().game_controller.round_state != RoundState.PreRound) {
+			if (event.getEntity() instanceof Player) {
+				Player p = (Player) event.getEntity();
+				Litestrike.getInstance().game_controller.playerDataManager.get(p).bow_shots += 1;
+			}
 			return;
 		}
 		event.setCancelled(true);

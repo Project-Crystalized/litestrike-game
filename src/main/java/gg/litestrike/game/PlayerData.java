@@ -28,6 +28,7 @@ public class PlayerData {
 	public boolean did_leave = false;
 	public int jumps = 0;
 	public int hits_dealt = 0;
+	public int bow_shots = 0;
 
 	// shit for achievements
 	public int killsThisRound = 0;
