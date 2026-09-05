@@ -9,13 +9,6 @@ load: POSTWORLD
 depend: [ProtocolLib, Crystalized_Essentials, floodgate]
 
 commands:
-  manual_teams:
-    description: "to set up teams manually"
-    usage: "/manual_teams"
-    aliases: []
-    permission: litestrike.command.game
-    permission-message: "you dont have permission to run the command"
-
   game_config:
     description: "View and modify game settings"
     usage: "/game_config <show|get|set> [key] [value]"

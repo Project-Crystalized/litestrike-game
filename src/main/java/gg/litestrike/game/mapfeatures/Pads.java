@@ -59,7 +59,7 @@ class AutoJumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.auto_jump_pad_block && p.getVelocity().getY() <= 0) {
 			p.setVelocity(p.getVelocity().add(new Vector(0, 1.32, 0)));
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			MapFeatures.fall_protect_player(p, 8);
+			MapFeatures.fall_protect_player(p, (20 * 7));
 		}
 	}
 }
@@ -74,7 +74,7 @@ class JumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protect_player(p, 8);
+			MapFeatures.fall_protect_player(p, (20 * 7));
 		}
 	}
 }

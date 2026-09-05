@@ -1,3 +1,6 @@
+// all game config variables should have a sensible default
+// some of them can be overwritten with variables from the plugin config.yml
+// all of them can be set via the command
 package gg.litestrike.game;
 
 import java.util.ArrayList;

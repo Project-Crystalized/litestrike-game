@@ -18,6 +18,11 @@ public class ManualTeams implements BasicCommand {
 	}
 
 	@Override
+	public String permission() {
+		return "litestrike.command.game";
+	}
+
+	@Override
 	public void execute(CommandSourceStack commandSource, String[] args) {
 		if (args.length == 0) {
 			commandSource.getSender().sendMessage("the command was incomplete");

@@ -14,6 +14,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
@@ -83,6 +85,10 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		gameConfig = new GameConfig(getConfig());
 		manual_teams = new ManualTeams(gameConfig);
+
+		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+			event.registrar().register("manual_teams", "to set up teams manually", manual_teams);
+		});
 
 		DebugCommands dc = new DebugCommands();
 		this.getCommand("mapdata").setExecutor(dc);
