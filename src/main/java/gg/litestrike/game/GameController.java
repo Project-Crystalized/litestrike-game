@@ -292,7 +292,8 @@ public class GameController {
 				}
 			}
 			if (teams.get_team(p) == winner) {
-				pd.addMoney(700, translatable("crystalized.game.litestrike.money.win_round"));
+				pd.addMoney(Litestrike.getInstance().gameConfig.winRoundMoney,
+						translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 
 				// achievement shit
@@ -302,7 +303,8 @@ public class GameController {
 				} catch (NoClassDefFoundError e) {
 				}
 			} else {
-				pd.addMoney(400, translatable("crystalized.game.litestrike.money.loose_round"));
+				pd.addMoney(Litestrike.getInstance().gameConfig.loseRoundMoney,
+						translatable("crystalized.game.litestrike.money.loose_round"));
 				SoundEffects.round_lost(p);
 			}
 
@@ -444,7 +446,8 @@ public class GameController {
 					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
 			for (PlayerData pd : playerDataManager.getAll()) {
 				pd.removeMoney();
-				pd.addMoney(5000, translatable("crystalized.game.litestrike.money.last_round"));
+				pd.addMoney(Litestrike.getInstance().gameConfig.lastRoundMoney,
+						translatable("crystalized.game.litestrike.money.last_round"));
 			}
 			for (Shop s : this.shopList.values()) {
 				s.resetEquip();
@@ -473,7 +476,8 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
-			playerDataManager.get(p).addMoney(1000, translatable("crystalized.game.litestrike.money.next_round"));
+			playerDataManager.get(p).addMoney(Litestrike.getInstance().gameConfig.nextRoundMoney,
+					translatable("crystalized.game.litestrike.money.next_round"));
 			Shop s = this.getShop(p);
 			s.resetEquipCounters();
 			s.previousEquip.clear();

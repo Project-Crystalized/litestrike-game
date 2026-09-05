@@ -9,6 +9,7 @@ import org.bukkit.event.block.BlockDamageAbortEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 
 import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.translatable;
 import gg.litestrike.game.GameController.RoundState;
 import gg.litestrike.game.mapfeatures.MapFeatures;
 
@@ -86,6 +87,9 @@ public class BombListener implements Listener {
 								.spawnParticle(REVERSE_PORTAL, last_planting_block.getLocation().add(0.5, 0.5, 0.5), 5000);
 						reset();
 						gc.playerDataManager.get(last_planting_player).plants += 1;
+						gc.playerDataManager.get(last_planting_player)
+								.addMoney(Litestrike.getInstance().gameConfig.plantMoney,
+										translatable("crystalized.game.litestrike.money.plant"));
 
 					}
 				} else {
@@ -156,6 +160,9 @@ public class BombListener implements Listener {
 						}
 
 						gc.playerDataManager.get(mining_players.get(0).p).breaks += 1;
+						gc.playerDataManager.get(mining_players.get(0).p)
+								.addMoney(Litestrike.getInstance().gameConfig.breakMoney,
+										translatable("crystalized.game.litestrike.money.break"));
 						reset();
 					}
 				} else {

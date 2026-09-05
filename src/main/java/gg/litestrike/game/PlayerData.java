@@ -49,6 +49,9 @@ public class PlayerData {
 	}
 
 	public void addMoney(int amt, Component reason) {
+		if (amt <= 0) {
+			return;
+		}
 		Player p = Bukkit.getPlayer(player);
 		if (p == null) {
 			return;

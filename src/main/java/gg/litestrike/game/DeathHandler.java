@@ -58,7 +58,7 @@ public class DeathHandler implements Listener {
 		if (killer != null) {
 			gc.playerDataManager.get(killer).kills += 1;
 			gc.playerDataManager.get(killer).killsThisRound += 1;
-			gc.playerDataManager.get(killer).addMoney(400,
+			gc.playerDataManager.get(killer).addMoney(Litestrike.getInstance().gameConfig.killMoney,
 					translatable("crystalized.game.litestrike.money.kill")
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(killer))));
@@ -68,7 +68,7 @@ public class DeathHandler implements Listener {
 		assisters.remove(killer);
 		for (Player assister : assisters) {
 			gc.playerDataManager.get(assister).assists += 1;
-			gc.playerDataManager.get(assister).addMoney(50,
+			gc.playerDataManager.get(assister).addMoney(Litestrike.getInstance().gameConfig.assistMoney,
 					translatable("crystalized.game.litestrike.money.assist")
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(p))));

@@ -1,5 +1,7 @@
 package gg.litestrike.game.mapfeatures;
 
+import gg.litestrike.game.Litestrike;
+
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -26,9 +28,9 @@ class LaunchPadListener implements Listener {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
 			if (p.getPing() > 180) {
-				MapFeatures.fall_protect_player(p, (20 * 4));
+				MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.launchPadHighPingProtection);
 			} else {
-				MapFeatures.fall_protect_player(p, (20 * 2));
+				MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.launchPadProtection);
 			}
 		}
 	}
@@ -44,7 +46,7 @@ class LeviPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.levi_pad_block && !(p.hasPotionEffect(PotionEffectType.LEVITATION))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, (55), 2));
-			MapFeatures.fall_protect_player(p, (20 * 6));
+			MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.leviPadProtection);
 		}
 	}
 }
@@ -59,7 +61,7 @@ class AutoJumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.auto_jump_pad_block && p.getVelocity().getY() <= 0) {
 			p.setVelocity(p.getVelocity().add(new Vector(0, 1.32, 0)));
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			MapFeatures.fall_protect_player(p, (20 * 7));
+			MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.autoJumpPadProtection);
 		}
 	}
 }
@@ -74,7 +76,7 @@ class JumpPadListener implements Listener {
 		if (block_under.getType() == MapFeatures.jump_pad_block && !(p.hasPotionEffect(PotionEffectType.JUMP_BOOST))) {
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, (20), 7));
-			MapFeatures.fall_protect_player(p, (20 * 7));
+			MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.jumpPadProtection);
 		}
 	}
 }
