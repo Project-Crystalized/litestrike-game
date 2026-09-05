@@ -123,7 +123,7 @@ public class Ranking {
 		return total;
 	}
 
-	private static int get_win_loss_points(boolean did_win, int rank) {
+	static int get_win_loss_points(boolean did_win, int rank) {
 		if (!did_win) {
 			if (rank == 10) {
 				return -7;
@@ -149,7 +149,7 @@ public class Ranking {
 		}
 	}
 
-	private static int get_rank_min_rp(int rank) {
+	static int get_rank_min_rp(int rank) {
 		switch (rank) {
 			case 2:
 				return 0;

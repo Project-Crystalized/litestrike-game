@@ -104,6 +104,10 @@ public class PlayerData {
 		Teams t = Litestrike.getInstance().game_controller.teams;
 		Team team = t.get_team(player);
 		int team_objectives = t.getTeamBreaksAndPlants(team);
+		return calculateScore(kills, assists, team_objectives);
+	}
+
+	public static double calculateScore(int kills, int assists, int team_objectives) {
 		return (kills * 0.34) + (assists * 0.16) + (team_objectives * 0.24);
 	}
 

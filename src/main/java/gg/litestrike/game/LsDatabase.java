@@ -9,9 +9,11 @@ import org.bukkit.OfflinePlayer;
 
 public class LsDatabase {
 
-	public static final String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sql";
-	public static final String TEMPORARY_URL = "jdbc:sqlite:" + System.getProperty("user.home")
-			+ "/databases/lobby_db.sql";
+	public static String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sql";
+
+	static void setDatabaseUrlForTests(String url) {
+		URL = url;
+	}
 
 	// this is run on server startup
 	public static void setup_databases() {
