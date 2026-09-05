@@ -88,28 +88,11 @@ public class Ranking {
 		PlayerRankedData.save_players(player_ranks);
 	}
 
-	// gets the team, the player would be in, if they would still be online
+	// gets the team the player should be on, spectators are on no team and are never ranked
 	private static Team get_current_team(UUID uuid) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-		Team online_team = gc.teams.get_team(p.getName());
-		if (online_team != null)
-			return online_team;
-
-		Team initial_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Breaker : Team.Placer;
-		Team other_team = gc.teams.get_initial_breakers().contains(p.getName()) ? Team.Placer : Team.Breaker;
-
-		if (initial_team == other_team) {
-			// FIXME they can literally never be the same
-			// this happens for spectators
-			return null;
-		}
-
-		if (gc.round_number > Litestrike.getInstance().gameConfig.switchRound) {
-			return other_team;
-		} else {
-			return initial_team;
-		}
+		return gc.teams.get_team(p.getName());
 	}
 
 	public static int get_total_rp_team(List<String> team, List<PlayerRankedData> player_ranks) {
