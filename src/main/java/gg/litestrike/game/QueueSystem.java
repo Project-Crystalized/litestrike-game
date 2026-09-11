@@ -91,7 +91,7 @@ public class QueueSystem implements PluginMessageListener {
 						p.getInventory().clear();
 					}
 					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
-					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:litestrike", out.toByteArray());
+					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
 					Litestrike.getInstance().party_manager.clear_partys();
 
 					return;
