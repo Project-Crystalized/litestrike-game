@@ -109,20 +109,20 @@ class TabListController {
 		String tag;
 		TextColor name_color;
 		if (player == null) {
-			tag = "[Disconnected] ";
+			tag = "crystalized.game.generic.disconnected";
 			name_color = NamedTextColor.GRAY;
 		} else if (player.getGameMode() == GameMode.SPECTATOR) {
-			tag = "[Dead] ";
+			tag = "crystalized.game.generic.dead";
 			name_color = NamedTextColor.GRAY;
 		} else if (gc.teams.get_team(player) == Team.Placer) {
-			tag = "[Alive] ";
+			tag = "crystalized.game.generic.alive";
 			name_color = Teams.PLACER_RED;
 		} else {
-			tag = "[Alive] ";
+			tag = "crystalized.game.generic.alive";
 			name_color = Teams.BREAKER_GREEN;
 		}
 
-		Component status = text("\n ").append(text(tag));
+		Component status = text("\n ").append(translatable(tag));
 		if (rank != null) {
 			status = status.append(rank);
 		}
