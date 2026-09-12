@@ -228,10 +228,9 @@ public class ShopListener implements Listener {
 			}
 			s.previousEquip.remove(lsitem.categ);
 		} else {
-			if (s.consAndAmmoCount.get(lsitem) <= 0) {
+			if (s.consAndAmmoCount.getOrDefault(lsitem, 0) <= 0) {
 				return;
 			}
-			s.consAndAmmoCount.remove(lsitem);
 			s.consAndAmmoCount.put(lsitem, s.consAndAmmoCount.get(lsitem) - 1);
 
 			ItemStack item_in_slot = inv.getItem(invSlot);
