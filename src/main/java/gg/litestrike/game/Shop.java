@@ -36,8 +36,6 @@ public class Shop {
 	public HashMap<LSItem, Integer> consAndAmmoCount = new HashMap<>();
 	public List<LSItem> shopLog;
 
-	public static final int DEFUSER_SLOT = 22;
-
 	public Shop(Player p) {
 		if (p == null) {
 			return;

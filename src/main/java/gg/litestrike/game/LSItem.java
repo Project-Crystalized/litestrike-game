@@ -207,7 +207,7 @@ public class LSItem {
 				.hideAttributes()
 				.description("crystalized.item.defuser.desc1")
 				.description("crystalized.item.defuser.desc2")
-				.price(500).slot(Shop.DEFUSER_SLOT).category(ItemCategory.Defuser));
+				.price(500).slot(22).category(ItemCategory.Defuser));
 
 		builders.add(Builder.of(GOLDEN_APPLE)
 				.key("golden_apple")

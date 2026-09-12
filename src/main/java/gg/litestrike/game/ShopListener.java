@@ -61,9 +61,9 @@ public class ShopListener implements Listener {
 			if (lsitem.slot == null || lsitem.slot != event.getSlot()) {
 				continue;
 			}
-			if (lsitem.slot == Shop.DEFUSER_SLOT && gc.teams.get_team(p) != Team.Breaker) {
-				continue;
-			}
+		if (lsitem.categ == ItemCategory.Defuser && gc.teams.get_team(p) != Team.Breaker) {
+			continue;
+		}
 
 			clicked_item = lsitem;
 			break;
