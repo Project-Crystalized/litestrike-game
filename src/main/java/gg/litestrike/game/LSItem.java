@@ -226,7 +226,7 @@ public class LSItem {
 				.model("quick_charge_crossbow")
 				.name("crystalized.crossbow.quickcharge.name")
 				.description("crystalized.crossbow.quickcharge.desc")
-				.price(2000).slot(24).category(ItemCategory.Range).modelData(2));
+				.price(2000).category(ItemCategory.Range).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("pufferfish_sword")
@@ -362,14 +362,12 @@ public class LSItem {
 				.persistentData(0)
 				.price(800).category(ItemCategory.Melee).modelData(2));
 
-		// I tried to add here the Presies CrossBow for testing purposes
 		builders.add(Builder.of(CROSSBOW)
 				.key("precise_crossbow")
 				.model("precise_crossbow")
 				.name("crystalized.crossbow.precise.name")
 				.description("crystalized.crossbow.precise.desc")
-				// Adjusted the price so it is worth buying it over charged crosbow
-				.price(1750).slot(43).category(ItemCategory.Range).modelData(3));
+				.price(1750).category(ItemCategory.Range).modelData(3));
 
 		return builders;
 	}
