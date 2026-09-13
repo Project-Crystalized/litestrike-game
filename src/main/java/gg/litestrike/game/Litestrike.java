@@ -170,7 +170,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
 		if (!channel.equals("crystalized:main")) {
