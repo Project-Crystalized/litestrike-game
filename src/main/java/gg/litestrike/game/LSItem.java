@@ -299,7 +299,8 @@ public class LSItem {
 				.price(750).slot(45).category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
-				.key("spectral_arrow")
+				.key("locating_arrow")
+				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
 				.price(150).slot(51).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)

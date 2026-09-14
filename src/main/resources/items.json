@@ -22,7 +22,7 @@
 		{ "name": "speed2_potion", "price": 1000, "slot": 51 },
 		{ "name": "speed1_potion", "price": 750, "slot": 52 },
 		{ "name": "resistance_potion", "price": 750, "slot": 50 },
-		{ "name": "spectral_arrow", "price": 150, "slot": 46 },
+		{ "name": "locating_arrow", "price": 150, "slot": 46 },
 		{ "name": "dragon_arrow", "price": 350, "slot": 47 },
 		{ "name": "explosive_arrow", "price": 350, "slot": 48 },
 		{ "name": "underdog_sword", "price": 750, "slot": 29 },
