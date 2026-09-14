@@ -34,12 +34,16 @@ public class DebugCommands {
 		return builder.buildFuture();
 	}
 
-	public LiteralArgumentBuilder<CommandSourceStack> build() {
-		return Commands.literal("litestrike")
+	public LiteralArgumentBuilder<CommandSourceStack> build(LiteralArgumentBuilder<CommandSourceStack>... extraChildren) {
+		LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("litestrike")
 				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
 				.then(buildMapdata())
 				.then(buildForceStart())
 				.then(buildPlayerInfo());
+		for (LiteralArgumentBuilder<CommandSourceStack> child : extraChildren) {
+			root.then(child);
+		}
+		return root;
 	}
 
 	public LiteralArgumentBuilder<CommandSourceStack> buildMapdata() {
