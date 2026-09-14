@@ -34,9 +34,16 @@ public class DebugCommands {
 		return builder.buildFuture();
 	}
 
+	public LiteralArgumentBuilder<CommandSourceStack> build() {
+		return Commands.literal("litestrike")
+				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
+				.then(buildMapdata())
+				.then(buildForceStart())
+				.then(buildPlayerInfo());
+	}
+
 	public LiteralArgumentBuilder<CommandSourceStack> buildMapdata() {
 		return Commands.literal("mapdata")
-				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
 				.executes(this::run_mapdata)
 				.then(Commands.argument("action", StringArgumentType.word())
 						.suggests((context, builder) -> suggestMatching(builder, List.of("open")))
@@ -45,13 +52,11 @@ public class DebugCommands {
 
 	public LiteralArgumentBuilder<CommandSourceStack> buildForceStart() {
 		return Commands.literal("force_start")
-				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
 				.executes(this::run_force_start);
 	}
 
 	public LiteralArgumentBuilder<CommandSourceStack> buildPlayerInfo() {
 		return Commands.literal("player_info")
-				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
 				.then(Commands.argument("player", StringArgumentType.word())
 						.suggests((context, builder) -> suggestMatching(builder,
 								Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))

@@ -92,12 +92,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
 			event.registrar().register(manual_teams.build().build(), "to set up teams manually", List.of());
 			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
-			event.registrar().register(dc.buildMapdata().build(), "For debugging purposes, get all loaded mapdata",
-					List.of());
-			event.registrar().register(dc.buildForceStart().build(), "For debugging purposes, force_start the game",
-					List.of());
-			event.registrar().register(dc.buildPlayerInfo().build(),
-					"For debugging purposes, get all info about a player", List.of());
+			event.registrar().register(dc.build().build(), "Litestrike debug commands", List.of());
 		});
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
