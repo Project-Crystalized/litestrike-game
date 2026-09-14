@@ -16,7 +16,7 @@
 		{ "name": "pufferfish_sword", "price": 1000, "slot": 36 },
 		{ "name": "slime_sword", "price": 1000, "slot": 18 },
 		{ "name": "marksman_bow", "price": 750, "slot": 15 },
-		{ "name": "ricochet_bow", "price": 1500, "slot": 8 },
+		{ "name": "ricochet_bow", "price": 1000, "slot": 8 },
 		{ "name": "multishot_crossbow", "price": 2000, "slot": 44 },
 		{ "name": "charged_crossbow", "price": 2500, "slot": null },
 		{ "name": "speed2_potion", "price": 1000, "slot": 51 },

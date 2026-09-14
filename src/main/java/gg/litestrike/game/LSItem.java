@@ -257,7 +257,7 @@ public class LSItem {
 				.model("ricochet_bow")
 				.name("crystalized.bow.ricochet.name")
 				.description("crystalized.bow.ricochet.desc")
-				.price(1500).slot(8).category(ItemCategory.Range).modelData(3));
+				.price(1000).slot(8).category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("multishot_crossbow")
