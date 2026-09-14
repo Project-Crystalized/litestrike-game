@@ -24,6 +24,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.logging.Level;
 
 enum Team {
@@ -86,8 +87,10 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		gameConfig = new GameConfig(getConfig());
 		manual_teams = new ManualTeams(gameConfig);
 
+		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
 			event.registrar().register("manual_teams", "to set up teams manually", manual_teams);
+			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
 		});
 
 		DebugCommands dc = new DebugCommands();
@@ -95,10 +98,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getCommand("force_start").setExecutor(dc);
 		this.getCommand("player_info").setExecutor(dc);
 		this.getCommand("soundd").setExecutor(dc);
-
-		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
-		this.getCommand("game_config").setExecutor(gcc);
-		this.getCommand("game_config").setTabCompleter(gcc);
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);
