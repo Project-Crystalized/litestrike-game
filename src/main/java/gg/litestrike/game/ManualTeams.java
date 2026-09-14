@@ -1,107 +1,102 @@
 package gg.litestrike.game;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import io.papermc.paper.command.brigadier.BasicCommand;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 
-public class ManualTeams implements BasicCommand {
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+
+public class ManualTeams {
 	private final GameConfig gameConfig;
 
 	public ManualTeams(GameConfig gameConfig) {
 		this.gameConfig = gameConfig;
 	}
 
-	@Override
-	public String permission() {
-		return "litestrike.command.game";
+	public LiteralArgumentBuilder<CommandSourceStack> build() {
+		return Commands.literal("manual_teams")
+				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
+				.then(Commands.literal("clear").executes(this::runClear))
+				.then(Commands.literal("show").executes(this::runShow))
+				.then(Commands.literal("remove")
+						.then(Commands.argument("player", StringArgumentType.word())
+								.suggests((context, builder) -> DebugCommands.suggestMatching(builder, onlinePlayerNames()))
+								.executes(this::runRemove)))
+				.then(Commands.literal("add")
+						.then(Commands.argument("team", StringArgumentType.word())
+								.suggests((context, builder) -> DebugCommands.suggestMatching(builder, Arrays.asList("breakers", "placers")))
+								.then(Commands.argument("player", StringArgumentType.word())
+										.suggests((context, builder) -> DebugCommands.suggestMatching(builder, onlinePlayerNames()))
+										.executes(this::runAdd))));
 	}
 
-	@Override
-	public void execute(CommandSourceStack commandSource, String[] args) {
-		if (args.length == 0) {
-			commandSource.getSender().sendMessage("the command was incomplete");
-			return;
-		}
-		switch (args[0]) {
-			case "clear": {
-				gameConfig.manualTeamsEnabled = false;
-				gameConfig.breakers.clear();
-				gameConfig.placers.clear();
-				return;
-			}
-			case "remove": {
-				if (args.length < 2) {
-					commandSource.getSender().sendMessage("Please enter ther playername to remove");
-					return;
-				}
-				gameConfig.breakers.remove(args[1]);
-				gameConfig.placers.remove(args[1]);
-				if (gameConfig.placers.isEmpty() && gameConfig.breakers.isEmpty()) {
-					gameConfig.manualTeamsEnabled = false;
-				}
-				commandSource.getSender().sendMessage("removed " + args[1] + " from the teams");
-				return;
-			}
-			case "show": {
-				if (!gameConfig.manualTeamsEnabled) {
-					commandSource.getSender()
-							.sendMessage("Manual Teams are currently not enabled. Run \"/manual_teams add <player_name> <team>\" to enable.");
-				} else {
-					commandSource.getSender().sendMessage("Placers:");
-					for (String s : gameConfig.placers) {
-						commandSource.getSender().sendMessage(s);
-					}
-					commandSource.getSender().sendMessage("\nBreakers:");
-					for (String s : gameConfig.breakers) {
-						commandSource.getSender().sendMessage(s);
-					}
-				}
-				return;
-			}
-			case "add": {
-				if (args.length < 3) {
-					commandSource.getSender().sendMessage("Please enter ther playername and team to add");
-					return;
-				}
-				if (Bukkit.getPlayer(args[2]) == null) {
-					commandSource.getSender()
-							.sendMessage("Warn: The player " + args[2] + " doesnt seem to be online, adding him anyways");
-				}
-				if (args[1].startsWith("b")) {
-					gameConfig.breakers.add(args[2]);
-					gameConfig.manualTeamsEnabled = true;
-					commandSource.getSender().sendMessage("added " + args[2] + " to the breaker team.");
-				} else if (args[1].startsWith("p")) {
-					gameConfig.manualTeamsEnabled = true;
-					gameConfig.placers.add(args[2]);
-					commandSource.getSender().sendMessage("added " + args[2] + " to the placer team.");
-				} else {
-					commandSource.getSender()
-							.sendMessage("Error: The team " + args[1] + " doesnt seem to exist");
-				}
-				return;
-			}
-		}
+	private int runClear(CommandContext<CommandSourceStack> context) {
+		gameConfig.manualTeamsEnabled = false;
+		gameConfig.breakers.clear();
+		gameConfig.placers.clear();
+		return Command.SINGLE_SUCCESS;
 	}
 
-	@Override
-	public Collection<String> suggest(CommandSourceStack commandSourceStack, String[] args) {
-		if (args.length <= 1) {
-			return Arrays.asList("clear", "add", "show", "remove");
+	private int runShow(CommandContext<CommandSourceStack> context) {
+		CommandSender sender = context.getSource().getSender();
+		if (!gameConfig.manualTeamsEnabled) {
+			sender.sendMessage("Manual Teams are currently not enabled. Run \"/manual_teams add <player_name> <team>\" to enable.");
+		} else {
+			sender.sendMessage("Placers:");
+			for (String s : gameConfig.placers) {
+				sender.sendMessage(s);
+			}
+			sender.sendMessage("\nBreakers:");
+			for (String s : gameConfig.breakers) {
+				sender.sendMessage(s);
+			}
 		}
-		if (args[0].equals("clear") || args[0].equals("show")) {
-			return List.of();
-		}
-		if (args.length <= 2 && args[0].equals("add")) {
-			return Arrays.asList("breakers", "placers");
-		}
+		return Command.SINGLE_SUCCESS;
+	}
 
+	private int runRemove(CommandContext<CommandSourceStack> context) {
+		CommandSender sender = context.getSource().getSender();
+		String player = context.getArgument("player", String.class);
+		gameConfig.breakers.remove(player);
+		gameConfig.placers.remove(player);
+		if (gameConfig.placers.isEmpty() && gameConfig.breakers.isEmpty()) {
+			gameConfig.manualTeamsEnabled = false;
+		}
+		sender.sendMessage("removed " + player + " from the teams");
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private int runAdd(CommandContext<CommandSourceStack> context) {
+		CommandSender sender = context.getSource().getSender();
+		String team = context.getArgument("team", String.class);
+		String player = context.getArgument("player", String.class);
+		if (Bukkit.getPlayer(player) == null) {
+			sender.sendMessage("Warn: The player " + player + " doesnt seem to be online, adding him anyways");
+		}
+		if (team.startsWith("b")) {
+			gameConfig.breakers.add(player);
+			gameConfig.manualTeamsEnabled = true;
+			sender.sendMessage("added " + player + " to the breaker team.");
+		} else if (team.startsWith("p")) {
+			gameConfig.manualTeamsEnabled = true;
+			gameConfig.placers.add(player);
+			sender.sendMessage("added " + player + " to the placer team.");
+		} else {
+			sender.sendMessage("Error: The team " + team + " doesnt seem to exist");
+		}
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static List<String> onlinePlayerNames() {
 		return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
 	}
 }

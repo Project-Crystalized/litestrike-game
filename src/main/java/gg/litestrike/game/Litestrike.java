@@ -89,7 +89,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-			event.registrar().register("manual_teams", "to set up teams manually", manual_teams);
+			event.registrar().register(manual_teams.build().build(), "to set up teams manually", List.of());
 			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
 		});
 

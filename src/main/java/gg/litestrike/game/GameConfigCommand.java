@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.command.CommandSender;
 
@@ -11,8 +10,6 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -33,15 +30,15 @@ public class GameConfigCommand {
 				.then(Commands.literal("show").executes(this::runShow))
 				.then(Commands.literal("get")
 						.then(Commands.argument("key", StringArgumentType.word())
-								.suggests((context, builder) -> suggestMatching(builder, settingKeys()))
+								.suggests((context, builder) -> DebugCommands.suggestMatching(builder, settingKeys()))
 								.executes(this::runGet)))
 				.then(Commands.literal("set")
 						.then(Commands.argument("key", StringArgumentType.word())
-								.suggests((context, builder) -> suggestMatching(builder, settingKeys()))
+								.suggests((context, builder) -> DebugCommands.suggestMatching(builder, settingKeys()))
 								.then(Commands.argument("value", StringArgumentType.greedyString())
 										.suggests((context, builder) -> {
 											if (isBooleanKey(context.getArgument("key", String.class))) {
-												return suggestMatching(builder, List.of("true", "false"));
+												return DebugCommands.suggestMatching(builder, List.of("true", "false"));
 											}
 											return builder.buildFuture();
 										})
@@ -103,16 +100,6 @@ public class GameConfigCommand {
 			keys.add(setting.toString());
 		}
 		return keys;
-	}
-
-	private static CompletableFuture<Suggestions> suggestMatching(SuggestionsBuilder builder, List<String> options) {
-		String remaining = builder.getRemaining().toLowerCase();
-		for (String option : options) {
-			if (option.toLowerCase().startsWith(remaining)) {
-				builder.suggest(option);
-			}
-		}
-		return builder.buildFuture();
 	}
 
 	private static boolean isBooleanKey(String key) {

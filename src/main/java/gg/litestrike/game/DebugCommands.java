@@ -2,6 +2,8 @@ package gg.litestrike.game;
 
 import org.bukkit.command.CommandExecutor;
 
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -11,10 +13,23 @@ import org.bukkit.entity.Player;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
 public class DebugCommands implements CommandExecutor {
+
+	public static CompletableFuture<Suggestions> suggestMatching(SuggestionsBuilder builder, Collection<String> options) {
+		String remaining = builder.getRemaining().toLowerCase();
+		for (String option : options) {
+			if (option.toLowerCase().startsWith(remaining)) {
+				builder.suggest(option);
+			}
+		}
+		return builder.buildFuture();
+	}
 
 	@Override
 	public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
