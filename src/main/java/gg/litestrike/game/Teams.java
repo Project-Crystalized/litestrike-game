@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
@@ -29,11 +30,13 @@ public class Teams {
 			if (breakers.size() == 0 || placers.size() == 0) {
 				Bukkit.getLogger().severe("One of the two teams was empty, pls check the manual team selection!");
 			}
+			log_teams("manual", breakers, placers, null);
 			return;
 		}
 
 		List<String> list;
-		if (game_conf.ranked) {
+		boolean is_ranked = game_conf.ranked;
+		if (is_ranked) {
 			 list = generate_fair_teams();
 		} else {
 			 list = generate_random_teams();
@@ -43,6 +46,9 @@ public class Teams {
 		// if odd, breakers get more
 		breakers = list.subList(0, middle);
 		placers = list.subList(middle, list.size());
+		if (!is_ranked) {
+			log_teams("random", breakers, placers, null);
+		}
 	}
 
 	private void create_manual_teams(GameConfig gc) {
@@ -75,6 +81,9 @@ public class Teams {
 			}
 		}
 
+		// same split as in Teams(): if odd, breakers get more
+		int middle = best_team.size() / 2;
+		log_teams("fair (ranked)", best_team.subList(0, middle), best_team.subList(middle, best_team.size()), player_ranks);
 		return best_team;
 	}
 
@@ -94,6 +103,41 @@ public class Teams {
 		List<String> temporary = placers;
 		placers = breakers;
 		breakers = temporary;
+	}
+
+	private void log_teams(String variant, List<String> breakers, List<String> placers, List<PlayerRankedData> ranks) {
+		Bukkit.getLogger().info("[Teams] variant: " + variant);
+		log_team("breakers", breakers, ranks);
+		log_team("placers", placers, ranks);
+	}
+
+	private void log_team(String team_name, List<String> team, List<PlayerRankedData> ranks) {
+		HashMap<String, Integer> rp = new HashMap<>();
+		if (ranks != null) {
+			for (PlayerRankedData prd : ranks) {
+				String name = Bukkit.getOfflinePlayer(prd.uuid).getName();
+				if (name != null) {
+					rp.put(name, prd.rp);
+				}
+			}
+		}
+		long total = 0;
+		int counted = 0;
+		ArrayList<String> parts = new ArrayList<>();
+		for (String name : team) {
+			int party_size = Litestrike.getInstance().party_manager.get_party_of(name).size();
+			String party = party_size == 0 ? "solo" : "party of " + party_size;
+			Integer r = rp.get(name);
+			if (r == null) {
+				parts.add(name + " [unranked, " + party + "]");
+			} else {
+				total += r;
+				counted++;
+				parts.add(name + " [" + r + " rp, " + party + "]");
+			}
+		}
+		String avg = counted > 0 ? "" + (total / counted) : "n/a";
+		Bukkit.getLogger().info("[Teams] " + team_name + " (" + team.size() + " players, avg " + avg + " rp): " + String.join(", ", parts));
 	}
 
 	public List<Player> get_placers() {
