@@ -5,10 +5,7 @@ import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.Ranks;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -42,6 +39,9 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -257,26 +257,137 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onProjectileHit(ProjectileHitEvent event) {
+		//will not run if it didn't hit a block
+		//In the future we want we can make so the locator arrow works even if it hit the player by removing this
 		if (event.getHitBlock() == null)
 			return;
 
-		ProjectileSource shooter = event.getEntity().getShooter();
-		Location loc = event.getEntity().getLocation();
+		ProjectileSource shootingEntity = event.getEntity().getShooter();
+		//Location loc = event.getEntity().getLocation();
 
-		if (shooter == null)
+		if (shootingEntity == null)
 			return;
 
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null)
 			return;
-
-		if (event.getEntity().getType() == EntityType.SPECTRAL_ARROW) {
-			for (LivingEntity e : loc.getNearbyPlayers(3)) {
-				if (gc.teams.get_team((Player) e) == gc.teams.get_team((Player) shooter)) {
-					e.removePotionEffect(PotionEffectType.GLOWING);
-				}
-			}
+		//makes sure it is spectral arrow
+		if (!(event.getEntity() instanceof SpectralArrow locatingArrow)) {
+			return;
 		}
+		//makes sure that the shootining entity is a player
+		if (!(shootingEntity instanceof Player shooter)) {
+			return;
+		}
+		//Gets the location of locationg arrow
+		Location locatingArrowsLocation = locatingArrow.getLocation().clone();
+		//If arrow has hit a block, the detection location will move from the block so that ray tracing doesn't hit that block
+		//This is allows the ray tracing to work, otherwise it would just hit the block and that would be it.
+		if (event.getHitBlockFace() != null) {
+			//moves slightly out
+			locatingArrowsLocation.add(event.getHitBlockFace().getDirection().multiply(0.15));
+		}
+		//gets the shooters team.
+		Team shooterTeam = gc.teams.get_team(shooter);
+		if (shooterTeam == null) {
+			return;
+		}
+
+		//The repeating task for scaning and locating the enemies
+		new BukkitRunnable() {
+			//will repeat 3 times
+			int repeats = 0;
+			@Override
+			public void run() {
+				//when the repetion ends or arrow is no longer valid removes it and cancles
+				if (repeats >= 3 || !locatingArrow.isValid()) {
+					//removes the arrow at the end of repetion
+					locatingArrow.remove();
+					cancel();
+					return;
+				}
+				//The readius which is being scaned for players
+				double scanRadius = 20.0;
+
+				//Finds the player withing the location arrow radiuds
+				for (Player enemy : locatingArrowsLocation.getNearbyPlayers(scanRadius)) {
+
+					//gets the team of the player
+					Team enemysTeam = gc.teams.get_team(enemy);
+
+					//Ignores spectators and temates
+					if (enemysTeam == null || enemysTeam == shooterTeam) {
+						continue;
+					}
+					//gets the eye location of the enemy player
+					Location enemyLocation = enemy.getEyeLocation();
+
+					//Gets the direction vector in which enemy is
+					Vector direction = enemyLocation.toVector().subtract(locatingArrowsLocation.toVector());
+					//gets the distanse to the enemy
+					double distance = direction.length();
+					//if too close doesn't locate
+					if (distance <= 0.0) {
+						continue;
+					}
+					//Does a ray trace, to enssure that the enemy is not behind a wall
+					//direction is being normalizied to keep only direction, though it is not nesseray for this method it is safer
+					RayTraceResult blocked = locatingArrow.getWorld().rayTraceBlocks(locatingArrowsLocation, direction.normalize(), distance);
+					//if the enemy is behind the wall then it doesn't reavel them
+					if (blocked != null) {
+						//if ray tracing met a block means the player is behind cover so it doesn't reavel the player
+						continue;
+					}
+					//Gives the glowing effect
+					enemy.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 0, false, false, true));
+
+					/*
+					* Particle locator logic:
+					* Shoots out a particle path from the arrow in the direction of the player, thought of making kinda scan area particles,
+					* for perfromanse and practicaly prefered this version a lot better.
+					* It guides the players attention towards the enemy rather than distracting with cool scaning effect
+					* */
+
+					//This adds a little height so it doesn't point to their feet, but not the head either as it would be annoying for vision
+					Location enemyParticleLocation = enemy.getLocation().clone().add(0, 1.0, 0);
+
+					//The particles path from locating arrow to the enemy
+					Vector particlesToEnmeyPath = enemyParticleLocation.toVector().subtract(locatingArrowsLocation.toVector());
+
+					//The distsanse between enemy location and the arrow
+					double distanseToEnemy = particlesToEnmeyPath.length();
+
+					//The distanse between each particle, will be 0.6 blocks.
+					double spacing = 0.6;
+
+					//This step will be added each time in the loop to particle location as it creates a 0.6 block step in the direction the enemy
+					//How it works is it takes the particlesToEnemy path normalizing it keeping direction,meaning it would be lenght 1 ,
+					//so that would be 1 block.Then multiplies by spacing to make it 0.6 blocks, to make particles look closer together
+					//That is more of a comment for myself cause later I might forget lol.
+					Vector step = particlesToEnmeyPath.normalize().multiply(spacing);
+					//The starter location of the particle
+					Location particleLocation = locatingArrowsLocation.clone();
+					//The particle looks
+					Particle.DustOptions options = new Particle.DustOptions(Color.YELLOW, 1.0F);
+					//creates the particle path from arrow to the enemy player
+					for (double travelled = 0; travelled < distanseToEnemy; travelled += spacing) {
+						//ads the step of 0.6 blocks
+						particleLocation.add(step);
+						//spawns one particle at at a time at he particle location
+						locatingArrowsLocation.getWorld().spawnParticle(Particle.DUST, particleLocation,
+								1,
+								0.0,
+								0.0,
+								0.0,
+								0.0,
+								options
+						);
+					}
+				}
+				//at the end adds one repeat
+				repeats++;
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L); //starts straight away and reapets every second
 	}
 
 	@EventHandler
