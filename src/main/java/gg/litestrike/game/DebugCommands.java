@@ -1,25 +1,28 @@
 package gg.litestrike.game;
 
-import org.bukkit.command.CommandExecutor;
-
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import org.jetbrains.annotations.NotNull;
-
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 
-public class DebugCommands implements CommandExecutor {
+public class DebugCommands {
 
 	public static CompletableFuture<Suggestions> suggestMatching(SuggestionsBuilder builder, Collection<String> options) {
 		String remaining = builder.getRemaining().toLowerCase();
@@ -31,92 +34,73 @@ public class DebugCommands implements CommandExecutor {
 		return builder.buildFuture();
 	}
 
-	@Override
-	public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label,
-			@NotNull String[] args) {
-
-		switch (label) {
-			case "mapdata":
-				return run_mapdata(args, commandSender);
-			case "player_info":
-				return run_player_info(args, commandSender);
-			case "force_start":
-				return run_force_start(args, commandSender);
-			case "soundd":
-				return run_sound_info(args, commandSender);
-			default:
-				return false;
-		}
+	public LiteralArgumentBuilder<CommandSourceStack> buildMapdata() {
+		return Commands.literal("mapdata")
+				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
+				.executes(this::run_mapdata)
+				.then(Commands.argument("action", StringArgumentType.word())
+						.suggests((context, builder) -> suggestMatching(builder, List.of("open")))
+						.executes(this::run_mapdata_action));
 	}
 
-	private boolean run_sound_info(String[] args, CommandSender commandSender) {
-		if (args.length == 0) {
-			return false;
-		}
-
-		switch (args[0]) {
-			case "round_lost":
-				SoundEffects.round_lost(Bukkit.getServer());
-				break;
-			case "round_won":
-				SoundEffects.round_won(Bukkit.getServer());
-				break;
-			case "ally_death":
-				SoundEffects.ally_death(Bukkit.getServer());
-				break;
-			case "enemy_death":
-				SoundEffects.enemy_death(Bukkit.getServer());
-				break;
-
-		}
-		return true;
+	public LiteralArgumentBuilder<CommandSourceStack> buildForceStart() {
+		return Commands.literal("force_start")
+				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
+				.executes(this::run_force_start);
 	}
 
-	private boolean run_force_start(String[] args, CommandSender commandSender) {
+	public LiteralArgumentBuilder<CommandSourceStack> buildPlayerInfo() {
+		return Commands.literal("player_info")
+				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
+				.then(Commands.argument("player", StringArgumentType.word())
+						.suggests((context, builder) -> suggestMatching(builder,
+								Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))
+						.executes(this::run_player_info));
+	}
+
+	private int run_force_start(CommandContext<CommandSourceStack> context) {
 		QueueSystem.is_force_starting = true;
 		Bukkit.getServer().sendMessage(Component.text("Force starting the GAME!!!"));
-		return true;
+		return Command.SINGLE_SUCCESS;
 	}
 
-	private boolean run_mapdata(String[] args, CommandSender commandSender) {
-		MapData mapdata = Litestrike.getInstance().mapdata;
-		commandSender.sendMessage(mapdata.toString());
+	private int run_mapdata(CommandContext<CommandSourceStack> context) {
+		context.getSource().getSender().sendMessage(Litestrike.getInstance().mapdata.toString());
+		return Command.SINGLE_SUCCESS;
+	}
 
-		if (args.length == 0) {
-			return true;
-		}
+	private int run_mapdata_action(CommandContext<CommandSourceStack> context) {
+		context.getSource().getSender().sendMessage(Litestrike.getInstance().mapdata.toString());
 
-		if (args[0].equals("open")) {
+		if (context.getArgument("action", String.class).equals("open")) {
 			Litestrike.getInstance().mapdata.map_features.bigDoor.open_door();
 		} else {
 			Litestrike.getInstance().mapdata.map_features.bigDoor.regenerate_door();
 		}
 
-		return true;
+		return Command.SINGLE_SUCCESS;
 	}
 
-	private boolean run_player_info(String[] args, CommandSender commandSender) {
-		if (args.length == 0) {
-			return false;
-		}
+	private int run_player_info(CommandContext<CommandSourceStack> context) {
+		CommandSender commandSender = context.getSource().getSender();
 
 		String party_info = Litestrike.getInstance().party_manager.print_partys();
 		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(Component.text(party_info));
 		if (Litestrike.getInstance().game_controller == null) {
 			commandSender.sendMessage("Error, can only get player_data if a game is currently running.");
-			return true;
+			return Command.SINGLE_SUCCESS;
 		}
 
 		try {
-			Player p = Bukkit.getPlayer(args[0]);
+			Player p = Bukkit.getPlayer(context.getArgument("player", String.class));
 			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(p);
 
 			commandSender.sendMessage(pd.toString());
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.SEVERE, "Error running the /player_info command\n" + e);
-			return false;
+			commandSender.sendMessage("Error running /player_info, see console. Usage: /player_info <player_name>");
 		}
-		return true;
+		return Command.SINGLE_SUCCESS;
 
 	}
 }

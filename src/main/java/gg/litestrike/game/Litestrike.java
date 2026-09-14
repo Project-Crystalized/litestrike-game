@@ -88,16 +88,17 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		manual_teams = new ManualTeams(gameConfig);
 
 		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
+		DebugCommands dc = new DebugCommands();
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
 			event.registrar().register(manual_teams.build().build(), "to set up teams manually", List.of());
 			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
+			event.registrar().register(dc.buildMapdata().build(), "For debugging purposes, get all loaded mapdata",
+					List.of());
+			event.registrar().register(dc.buildForceStart().build(), "For debugging purposes, force_start the game",
+					List.of());
+			event.registrar().register(dc.buildPlayerInfo().build(),
+					"For debugging purposes, get all info about a player", List.of());
 		});
-
-		DebugCommands dc = new DebugCommands();
-		this.getCommand("mapdata").setExecutor(dc);
-		this.getCommand("force_start").setExecutor(dc);
-		this.getCommand("player_info").setExecutor(dc);
-		this.getCommand("soundd").setExecutor(dc);
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);

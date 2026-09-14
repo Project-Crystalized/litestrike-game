@@ -7,32 +7,3 @@ load: POSTWORLD
 # softdepend: [Crystalized_Essentials]
 
 depend: [ProtocolLib, Crystalized_Essentials, floodgate]
-
-commands:
-  mapdata:
-    description: "For debugging purposes, get all loaded mapdata"
-    usage: "/mapdata"
-    aliases: []
-    permission: litestrike.command.game
-    permission-message: "you dont have permission to run the command"
-
-  force_start:
-    description: "For debugging purposes, force_start the game"
-    usage: "/force_start"
-    aliases: []
-    permission: litestrike.command.game
-    permission-message: "you dont have permission to run the command"
-
-  player_info:
-    description: "For debugging purposes, get all info about a player"
-    usage: "/player_info <player_name>"
-    aliases: []
-    permission: litestrike.command.game
-    permission-message: "you dont have permission to run the command"
-
-  soundd:
-    description: "For debugging purposes, play a sound effect"
-    usage: "/soundd"
-    aliases: []
-    permission: litestrike.command.game
-    permission-message: "you dont have permission to run the command"
