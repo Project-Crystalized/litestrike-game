@@ -279,7 +279,7 @@ public class PlayerListener implements Listener {
 		if (arrowItem == null || !arrowItem.hasItemMeta()) {
 			return;
 		}
-		Integer locatingMarker = arrowItem.getItemMeta().getPersistentDataContainer().get(new NamespacedKey("namespace", "key"), PersistentDataType.INTEGER);
+		Integer locatingMarker = arrowItem.getItemMeta().getPersistentDataContainer().get(LSItem.LOCATING_ARROW_KEY, PersistentDataType.INTEGER);
 		if (!Integer.valueOf(1).equals(locatingMarker)) {
 			return;
 		}

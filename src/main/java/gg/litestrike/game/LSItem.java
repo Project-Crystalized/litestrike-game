@@ -56,6 +56,9 @@ public class LSItem {
 
 	public static List<LSItem> shopItems = createItems();
 
+	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
+	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");
+
 	public enum ItemCategory {
 		Melee,
 		Range,
@@ -301,7 +304,7 @@ public class LSItem {
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("locating_arrow")
 				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
-				.persistentData(1)
+				.persistentData(LOCATING_ARROW_KEY, 1)
 				.price(150).slot(51).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
@@ -361,7 +364,7 @@ public class LSItem {
 				.model("breeze_dagger")
 				.name("crystalized.sword.wind.name")
 				.description("crystalized.sword.wind.desc")
-				.persistentData(0)
+				.persistentData(BREEZE_DAGGER_STATE_KEY, 0)
 				.price(800).category(ItemCategory.Melee).modelData(2));
 
 		builders.add(Builder.of(CROSSBOW)
@@ -518,9 +521,9 @@ public class LSItem {
 			return this;
 		}
 
-		public Builder persistentData(int value) {
+		public Builder persistentData(NamespacedKey key, int value) {
 			ItemMeta meta = item.getItemMeta();
-			meta.getPersistentDataContainer().set(new NamespacedKey("namespace", "key"), PersistentDataType.INTEGER,
+			meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER,
 					value);
 			item.setItemMeta(meta);
 			return this;

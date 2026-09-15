@@ -216,9 +216,8 @@ public class GameController {
 			for (int i = 0; i < inv.getSize(); i++) {
 				if (LSItem.isBreezeDagger(inv.getItem(i))) {
 					ItemMeta meta = inv.getItem(i).getItemMeta();
-					NamespacedKey key = new NamespacedKey("namespace", "key");
 					PersistentDataContainer cont = meta.getPersistentDataContainer();
-					cont.set(key, PersistentDataType.INTEGER, 2);
+					cont.set(LSItem.BREEZE_DAGGER_STATE_KEY, PersistentDataType.INTEGER, 2);
 					inv.getItem(i).setItemMeta(meta);
 				}
 			}
