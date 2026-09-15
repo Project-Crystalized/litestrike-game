@@ -20,6 +20,8 @@ import net.kyori.adventure.text.format.TextDecoration;
 
 import org.geysermc.floodgate.api.FloodgateApi;
 
+import gg.crystalized.lobby.Ranks;
+
 import static net.kyori.adventure.text.Component.text;
 
 public class ScoreboardController {
@@ -59,6 +61,12 @@ public class ScoreboardController {
 		breakers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
 		for (Player player : teams.get_breakers()) {
 			breakers.addPlayer(player);
+		}
+
+		try {
+			Ranks.passiveNames(p, Teams.get_team_color(teams.get_team(p.getName())), null, null);
+		} catch (NoClassDefFoundError e) {
+			p.displayName(Component.text(p.getName()).color(Teams.get_team_color(teams.get_team(p.getName()))));
 		}
 
 		// Bedrock scoreboard
