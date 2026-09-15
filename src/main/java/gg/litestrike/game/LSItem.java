@@ -54,10 +54,10 @@ public class LSItem {
 	private static short creation_number = 1;
 	public final Short id;
 
-	public static List<LSItem> shopItems = createItems();
-
 	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
 	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");
+
+	public static List<LSItem> shopItems = createItems();
 
 	public enum ItemCategory {
 		Melee,
