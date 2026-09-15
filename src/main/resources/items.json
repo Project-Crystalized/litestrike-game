@@ -1,5 +1,4 @@
 {
-	"_comment": "Optional price/slot overrides for shop items. Each entry overrides the item with the given internal name (the stable key, do not change it). A missing price or slot keeps the default. For backwards compatibility a numeric \"id\" (= 1-based creation order) is also accepted instead of \"name\". The database id is the creation order, so items must not be removed or reordered. Delete this file to reset everything to defaults.",
 	"items": [
 		{ "name": "diamond_chestplate", "price": 500, "slot": 13 },
 		{ "name": "iron_sword", "price": 750, "slot": 11 },
