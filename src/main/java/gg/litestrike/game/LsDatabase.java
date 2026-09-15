@@ -9,7 +9,18 @@ import org.bukkit.OfflinePlayer;
 
 public class LsDatabase {
 
-	public static String URL = "jdbc:sqlite:" + System.getProperty("user.home") + "/databases/litestrike_db.sql";
+	private static String dbDir() {
+		String d = System.getenv("CRYSTALIZED_DB_DIR");
+		if (d == null || d.isBlank()) d = System.getProperty("user.home") + "/databases/test_dbs";
+		try {
+			java.nio.file.Files.createDirectories(java.nio.file.Path.of(d));
+		} catch (java.io.IOException e) {
+			throw new IllegalStateException("Could not create database directory: " + d, e);
+		}
+		return d;
+	}
+
+	public static String URL = "jdbc:sqlite:" + dbDir() + "/litestrike_db.sql";
 
 	static void setDatabaseUrlForTests(String url) {
 		URL = url;
