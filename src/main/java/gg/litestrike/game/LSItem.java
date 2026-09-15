@@ -301,6 +301,7 @@ public class LSItem {
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("locating_arrow")
 				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
+				.persistentData(1)
 				.price(150).slot(51).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
@@ -369,6 +370,11 @@ public class LSItem {
 				.name("crystalized.crossbow.precise.name")
 				.description("crystalized.crossbow.precise.desc")
 				.price(1750).category(ItemCategory.Range).modelData(3));
+
+		// normal spectral arrow (vanilla glow, no tracer scan).
+		builders.add(Builder.of(SPECTRAL_ARROW, 3)
+				.key("spectral_arrow")
+				.price(150).category(ItemCategory.Ammunition));
 
 		return builders;
 	}

@@ -26,6 +26,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import gg.litestrike.game.GameController.RoundState;
@@ -263,31 +264,33 @@ public class PlayerListener implements Listener {
 			return;
 
 		ProjectileSource shootingEntity = event.getEntity().getShooter();
-		//Location loc = event.getEntity().getLocation();
-
 		if (shootingEntity == null)
 			return;
 
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null)
 			return;
-		//makes sure it is spectral arrow
 		if (!(event.getEntity() instanceof SpectralArrow locatingArrow)) {
 			return;
 		}
-		//makes sure that the shootining entity is a player
+		// only locating arrows (PDC-marked shop item, see LSItem) run the tracer
+		// scan; normal spectral arrows keep vanilla glow behavior
+		ItemStack arrowItem = locatingArrow.getItemStack();
+		if (arrowItem == null || !arrowItem.hasItemMeta()) {
+			return;
+		}
+		Integer locatingMarker = arrowItem.getItemMeta().getPersistentDataContainer().get(new NamespacedKey("namespace", "key"), PersistentDataType.INTEGER);
+		if (!Integer.valueOf(1).equals(locatingMarker)) {
+			return;
+		}
 		if (!(shootingEntity instanceof Player shooter)) {
 			return;
 		}
-		//Gets the location of locationg arrow
 		Location locatingArrowsLocation = locatingArrow.getLocation().clone();
-		//If arrow has hit a block, the detection location will move from the block so that ray tracing doesn't hit that block
-		//This is allows the ray tracing to work, otherwise it would just hit the block and that would be it.
 		if (event.getHitBlockFace() != null) {
-			//moves slightly out
+			//moves slightly out, so ray traces dont insta hit a block
 			locatingArrowsLocation.add(event.getHitBlockFace().getDirection().multiply(0.15));
 		}
-		//gets the shooters team.
 		Team shooterTeam = gc.teams.get_team(shooter);
 		if (shooterTeam == null) {
 			return;
@@ -299,46 +302,29 @@ public class PlayerListener implements Listener {
 			int repeats = 0;
 			@Override
 			public void run() {
-				//when the repetion ends or arrow is no longer valid removes it and cancles
 				if (repeats >= 3 || !locatingArrow.isValid()) {
-					//removes the arrow at the end of repetion
 					locatingArrow.remove();
 					cancel();
 					return;
 				}
-				//The readius which is being scaned for players
 				double scanRadius = 20.0;
-
-				//Finds the player withing the location arrow radiuds
 				for (Player enemy : locatingArrowsLocation.getNearbyPlayers(scanRadius)) {
-
-					//gets the team of the player
 					Team enemysTeam = gc.teams.get_team(enemy);
-
-					//Ignores spectators and temates
 					if (enemysTeam == null || enemysTeam == shooterTeam) {
 						continue;
 					}
-					//gets the eye location of the enemy player
 					Location enemyLocation = enemy.getEyeLocation();
-
-					//Gets the direction vector in which enemy is
 					Vector direction = enemyLocation.toVector().subtract(locatingArrowsLocation.toVector());
-					//gets the distanse to the enemy
 					double distance = direction.length();
-					//if too close doesn't locate
 					if (distance <= 0.0) {
 						continue;
 					}
 					//Does a ray trace, to enssure that the enemy is not behind a wall
 					//direction is being normalizied to keep only direction, though it is not nesseray for this method it is safer
 					RayTraceResult blocked = locatingArrow.getWorld().rayTraceBlocks(locatingArrowsLocation, direction.normalize(), distance);
-					//if the enemy is behind the wall then it doesn't reavel them
 					if (blocked != null) {
-						//if ray tracing met a block means the player is behind cover so it doesn't reavel the player
 						continue;
 					}
-					//Gives the glowing effect
 					enemy.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 0, false, false, true));
 
 					/*
@@ -350,30 +336,19 @@ public class PlayerListener implements Listener {
 
 					//This adds a little height so it doesn't point to their feet, but not the head either as it would be annoying for vision
 					Location enemyParticleLocation = enemy.getLocation().clone().add(0, 1.0, 0);
-
-					//The particles path from locating arrow to the enemy
 					Vector particlesToEnmeyPath = enemyParticleLocation.toVector().subtract(locatingArrowsLocation.toVector());
-
-					//The distsanse between enemy location and the arrow
 					double distanseToEnemy = particlesToEnmeyPath.length();
-
-					//The distanse between each particle, will be 0.6 blocks.
-					double spacing = 0.6;
+					double particle_spacing = 0.6;
 
 					//This step will be added each time in the loop to particle location as it creates a 0.6 block step in the direction the enemy
 					//How it works is it takes the particlesToEnemy path normalizing it keeping direction,meaning it would be lenght 1 ,
 					//so that would be 1 block.Then multiplies by spacing to make it 0.6 blocks, to make particles look closer together
 					//That is more of a comment for myself cause later I might forget lol.
-					Vector step = particlesToEnmeyPath.normalize().multiply(spacing);
-					//The starter location of the particle
+					Vector step = particlesToEnmeyPath.normalize().multiply(particle_spacing);
 					Location particleLocation = locatingArrowsLocation.clone();
-					//The particle looks
 					Particle.DustOptions options = new Particle.DustOptions(Color.YELLOW, 1.0F);
-					//creates the particle path from arrow to the enemy player
-					for (double travelled = 0; travelled < distanseToEnemy; travelled += spacing) {
-						//ads the step of 0.6 blocks
+					for (double travelled = 0; travelled < distanseToEnemy; travelled += particle_spacing) {
 						particleLocation.add(step);
-						//spawns one particle at at a time at he particle location
 						locatingArrowsLocation.getWorld().spawnParticle(Particle.DUST, particleLocation,
 								1,
 								0.0,
@@ -384,10 +359,9 @@ public class PlayerListener implements Listener {
 						);
 					}
 				}
-				//at the end adds one repeat
 				repeats++;
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L); //starts straight away and reapets every second
+		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L);
 	}
 
 	@EventHandler
@@ -401,22 +375,15 @@ public class PlayerListener implements Listener {
 			return;
 		}
 		event.setCancelled(true);
-		// If not player than nothing happens
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		// This parts makes sure that crosbow becomes empty.
-		// Takes on the crosbow
 		ItemStack weapon = event.getBow();
-		// checks if it is a crosbow meta
 		if (weapon != null && weapon.getItemMeta() instanceof CrossbowMeta) {
 			CrossbowMeta crossbowMeta = (CrossbowMeta) weapon.getItemMeta();
-			// makes sure all projectiles have been cleared from it
 			crossbowMeta.setChargedProjectiles(null);
-			// sets the meta again.
 			weapon.setItemMeta(crossbowMeta);
 		}
-		// The previous working arrow return logic, moved here
 		if (event.getProjectile() instanceof Arrow) {
 			((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
 		} else if (event.getProjectile() instanceof SpectralArrow) {
