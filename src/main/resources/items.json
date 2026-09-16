@@ -28,6 +28,8 @@
 		{ "name": "stone_pickaxe", "price": null, "slot": null },
 		{ "name": "crossbow", "price": 1250, "slot": 33 },
 		{ "name": "breeze_dagger", "price": 800, "slot": null },
-		{ "name": "precise_crossbow", "price": 1750, "slot": null }
+		{ "name": "precise_crossbow", "price": 1750, "slot": null },
+		{ "name": "spectral_arrow", "price": 150, "slot": null },
+		{ "name": "broadsword", "price": 1000, "slot": null }
 	]
 }

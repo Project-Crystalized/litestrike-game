@@ -1,0 +1,20 @@
+{
+	"items": [
+		{ "name": "broadsword", "price": 1000, "slot": 0 }, // is sharp 1 iron sword
+		{ "name": "iron_axe", "price": 2000, "slot": 2 },
+		{ "name": "arrow", "price": 200, "slot": 50 }, // 200 for 8 arrows tho?
+		{ "name": "golden_apple", "price": 750, "slot": 48 },
+		{ "name": "iron_chestplate", "price": 250, "slot": 40 },
+		{ "name": "quickdraw", "price": 2000, "slot": 24 },
+		{ "name": "pufferfish_sword", "price": 1500, "slot": 18 }, // is stone sword
+		{ "name": "slime_sword", "price": 1250, "slot": 20 }, // is stone sword
+		{ "name": "marksman_bow", "price": 750, "slot": 6 },
+		{ "name": "explosive bow", "price": 1750, "slot": 8 },
+		{ "name": "multishot_crossbow", "price": 2200, "slot": 26 },
+		{ "name": "speed2_potion", "price": 1000, "slot": 46 }, // 40% speed for 10 seconds
+		{ "name": "speed1_potion", "price": 750, "slot": 47 }, // 20% for 20 seconds
+		{ "name": "resistance_potion", "price": 750, "slot": 45 }, // resistance 1 for 40 seconds
+		{ "name": "spectral_arrow", "price": 300, "slot": 51 }, // 4 for 300
+		{ "name": "healing_arrow", "price": 250, "slot": 52 }, //4 for 250, heals allies, not yourself, on direct hit allie, give regen 2 for 2 seconds, and makes particles around them
+	]
+}

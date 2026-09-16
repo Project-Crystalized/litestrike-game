@@ -379,6 +379,12 @@ public class LSItem {
 				.key("spectral_arrow")
 				.price(150).category(ItemCategory.Ammunition));
 
+		builders.add(Builder.of(IRON_SWORD)
+				.key("broadsword")
+				.enchantment(SHARPNESS, 1)
+				.name(Component.text("Broadsword").decoration(ITALIC, false))
+				.price(1000).category(ItemCategory.Melee));
+
 		return builders;
 	}
 
@@ -615,6 +621,9 @@ public class LSItem {
 
 		if (item.getType() == ls_item.getType()
 				&& Objects.equals(ShopListener.identifyItemModel(item), ShopListener.identifyItemModel(ls_item))) {
+			if (!item.getEnchantments().equals(ls_item.getEnchantments())) {
+				return false;
+			}
 			if (item.getItemMeta() instanceof PotionMeta && ls_item.getItemMeta() instanceof PotionMeta) {
 				PotionMeta item_meta = (PotionMeta) item.getItemMeta();
 				PotionMeta ls_item_meta = (PotionMeta) ls_item.getItemMeta();
