@@ -190,7 +190,7 @@ public class LSItem {
 
 		builders.add(Builder.of(ARROW, 6)
 				.key("arrow")
-				.price(150).slot(50).category(ItemCategory.Ammunition));
+				.price(150).slot(46).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(LEATHER_CHESTPLATE)
 				.key("breaker_armor")
@@ -305,7 +305,7 @@ public class LSItem {
 				.key("locating_arrow")
 				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
 				.persistentData(LOCATING_ARROW_KEY, 1)
-				.price(300).slot(51).category(ItemCategory.Ammunition));
+				.price(300).slot(47).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("dragon_arrow")
@@ -313,7 +313,7 @@ public class LSItem {
 				.name("crystalized.item.dragonarrow.name")
 				.description("crystalized.item.dragonarrow.desc")
 				.loreOnItem()
-				.price(350).slot(52).category(ItemCategory.Ammunition).modelData(1));
+				.price(350).slot(48).category(ItemCategory.Ammunition).modelData(1));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("explosive_arrow")
@@ -321,7 +321,7 @@ public class LSItem {
 				.name("crystalized.item.explosivearrow.name")
 				.description("crystalized.item.explosivearrow.desc")
 				.loreOnItem()
-				.price(350).slot(53).category(ItemCategory.Ammunition).modelData(2));
+				.price(350).slot(49).category(ItemCategory.Ammunition).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("underdog_sword")
