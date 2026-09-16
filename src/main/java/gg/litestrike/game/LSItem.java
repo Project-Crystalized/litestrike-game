@@ -385,6 +385,14 @@ public class LSItem {
 				.name(Component.text("Broadsword").decoration(ITALIC, false))
 				.price(1000).category(ItemCategory.Melee));
 
+		builders.add(Builder.of(BOW)
+				.key("explosive_bow")
+				.model("explosive_bow")
+				.name("crystalized.bow.explosive.name")
+				.description("crystalized.bow.explosive.desc1")
+				.description("crystalized.bow.explosive.desc2")
+				.price(1750).category(ItemCategory.Range).modelData(2));
+
 		return builders;
 	}
 
