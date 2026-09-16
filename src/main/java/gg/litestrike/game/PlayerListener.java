@@ -210,6 +210,14 @@ public class PlayerListener implements Listener {
 			return;
 		}
 
+		// healing arrows deal no damage, they only heal allies via proximity
+		if (e instanceof EntityDamageByEntityEvent ebe
+				&& ebe.getDamager() instanceof Arrow arrow
+				&& arrow.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION)) {
+			e.setDamage(0.0);
+			return;
+		}
+
 		// reduce explosion damage
 		if (e.getCause() == DamageCause.ENTITY_EXPLOSION) {
 			e.setDamage(e.getDamage() / 3);
@@ -364,13 +372,91 @@ public class PlayerListener implements Listener {
 		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L);
 	}
 
+	private static boolean isHealingArrow(ItemStack arrowItem) {
+		if (arrowItem == null || arrowItem.getType() != Material.TIPPED_ARROW
+				|| !(arrowItem.getItemMeta() instanceof PotionMeta potionMeta)
+				|| potionMeta.hasItemModel()) {
+			return false;
+		}
+		return potionMeta.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION);
+	}
+
+	@EventHandler
+	public void onPotionEffect(EntityPotionEffectEvent event) {
+		if (event.getCause() != EntityPotionEffectEvent.Cause.ARROW
+				|| !(event.getEntity() instanceof Player target)
+				|| !(event.getSource() instanceof Arrow arrow)) {
+			return;
+		}
+		boolean healing = arrow.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION);
+		if (!healing) {
+			return;
+		}
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		if (!(arrow.getShooter() instanceof Player shooter) || shooter.equals(target)) {
+			event.setCancelled(true);
+			return;
+		}
+		Team shooterTeam = gc.teams.get_team(shooter);
+		Team targetTeam = gc.teams.get_team(target);
+		if (shooterTeam == null || targetTeam == null || shooterTeam != targetTeam) {
+			event.setCancelled(true);
+		}
+	}
+
+	private static void trackHealingArrow(Arrow arrow, Player shooter) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		Team shooterTeam = gc.teams.get_team(shooter);
+		if (shooterTeam == null) {
+			return;
+		}
+		new BukkitRunnable() {
+			int ticks = 0;
+
+			@Override
+			public void run() {
+				if (!arrow.isValid() || ticks++ >= 300) {
+					cancel();
+					return;
+				}
+				boolean healed = false;
+				for (Player ally : arrow.getLocation().getNearbyPlayers(2.0)) {
+					if (ally.equals(shooter) || shooterTeam != gc.teams.get_team(ally)) {
+						continue;
+					}
+					arrow.getCustomEffects().stream().filter(effect -> effect.getType() == PotionEffectType.REGENERATION)
+							.forEach(ally::addPotionEffect);
+					healed = true;
+				}
+				if (!healed) {
+					return;
+				}
+				Location loc = arrow.getLocation();
+				loc.getWorld().spawnParticle(Particle.HEART, loc, 8, 0.5, 0.5, 0.5);
+				loc.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, loc, 8, 0.5, 0.5, 0.5);
+				loc.getWorld().playSound(loc, Sound.ENTITY_SPLASH_POTION_BREAK, 1.0F, 1.0F);
+				arrow.remove();
+				cancel();
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 0L, 1L);
+	}
+
 	@EventHandler
 	public void onBowShot(EntityShootBowEvent event) {
 		// count one shot per trigger pull (bow or crossbow) during rounds
 		if (Litestrike.getInstance().game_controller.round_state != RoundState.PreRound) {
-			if (event.getEntity() instanceof Player) {
-				Player p = (Player) event.getEntity();
+			if (event.getEntity() instanceof Player p) {
 				Litestrike.getInstance().game_controller.playerDataManager.get(p).bow_shots += 1;
+				if (event.getProjectile() instanceof Arrow arrow
+						&& isHealingArrow(event.getConsumable())) {
+					trackHealingArrow(arrow, p);
+				}
 			}
 			return;
 		}

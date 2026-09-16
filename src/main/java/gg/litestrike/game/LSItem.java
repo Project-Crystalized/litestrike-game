@@ -393,6 +393,13 @@ public class LSItem {
 				.description("crystalized.bow.explosive.desc2")
 				.price(1750).category(ItemCategory.Range).modelData(2));
 
+		// healing arrow does 0 damage to enemys TODO mention it in lore
+		builders.add(Builder.of(TIPPED_ARROW, 4)
+				.key("healing_arrow")
+				.name(Component.text("Healing Arrow").decoration(ITALIC, false))
+				.potionEffect(PotionEffectType.REGENERATION, 80, 1)
+				.price(250).category(ItemCategory.Ammunition));
+
 		return builders;
 	}
 

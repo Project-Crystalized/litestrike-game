@@ -31,6 +31,7 @@
 		{ "name": "precise_crossbow", "price": 1750, "slot": null },
 		{ "name": "spectral_arrow", "price": 150, "slot": null },
 		{ "name": "broadsword", "price": 1000, "slot": null },
-		{ "name": "explosive_bow", "price": 1750, "slot": null }
+		{ "name": "explosive_bow", "price": 1750, "slot": null },
+		{ "name": "healing_arrow", "price": 250, "slot": null }
 	]
 }
