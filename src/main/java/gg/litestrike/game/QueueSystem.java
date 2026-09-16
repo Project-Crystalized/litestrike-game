@@ -83,15 +83,13 @@ public class QueueSystem implements PluginMessageListener {
 					Bukkit.getLogger().info("A GAME is starting!");
 					SoundEffects.game_start();
 
-					// signals that the game has started to the proxy
-					ByteArrayDataOutput out = ByteStreams.newDataOutput();
-					out.writeUTF("start_game");
 					for (Player p : Bukkit.getOnlinePlayers()) {
-						out.writeUTF(p.getName());
 						p.getInventory().clear();
 					}
-					Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
-					p.sendPluginMessage(Litestrike.getInstance(), "crystalized:main", out.toByteArray());
+
+					// signals that the game has started to the proxy
+					Litestrike.getInstance().sendPluginMessage("crystalized:main", "start_game");
+
 					Litestrike.getInstance().party_manager.clear_partys();
 
 					return;

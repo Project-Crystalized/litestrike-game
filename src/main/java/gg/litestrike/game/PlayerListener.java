@@ -5,10 +5,7 @@ import gg.crystalized.lobby.App;
 import gg.crystalized.lobby.Ranks;
 import io.papermc.paper.event.connection.PlayerConnectionValidateLoginEvent;
 import io.papermc.paper.event.entity.EntityLoadCrossbowEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -29,6 +26,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import gg.litestrike.game.GameController.RoundState;
@@ -42,6 +40,9 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.projectiles.ProjectileSource;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
@@ -209,6 +210,14 @@ public class PlayerListener implements Listener {
 			return;
 		}
 
+		// healing arrows deal no damage, they only heal allies via proximity
+		if (e instanceof EntityDamageByEntityEvent ebe
+				&& ebe.getDamager() instanceof Arrow arrow
+				&& arrow.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION)) {
+			e.setDamage(0.0);
+			return;
+		}
+
 		// reduce explosion damage
 		if (e.getCause() == DamageCause.ENTITY_EXPLOSION) {
 			e.setDamage(e.getDamage() / 3);
@@ -257,55 +266,210 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onProjectileHit(ProjectileHitEvent event) {
+		//will not run if it didn't hit a block
+		//In the future we want we can make so the locator arrow works even if it hit the player by removing this
 		if (event.getHitBlock() == null)
 			return;
 
-		ProjectileSource shooter = event.getEntity().getShooter();
-		Location loc = event.getEntity().getLocation();
-
-		if (shooter == null)
+		ProjectileSource shootingEntity = event.getEntity().getShooter();
+		if (shootingEntity == null)
 			return;
 
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null)
 			return;
-
-		if (event.getEntity().getType() == EntityType.SPECTRAL_ARROW) {
-			for (LivingEntity e : loc.getNearbyPlayers(3)) {
-				if (gc.teams.get_team((Player) e) == gc.teams.get_team((Player) shooter)) {
-					e.removePotionEffect(PotionEffectType.GLOWING);
-				}
-			}
+		if (!(event.getEntity() instanceof SpectralArrow locatingArrow)) {
+			return;
 		}
+		// only locating arrows (PDC-marked shop item, see LSItem) run the tracer
+		// scan; normal spectral arrows keep vanilla glow behavior
+		ItemStack arrowItem = locatingArrow.getItemStack();
+		if (arrowItem == null || !arrowItem.hasItemMeta()) {
+			return;
+		}
+		Integer locatingMarker = arrowItem.getItemMeta().getPersistentDataContainer().get(LSItem.LOCATING_ARROW_KEY, PersistentDataType.INTEGER);
+		if (!Integer.valueOf(1).equals(locatingMarker)) {
+			return;
+		}
+		if (!(shootingEntity instanceof Player shooter)) {
+			return;
+		}
+		Location locatingArrowsLocation = locatingArrow.getLocation().clone();
+		if (event.getHitBlockFace() != null) {
+			//moves slightly out, so ray traces dont insta hit a block
+			locatingArrowsLocation.add(event.getHitBlockFace().getDirection().multiply(0.15));
+		}
+		Team shooterTeam = gc.teams.get_team(shooter);
+		if (shooterTeam == null) {
+			return;
+		}
+
+		//The repeating task for scaning and locating the enemies
+		new BukkitRunnable() {
+			//will repeat 3 times
+			int repeats = 0;
+			@Override
+			public void run() {
+				if (repeats >= 3 || !locatingArrow.isValid()) {
+					locatingArrow.remove();
+					cancel();
+					return;
+				}
+				double scanRadius = 20.0;
+				for (Player enemy : locatingArrowsLocation.getNearbyPlayers(scanRadius)) {
+					Team enemysTeam = gc.teams.get_team(enemy);
+					if (enemysTeam == null || enemysTeam == shooterTeam) {
+						continue;
+					}
+					Location enemyLocation = enemy.getEyeLocation();
+					Vector direction = enemyLocation.toVector().subtract(locatingArrowsLocation.toVector());
+					double distance = direction.length();
+					if (distance <= 0.0) {
+						continue;
+					}
+					//Does a ray trace, to enssure that the enemy is not behind a wall
+					//direction is being normalizied to keep only direction, though it is not nesseray for this method it is safer
+					RayTraceResult blocked = locatingArrow.getWorld().rayTraceBlocks(locatingArrowsLocation, direction.normalize(), distance);
+					if (blocked != null) {
+						continue;
+					}
+					enemy.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 40, 0, false, false, true));
+
+					/*
+					* Particle locator logic:
+					* Shoots out a particle path from the arrow in the direction of the player, thought of making kinda scan area particles,
+					* for perfromanse and practicaly prefered this version a lot better.
+					* It guides the players attention towards the enemy rather than distracting with cool scaning effect
+					* */
+
+					//This adds a little height so it doesn't point to their feet, but not the head either as it would be annoying for vision
+					Location enemyParticleLocation = enemy.getLocation().clone().add(0, 1.0, 0);
+					Vector particlesToEnmeyPath = enemyParticleLocation.toVector().subtract(locatingArrowsLocation.toVector());
+					double distanseToEnemy = particlesToEnmeyPath.length();
+					double particle_spacing = 0.6;
+
+					//This step will be added each time in the loop to particle location as it creates a 0.6 block step in the direction the enemy
+					//How it works is it takes the particlesToEnemy path normalizing it keeping direction,meaning it would be lenght 1 ,
+					//so that would be 1 block.Then multiplies by spacing to make it 0.6 blocks, to make particles look closer together
+					//That is more of a comment for myself cause later I might forget lol.
+					Vector step = particlesToEnmeyPath.normalize().multiply(particle_spacing);
+					Location particleLocation = locatingArrowsLocation.clone();
+					Particle.DustOptions options = new Particle.DustOptions(Color.YELLOW, 1.0F);
+					for (double travelled = 0; travelled < distanseToEnemy; travelled += particle_spacing) {
+						particleLocation.add(step);
+						locatingArrowsLocation.getWorld().spawnParticle(Particle.DUST, particleLocation,
+								1,
+								0.0,
+								0.0,
+								0.0,
+								0.0,
+								options
+						);
+					}
+				}
+				repeats++;
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L);
+	}
+
+	private static boolean isHealingArrow(ItemStack arrowItem) {
+		if (arrowItem == null || arrowItem.getType() != Material.TIPPED_ARROW
+				|| !(arrowItem.getItemMeta() instanceof PotionMeta potionMeta)
+				|| potionMeta.hasItemModel()) {
+			return false;
+		}
+		return potionMeta.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION);
+	}
+
+	@EventHandler
+	public void onPotionEffect(EntityPotionEffectEvent event) {
+		if (event.getCause() != EntityPotionEffectEvent.Cause.ARROW
+				|| !(event.getEntity() instanceof Player target)
+				|| !(event.getSource() instanceof Arrow arrow)) {
+			return;
+		}
+		boolean healing = arrow.getCustomEffects().stream().anyMatch(effect -> effect.getType() == PotionEffectType.REGENERATION);
+		if (!healing) {
+			return;
+		}
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		if (!(arrow.getShooter() instanceof Player shooter) || shooter.equals(target)) {
+			event.setCancelled(true);
+			return;
+		}
+		Team shooterTeam = gc.teams.get_team(shooter);
+		Team targetTeam = gc.teams.get_team(target);
+		if (shooterTeam == null || targetTeam == null || shooterTeam != targetTeam) {
+			event.setCancelled(true);
+		}
+	}
+
+	private static void trackHealingArrow(Arrow arrow, Player shooter) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) {
+			return;
+		}
+		Team shooterTeam = gc.teams.get_team(shooter);
+		if (shooterTeam == null) {
+			return;
+		}
+		new BukkitRunnable() {
+			int ticks = 0;
+
+			@Override
+			public void run() {
+				if (!arrow.isValid() || ticks++ >= 300) {
+					cancel();
+					return;
+				}
+				boolean healed = false;
+				for (Player ally : arrow.getLocation().getNearbyPlayers(2.0)) {
+					if (ally.equals(shooter) || shooterTeam != gc.teams.get_team(ally)) {
+						continue;
+					}
+					arrow.getCustomEffects().stream().filter(effect -> effect.getType() == PotionEffectType.REGENERATION)
+							.forEach(ally::addPotionEffect);
+					healed = true;
+				}
+				if (!healed) {
+					return;
+				}
+				Location loc = arrow.getLocation();
+				loc.getWorld().spawnParticle(Particle.HEART, loc, 8, 0.5, 0.5, 0.5);
+				loc.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, loc, 8, 0.5, 0.5, 0.5);
+				loc.getWorld().playSound(loc, Sound.ENTITY_SPLASH_POTION_BREAK, 1.0F, 1.0F);
+				arrow.remove();
+				cancel();
+			}
+		}.runTaskTimer(Litestrike.getInstance(), 0L, 1L);
 	}
 
 	@EventHandler
 	public void onBowShot(EntityShootBowEvent event) {
 		// count one shot per trigger pull (bow or crossbow) during rounds
 		if (Litestrike.getInstance().game_controller.round_state != RoundState.PreRound) {
-			if (event.getEntity() instanceof Player) {
-				Player p = (Player) event.getEntity();
+			if (event.getEntity() instanceof Player p) {
 				Litestrike.getInstance().game_controller.playerDataManager.get(p).bow_shots += 1;
+				if (event.getProjectile() instanceof Arrow arrow
+						&& isHealingArrow(event.getConsumable())) {
+					trackHealingArrow(arrow, p);
+				}
 			}
 			return;
 		}
 		event.setCancelled(true);
-		// If not player than nothing happens
 		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
-		// This parts makes sure that crosbow becomes empty.
-		// Takes on the crosbow
 		ItemStack weapon = event.getBow();
-		// checks if it is a crosbow meta
 		if (weapon != null && weapon.getItemMeta() instanceof CrossbowMeta) {
 			CrossbowMeta crossbowMeta = (CrossbowMeta) weapon.getItemMeta();
-			// makes sure all projectiles have been cleared from it
 			crossbowMeta.setChargedProjectiles(null);
-			// sets the meta again.
 			weapon.setItemMeta(crossbowMeta);
 		}
-		// The previous working arrow return logic, moved here
 		if (event.getProjectile() instanceof Arrow) {
 			((Player) event.getEntity()).getInventory().addItem(((Arrow) event.getProjectile()).getItemStack());
 		} else if (event.getProjectile() instanceof SpectralArrow) {

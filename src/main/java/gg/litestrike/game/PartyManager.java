@@ -94,6 +94,15 @@ public class PartyManager implements PluginMessageListener {
 		partys.clear();
 	}
 
+	public List<String> get_party_of(String name) {
+		for (List<String> party : partys) {
+			if (party.contains(name)) {
+				return new ArrayList<>(party);
+			}
+		}
+		return new ArrayList<>();
+	}
+
 	public String print_partys() {
 		String s = "";
 

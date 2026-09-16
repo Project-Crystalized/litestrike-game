@@ -54,6 +54,9 @@ public class LSItem {
 	private static short creation_number = 1;
 	public final Short id;
 
+	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
+	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");
+
 	public static List<LSItem> shopItems = createItems();
 
 	public enum ItemCategory {
@@ -187,7 +190,7 @@ public class LSItem {
 
 		builders.add(Builder.of(ARROW, 6)
 				.key("arrow")
-				.price(150).slot(50).category(ItemCategory.Ammunition));
+				.price(150).slot(46).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(LEATHER_CHESTPLATE)
 				.key("breaker_armor")
@@ -207,7 +210,7 @@ public class LSItem {
 				.hideAttributes()
 				.description("crystalized.item.defuser.desc1")
 				.description("crystalized.item.defuser.desc2")
-				.price(500).slot(Shop.DEFUSER_SLOT).category(ItemCategory.Defuser));
+				.price(500).slot(22).category(ItemCategory.Defuser));
 
 		builders.add(Builder.of(GOLDEN_APPLE)
 				.key("golden_apple")
@@ -226,7 +229,7 @@ public class LSItem {
 				.model("quick_charge_crossbow")
 				.name("crystalized.crossbow.quickcharge.name")
 				.description("crystalized.crossbow.quickcharge.desc")
-				.price(2000).slot(24).category(ItemCategory.Range).modelData(2));
+				.price(2000).category(ItemCategory.Range).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("pufferfish_sword")
@@ -257,7 +260,7 @@ public class LSItem {
 				.model("ricochet_bow")
 				.name("crystalized.bow.ricochet.name")
 				.description("crystalized.bow.ricochet.desc")
-				.price(1500).slot(8).category(ItemCategory.Range).modelData(3));
+				.price(1000).slot(8).category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("multishot_crossbow")
@@ -299,8 +302,10 @@ public class LSItem {
 				.price(750).slot(45).category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
-				.key("spectral_arrow")
-				.price(150).slot(51).category(ItemCategory.Ammunition));
+				.key("locating_arrow")
+				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
+				.persistentData(LOCATING_ARROW_KEY, 1)
+				.price(300).slot(47).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("dragon_arrow")
@@ -308,7 +313,7 @@ public class LSItem {
 				.name("crystalized.item.dragonarrow.name")
 				.description("crystalized.item.dragonarrow.desc")
 				.loreOnItem()
-				.price(350).slot(52).category(ItemCategory.Ammunition).modelData(1));
+				.price(350).slot(48).category(ItemCategory.Ammunition).modelData(1));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("explosive_arrow")
@@ -316,7 +321,7 @@ public class LSItem {
 				.name("crystalized.item.explosivearrow.name")
 				.description("crystalized.item.explosivearrow.desc")
 				.loreOnItem()
-				.price(350).slot(53).category(ItemCategory.Ammunition).modelData(2));
+				.price(350).slot(49).category(ItemCategory.Ammunition).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("underdog_sword")
@@ -359,17 +364,41 @@ public class LSItem {
 				.model("breeze_dagger")
 				.name("crystalized.sword.wind.name")
 				.description("crystalized.sword.wind.desc")
-				.persistentData(0)
+				.persistentData(BREEZE_DAGGER_STATE_KEY, 0)
 				.price(800).category(ItemCategory.Melee).modelData(2));
 
-		// I tried to add here the Presies CrossBow for testing purposes
 		builders.add(Builder.of(CROSSBOW)
 				.key("precise_crossbow")
 				.model("precise_crossbow")
 				.name("crystalized.crossbow.precise.name")
 				.description("crystalized.crossbow.precise.desc")
-				// Adjusted the price so it is worth buying it over charged crosbow
-				.price(1750).slot(43).category(ItemCategory.Range).modelData(3));
+				.price(1750).category(ItemCategory.Range).modelData(3));
+
+		// normal spectral arrow (vanilla glow, no tracer scan).
+		builders.add(Builder.of(SPECTRAL_ARROW, 3)
+				.key("spectral_arrow")
+				.price(150).category(ItemCategory.Ammunition));
+
+		builders.add(Builder.of(IRON_SWORD)
+				.key("broadsword")
+				.enchantment(SHARPNESS, 1)
+				.name(Component.text("Broadsword").decoration(ITALIC, false))
+				.price(1000).category(ItemCategory.Melee));
+
+		builders.add(Builder.of(BOW)
+				.key("explosive_bow")
+				.model("explosive_bow")
+				.name("crystalized.bow.explosive.name")
+				.description("crystalized.bow.explosive.desc1")
+				.description("crystalized.bow.explosive.desc2")
+				.price(1750).category(ItemCategory.Range).modelData(2));
+
+		// healing arrow does 0 damage to enemys TODO mention it in lore
+		builders.add(Builder.of(TIPPED_ARROW, 4)
+				.key("healing_arrow")
+				.name(Component.text("Healing Arrow").decoration(ITALIC, false))
+				.potionEffect(PotionEffectType.REGENERATION, 80, 1)
+				.price(250).category(ItemCategory.Ammunition));
 
 		return builders;
 	}
@@ -513,9 +542,9 @@ public class LSItem {
 			return this;
 		}
 
-		public Builder persistentData(int value) {
+		public Builder persistentData(NamespacedKey key, int value) {
 			ItemMeta meta = item.getItemMeta();
-			meta.getPersistentDataContainer().set(new NamespacedKey("namespace", "key"), PersistentDataType.INTEGER,
+			meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER,
 					value);
 			item.setItemMeta(meta);
 			return this;
@@ -607,6 +636,9 @@ public class LSItem {
 
 		if (item.getType() == ls_item.getType()
 				&& Objects.equals(ShopListener.identifyItemModel(item), ShopListener.identifyItemModel(ls_item))) {
+			if (!item.getEnchantments().equals(ls_item.getEnchantments())) {
+				return false;
+			}
 			if (item.getItemMeta() instanceof PotionMeta && ls_item.getItemMeta() instanceof PotionMeta) {
 				PotionMeta item_meta = (PotionMeta) item.getItemMeta();
 				PotionMeta ls_item_meta = (PotionMeta) ls_item.getItemMeta();
