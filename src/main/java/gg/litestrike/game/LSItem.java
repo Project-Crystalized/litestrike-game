@@ -305,7 +305,7 @@ public class LSItem {
 				.key("locating_arrow")
 				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
 				.persistentData(LOCATING_ARROW_KEY, 1)
-				.price(150).slot(51).category(ItemCategory.Ammunition));
+				.price(300).slot(51).category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("dragon_arrow")
