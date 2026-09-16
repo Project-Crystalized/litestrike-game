@@ -2,6 +2,15 @@ package gg.litestrike.game;
 
 import java.util.List;
 
+import com.github.retrooper.packetevents.event.PacketListener;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.player.Equipment;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -9,14 +18,59 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedDataValue;
+import static com.github.retrooper.packetevents.protocol.player.EquipmentSlot.*;
 
-public class ProtocolLibLib {
 
+public class ProtocolLibLib implements PacketListener {
+	@Override
+	public void onPacketSend(PacketSendEvent event){
+		if(event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+			WrapperPlayServerEntityMetadata metaWrapper = new WrapperPlayServerEntityMetadata(event);
+			GameController gc = Litestrike.getInstance().game_controller;
+			Player updated_player = get_player_by_entity_id(metaWrapper.getEntityId());
+			if (gc == null
+					|| updated_player == null) {
+				return;
+			}
+			Team receiving_player_team = gc.teams.get_team(event.getUser().getUUID());
+			Team updated_player_team = gc.teams.get_team(updated_player);
+			if ((receiving_player_team != null) && (receiving_player_team != updated_player_team)) {
+				return;
+			}
+			List<EntityData<?>> data = metaWrapper.getEntityMetadata();
+			data.add(new EntityData<>(0, EntityDataTypes.BYTE, ((Integer) 0x40).byteValue()));
+			metaWrapper.setEntityMetadata(data);
+			event.setCancelled(true);
+			event.getUser().sendPacket(metaWrapper);
+			return;
+		}
+
+		if(event.getPacketType() == PacketType.Play.Server.ENTITY_EQUIPMENT){
+			WrapperPlayServerEntityEquipment equipWrapper = new WrapperPlayServerEntityEquipment(event);
+			GameController gc = Litestrike.getInstance().game_controller;
+			Player updated_player = get_player_by_entity_id(equipWrapper.getEntityId());
+			if (gc == null
+					|| updated_player == null
+					|| (gc.teams.get_team(event.getUser().getUUID()) != null && gc.teams.get_team(updated_player) != gc.teams.get_team(event.getUser().getUUID()))
+					|| !(gc.bomb instanceof InvItemBomb)
+					|| !(updated_player.equals(((InvItemBomb) gc.bomb).player))) {
+				return;
+			}
+			for(Equipment e : equipWrapper.getEquipment()){
+				if(e.getSlot() != HELMET && e.getSlot() != CHEST_PLATE && e.getSlot() != LEGGINGS && e.getSlot() != BOOTS) continue;
+				ItemStack stack = SpigotConversionUtil.toBukkitItemStack(e.getItem());
+				if(stack != null && stack.getType().name().toUpperCase().contains("LEATHER")){
+					LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
+					meta.setColor(Color.fromRGB(0xff8530));
+					stack.setItemMeta(meta);
+				}
+				e.setItem(SpigotConversionUtil.fromBukkitItemStack(stack));
+			}
+			event.setCancelled(true);
+			event.getUser().sendPacket(equipWrapper);
+		}
+	}
+	/*
 	public static PacketAdapter make_allys_glow() {
 		return new PacketAdapter(Litestrike.getInstance(), PacketType.Play.Server.ENTITY_METADATA) {
 			@Override
@@ -45,6 +99,7 @@ public class ProtocolLibLib {
 			}
 		};
 	}
+	 */
 
 	private static Player get_player_by_entity_id(int id) {
 		for (Player player : Bukkit.getOnlinePlayers()) {
@@ -75,6 +130,7 @@ public class ProtocolLibLib {
 		}
 	}
 
+	/*
 	public static PacketAdapter change_bomb_carrier_armor_color() {
 		return new PacketAdapter(Litestrike.getInstance(), PacketType.Play.Server.ENTITY_EQUIPMENT) {
 			@Override
@@ -101,4 +157,5 @@ public class ProtocolLibLib {
 			}
 		};
 	};
+	 */
 }
