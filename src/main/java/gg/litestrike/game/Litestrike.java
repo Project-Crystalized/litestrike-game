@@ -1,8 +1,6 @@
 package gg.litestrike.game;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.EventManager;
-import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -62,8 +60,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
 		PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
 		PacketEvents.getAPI().load();
-		EventManager events = PacketEvents.getAPI().getEventManager();
-		events.registerListener(new ProtocolLibLib(), PacketListenerPriority.NORMAL);
 	}
 
 	@Override
