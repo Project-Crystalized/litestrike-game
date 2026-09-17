@@ -35,6 +35,12 @@ public class PlayerData {
 	public boolean eligibleForOnlyWeaponsAchievement = true; // true by default, false when violated.
 	public int roundWinsOnlyWeapons = 0;
 
+	//The supportive arrows
+	//Anti heal, this is how many ticks of anti heal is left for the player. When zero means not anti healed
+	public int antiHealTicks = 0;
+	//Cooldown before another supportive arrow area can heal the player. 0 means no cool down
+	public int supportiveHealCooldownTicks = 0;
+
 	// this keeps track of assits in the current round for this player
 	public Map<Player, Double> assist_list = new HashMap<Player, Double>();
 

@@ -14,12 +14,16 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -59,6 +63,16 @@ public class GameController {
 	// the game_reference is printed in chat so that we can later search for the
 	// number in the chat logs
 	public final int game_reference = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE - 1);
+
+	//Record is kinda like a small class to hold data, this holds thne location of the supportive circle and the team which it belong to
+	//To be able to check if the player is in circle and to be able to apply it's effect depending on that.
+	public record SupportiveCircle(Location location, Team team) {}
+
+	//Array list of the supportive circles in the game. Which are created by the supportive arrow when it hits the block
+	public final List<SupportiveCircle> supportiveCircles = new ArrayList<>();
+	//The presistant data container which the players with negative effect immunity have, so essentials can see it, and cancel
+	//custom effects
+	private static final NamespacedKey NEGATIVE_EFFECT_IMMUNITY = new NamespacedKey("litestrike", "negative_effect_immunity");
 
 	public enum RoundState {
 		PreRound,
@@ -101,6 +115,8 @@ public class GameController {
 				boolean game_over = update_game_state();
 				if (game_over) {
 					for (Player p : Bukkit.getOnlinePlayers()) {
+						//cleans it out before kicking to not make it presist
+						p.getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
 						p.kick();
 					}
 					Litestrike.getInstance().party_manager.clear_partys();
@@ -115,6 +131,96 @@ public class GameController {
 	// This is run every tick
 	private boolean update_game_state() {
 		phase_timer += 1;
+		if (round_state == RoundState.Running) {
+			//goes through all the players to do the supporting arrow logic which must be done every tick
+			for (PlayerData pd : playerDataManager.getAll()) {
+				Player player = Bukkit.getPlayerExact(pd.player);
+				if (player == null || !player.isOnline()) {
+					continue;
+				}
+				//When anti heal is enabled
+				if (pd.antiHealTicks > 0) {
+					//Ticks down the anti heal
+					pd.antiHealTicks--;
+					//The particles of the anti healed player, to make it more noticable
+					player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0),
+							2,
+							0.35,
+							0.5,
+							0.35,
+							0.0,
+							new Particle.DustOptions(Color.BLACK, 0.8F)
+					);
+				}
+				//Tick down the cool down of healing.
+				if (pd.supportiveHealCooldownTicks > 0) {
+					pd.supportiveHealCooldownTicks--;
+				}
+
+				//This is for clensing and protection from negative effects while inside the circle.
+				boolean insideSupportiveCircle = false;
+				//Goes through all the supportive circles currently placed
+
+				for (SupportiveCircle circle : supportiveCircles) {
+					//Must be in the same world, as distsanse can't be compared if not
+					if (player.getWorld() != circle.location().getWorld()) {
+						continue;
+					}
+					//The team that owns the circle gets protection
+					if (teams.get_team(player) != circle.team()) {
+						continue;
+					}
+					//calculates how far the playher is from the cirle on X and Z
+					double x = player.getLocation().getX() - circle.location().getX();
+					double z = player.getLocation().getZ() - circle.location().getZ();
+					//Gets the squared distanse and if it is less or equal to radius squares means player is inside the circle
+					double horizontalDistanceSquared = (x * x) + (z * z);
+
+					//So as long as it is within the 2 blocks radius (2 squared 4)
+					//and within the 2 block height the player is consindered to be inside of the circle
+					//Math.abs would make it so there is no negative signs, to see Y diffrenc only
+					if (horizontalDistanceSquared <= 4.0 && Math.abs(player.getLocation().getY() - circle.location().getY()) <= 2.0) {
+						//inside one of the circle, so it doesn't need to continue searching
+						insideSupportiveCircle = true;
+						break;
+					}
+				}
+
+				//Anti heal prevents any protection from the arrow circle
+				if (insideSupportiveCircle && pd.antiHealTicks <= 0) {
+					//sets the presistant data type of immunity for puffer sword and dragon arrow in essentials.
+					player.getPersistentDataContainer().set(NEGATIVE_EFFECT_IMMUNITY, PersistentDataType.BYTE, (byte) 1);
+					//Gives the player pparticles while inside the circle
+					player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0),
+							2,
+							0.35,
+							0.5,
+							0.35,
+							0.0,
+							new Particle.DustOptions(Color.AQUA, 0.8F)
+					);
+
+					//Clenses any negative pottion effects
+					for (PotionEffect effect : player.getActivePotionEffects()) {
+						PotionEffectType type = effect.getType();
+						//Skips the posion as it the cool down indicator before player can use the arrow again
+						if (type == PotionEffectType.POISON && pd.supportiveHealCooldownTicks > 0) {
+							continue;
+						}
+						//if it is a negattive effect cleneses it.
+						if (isNegativeEffect(type)) {
+							player.removePotionEffect(type);
+						}
+					}
+
+				} else {
+					//Outside of all the friendly support cicrles removes the protection. Presistant so puffer and dragon arrows start to work
+					player.getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
+				}
+			}
+
+
+		}
 
 		// if round_state is GameFinished then the podium is already running
 		Team winner = check_if_podium_start();
@@ -152,6 +258,19 @@ public class GameController {
 				break;
 		}
 		return false;
+	}
+	//This is to check for every possible negative effect, except poision and wither as those are used as display. And damage is canceled anyway
+	private boolean isNegativeEffect(PotionEffectType type) {
+		return type == PotionEffectType.SLOWNESS
+				|| type == PotionEffectType.MINING_FATIGUE
+				|| type == PotionEffectType.INSTANT_DAMAGE
+				|| type == PotionEffectType.NAUSEA
+				|| type == PotionEffectType.BLINDNESS
+				|| type == PotionEffectType.HUNGER
+				|| type == PotionEffectType.WEAKNESS
+				|| type == PotionEffectType.LEVITATION
+				|| type == PotionEffectType.UNLUCK
+				|| type == PotionEffectType.DARKNESS;
 	}
 
 	// this checks if the podium should start
@@ -471,6 +590,13 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
+			//Clear anti-heal between rounds and healing cool down from the supporting arrow
+			playerDataManager.get(p).antiHealTicks = 0;
+			playerDataManager.get(p).supportiveHealCooldownTicks = 0;
+			//on new round starts makes sure that the player is not immune to puffer fish
+			p.getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
+			//makes sure that all the supporting circles have been cleared out
+			supportiveCircles.clear();
 			playerDataManager.get(p).addMoney(Litestrike.getInstance().gameConfig.nextRoundMoney,
 					translatable("crystalized.game.litestrike.money.next_round"));
 			Shop s = this.getShop(p);
