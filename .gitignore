@@ -58,3 +58,6 @@ nb-configuration.xml
 ## OS X
 ##############################
 .DS_Store
+# Common working directory (Copied from CB to avoid my server from being published to git)
+run/
+runs/
