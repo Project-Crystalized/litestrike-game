@@ -98,6 +98,7 @@ public class BombModel {
 	public void raise_bomb(int planting_timer, BlockFace bf) {
 		if (model == null) {
 			Bukkit.getLogger().severe("tried to raise bombmodel when it didnt exist");
+			return;
 		}
 		if (!bf.isCartesian()) {
 			Bukkit.getLogger().severe("non cartesian block face???");
@@ -130,6 +131,7 @@ public class BombModel {
 	public void remove() {
 		if (model != null) {
 			model.remove();
+			model = null;
 		}
 		after_plant_loc = null;
 	}

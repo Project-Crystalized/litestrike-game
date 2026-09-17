@@ -1,9 +1,13 @@
 package gg.litestrike.game;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.EventManager;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRules;
@@ -15,9 +19,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -40,8 +41,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 	public BossBarDisplay bbd;
 
-	public ProtocolManager protocolManager;
-
 	public PartyManager party_manager = new PartyManager();
 
 	public ManualTeams manual_teams;
@@ -59,9 +58,17 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 	public static final TextColor YELLOW = TextColor.color(0xfbea85);
 
 	@Override
-	public void onEnable() {
-		protocolManager = ProtocolLibrary.getProtocolManager();
+	public void onLoad(){
+		PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+		PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
+		PacketEvents.getAPI().load();
+		EventManager events = PacketEvents.getAPI().getEventManager();
+		events.registerListener(new ProtocolLibLib(), PacketListenerPriority.NORMAL);
+	}
 
+	@Override
+	public void onEnable() {
+		PacketEvents.getAPI().init();
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
@@ -76,6 +83,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		saveResource("config.yml", false);
 		saveResource("items.json", false);
+		LSItem.shopItems.size();
 		int configVersion;
 		if (getConfig().getInt("version") != 1) {
 			configVersion = getConfig().getInt("version");
@@ -124,14 +132,12 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 			mapdata.check_chunk(c);
 		}
 
-		protocolManager.addPacketListener(ProtocolLibLib.change_bomb_carrier_armor_color());
-		protocolManager.addPacketListener(ProtocolLibLib.make_allys_glow());
-
 		teleportBackUp();
 	}
 
 	@Override
 	public void onDisable() {
+		PacketEvents.getAPI().terminate();
 	}
 
 	public static Litestrike getInstance() {

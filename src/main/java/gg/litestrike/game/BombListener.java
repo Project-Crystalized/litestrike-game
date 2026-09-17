@@ -80,7 +80,11 @@ public class BombListener implements Listener {
 				if (is_planting > 0) {
 					planting_counter += 1;
 					bomb_model.raise_bomb(planting_counter, planting_face);
-					if (planting_counter == Litestrike.getInstance().gameConfig.plantTime) {
+				if (planting_counter == Litestrike.getInstance().gameConfig.plantTime) {
+					if (!(gc.bomb instanceof InvItemBomb)) {
+						// the planting state was orphaned (carrier died, dropped the bomb or the round ended)
+						cancel_planting();
+					} else {
 						InvItemBomb iib = (InvItemBomb) gc.bomb;
 						iib.place_bomb(last_planting_block.getRelative(planting_face), bomb_model, planting_face);
 						last_planting_block.getWorld()
@@ -90,8 +94,9 @@ public class BombListener implements Listener {
 						gc.playerDataManager.get(last_planting_player)
 								.addMoney(Litestrike.getInstance().gameConfig.plantMoney,
 										translatable("crystalized.game.litestrike.money.plant"));
-
 					}
+
+				}
 				} else {
 					if (planting_counter > 1) {
 						Block bomb_block = last_planting_block.getRelative(planting_face);
@@ -180,6 +185,7 @@ public class BombListener implements Listener {
 		}
 		InvItemBomb b = (InvItemBomb) gc.bomb;
 		if (e.getPlayer() == b.player) {
+			cancel_planting();
 			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
 			b.drop_bomb(i);
 		}
@@ -361,6 +367,7 @@ public class BombListener implements Listener {
 			}
 		}
 		reset();
+		cancel_planting();
 		InvItemBomb ib = (InvItemBomb) gc.bomb;
 		ib.drop_bomb(e.getItemDrop());
 	}
@@ -377,6 +384,7 @@ public class BombListener implements Listener {
 			return;
 		}
 		if (b instanceof InvItemBomb && ((InvItemBomb) b).player == e.getPlayer()) {
+			cancel_planting();
 			Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
 			((InvItemBomb) b).drop_bomb(i);
 		}
@@ -427,6 +435,14 @@ public class BombListener implements Listener {
 		breaking_counter = 0;
 		mining_players.clear();
 		last_planting_block = null;
+	}
+
+	private void cancel_planting() {
+		bomb_model.remove();
+		is_planting = 0;
+		planting_counter = 0;
+		last_planting_block = null;
+		last_planting_player = null;
 	}
 
 	private int ping_compensation_ticks(Player p) {

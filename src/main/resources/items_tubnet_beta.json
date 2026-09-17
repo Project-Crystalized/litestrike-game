@@ -1,20 +1,39 @@
 {
 	"items": [
-		{ "name": "broadsword", "price": 1000, "slot": 0 }, // is sharp 1 iron sword
+		{ "name": "diamond_chestplate", "price": null, "slot": null },
+		{ "name": "iron_sword", "price": null, "slot": null },
+		{ "name": "stone_sword", "price": null, "slot": null },
 		{ "name": "iron_axe", "price": 2000, "slot": 2 },
-		{ "name": "arrow", "price": 200, "slot": 50 }, // 200 for 8 arrows tho?
+		{ "name": "bow", "price": null, "slot": null },
+		{ "name": "arrow", "price": null, "slot": null },
+		{ "name": "breaker_armor", "price": null, "slot": null },
+		{ "name": "placer_armor", "price": null, "slot": null },
+		{ "name": "defuser", "price": null, "slot": null },
 		{ "name": "golden_apple", "price": 750, "slot": 48 },
 		{ "name": "iron_chestplate", "price": 250, "slot": 40 },
 		{ "name": "quickdraw", "price": 2000, "slot": 24 },
-		{ "name": "pufferfish_sword", "price": 1500, "slot": 18 }, // is stone sword
-		{ "name": "slime_sword", "price": 1250, "slot": 20 }, // is stone sword
+		{ "name": "pufferfish_sword", "price": 1500, "slot": 18 },
+		{ "name": "slime_sword", "price": 1250, "slot": 20 },
 		{ "name": "marksman_bow", "price": 750, "slot": 6 },
-		{ "name": "explosive bow", "price": 1750, "slot": 8 },
+		{ "name": "ricochet_bow", "price": null, "slot": null },
 		{ "name": "multishot_crossbow", "price": 2200, "slot": 26 },
-		{ "name": "speed2_potion", "price": 1000, "slot": 46 }, // 40% speed for 10 seconds
-		{ "name": "speed1_potion", "price": 750, "slot": 47 }, // 20% for 20 seconds
-		{ "name": "resistance_potion", "price": 750, "slot": 45 }, // resistance 1 for 40 seconds
-		{ "name": "spectral_arrow", "price": 300, "slot": 51 }, // 4 for 300
-		{ "name": "healing_arrow", "price": 250, "slot": 52 }, //4 for 250, heals allies, not yourself, on direct hit allie, give regen 2 for 2 seconds, and makes particles around them
+		{ "name": "charged_crossbow", "price": null, "slot": null },
+		{ "name": "speed2_potion", "price": 1000, "slot": 46 },
+		{ "name": "speed1_potion", "price": 750, "slot": 47 },
+		{ "name": "resistance_potion", "price": 750, "slot": 45 },
+		{ "name": "locating_arrow", "price": null, "slot": null },
+		{ "name": "dragon_arrow", "price": null, "slot": null },
+		{ "name": "explosive_arrow", "price": null, "slot": null },
+		{ "name": "underdog_sword", "price": null, "slot": null },
+		{ "name": "stone_pickaxe", "price": null, "slot": null },
+		{ "name": "crossbow", "price": null, "slot": null },
+		{ "name": "breeze_dagger", "price": null, "slot": null },
+		{ "name": "precise_crossbow", "price": null, "slot": null },
+		{ "name": "spectral_arrow", "price": null, "slot": null },
+		{ "name": "broadsword", "price": 1000, "slot": 0 },
+		{ "name": "explosive_bow", "price": 1750, "slot": 8 },
+		{ "name": "healing_arrow", "price": 250, "slot": 52 },
+		{ "name": "arrow_8", "price": 200, "slot": 50 },
+		{ "name": "spectral_arrow_4", "price": 300, "slot": 51 }
 	]
 }
