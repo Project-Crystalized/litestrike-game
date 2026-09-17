@@ -83,6 +83,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		saveResource("config.yml", false);
 		saveResource("items.json", false);
+		LSItem.shopItems.size();
 		int configVersion;
 		if (getConfig().getInt("version") != 1) {
 			configVersion = getConfig().getInt("version");

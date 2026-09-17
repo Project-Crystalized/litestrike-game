@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.logging.Level;
 
 import static org.bukkit.inventory.ItemFlag.*;
 import static org.bukkit.enchantments.Enchantment.*;
@@ -117,18 +116,26 @@ public class LSItem {
 		// because it is used as a id in the database, also better not remove items from
 		// the list
 		List<Builder> builders = default_builders();
-		Map<Object, JsonObject> overrides = load_item_overrides();
+		List<JsonObject> entries = load_shop_entries();
+		List<String> keys = new ArrayList<>();
+		for (Builder builder : builders) {
+			keys.add(builder.key);
+		}
+		List<String> problems = ShopValidator.validateShopEntries(keys, entries);
+		for (String problem : problems) {
+			Bukkit.getLogger().severe("[Litestrike] items.json: " + problem);
+		}
+		if (!problems.isEmpty()) {
+			throw new IllegalStateException("[Litestrike] items.json has " + problems.size() + " problem(s), see above");
+		}
 
+		Map<String, JsonObject> byKey = new HashMap<>();
+		for (JsonObject o : entries) {
+			byKey.put(o.get("name").getAsString(), o);
+		}
 		List<LSItem> lsItems = new ArrayList<>();
-		for (int i = 0; i < builders.size(); i++) {
-			Builder builder = builders.get(i);
-			JsonObject o = overrides.get(builder.key);
-			if (o == null) {
-				o = overrides.get(i + 1);
-			}
-			if (o != null) {
-				builder.applyOverrides(o);
-			}
+		for (Builder builder : builders) {
+			builder.applyOverrides(byKey.get(builder.key));
 			lsItems.add(builder.build());
 		}
 
@@ -137,30 +144,95 @@ public class LSItem {
 		return lsItems;
 	}
 
-	// reads items.json from the plugin data folder, which can override the price
-	// and shop slot of items. entries are matched by their internal item name (the
-	// "name" field); a numeric "id" (= 1-based creation order) is still accepted.
-	// any missing or invalid file just falls back to the default items.
-	private static Map<Object, JsonObject> load_item_overrides() {
-		Map<Object, JsonObject> overrides = new HashMap<>();
+	// items.json in the plugin data folder is the single source of truth for shop
+	// merchandising: every known item needs an entry with "price" and "slot", both
+	// null hides the item. entries match by "name". missing entries, nameless or
+	// unknown entries, unpriced slots, negative prices, out of range or duplicate
+	// slots fail startup loudly instead of selling the wrong shop.
+	private static List<JsonObject> load_shop_entries() {
+		Path path = Litestrike.getInstance().getDataFolder().toPath().resolve("items.json");
+		if (Files.notExists(path)) {
+			throw new IllegalStateException("[Litestrike] items.json missing in " + Litestrike.getInstance().getDataFolder());
+		}
 		try {
-			Path path = Litestrike.getInstance().getDataFolder().toPath().resolve("items.json");
-			if (Files.notExists(path)) {
-				return overrides;
-			}
+			List<JsonObject> entries = new ArrayList<>();
 			JsonArray items = JsonParser.parseString(Files.readString(path)).getAsJsonObject().getAsJsonArray("items");
 			for (JsonElement element : items) {
-				JsonObject o = element.getAsJsonObject();
-				if (o.has("name")) {
-					overrides.put(o.get("name").getAsString(), o);
-				} else if (o.has("id")) {
-					overrides.put(o.get("id").getAsInt(), o);
+				entries.add(element.getAsJsonObject());
+			}
+			return entries;
+		} catch (Exception e) {
+			throw new IllegalStateException("[Litestrike] items.json invalid: " + e.getMessage(), e);
+		}
+	}
+
+	static class ShopValidator {
+
+		static List<String> validateShopEntries(List<String> keys, List<JsonObject> entries) {
+			List<String> problems = new ArrayList<>();
+			Map<String, JsonObject> byKey = new HashMap<>();
+			for (JsonObject o : entries) {
+				if (!o.has("name") || o.get("name").isJsonNull()) {
+					problems.add("entry without name");
+					continue;
+				}
+				String name;
+				try {
+					name = o.get("name").getAsString();
+				} catch (Exception e) {
+					problems.add("entry with non-string name");
+					continue;
+				}
+				if (!keys.contains(name)) {
+					problems.add("unknown item '" + name + "'");
+					continue;
+				}
+				if (byKey.putIfAbsent(name, o) != null) {
+					problems.add("duplicate entry for '" + name + "'");
 				}
 			}
-		} catch (Exception e) {
-			Bukkit.getLogger().log(Level.WARNING, "[Litestrike] Could not load items.json, using the default item list: " + e);
+			for (String key : keys) {
+				if (!byKey.containsKey(key)) {
+					problems.add("missing shop entry for '" + key + "'");
+				}
+			}
+			Map<Integer, String> slotUse = new HashMap<>();
+			for (Map.Entry<String, JsonObject> entry : byKey.entrySet()) {
+				String key = entry.getKey();
+				JsonObject o = entry.getValue();
+				Integer price = readIntField(o, "price", key, problems);
+				Integer slot = readIntField(o, "slot", key, problems);
+				if (price != null && price < 0) {
+					problems.add("'" + key + "': negative price " + price);
+				}
+				if (slot != null && (slot < 0 || slot > 53)) {
+					problems.add("'" + key + "': slot out of range " + slot + ", the shop inventory has slots 0-53");
+					slot = null;
+				}
+				if (slot != null && price == null) {
+					problems.add("'" + key + "': slot without price");
+				}
+				if (slot != null) {
+					String prev = slotUse.putIfAbsent(slot, key);
+					if (prev != null) {
+						problems.add("slot " + slot + " used by both '" + prev + "' and '" + key + "'");
+					}
+				}
+			}
+			return problems;
 		}
-		return overrides;
+
+		private static Integer readIntField(JsonObject o, String field, String key, List<String> problems) {
+			if (!o.has(field) || o.get(field).isJsonNull()) {
+				return null;
+			}
+			try {
+				return o.get(field).getAsInt();
+			} catch (Exception e) {
+				problems.add("'" + key + "': " + field + " must be an integer");
+				return null;
+			}
+		}
 	}
 
 	private static List<Builder> default_builders() {
@@ -169,12 +241,12 @@ public class LSItem {
 		builders.add(Builder.of(DIAMOND_CHESTPLATE)
 				.key("diamond_chestplate")
 				.enchantment(PROTECTION, 1)
-				.price(500).slot(31).category(ItemCategory.Armor));
+				.category(ItemCategory.Armor));
 
 		builders.add(Builder.of(IRON_SWORD)
 				.key("iron_sword")
 				.description("crystalized.sword.iron.desc")
-				.price(750).slot(0).category(ItemCategory.Melee));
+				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("stone_sword")
@@ -182,7 +254,7 @@ public class LSItem {
 
 		builders.add(Builder.of(IRON_AXE)
 				.key("iron_axe")
-				.price(1750).slot(2).category(ItemCategory.Melee));
+				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(BOW)
 				.key("bow")
@@ -190,7 +262,7 @@ public class LSItem {
 
 		builders.add(Builder.of(ARROW, 6)
 				.key("arrow")
-				.price(150).slot(46).category(ItemCategory.Ammunition));
+				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(LEATHER_CHESTPLATE)
 				.key("breaker_armor")
@@ -210,18 +282,18 @@ public class LSItem {
 				.hideAttributes()
 				.description("crystalized.item.defuser.desc1")
 				.description("crystalized.item.defuser.desc2")
-				.price(500).slot(22).category(ItemCategory.Defuser));
+				.category(ItemCategory.Defuser));
 
 		builders.add(Builder.of(GOLDEN_APPLE)
 				.key("golden_apple")
 				.description("crystalized.item.gapple.desc1")
 				.description("crystalized.item.gapple.desc2")
-				.price(750).slot(48).category(ItemCategory.Consumable));
+				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(IRON_CHESTPLATE)
 				.key("iron_chestplate")
 				.enchantment(PROTECTION, 1)
-				.price(250).slot(40).category(ItemCategory.Armor));
+				.category(ItemCategory.Armor));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("quickdraw")
@@ -229,14 +301,14 @@ public class LSItem {
 				.model("quick_charge_crossbow")
 				.name("crystalized.crossbow.quickcharge.name")
 				.description("crystalized.crossbow.quickcharge.desc")
-				.price(2000).category(ItemCategory.Range).modelData(2));
+				.category(ItemCategory.Range).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("pufferfish_sword")
 				.model("pufferfish_sword")
 				.name("crystalized.sword.pufferfish.name")
 				.description("crystalized.sword.pufferfish.desc")
-				.price(1000).slot(18).category(ItemCategory.Melee).modelData(2));
+				.category(ItemCategory.Melee).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("slime_sword")
@@ -245,14 +317,14 @@ public class LSItem {
 				.name("crystalized.sword.slime.name")
 				.description("crystalized.sword.slime.desc1")
 				.description("crystalized.sword.slime.desc2")
-				.price(1000).slot(20).category(ItemCategory.Melee).modelData(1));
+				.category(ItemCategory.Melee).modelData(1));
 
 		builders.add(Builder.of(BOW)
 				.key("marksman_bow")
 				.model("marksman_bow")
 				.name("crystalized.bow.marksman.name")
 				.description("crystalized.bow.marksman.desc")
-				.price(750).slot(6).category(ItemCategory.Range).modelData(1));
+				.category(ItemCategory.Range).modelData(1));
 
 		builders.add(Builder.of(BOW)
 				.key("ricochet_bow")
@@ -260,7 +332,7 @@ public class LSItem {
 				.model("ricochet_bow")
 				.name("crystalized.bow.ricochet.name")
 				.description("crystalized.bow.ricochet.desc")
-				.price(1000).slot(8).category(ItemCategory.Range).modelData(3));
+				.category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("multishot_crossbow")
@@ -268,7 +340,7 @@ public class LSItem {
 				.model("multishot_crossbow")
 				.name("crystalized.crossbow.multi.name")
 				.description("crystalized.crossbow.multi.desc")
-				.price(2000).slot(26).category(ItemCategory.Range).modelData(1));
+				.category(ItemCategory.Range).modelData(1));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("charged_crossbow")
@@ -278,34 +350,34 @@ public class LSItem {
 				// Added the enchanting glint to the charged crosbow.
 				.nameRaw("crystalized.crossbow.charged.name")
 				.description("crystalized.crossbow.charged.desc")
-				.price(2500).slot(25).category(ItemCategory.Range).modelData(3));
+				.category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(POTION)
 				.key("speed2_potion")
 				.potionEffect(PotionEffectType.SPEED, 20 * 10, 1)
 				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
 				.nameField(Component.text("Potion of Swiftness"))
-				.price(1000).slot(46).category(ItemCategory.Consumable));
+				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(POTION)
 				.key("speed1_potion")
 				.potionEffect(PotionEffectType.SPEED, 20 * 25, 0)
 				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
 				.nameField(Component.text("Potion of Swiftness"))
-				.price(750).slot(47).category(ItemCategory.Consumable));
+				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(POTION)
 				.key("resistance_potion")
 				.potionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0)
 				.name(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false))
 				.nameField(Component.text("Potion of Resistance"))
-				.price(750).slot(45).category(ItemCategory.Consumable));
+				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("locating_arrow")
 				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
 				.persistentData(LOCATING_ARROW_KEY, 1)
-				.price(300).slot(47).category(ItemCategory.Ammunition));
+				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("dragon_arrow")
@@ -313,7 +385,7 @@ public class LSItem {
 				.name("crystalized.item.dragonarrow.name")
 				.description("crystalized.item.dragonarrow.desc")
 				.loreOnItem()
-				.price(350).slot(48).category(ItemCategory.Ammunition).modelData(1));
+				.category(ItemCategory.Ammunition).modelData(1));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("explosive_arrow")
@@ -321,7 +393,7 @@ public class LSItem {
 				.name("crystalized.item.explosivearrow.name")
 				.description("crystalized.item.explosivearrow.desc")
 				.loreOnItem()
-				.price(350).slot(49).category(ItemCategory.Ammunition).modelData(2));
+				.category(ItemCategory.Ammunition).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("underdog_sword")
@@ -330,7 +402,7 @@ public class LSItem {
 				.description("crystalized.sword.underdog.desc")
 				.loreOnItem()
 				.nameField(Component.text("Underdog Sword").decoration(ITALIC, false))
-				.price(750).slot(36).category(ItemCategory.Melee).modelData(3));
+				.category(ItemCategory.Melee).modelData(3));
 
 		builders.add(Builder.of(STONE_PICKAXE)
 				.key("stone_pickaxe")
@@ -351,7 +423,7 @@ public class LSItem {
 		builders.add(Builder.of(CROSSBOW)
 				.key("crossbow")
 				.nameField(translatable("crystalized.bow.angled.name").decoration(ITALIC, false))
-				.price(1250).slot(44).category(ItemCategory.Range).modelData(1));
+				.category(ItemCategory.Range).modelData(1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
 		// lsItems.add(new LSItem(shield, 500, null, ItemCategory.Range, 4, null, 1));
@@ -365,25 +437,25 @@ public class LSItem {
 				.name("crystalized.sword.wind.name")
 				.description("crystalized.sword.wind.desc")
 				.persistentData(BREEZE_DAGGER_STATE_KEY, 0)
-				.price(800).category(ItemCategory.Melee).modelData(2));
+				.category(ItemCategory.Melee).modelData(2));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("precise_crossbow")
 				.model("precise_crossbow")
 				.name("crystalized.crossbow.precise.name")
 				.description("crystalized.crossbow.precise.desc")
-				.price(1750).category(ItemCategory.Range).modelData(3));
+				.category(ItemCategory.Range).modelData(3));
 
 		// normal spectral arrow (vanilla glow, no tracer scan).
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("spectral_arrow")
-				.price(150).category(ItemCategory.Ammunition));
+				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(IRON_SWORD)
 				.key("broadsword")
 				.enchantment(SHARPNESS, 1)
 				.name(Component.text("Broadsword").decoration(ITALIC, false))
-				.price(1000).category(ItemCategory.Melee));
+				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(BOW)
 				.key("explosive_bow")
@@ -391,14 +463,22 @@ public class LSItem {
 				.name("crystalized.bow.explosive.name")
 				.description("crystalized.bow.explosive.desc1")
 				.description("crystalized.bow.explosive.desc2")
-				.price(1750).category(ItemCategory.Range).modelData(2));
+				.category(ItemCategory.Range).modelData(2));
 
 		// healing arrow does 0 damage to enemys TODO mention it in lore
 		builders.add(Builder.of(TIPPED_ARROW, 4)
 				.key("healing_arrow")
 				.name(Component.text("Healing Arrow").decoration(ITALIC, false))
 				.potionEffect(PotionEffectType.REGENERATION, 80, 1)
-				.price(250).category(ItemCategory.Ammunition));
+				.category(ItemCategory.Ammunition));
+
+		builders.add(Builder.of(ARROW, 8)
+				.key("arrow_8")
+				.category(ItemCategory.Ammunition));
+
+		builders.add(Builder.of(SPECTRAL_ARROW, 4)
+				.key("spectral_arrow_4")
+				.category(ItemCategory.Ammunition));
 
 		return builders;
 	}
