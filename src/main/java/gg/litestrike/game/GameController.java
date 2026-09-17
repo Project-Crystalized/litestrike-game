@@ -155,6 +155,10 @@ public class GameController {
 				//Tick down the cool down of healing.
 				if (pd.supportiveHealCooldownTicks > 0) {
 					pd.supportiveHealCooldownTicks--;
+					//shows how many seconds is left until can heal again with the supportive arrow
+					double secondsRemaining = pd.supportiveHealCooldownTicks / 20.0;
+					player.sendActionBar(Component.text(String.format("Supportive Arrow healing available in %.1fs", secondsRemaining),
+							NamedTextColor.AQUA));
 				}
 
 				//This is for clensing and protection from negative effects while inside the circle.
@@ -203,10 +207,11 @@ public class GameController {
 					//Clenses any negative pottion effects
 					for (PotionEffect effect : player.getActivePotionEffects()) {
 						PotionEffectType type = effect.getType();
+						/*
 						//Skips the posion as it the cool down indicator before player can use the arrow again
 						if (type == PotionEffectType.POISON && pd.supportiveHealCooldownTicks > 0) {
 							continue;
-						}
+						}*/
 						//if it is a negattive effect cleneses it.
 						if (isNegativeEffect(type)) {
 							player.removePotionEffect(type);
@@ -259,7 +264,7 @@ public class GameController {
 		}
 		return false;
 	}
-	//This is to check for every possible negative effect, except poision and wither as those are used as display. And damage is canceled anyway
+	//This is to check for every possible negative effect, except wither as it is used as display. And damage is canceled anyway
 	private boolean isNegativeEffect(PotionEffectType type) {
 		return type == PotionEffectType.SLOWNESS
 				|| type == PotionEffectType.MINING_FATIGUE
@@ -270,7 +275,8 @@ public class GameController {
 				|| type == PotionEffectType.WEAKNESS
 				|| type == PotionEffectType.LEVITATION
 				|| type == PotionEffectType.UNLUCK
-				|| type == PotionEffectType.DARKNESS;
+				|| type == PotionEffectType.DARKNESS
+				|| type == PotionEffectType.POISON;
 	}
 
 	// this checks if the podium should start
