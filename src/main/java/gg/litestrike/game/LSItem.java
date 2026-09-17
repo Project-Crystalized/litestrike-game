@@ -399,6 +399,14 @@ public class LSItem {
 				.name(Component.text("Healing Arrow").decoration(ITALIC, false))
 				.potionEffect(PotionEffectType.REGENERATION, 80, 1)
 				.price(250).category(ItemCategory.Ammunition));
+		//Supportive Arrow
+		//TODO: Lore, when hits an enemy makes them unhelable for a short period of time, when hits the floor creates area of healing, and protection
+		builders.add(Builder.of(ARROW, 3)
+				.key("supportive_arrow")
+				.model("supportive_arrow")
+				.name(Component.text("Supportive Arrow").decoration(ITALIC, false))
+				.price(500).category(ItemCategory.Ammunition));
+
 
 		return builders;
 	}
