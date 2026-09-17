@@ -488,7 +488,7 @@ public class PlayerListener implements Listener {
 		}
 
 		//The arrow disapers once area gets created
-		//Doesn't remove the arrow just makes it not pickable wwww
+		//Doesn't remove the arrow just makes it not pickable
 		arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED); //Just changes
 
 		Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
@@ -503,13 +503,13 @@ public class PlayerListener implements Listener {
 			@Override
 			public void run() {
 
-				//The amount of repeats is the same as the dragon breath to make them last the same amount of time www
-				//Added the arrow valid check, fix for the richachet bow spreading circles everywhere. As the richacet immiditely removes the arrow.www
-				//so that is the reason why the loccating worked with the bow and this didn't www
-				if (repeats >= 10 || !arrow.isValid() ) {
+				//The amount of repeats is the same as the dragon breath to make them last the same amount of time
+				//Added the arrow valid check, fix for the richachet bow spreading circles everywhere. As the richacet immiditely removes the arrow
+				//so that is the reason why the loccating worked with the bow and this didn't
+				if (repeats >= 10 || !arrow.isValid()) {
 					//when it ends the circle gets removed
 					gc.supportiveCircles.remove(supportiveCircle);
-					arrow.remove(); //
+					arrow.remove();
 					cancel();
 					return;
 				}
@@ -560,12 +560,12 @@ public class PlayerListener implements Listener {
 						//The shooter gets slightly less healing, needs to be tweaked
 						if(player.equals(shooter)){
 							//Roughly regenerates 3 hearts of healing
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 70, 1, false, false,
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, false, false,
 									true));
 						}
 						//The temates get roughly 5 hearts
 						else {
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1, false, false,
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false,
 									true));
 						}
 						//Sound of healing
