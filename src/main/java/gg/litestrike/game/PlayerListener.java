@@ -59,7 +59,8 @@ public class PlayerListener implements Listener {
 	//The heal cool down has the same durating as the supportive area duration, but it is just so they use the same number
 	//This doesn't mean that if you walk in when it is about to expire that it will stack with the next one, you will still have to wait
 	//until you can heal.
-	private static final int SUPPORTIVE_HEAL_COOLDOWN = SUPPORTIVE_AREA_DURATION;
+	//Edit: Due to mites changes to regen and addition of visible count down, the cool down was extended, to be 10 seconds
+	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;;
 	//This is the PDC which is used to prevent custom damage in the crystalizied essentials, when player becomes immmune.
 	private static final NamespacedKey NEGATIVE_EFFECT_IMMUNITY = new NamespacedKey("litestrike", "negative_effect_immunity");
 
@@ -305,6 +306,8 @@ public class PlayerListener implements Listener {
 					//Starts the anti heal
 					targetData.antiHealTicks = ANTI_HEAL_DURATION;
 					//Anti heal resets the healing cool down, as it totaly overwrites it and removes the posion cool down indicator
+					//sets it to nothing. To reset on anti heal
+					target.sendActionBar(Component.text(("")));
 					targetData.supportiveHealCooldownTicks = 0;
 					target.removePotionEffect(PotionEffectType.POISON);
 					//This adds cool down on cosumables when you are anti healed
@@ -590,12 +593,13 @@ public class PlayerListener implements Listener {
 						//Cool down when the healing is granted, it doesn't matter even if the circle about to disaper full cooldown
 						pd.supportiveHealCooldownTicks = SUPPORTIVE_HEAL_COOLDOWN;
 						//The poision for visual effect only, demonstrating that the arrows can't heal you right now or you will overdose
+						/* Might have been not a great idea, but not deleteing if we decided to return to it.
 						player.addPotionEffect(new PotionEffect(PotionEffectType.POISON, SUPPORTIVE_HEAL_COOLDOWN,
 								0,
 								false,
 								false,
 								true
-						));
+						));*/
 					}
 				}
 
