@@ -560,12 +560,12 @@ public class PlayerListener implements Listener {
 						//The shooter gets slightly less healing, needs to be tweaked
 						if(player.equals(shooter)){
 							//Roughly regenerates 3 hearts of healing
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 70, 1, false, false,
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, false, false,
 									true));
 						}
 						//The temates get roughly 5 hearts
 						else {
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1, false, false,
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false,
 									true));
 						}
 						//Sound of healing
