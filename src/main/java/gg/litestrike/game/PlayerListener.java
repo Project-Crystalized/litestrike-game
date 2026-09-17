@@ -488,7 +488,8 @@ public class PlayerListener implements Listener {
 		}
 
 		//The arrow disapers once area gets created
-		arrow.remove();
+		//Doesn't remove the arrow just makes it not pickable
+		arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
 
 		Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
 		//adds the supportive circle
@@ -503,9 +504,12 @@ public class PlayerListener implements Listener {
 			public void run() {
 
 				//The amount of repeats is the same as the dragon breath to make them last the same amount of time
-				if (repeats >= 10) {
+				//Added the arrow valid check, fix for the richachet bow spreading circles everywhere. As the richacet immiditely removes the arrow.
+				//so that is the reason why the loccating worked with the bow and this didn't
+				if (repeats >= 10 || !arrow.isValid()) {
 					//when it ends the circle gets removed
 					gc.supportiveCircles.remove(supportiveCircle);
+					arrow.remove();
 					cancel();
 					return;
 				}
