@@ -76,6 +76,54 @@ public class SoundEffects {
 		}.runTaskLater(Litestrike.getInstance(), 2);
 	}
 
+	private static final float[] KILL_PITCH = { 1.0f, 1.1225f, 1.2599f, 1.4983f, 1.6818f };
+
+	static float killPitch(int streak) {
+		if (streak < 1) {
+			return KILL_PITCH[0];
+		}
+		if (streak > KILL_PITCH.length) {
+			return KILL_PITCH[KILL_PITCH.length - 1];
+		}
+		return KILL_PITCH[streak - 1];
+	}
+
+	public static void killStreakSound(Audience a, int streak) {
+		float base = killPitch(streak);
+		a.playSound(Sound.sound(Key.key("block.note_block.bit"), AMBIENT, 2f, base));
+		a.playSound(Sound.sound(Key.key("block.note_block.basedrum"), AMBIENT, 2f, base));
+		if (streak >= 3) {
+			a.playSound(Sound.sound(Key.key("block.note_block.hat"), AMBIENT, 1f, base));
+		}
+
+		if (streak >= 5) {
+			// ace: ascending pling arpeggio instead of the plain second hit
+			float[] arp = { 2.0f, 2.52f, 3.0f };
+			for (int i = 0; i < arp.length; i++) {
+				float pitch = base * arp[i];
+				new BukkitRunnable() {
+					@Override
+					public void run() {
+						a.playSound(Sound.sound(Key.key("block.note_block.pling"), AMBIENT, 1f, pitch));
+					}
+				}.runTaskLater(Litestrike.getInstance(), 2 + i * 2);
+			}
+			return;
+		}
+
+		final float fifth = base * 1.498307f;
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				a.playSound(Sound.sound(Key.key("block.note_block.bit"), AMBIENT, 2f, fifth));
+				a.playSound(Sound.sound(Key.key("block.note_block.basedrum"), AMBIENT, 2f, fifth));
+				if (streak >= 4) {
+					a.playSound(Sound.sound(Key.key("block.note_block.pling"), AMBIENT, 1f, base * 2.0f));
+				}
+			}
+		}.runTaskLater(Litestrike.getInstance(), 2);
+	}
+
 	public static void countdown_beep() {
 		Bukkit.getServer()
 				.playSound(Sound.sound(Key.key("block.note_block.bit"), AMBIENT, 1f, 1.681793f));

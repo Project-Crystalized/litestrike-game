@@ -81,8 +81,22 @@ public class DeathHandler implements Listener {
 		if (killed_team == null) {
 			Bukkit.getLogger().severe("ERROR did a spectator get killed?!?");
 		}
+		if (killer != null) {
+			int streak = gc.playerDataManager.get(killer).killsThisRound;
+			if (streak == 4) {
+				Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(
+						text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer)))
+								.append(text(" is on a RAMPAGE! (4 kills this round)").color(Litestrike.YELLOW)));
+			} else if (streak >= 5) {
+				Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(
+						text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer)))
+								.append(text(" is LEGENDARY! (" + streak + " kills this round)").color(Litestrike.YELLOW)));
+			}
+		}
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (gc.teams.get_team(player) == killed_team) {
+			if (player.equals(killer)) {
+				SoundEffects.killStreakSound(player, gc.playerDataManager.get(killer).killsThisRound);
+			} else if (gc.teams.get_team(player) == killed_team) {
 				SoundEffects.ally_death(player);
 			} else {
 				SoundEffects.enemy_death(player);

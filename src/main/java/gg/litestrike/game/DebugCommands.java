@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -39,7 +40,8 @@ public class DebugCommands {
 				.requires(source -> source.getSender().hasPermission("litestrike.command.game"))
 				.then(buildMapdata())
 				.then(buildForceStart())
-				.then(buildPlayerInfo());
+				.then(buildPlayerInfo())
+				.then(buildKillsound());
 		for (LiteralArgumentBuilder<CommandSourceStack> child : extraChildren) {
 			root.then(child);
 		}
@@ -64,7 +66,16 @@ public class DebugCommands {
 				.then(Commands.argument("player", StringArgumentType.word())
 						.suggests((context, builder) -> suggestMatching(builder,
 								Bukkit.getOnlinePlayers().stream().map(Player::getName).toList()))
-						.executes(this::run_player_info));
+								.executes(this::run_player_info));
+	}
+
+	public LiteralArgumentBuilder<CommandSourceStack> buildKillsound() {
+		return Commands.literal("killsound")
+				.executes(this::run_killsound_all)
+				.then(Commands.argument("level", StringArgumentType.word())
+						.suggests((context, builder) -> suggestMatching(builder,
+								List.of("1", "2", "3", "4", "5", "all")))
+						.executes(this::run_killsound));
 	}
 
 	private int run_force_start(CommandContext<CommandSourceStack> context) {
@@ -111,5 +122,33 @@ public class DebugCommands {
 		}
 		return Command.SINGLE_SUCCESS;
 
+	}
+
+	private int run_killsound(CommandContext<CommandSourceStack> context) {
+		String level = context.getArgument("level", String.class);
+		if (level.equals("all")) {
+			return run_killsound_all(context);
+		}
+		try {
+			SoundEffects.killStreakSound(Audience.audience(context.getSource().getSender()),
+					Integer.parseInt(level));
+		} catch (NumberFormatException e) {
+			context.getSource().getSender().sendMessage(Component.text("Usage: /litestrike killsound [1|2|3|4|5|all]"));
+		}
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private int run_killsound_all(CommandContext<CommandSourceStack> context) {
+		Audience audience = Audience.audience(context.getSource().getSender());
+		for (int level = 1; level <= 5; level++) {
+			int streak = level;
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					SoundEffects.killStreakSound(audience, streak);
+				}
+			}.runTaskLater(Litestrike.getInstance(), (streak - 1) * 20);
+		}
+		return Command.SINGLE_SUCCESS;
 	}
 }
