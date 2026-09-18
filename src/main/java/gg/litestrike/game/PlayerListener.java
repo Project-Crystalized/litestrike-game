@@ -51,18 +51,10 @@ import java.util.List;
 
 public class PlayerListener implements Listener {
 	private LSChatRenderer chat_renderer = new LSChatRenderer();
-	//The anti heal lasts 5 seconds after being hit
+
 	private static final int ANTI_HEAL_DURATION = 5 * 20;
-	//The supportive area lasts the same amount as the dragon arrow, hence the number is not in perfect seconds
-	//roughly 7.5 seconds
 	private static final int SUPPORTIVE_AREA_DURATION = 10 * 15;
-	//The heal cool down has the same durating as the supportive area duration, but it is just so they use the same number
-	//This doesn't mean that if you walk in when it is about to expire that it will stack with the next one, you will still have to wait
-	//until you can heal.
-	//Edit: Due to mites changes to regen and addition of visible count down, the cool down was extended, to be 10 seconds
 	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;;
-	//This is the PDC which is used to prevent custom damage in the crystalizied essentials, when player becomes immmune.
-	private static final NamespacedKey NEGATIVE_EFFECT_IMMUNITY = new NamespacedKey("litestrike", "negative_effect_immunity");
 
 
 	@EventHandler
@@ -83,8 +75,6 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
-		//makes sure the presistant data gets cleared when the player quits
-		e.getPlayer().getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
@@ -108,8 +98,7 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		event.joinMessage(text(""));
-		//makes sure that when the player joins the neggative ffect immunity pdc gets cleared if it wasn't yet.
-		event.getPlayer().getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
+		event.getPlayer().getPersistentDataContainer().remove(LSItem.NEGATIVE_EFFECT_IMMUNITY);
 		Player p = event.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
 
@@ -168,19 +157,6 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		GameController gc = Litestrike.getInstance().game_controller;
-		Player player = e.getPlayer();
-		//Makes sure that potions and apples are not ussable while player is anti healed
-		if (gc != null) {
-			PlayerData pd = gc.playerDataManager.get(player);
-			if (pd != null && pd.antiHealTicks > 0 && e.getItem() != null && (e.getItem().getType() == Material.GOLDEN_APPLE
-					|| e.getItem().getType() == Material.POTION)) {
-
-				e.setCancelled(true);
-				return;
-			}
-		}
-
 
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION) {
 			PotionMeta pm = (PotionMeta) e.getItem().getItemMeta();
@@ -239,24 +215,25 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		//Wither is used purely for visuals only when anti healed, to show the hearts, so damage is canceld
-		if (e.getCause() == DamageCause.WITHER && e.getEntity() instanceof Player player) {
+		if (e.getEntity() instanceof Player player) {
 			PlayerData pd = gc.playerDataManager.get(player);
-			//only when it is the anti heal ticks
-			if (pd != null && pd.antiHealTicks > 0) {
-				e.setCancelled(true);
-				return;
+			if (pd == null) return;
+
+			//Wither is used purely for visuals when anti healed
+			if (e.getCause() == DamageCause.WITHER) {
+				if (pd.antiHealTicks > 0) {
+					e.setCancelled(true);
+					return;
+				}
 			}
-		}
-		//Posion is also only used for the visuals to show when you are on healing cooldown from healing arrows
-		//It is like if you heal more you will overdoes so healing stops lmao.
-		//But overall good indicator. Rather than having it in the action bar where the puffer sword could conflict with
-		//Though maybe in the future they could be flipped around.
-		if (e.getCause() == DamageCause.POISON && e.getEntity() instanceof Player player) {
-			PlayerData pd = gc.playerDataManager.get(player);
-			if (pd != null && pd.supportiveHealCooldownTicks > 0) {
-				e.setCancelled(true);
-				return;
+
+			//Posion is also only used for the visuals to show when you are on healing cooldown from healing arrows
+			//It is like if you heal more you will overdoes so healing stops lmao.
+			if (e.getCause() == DamageCause.POISON) {
+				if (pd.supportiveHealCooldownTicks > 0) {
+					e.setCancelled(true);
+					return;
+				}
 			}
 		}
 
@@ -283,6 +260,7 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
+
 		if (!(source instanceof Player) || !(e.getEntity() instanceof Player)) {
 			return;
 		}
@@ -292,35 +270,30 @@ public class PlayerListener implements Listener {
 			e.setCancelled(true);
 			return;
 		}
+
 		//Supportive arrow direct hit applies anti heal to the enemies
 		if (e instanceof EntityDamageByEntityEvent ebe && ebe.getDamager() instanceof Arrow arrow) {
 			ItemStack arrowItem = arrow.getItemStack();
-			//checks if it is the supportive arrow.
 			if (arrowItem.hasItemMeta() && arrowItem.getItemMeta().hasItemModel() && arrowItem.getItemMeta().getItemModel().equals(
 					new NamespacedKey("crystalized", "supportive_arrow"))) {
-
-				//The player who is the target
 				Player target = (Player) e.getEntity();
 				PlayerData targetData = gc.playerDataManager.get(target);
 				if (targetData != null) {
-					//Starts the anti heal
 					targetData.antiHealTicks = ANTI_HEAL_DURATION;
+					targetData.supportiveHealCooldownTicks = 0;
 					//Anti heal resets the healing cool down, as it totaly overwrites it and removes the posion cool down indicator
 					//sets it to nothing. To reset on anti heal
-					target.sendActionBar(Component.text(("")));
-					targetData.supportiveHealCooldownTicks = 0;
 					target.removePotionEffect(PotionEffectType.POISON);
-					//This adds cool down on cosumables when you are anti healed
 					target.setCooldown(Material.GOLDEN_APPLE, ANTI_HEAL_DURATION);
 					target.setCooldown(Material.POTION, ANTI_HEAL_DURATION);
 					//Wither is just used to display black hearts
-					target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, ANTI_HEAL_DURATION, 0, false,
-							true, true));
-					//plays the sound when player gest anti healed
+					target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, ANTI_HEAL_DURATION, 0, false, true, true));
 					target.playSound(target.getLocation(), Sound.ENTITY_WITHER_HURT, 0.6F, 1.3F);
+					target.sendActionBar(Component.text(("")));
 				}
 			}
 		}
+
 		PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get((Player) source);
 		double health = ((Player) e.getEntity()).getHealth();
 		double absorption_damage_done = -e.getDamage(EntityDamageEvent.DamageModifier.ABSORPTION);
@@ -450,67 +423,39 @@ public class PlayerListener implements Listener {
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 0L, 20L);
 	}
-	//This event is purely for when the supportive arro hit the block, not the player
+
 	@EventHandler
 	public void onSupportiveArrowHit(ProjectileHitEvent event) {
-
-		//Only when it hits the block, so not going to activate when hit the enemy, and unlike healing arrows I think healing should be only aeo
-		if (event.getHitBlock() == null) {
-			return;
-		}
-		//makes sure it is the arrow
-		if (!(event.getEntity() instanceof Arrow arrow)) {
-			return;
-		}
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null) return;
+		if (event.getHitBlock() == null) return;
+		if (!(event.getEntity() instanceof Arrow arrow)) return;
 
 		ItemStack arrowItem = arrow.getItemStack();
-		//checks if it is the supporting arrow
 		if (!arrowItem.hasItemMeta() || !arrowItem.getItemMeta().hasItemModel() || !arrowItem.getItemMeta().getItemModel().equals(
 				new NamespacedKey("crystalized", "supportive_arrow"))) {
 			return;
 		}
-		//gets the location
 		Location supportiveLocation = arrow.getLocation().clone();
-
-		//Moves the location slightly away from the block face
 		if (event.getHitBlockFace() != null) {
 			supportiveLocation.add(event.getHitBlockFace().getDirection().multiply(0.15));
 		}
-		if (!(arrow.getShooter() instanceof Player shooter)) {
-			return;
-		}
+		if (!(arrow.getShooter() instanceof Player shooter)) return;
 
-		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
-			return;
-		}
-		//gets the teams, as it should only apply to the team
 		Team shooterTeam = gc.teams.get_team(shooter);
-		if (shooterTeam == null) {
-			return;
-		}
+		if (shooterTeam == null) return;
 
-		//The arrow disapers once area gets created
-		//Doesn't remove the arrow just makes it not pickable
 		arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED); //Just changes
 
-		Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
-		//adds the supportive circle
 		GameController.SupportiveCircle supportiveCircle = new GameController.SupportiveCircle(supportiveLocation, shooterTeam);
 		gc.supportiveCircles.add(supportiveCircle);
-		//plays the creation of the supportive circle in the world.
 		supportiveLocation.getWorld().playSound(supportiveLocation, Sound.BLOCK_BEACON_ACTIVATE, 0.6F, 1.4F);
 
 		new BukkitRunnable() {
 			int repeats = 0;
 			@Override
 			public void run() {
-
-				//The amount of repeats is the same as the dragon breath to make them last the same amount of time
-				//Added the arrow valid check, fix for the richachet bow spreading circles everywhere. As the richacet immiditely removes the arrow
-				//so that is the reason why the loccating worked with the bow and this didn't
 				if (repeats >= 10 || !arrow.isValid()) {
-					//when it ends the circle gets removed
 					gc.supportiveCircles.remove(supportiveCircle);
 					arrow.remove();
 					cancel();
@@ -519,93 +464,43 @@ public class PlayerListener implements Listener {
 				//Same as dragon breath three ring particles
 				double[] ringRadius = {1.0, 1.5, 2.0};
 				int particlePoints = 20;
+				Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
 				//The same logic as in dragon breath.
 				for (double radius : ringRadius) {
-					for (int particlePoint = 0; particlePoint < particlePoints; particlePoint++) {
-
-						double angle = (Math.PI * 2.0 * particlePoint) / particlePoints;
+					for (int i = 0; i < particlePoints; i++) {
+						double angle = (Math.PI * 2.0 * i) / particlePoints;
 						double x = Math.cos(angle) * radius;
 						double z = Math.sin(angle) * radius;
-
 						Location particleLocation = supportiveLocation.clone().add(x, 0.15, z);
-
-						supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation,
-								1,
-								0.0,
-								0.0,
-								0.0,
-								0.0,
-								supportiveParticle
-						);
+						supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, supportiveParticle);
 					}
 				}
-				//Checks players inside the supportive area.
+
 				for (Player player : supportiveLocation.getNearbyPlayers(2.0)) {
 					Team playerTeam = gc.teams.get_team(player);
-					//Enemies and spectators don't get it.
-					if (playerTeam == null || playerTeam != shooterTeam) {
-						continue;
-					}
-					//gets the player data
+					if (playerTeam == null || playerTeam != shooterTeam)continue;
 					PlayerData pd = gc.playerDataManager.get(player);
-					if (pd == null) {
-						continue;
-					}
+					if (pd == null) continue;
 
 					//Anti heal cancels the supportive area pretty much
 					if (pd.antiHealTicks > 0) {
 						continue;
 					}
 
-					//Here only does healing, the rest is in the game loop as it needs to constaly check if player left the circle or not
-					//if not on cool down
 					if (pd.supportiveHealCooldownTicks <= 0) {
-						//The shooter gets slightly less healing, needs to be tweaked
+						// TODO document less heal for shooter in item description
 						if(player.equals(shooter)){
-							//Roughly regenerates 3 hearts of healing
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, false, false,
-									true));
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, false, false, true));
 						}
-						//The temates get roughly 5 hearts
 						else {
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false,
-									true));
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false, true));
 						}
-						//Sound of healing
 						player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 1.2F);
-						//Extra effects when the supporting arrow heals the player
-						player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.0, 0),
-								4,
-								0.35,
-								0.5,
-								0.35,
-								0.0
-						);
-
-						player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0),
-								8,
-								0.4,
-								0.5,
-								0.4,
-								0.0,
-								new Particle.DustOptions(Color.AQUA, 1.0F)
-						);
-						//Cool down when the healing is granted, it doesn't matter even if the circle about to disaper full cooldown
+						player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.0, 0), 4, 0.35, 0.5, 0.35, 0.0);
+						player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 8, 0.4, 0.5, 0.4, 0.0, supportiveParticle);
 						pd.supportiveHealCooldownTicks = SUPPORTIVE_HEAL_COOLDOWN;
-						//The poision for visual effect only, demonstrating that the arrows can't heal you right now or you will overdose
-						/* Might have been not a great idea, but not deleteing if we decided to return to it.
-						player.addPotionEffect(new PotionEffect(PotionEffectType.POISON, SUPPORTIVE_HEAL_COOLDOWN,
-								0,
-								false,
-								false,
-								true
-						));*/
 					}
 				}
-
-				//cleares the negative effects in the game controller when inside the circle constaly, so there is no weird miss match
-
-
 				repeats++;
 			}
 		}.runTaskTimer(Litestrike.getInstance(), 1, 15);
@@ -723,23 +618,18 @@ public class PlayerListener implements Listener {
 			event.setCancelled(true);
 		}
 	}
-	//This events prevents any healing if the player has been hit with anti heal
+
+	// prevents healing if player is under anti heal
 	@EventHandler
 	public void onRegainHealth(EntityRegainHealthEvent e) {
-		if (!(e.getEntity() instanceof Player player)) {
-			return;
-		}
+		if (!(e.getEntity() instanceof Player player)) return;
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null) {
-			return;
-		}
+		if (gc == null) return;
 		PlayerData pd = gc.playerDataManager.get(player);
-		//when anti heal still has ticks, cancels the heailing event.
 		if (pd != null && pd.antiHealTicks > 0) {
 			e.setCancelled(true);
 		}
 	}
-
 }
 
 class LSChatRenderer implements ChatRenderer.ViewerUnaware {

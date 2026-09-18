@@ -1,6 +1,7 @@
 package gg.litestrike.game;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
@@ -8,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
@@ -55,6 +57,7 @@ public class LSItem {
 
 	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
 	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");
+	public static final NamespacedKey NEGATIVE_EFFECT_IMMUNITY = new NamespacedKey("litestrike", "negative_effect_immunity");
 
 	public static List<LSItem> shopItems = createItems();
 
@@ -811,4 +814,80 @@ public class LSItem {
 
 		return null;
 	}
+
+	public static void doSupportingArrow(GameController gc) {
+		for (PlayerData pd : gc.playerDataManager.getAll()) {
+			Player player = Bukkit.getPlayerExact(pd.player);
+			if (player == null || !player.isOnline()) {
+				continue;
+			}
+
+			// antiheal particles
+			if (pd.antiHealTicks > 0) {
+				pd.antiHealTicks--;
+				player.getWorld().spawnParticle(Particle.DUST, player.getLocation() .add(0, 1.0, 0), 2, 0.35, 0.5, 0.35, 0.0, new Particle.DustOptions(Color.BLACK, 0.8F));
+			}
+
+			// send cooldown actionbar
+			if (pd.supportiveHealCooldownTicks > 0) {
+				pd.supportiveHealCooldownTicks--;
+				double secondsRemaining = pd.supportiveHealCooldownTicks / 20.0;
+				player.sendActionBar(Component.text(String.format("Supportive Arrow healing available in %.1fs", secondsRemaining), NamedTextColor.AQUA));
+			}
+
+			if (isInCircle(player, gc) && pd.antiHealTicks <= 0) {
+				player.getPersistentDataContainer().set(NEGATIVE_EFFECT_IMMUNITY, PersistentDataType.BYTE, (byte) 1);
+				player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 2, 0.35, 0.5, 0.35, 0.0, new Particle.DustOptions(Color.AQUA, 0.8F));
+
+				// Clense negative effects
+				for (PotionEffect effect : player.getActivePotionEffects()) {
+					PotionEffectType type = effect.getType();
+						// Skips the posion as it the cool down indicator before player can use the arrow again
+						// if (type == PotionEffectType.POISON && pd.supportiveHealCooldownTicks > 0) {
+						// 	continue;
+						// }
+					if (isNegativeEffect(type)) {
+						player.removePotionEffect(type);
+					}
+				}
+
+			} else {
+				player.getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
+			}
+		}
+	}
+
+	private static boolean isNegativeEffect(PotionEffectType type) {
+		return type == PotionEffectType.SLOWNESS
+				|| type == PotionEffectType.MINING_FATIGUE
+				|| type == PotionEffectType.INSTANT_DAMAGE
+				|| type == PotionEffectType.NAUSEA
+				|| type == PotionEffectType.BLINDNESS
+				|| type == PotionEffectType.HUNGER
+				|| type == PotionEffectType.WEAKNESS
+				|| type == PotionEffectType.LEVITATION
+				|| type == PotionEffectType.UNLUCK
+				|| type == PotionEffectType.DARKNESS
+				|| type == PotionEffectType.POISON;
+	}
+
+	private static boolean isInCircle(Player player, GameController gc) {
+		for (GameController.SupportiveCircle circle : gc.supportiveCircles) {
+			if (player.getWorld() != circle.location().getWorld()) {
+				continue;
+			}
+			if (gc.teams.get_team(player) != circle.team()) {
+				continue;
+			}
+			double x = player.getLocation().getX() - circle.location().getX();
+			double z = player.getLocation().getZ() - circle.location().getZ();
+			double horizontalDistanceSquared = (x * x) + (z * z);
+
+			if (horizontalDistanceSquared <= 4.0 && Math.abs(player.getLocation().getY() - circle.location().getY()) <= 2.0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
