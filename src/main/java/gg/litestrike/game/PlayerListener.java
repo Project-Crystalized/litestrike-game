@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
 
 	private static final int ANTI_HEAL_DURATION = 5 * 20;
 	private static final int SUPPORTIVE_AREA_DURATION = 10 * 15;
-	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;;
+	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;
 
 
 	@EventHandler
