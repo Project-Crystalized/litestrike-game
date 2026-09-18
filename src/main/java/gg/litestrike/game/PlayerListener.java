@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
 
 	private static final int ANTI_HEAL_DURATION = 5 * 20;
 	private static final int SUPPORTIVE_AREA_DURATION = 10 * 15;
-	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;;
+	private static final int SUPPORTIVE_HEAL_COOLDOWN = 10 * 20;
 
 
 	@EventHandler
@@ -75,6 +75,7 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
+		e.getPlayer().getPersistentDataContainer().remove(LSItem.NEGATIVE_EFFECT_IMMUNITY);
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
 		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
@@ -150,6 +151,19 @@ public class PlayerListener implements Listener {
 		if (e.getClickedBlock() instanceof Hanging) {
 			e.setCancelled(true);
 			return;
+		}
+		GameController gc = Litestrike.getInstance().game_controller;
+		Player player = e.getPlayer();
+		//Makes sure that potions and apples are not ussable while player is anti healed
+		//Don't remove: Prevents pottion consumption.
+		if (gc != null) {
+			PlayerData pd = gc.playerDataManager.get(player);
+			if (pd != null && pd.antiHealTicks > 0 && e.getItem() != null && (e.getItem().getType() == Material.GOLDEN_APPLE
+					|| e.getItem().getType() == Material.POTION)) {
+
+				e.setCancelled(true);
+				return;
+			}
 		}
 
 		if (e.getItem() != null && e.getItem().getType() == Material.POTION
@@ -280,16 +294,17 @@ public class PlayerListener implements Listener {
 				PlayerData targetData = gc.playerDataManager.get(target);
 				if (targetData != null) {
 					targetData.antiHealTicks = ANTI_HEAL_DURATION;
+					//Moved so it prevents the visual glitch
+					target.sendActionBar(Component.text(("")));
 					targetData.supportiveHealCooldownTicks = 0;
 					//Anti heal resets the healing cool down, as it totaly overwrites it and removes the posion cool down indicator
 					//sets it to nothing. To reset on anti heal
-					target.removePotionEffect(PotionEffectType.POISON);
+					//target.removePotionEffect(PotionEffectType.POISON);
 					target.setCooldown(Material.GOLDEN_APPLE, ANTI_HEAL_DURATION);
 					target.setCooldown(Material.POTION, ANTI_HEAL_DURATION);
 					//Wither is just used to display black hearts
 					target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, ANTI_HEAL_DURATION, 0, false, true, true));
 					target.playSound(target.getLocation(), Sound.ENTITY_WITHER_HURT, 0.6F, 1.3F);
-					target.sendActionBar(Component.text(("")));
 				}
 			}
 		}

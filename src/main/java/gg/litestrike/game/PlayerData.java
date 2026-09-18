@@ -36,7 +36,7 @@ public class PlayerData {
 	public int roundWinsOnlyWeapons = 0;
 
 	public int antiHealTicks = 0;
-	//Cooldown between supportive arrows
+	//Cooldown between supportive arrow can heal the player again.
 	public int supportiveHealCooldownTicks = 0;
 
 	// this keeps track of assits in the current round for this player
