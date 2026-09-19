@@ -1,10 +1,11 @@
 package gg.litestrike.game;
 
-// import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.PacketEvents;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameRules;
@@ -17,15 +18,11 @@ import org.jetbrains.annotations.NotNull;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
-import java.util.List;
 import java.util.logging.Level;
 
 enum Team {
@@ -40,8 +37,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 	public GameController game_controller;
 
 	public BossBarDisplay bbd;
-
-	public ProtocolManager protocolManager;
 
 	public PartyManager party_manager = new PartyManager();
 
@@ -59,23 +54,16 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 	public static final TextColor YELLOW = TextColor.color(0xfbea85);
 
-	// 	PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-	// 	PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
-	// 	PacketEvents.getAPI().load();
-	// 	EventManager events = PacketEvents.getAPI().getEventManager();
-	// 	events.registerListener(new ProtocolLibLib(), PacketListenerPriority.NORMAL);
-	// }
-	// @Override
-	// public void onLoad(){
-	// 	PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-	// 	PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
-	// 	PacketEvents.getAPI().load();
-	// }
+	@Override
+	public void onLoad(){
+		PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+		PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
+		PacketEvents.getAPI().load();
+	}
 
 	@Override
 	public void onEnable() {
-		protocolManager = ProtocolLibrary.getProtocolManager();
-
+		PacketEvents.getAPI().init();
 		this.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
@@ -90,7 +78,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		saveResource("config.yml", false);
 		saveResource("items.json", false);
-		LSItem.shopItems.size();
 		int configVersion;
 		if (getConfig().getInt("version") != 1) {
 			configVersion = getConfig().getInt("version");
@@ -102,14 +89,19 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		gameConfig = new GameConfig(getConfig());
 		manual_teams = new ManualTeams(gameConfig);
 
-		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
-		DebugCommands dc = new DebugCommands();
 		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-			event.registrar().register(manual_teams.build().build(), "to set up teams manually", List.of());
-			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
-			event.registrar().register(dc.build(manual_teams.build(), gcc.build()).build(), "Litestrike debug commands",
-					List.of());
+			event.registrar().register("manual_teams", "to set up teams manually", manual_teams);
 		});
+
+		DebugCommands dc = new DebugCommands();
+		this.getCommand("mapdata").setExecutor(dc);
+		this.getCommand("force_start").setExecutor(dc);
+		this.getCommand("player_info").setExecutor(dc);
+		this.getCommand("soundd").setExecutor(dc);
+
+		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
+		this.getCommand("game_config").setExecutor(gcc);
+		this.getCommand("game_config").setTabCompleter(gcc);
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);
@@ -139,14 +131,12 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 			mapdata.check_chunk(c);
 		}
 
-		protocolManager.addPacketListener(ProtocolLibLib.change_bomb_carrier_armor_color());
-		protocolManager.addPacketListener(ProtocolLibLib.make_allys_glow());
-
 		teleportBackUp();
 	}
 
 	@Override
 	public void onDisable() {
+		PacketEvents.getAPI().terminate();
 	}
 
 	public static Litestrike getInstance() {
@@ -181,6 +171,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
 		if (!channel.equals("crystalized:main")) {
