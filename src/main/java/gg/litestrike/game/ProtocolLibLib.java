@@ -25,6 +25,7 @@ public class ProtocolLibLib implements PacketListener {
 	@Override
 	public void onPacketSend(PacketSendEvent event){
 		if(event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
+			event.markForReEncode(true);
 			WrapperPlayServerEntityMetadata metaWrapper = new WrapperPlayServerEntityMetadata(event);
 			GameController gc = Litestrike.getInstance().game_controller;
 			Player updated_player = get_player_by_entity_id(metaWrapper.getEntityId());
@@ -40,12 +41,11 @@ public class ProtocolLibLib implements PacketListener {
 			List<EntityData<?>> data = metaWrapper.getEntityMetadata();
 			data.add(new EntityData<>(0, EntityDataTypes.BYTE, ((Integer) 0x40).byteValue()));
 			metaWrapper.setEntityMetadata(data);
-			event.setCancelled(true);
-			event.getUser().sendPacket(metaWrapper);
 			return;
 		}
 
 		if(event.getPacketType() == PacketType.Play.Server.ENTITY_EQUIPMENT){
+			event.markForReEncode(true);
 			WrapperPlayServerEntityEquipment equipWrapper = new WrapperPlayServerEntityEquipment(event);
 			GameController gc = Litestrike.getInstance().game_controller;
 			Player updated_player = get_player_by_entity_id(equipWrapper.getEntityId());
@@ -56,18 +56,18 @@ public class ProtocolLibLib implements PacketListener {
 					|| !(updated_player.equals(((InvItemBomb) gc.bomb).player))) {
 				return;
 			}
+			Bukkit.getLogger().warning("after return");
 			for(Equipment e : equipWrapper.getEquipment()){
 				if(e.getSlot() != HELMET && e.getSlot() != CHEST_PLATE && e.getSlot() != LEGGINGS && e.getSlot() != BOOTS) continue;
 				ItemStack stack = SpigotConversionUtil.toBukkitItemStack(e.getItem());
 				if(stack != null && stack.getType().name().toUpperCase().contains("LEATHER")){
+					Bukkit.getLogger().warning("setting meta");
 					LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
 					meta.setColor(Color.fromRGB(0xff8530));
 					stack.setItemMeta(meta);
 				}
 				e.setItem(SpigotConversionUtil.fromBukkitItemStack(stack));
 			}
-			event.setCancelled(true);
-			event.getUser().sendPacket(equipWrapper);
 		}
 	}
 	/*
