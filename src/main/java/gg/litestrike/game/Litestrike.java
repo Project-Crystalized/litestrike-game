@@ -1,6 +1,8 @@
 package gg.litestrike.game;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.EventManager;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -23,6 +25,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.util.List;
 import java.util.logging.Level;
 
 enum Team {
@@ -59,6 +62,8 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
 		PacketEvents.getAPI().getSettings().reEncodeByDefault(false).checkForUpdates(true).bStats(false);
 		PacketEvents.getAPI().load();
+		EventManager events = PacketEvents.getAPI().getEventManager();
+		events.registerListener(new ProtocolLibLib(), PacketListenerPriority.NORMAL);
 	}
 
 	@Override
@@ -78,6 +83,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 
 		saveResource("config.yml", false);
 		saveResource("items.json", false);
+		LSItem.shopItems.size();
 		int configVersion;
 		if (getConfig().getInt("version") != 1) {
 			configVersion = getConfig().getInt("version");
@@ -89,19 +95,14 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		gameConfig = new GameConfig(getConfig());
 		manual_teams = new ManualTeams(gameConfig);
 
-		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-			event.registrar().register("manual_teams", "to set up teams manually", manual_teams);
-		});
-
-		DebugCommands dc = new DebugCommands();
-		this.getCommand("mapdata").setExecutor(dc);
-		this.getCommand("force_start").setExecutor(dc);
-		this.getCommand("player_info").setExecutor(dc);
-		this.getCommand("soundd").setExecutor(dc);
-
 		GameConfigCommand gcc = new GameConfigCommand(gameConfig);
-		this.getCommand("game_config").setExecutor(gcc);
-		this.getCommand("game_config").setTabCompleter(gcc);
+		DebugCommands dc = new DebugCommands();
+		this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+			event.registrar().register(manual_teams.build().build(), "to set up teams manually", List.of());
+			event.registrar().register(gcc.build().build(), "View and modify game settings", List.of());
+			event.registrar().register(dc.build(manual_teams.build(), gcc.build()).build(), "Litestrike debug commands",
+					List.of());
+		});
 
 		this.getServer().getMessenger().registerOutgoingPluginChannel(this, "crystalized:litestrike");
 		this.getServer().getMessenger().registerIncomingPluginChannel(this, "crystalized:litestrike", this);
@@ -171,7 +172,6 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		Bukkit.getServer().sendPluginMessage(this, channel, out.toByteArray());
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
 		if (!channel.equals("crystalized:main")) {
