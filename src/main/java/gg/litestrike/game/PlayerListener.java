@@ -294,8 +294,10 @@ public class PlayerListener implements Listener {
 				PlayerData targetData = gc.playerDataManager.get(target);
 				if (targetData != null) {
 					targetData.antiHealTicks = ANTI_HEAL_DURATION;
-					//Moved so it prevents the visual glitch
-					target.sendActionBar(Component.text(("")));
+					//Moved so it prevents the visual glitch and doesn't overwrite the bomb usage, but will clean heal arrow
+					if (!Litestrike.getInstance().bombListener.isUsingBomb(target)) {
+						target.sendActionBar(Component.text(("")));
+					}
 					targetData.supportiveHealCooldownTicks = 0;
 					//Anti heal resets the healing cool down, as it totaly overwrites it and removes the posion cool down indicator
 					//sets it to nothing. To reset on anti heal
