@@ -831,8 +831,11 @@ public class LSItem {
 			// send cooldown actionbar
 			if (pd.supportiveHealCooldownTicks > 0) {
 				pd.supportiveHealCooldownTicks--;
-				double secondsRemaining = pd.supportiveHealCooldownTicks / 20.0;
-				player.sendActionBar(Component.text(String.format("Supportive Arrow healing available in %.1fs", secondsRemaining), NamedTextColor.AQUA));
+				//if the player is using the bomb will not overwrite. And then stops and on cool down should show up
+				if (!Litestrike.getInstance().bombListener.isUsingBomb(player)) {
+					double secondsRemaining = pd.supportiveHealCooldownTicks / 20.0;
+					player.sendActionBar(Component.text(String.format("Supportive Arrow healing available in %.1fs", secondsRemaining), NamedTextColor.AQUA));
+				}
 			}
 
 			if (isInCircle(player, gc) && pd.antiHealTicks <= 0) {

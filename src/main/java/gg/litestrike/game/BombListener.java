@@ -334,6 +334,15 @@ public class BombListener implements Listener {
 		}
 		planting_face = e.getBlockFace();
 	}
+	//checks if player is using the bomb to prevent the action bar from being overwriten by anti heal and supporting arrow heal cool down
+	public boolean isUsingBomb(Player player) {
+		//checks if the planeter is planting
+		if (player == last_planting_player && is_planting > 0) {
+			return true;
+		}
+		//checks if mining
+		return is_player_mining(player);
+	}
 
 	@EventHandler
 	public void onInvPickup(InventoryPickupItemEvent e) {
