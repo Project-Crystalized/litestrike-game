@@ -481,7 +481,6 @@ public class PlayerListener implements Listener {
 				//Same as dragon breath three ring particles
 				double[] ringRadius = {1.0, 1.5, 2.0};
 				int particlePoints = 20;
-				Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
 				//The same logic as in dragon breath.
 				for (double radius : ringRadius) {
 					for (int i = 0; i < particlePoints; i++) {
@@ -489,7 +488,18 @@ public class PlayerListener implements Listener {
 						double x = Math.cos(angle) * radius;
 						double z = Math.sin(angle) * radius;
 						Location particleLocation = supportiveLocation.clone().add(x, 0.15, z);
-						supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, supportiveParticle);
+						//supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, supportiveParticle);
+						//This was added to so that players can see diffrent particles, no package events needed
+						//goes through the players in the world which will view the particles
+						for (Player viewer : supportiveLocation.getWorld().getPlayers()) {
+							//gets the viewers teamer
+							Team viewerTeam = gc.teams.get_team(viewer);
+							//this determines how the arrow should look like based on the shooters team, viewers team and the size
+							//specattorers also handled
+							Particle.DustOptions particle = LSItem.getSupportiveParticle(shooterTeam, viewerTeam, 1.0F);
+							//this spawns the particles for the individual players with the correct color
+							viewer.spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, particle);
+						}
 					}
 				}
 
@@ -514,7 +524,15 @@ public class PlayerListener implements Listener {
 						}
 						player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 1.2F);
 						player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.0, 0), 4, 0.35, 0.5, 0.35, 0.0);
-						player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 8, 0.4, 0.5, 0.4, 0.0, supportiveParticle);
+						//This is similiar logic for when you get healed the particles for individual players looks diffrent depended on the team
+						Location healingParticleLocation = player.getLocation().add(0, 1.0, 0);
+						for (Player viewer : player.getWorld().getPlayers()) {
+							Team viewerTeam = gc.teams.get_team(viewer);
+							Particle.DustOptions particle = LSItem.getSupportiveParticle(shooterTeam, viewerTeam, 1.0F);
+							//Healing burst of particles
+							viewer.spawnParticle(Particle.DUST, healingParticleLocation, 8, 0.4, 0.5, 0.4, 0.0, particle);
+						}
+						//player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 8, 0.4, 0.5, 0.4, 0.0, supportiveParticle);
 						pd.supportiveHealCooldownTicks = SUPPORTIVE_HEAL_COOLDOWN;
 					}
 				}

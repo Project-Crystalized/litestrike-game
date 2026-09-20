@@ -5,11 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
@@ -840,7 +836,15 @@ public class LSItem {
 
 			if (isInCircle(player, gc) && pd.antiHealTicks <= 0) {
 				player.getPersistentDataContainer().set(NEGATIVE_EFFECT_IMMUNITY, PersistentDataType.BYTE, (byte) 1);
-				player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 2, 0.35, 0.5, 0.35, 0.0, new Particle.DustOptions(Color.AQUA, 0.8F));
+				//This the protective particles which appere around the player, while in the circle team based as well
+				Location protectionParticleLocation = player.getLocation().add(0, 1.0, 0);
+				Team protectedPlayerTeam = gc.teams.get_team(player);
+				for (Player viewer : player.getWorld().getPlayers()) {
+					Team viewerTeam = gc.teams.get_team(viewer);
+					Particle.DustOptions particle = getSupportiveParticle(protectedPlayerTeam, viewerTeam, 0.8F);
+					viewer.spawnParticle(Particle.DUST, protectionParticleLocation, 2, 0.35, 0.5, 0.35, 0.0, particle);
+				}
+
 
 				// Clense negative effects
 				for (PotionEffect effect : player.getActivePotionEffects()) {
@@ -858,6 +862,30 @@ public class LSItem {
 				player.getPersistentDataContainer().remove(NEGATIVE_EFFECT_IMMUNITY);
 			}
 		}
+	}
+	//This method exists to get the the supportive particle based on the players team
+	//The circler owner team is the team which owns the supportive circl, the team of the viewer is the player observing it.
+	public static Particle.DustOptions getSupportiveParticle(Team theCircleOwnerTeam, Team theTeamOfTheViewer, float size) {
+		//This is the colour that the particle will be
+		Color colour;
+		//This is for the spectator players with no teams
+		if (theTeamOfTheViewer == null) {
+			//Spectators allways sees breakers as aqua, and placers as dark blue
+			if (theCircleOwnerTeam == Team.Breaker) {
+				colour = Color.AQUA;
+			} else {
+				//dark blue
+				colour = Color.fromRGB(0, 70, 180);
+			}
+		} else if (theTeamOfTheViewer == theCircleOwnerTeam) {
+			//This is what the same team players see
+			colour = Color.AQUA;
+		} else {
+			//This is what the enemy sees
+			colour = Color.fromRGB(0, 70, 180);
+		}
+		//returns how the particle must look, and it's size
+		return new Particle.DustOptions(colour, size);
 	}
 
 	private static boolean isNegativeEffect(PotionEffectType type) {
