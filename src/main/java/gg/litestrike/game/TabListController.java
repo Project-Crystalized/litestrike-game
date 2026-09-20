@@ -63,11 +63,16 @@ class TabListController {
 					.append(text((int) Math.floor(pd.total_damage)))
 					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
-			Component rank = null;
-			try {
-				rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
-			} catch (NoClassDefFoundError e) {
+		Component rank = null;
+		try {
+			if (player != null) {
+				Component icon = Ranks.getIcon(player);
+				if (!PlainTextComponentSerializer.plainText().serialize(icon).isEmpty()) {
+					rank = text(" ").append(icon).append(text(" "));
+				}
 			}
+		} catch (NoClassDefFoundError e) {
+		}
 			Component player_status = build_player_status(rank, player, pd, gc);
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
