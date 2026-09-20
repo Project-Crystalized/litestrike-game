@@ -34,6 +34,7 @@
 		{ "name": "explosive_bow", "price": 1750, "slot": 8 },
 		{ "name": "healing_arrow", "price": 250, "slot": 52 },
 		{ "name": "arrow_8", "price": 200, "slot": 50 },
-		{ "name": "spectral_arrow_4", "price": 300, "slot": 51 }
+		{ "name": "spectral_arrow_4", "price": 300, "slot": 51 },
+		{ "name": "supportive_arrow", "price": null, "slot": null }
 	]
 }
