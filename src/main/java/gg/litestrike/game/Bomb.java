@@ -187,6 +187,10 @@ class PlacedBomb implements Bomb {
 					cancel();
 					return;
 				}
+				if (block.getType() != Material.BARRIER && block.isEmpty()) {
+					Bukkit.getLogger().warning("[Litestrike] bomb barrier missing at " + block.getLocation() + ", restoring");
+					block.setType(Material.BARRIER);
+				}
 
 				Block new_block = block.getRelative(bf.getOppositeFace());
 				if (new_block.isEmpty()) {
