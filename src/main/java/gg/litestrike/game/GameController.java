@@ -72,10 +72,11 @@ public class GameController {
 
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
-
 		for (Player player : teams.get_all_players()) {
 			playerDataManager.addPlayer(player);
 		}
+		//could be in team constructor as well, but then it will need to be duplicated for manual and non manual teams
+		teams.updateTeamPDC();
 
 		new BukkitRunnable() {
 			@Override
@@ -421,6 +422,8 @@ public class GameController {
 					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
 			Bukkit.getLogger().info("Switching the Sides");
 			teams.switch_teams();
+			//updates the teams presistant datayh contianters when they switch
+			teams.updateTeamPDC();
 			for (PlayerData pd : playerDataManager.getAll()) {
 				pd.removeMoney();
 			}
