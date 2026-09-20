@@ -56,12 +56,10 @@ public class ProtocolLibLib implements PacketListener {
 					|| !(updated_player.equals(((InvItemBomb) gc.bomb).player))) {
 				return;
 			}
-			Bukkit.getLogger().warning("after return");
 			for(Equipment e : equipWrapper.getEquipment()){
 				if(e.getSlot() != HELMET && e.getSlot() != CHEST_PLATE && e.getSlot() != LEGGINGS && e.getSlot() != BOOTS) continue;
 				ItemStack stack = SpigotConversionUtil.toBukkitItemStack(e.getItem());
 				if(stack != null && stack.getType().name().toUpperCase().contains("LEATHER")){
-					Bukkit.getLogger().warning("setting meta");
 					LeatherArmorMeta meta = (LeatherArmorMeta) stack.getItemMeta();
 					meta.setColor(Color.fromRGB(0xff8530));
 					stack.setItemMeta(meta);
