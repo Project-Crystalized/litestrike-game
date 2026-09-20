@@ -20,9 +20,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 
 public class DeathHandler implements Listener {
 
@@ -86,11 +89,15 @@ public class DeathHandler implements Listener {
 			if (streak == 4) {
 				Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(
 						text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer)))
-								.append(text(" is on a RAMPAGE! (4 kills this round)").color(Litestrike.YELLOW)));
+								.append(text(" is on a ").color(Litestrike.YELLOW))
+								.append(text("RAMPAGE").color(RED).decoration(BOLD, true))
+								.append(text("! (4 kills this round)").color(Litestrike.YELLOW)));
 			} else if (streak >= 5) {
 				Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(
 						text(killer.getName()).color(Teams.get_team_color(gc.teams.get_team(killer)))
-								.append(text(" is LEGENDARY! (" + streak + " kills this round)").color(Litestrike.YELLOW)));
+								.append(text(" is ").color(Litestrike.YELLOW))
+								.append(text("LEGENDARY").color(TextColor.color(0xb02ae2)).decoration(BOLD, true))
+								.append(text("! (" + streak + " kills this round)").color(Litestrike.YELLOW)));
 			}
 		}
 		for (Player player : Bukkit.getOnlinePlayers()) {
