@@ -86,9 +86,6 @@ public class GameController {
 					Shop s = new Shop(player);
 					s.resetEquip();
 					s.resetEquipCounters();
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						player.unlistPlayer(p);
-					}
 				}
 				next_round();
 			}
