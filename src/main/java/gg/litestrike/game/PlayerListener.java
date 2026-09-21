@@ -120,6 +120,8 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
 			QueueSystem.qsb.show_queue_scoreboard(p);
+			//No game is going on so removes any potential teams
+			p.getPersistentDataContainer().remove(Teams.TEAM_KEY);
 
 		} else {
 			// if we are here, it means the player is rejoining
@@ -133,6 +135,8 @@ public class PlayerListener implements Listener {
 			// give player the scoreboard and bossbar again
 			ScoreboardController.give_player_scoreboard(p, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
+			//if the player rejoined updates the teams acordingly
+			gc.teams.updateTeamPDCindividual(p);
 		}
 	}
 
