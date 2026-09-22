@@ -30,6 +30,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.mockbukkit.mockbukkit:mockbukkit-v26.2:4.116.1")
     testImplementation("io.papermc.paper:paper-api:26.2.build.121-stable")
+    testImplementation("com.github.retrooper:packetevents-spigot:2.13.0")
     testImplementation("com.google.code.gson:gson:2.11.0")
     compileOnly("com.github.retrooper:packetevents-spigot:2.13.0")
 }

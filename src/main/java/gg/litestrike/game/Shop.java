@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import gg.litestrike.game.LSItem.ItemCategory;
+import gg.crystalized.lobby.LobbyDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import static org.bukkit.enchantments.Enchantment.*;
 public class Shop {
 	public static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
 	public static final String SHOP_BACKGROUND_GENERIC = "\uA016";
+
 	public Inventory currentView;
 	public String player;
 	public String shopBackground;
@@ -41,18 +43,28 @@ public class Shop {
 
 	public Shop(Player p) {
 		if (p == null) {
+			Bukkit.getLogger().severe("tried to create a shop with a null player, continueing");
 			return;
 		}
 
 		Litestrike.getInstance().game_controller.shopList.put(p.getName(), this);
 		player = p.getName();
-		shopBackground = resolveShopBackground();
+		shopBackground = getShopBackground(p);
 		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
 		shopLog = new ArrayList<>();
 	}
 
-	private String resolveShopBackground() {
-		return LSItem.defaultBackground();
+	private static String getShopBackground(Player p) {
+		try {
+			if (!LobbyDatabase.canSeeConfusingTextures(p)) {
+				return SHOP_BACKGROUND_GENERIC;
+			}
+		} catch (NoClassDefFoundError e) {}
+
+		if (!LSItem.ShopValidator.matchesDefaultLayout(LSItem.currentShopLayout())) {
+			return SHOP_BACKGROUND_GENERIC;
+		}
+		return SHOP_BACKGROUND_DEFAULT;
 	}
 
 	private Component title(String p) {

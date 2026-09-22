@@ -151,11 +151,6 @@ public class LSItem {
 		return layout;
 	}
 
-	static String defaultBackground() {
-		return ShopValidator.matchesDefaultLayout(currentShopLayout()) ? Shop.SHOP_BACKGROUND_DEFAULT
-				: Shop.SHOP_BACKGROUND_GENERIC;
-	}
-
 	// items.json in the plugin data folder is the single source of truth for shop
 	// merchandising: every known item needs an entry with "price" and "slot", both
 	// null hides the item. entries match by "name". missing entries, nameless or
