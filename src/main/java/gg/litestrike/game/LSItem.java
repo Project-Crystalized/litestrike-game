@@ -143,6 +143,19 @@ public class LSItem {
 		return lsItems;
 	}
 
+	static Map<String, int[]> currentShopLayout() {
+		Map<String, int[]> layout = new HashMap<>();
+		for (LSItem item : shopItems) {
+			layout.put(item.key, new int[] { item.price == null ? -1 : item.price, item.slot == null ? -1 : item.slot });
+		}
+		return layout;
+	}
+
+	static String defaultBackground() {
+		return ShopValidator.matchesDefaultLayout(currentShopLayout()) ? Shop.SHOP_BACKGROUND_DEFAULT
+				: Shop.SHOP_BACKGROUND_GENERIC;
+	}
+
 	// items.json in the plugin data folder is the single source of truth for shop
 	// merchandising: every known item needs an entry with "price" and "slot", both
 	// null hides the item. entries match by "name". missing entries, nameless or
@@ -231,6 +244,20 @@ public class LSItem {
 				problems.add("'" + key + "': " + field + " must be an integer");
 				return null;
 			}
+		}
+
+		static boolean matchesDefaultLayout(Map<String, int[]> shop) {
+			return is(shop, "iron_axe", 1750, 0)
+					&& is(shop, "slime_sword", 1000, 18)
+					&& is(shop, "ricochet_bow", 1000, 8)
+					&& is(shop, "explosive_arrow", 350, 49)
+					&& is(shop, "broadsword", 1000, -1)
+					&& is(shop, "explosive_bow", 1750, -1);
+		}
+
+		private static boolean is(Map<String, int[]> shop, String name, int price, int slot) {
+			int[] actual = shop.get(name);
+			return actual != null && actual[0] == price && actual[1] == slot;
 		}
 	}
 

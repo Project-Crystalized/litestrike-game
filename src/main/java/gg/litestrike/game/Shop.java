@@ -29,8 +29,11 @@ import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.enchantments.Enchantment.*;
 
 public class Shop {
+	public static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
+	public static final String SHOP_BACKGROUND_GENERIC = "\uA016";
 	public Inventory currentView;
 	public String player;
+	public String shopBackground;
 	public HashMap<LSItem.ItemCategory, LSItem> currentEquip = new HashMap<>();
 	public HashMap<LSItem.ItemCategory, LSItem> previousEquip = new HashMap<>();
 	public HashMap<LSItem, Integer> consAndAmmoCount = new HashMap<>();
@@ -43,13 +46,18 @@ public class Shop {
 
 		Litestrike.getInstance().game_controller.shopList.put(p.getName(), this);
 		player = p.getName();
+		shopBackground = resolveShopBackground();
 		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
 		shopLog = new ArrayList<>();
 	}
 
-	private static Component title(String p) {
+	private String resolveShopBackground() {
+		return LSItem.defaultBackground();
+	}
+
+	private Component title(String p) {
 		PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(p);
-		return Component.text("\uA000" + "\uA001" + "\uE104" + pd.getMoney()).color(WHITE);
+		return Component.text("\uA000" + shopBackground + "\uE104" + pd.getMoney()).color(WHITE);
 	}
 
 	public void update_shop() {
