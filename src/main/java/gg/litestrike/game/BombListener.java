@@ -180,7 +180,11 @@ public class BombListener implements Listener {
 	@EventHandler
 	public void onPLayerQuit(PlayerQuitEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || !(gc.bomb instanceof InvItemBomb)) {
+		if (gc == null) {
+			return;
+		}
+		remove_mining_player(e.getPlayer());
+		if (!(gc.bomb instanceof InvItemBomb)) {
 			return;
 		}
 		InvItemBomb b = (InvItemBomb) gc.bomb;
@@ -237,7 +241,7 @@ public class BombListener implements Listener {
 		}
 		for (MiningPlayer mp : mining_players) {
 			if (mp.p == e.getPlayer()) {
-				mp.timer = 5 + ping_compensation_ticks(e.getPlayer());
+				mp.timer = 7 + ping_compensation_ticks(e.getPlayer());
 				e.getPlayer().sendActionBar(text(renderBreakingProgress()));
 				return;
 			}
@@ -387,6 +391,7 @@ public class BombListener implements Listener {
 		if (gc == null) {
 			return;
 		}
+		remove_mining_player(e.getPlayer());
 		Bomb b = gc.bomb;
 		if (b == null) {
 			Bukkit.getLogger().severe("a player died while no bomb existed? is that possible?");

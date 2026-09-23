@@ -78,17 +78,14 @@ public class PlayerListener implements Listener {
 		e.getPlayer().getPersistentDataContainer().remove(LSItem.NEGATIVE_EFFECT_IMMUNITY);
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
+		if (gc == null) {
+			return;
+		}
+		Team player_team = gc.teams.get_team(e.getPlayer());
+		if (player_team != Team.Placer && player_team != Team.Breaker) {
 			return;
 		}
 		gc.playerDataManager.get(e.getPlayer()).did_leave = true;
-		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
-			InvItemBomb bomb = (InvItemBomb) gc.bomb;
-			if (bomb.player.equals(e.getPlayer())) {
-				Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
-				bomb.drop_bomb(i);
-			}
-		}
 	}
 
 	@EventHandler
