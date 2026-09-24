@@ -15,13 +15,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
@@ -70,6 +66,9 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			return;
 		}
+		if(e.getPlayer().getGameMode() == GameMode.ADVENTURE){
+			return;
+		}
 		gc.playerDataManager.get(e.getPlayer()).jumps += 1;
 	}
 
@@ -104,6 +103,7 @@ public class PlayerListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
+		GameController.unsetSpectator(p);
 		p.getInventory().clear();
 		try {
 			// InventoryManager.giveLobbyItems(p); //why - Callum
@@ -123,7 +123,7 @@ public class PlayerListener implements Listener {
 
 		} else {
 			// if we are here, it means the player is rejoining
-			p.setGameMode(GameMode.SPECTATOR);
+			GameController.setSpectator(p);
 			Shop s = gc.getShop(p);
 
 			if (s != null) {
@@ -230,6 +230,10 @@ public class PlayerListener implements Listener {
 			return;
 		}
 		if (e.getEntity() instanceof Player player) {
+			if(player.getGameMode() == GameMode.ADVENTURE){
+				e.setCancelled(true);
+				return;
+			}
 			PlayerData pd = gc.playerDataManager.get(player);
 			if (pd == null) return;
 
@@ -248,6 +252,13 @@ public class PlayerListener implements Listener {
 					e.setCancelled(true);
 					return;
 				}
+			}
+		}
+
+		if(e instanceof EntityDamageByEntityEvent ebe){
+			if(ebe.getDamager() instanceof Player p && p.getGameMode() == GameMode.ADVENTURE){
+				e.setCancelled(true);
+				return;
 			}
 		}
 
@@ -532,6 +543,10 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPotionEffect(EntityPotionEffectEvent event) {
+		if(event.getEntity() instanceof Player p && p.getGameMode() == GameMode.ADVENTURE){
+			event.setCancelled(true);
+			return;
+		}
 		if (event.getCause() != EntityPotionEffectEvent.Cause.ARROW
 				|| !(event.getEntity() instanceof Player target)
 				|| !(event.getSource() instanceof Arrow arrow)) {
@@ -642,6 +657,23 @@ public class PlayerListener implements Listener {
 		if (gc == null) return;
 		PlayerData pd = gc.playerDataManager.get(player);
 		if (pd != null && pd.antiHealTicks > 0) {
+			e.setCancelled(true);
+		}
+	}
+
+	//prevents picking up of items by spectating players.
+	@EventHandler
+	public void onSpectatorPickup(EntityPickupItemEvent e) {
+		if (e.getEntity() instanceof Player p && Litestrike.getInstance().game_controller != null && p.getGameMode() == GameMode.ADVENTURE) {
+			e.setCancelled(true);
+		}
+	}
+
+	//prevents dropping items while player is a spectator.
+	@EventHandler
+	public void onSpectatorDrop(PlayerDropItemEvent e) {
+		Player p = e.getPlayer();
+		if (Litestrike.getInstance().game_controller != null && p.getGameMode() == GameMode.ADVENTURE) {
 			e.setCancelled(true);
 		}
 	}

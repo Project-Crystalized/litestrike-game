@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
@@ -8,11 +9,16 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.GameRules;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -25,8 +31,13 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+
+import static net.kyori.adventure.text.format.NamedTextColor.GRAY;
+import static net.kyori.adventure.text.format.NamedTextColor.WHITE;
+import static net.kyori.adventure.text.format.TextDecoration.ITALIC;
 
 enum Team {
 	Placer,
@@ -75,6 +86,7 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
 		this.getServer().getPluginManager().registerEvents(new BombListener(), this);
 		this.getServer().getPluginManager().registerEvents(new Communicator(), this);
+		this.getServer().getPluginManager().registerEvents(new GameCompass(), this);
 
 		// registers all listeners for map specific features
 		if (mapdata.map_features != null) {
@@ -186,5 +198,81 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 			this.gameConfig.ranked = false;
 			Bukkit.getLogger().info("set ranked off");
 		}
+	}
+}
+
+class GameCompass implements Listener {
+	@EventHandler
+	public void onCompassClick(PlayerInteractEvent e){
+		if(e.getItem() == null || e.getItem().getType() != Material.COMPASS){
+			return;
+		}
+
+		if(e.getPlayer().getGameMode() != GameMode.ADVENTURE){
+			return;
+		}
+
+		int teamSize = 0;
+		ArrayList<List<Player>> allPlayerSortedInTeams = new ArrayList<>();
+		GameController gc = Litestrike.getInstance().game_controller;
+		allPlayerSortedInTeams.add(gc.teams.get_breakers());
+		allPlayerSortedInTeams.add(gc.teams.get_placers());
+
+		teamSize = Math.max(allPlayerSortedInTeams.getFirst().size(), allPlayerSortedInTeams.getLast().size());
+
+		int inventorySize = allPlayerSortedInTeams.size() * teamSize * 2;
+		int[] possibleSizes = new int[]{9, 18, 27, 36, 45, 54};
+		for(int i : possibleSizes){
+			if(inventorySize % 9 == 0) break;
+			if(inventorySize <= i){
+				inventorySize = i;
+				break;
+			}
+		}
+		Inventory inv = Bukkit.createInventory(null, inventorySize, Component.text(""));
+		int slot = 0;
+		for(List<Player> team : allPlayerSortedInTeams){
+			for(Player p : team){
+				inv.setItem(slot, buildItem(p.getName()));
+				slot++;
+			}
+			if(slot % 9 != 0) slot++;
+		}
+		e.getPlayer().openInventory(inv);
+	}
+
+	@EventHandler
+	public void onHeadClick(InventoryClickEvent e){
+		if(e.getCurrentItem() == null || e.getCurrentItem().getType() != Material.PLAYER_HEAD){
+			return;
+		}
+		if(e.getWhoClicked().getGameMode() != GameMode.ADVENTURE){
+			return;
+		}
+		e.setCancelled(true);
+		ItemStack item = e.getCurrentItem();
+		SkullMeta skull = (SkullMeta) item.getItemMeta();
+		PlayerProfile profile = skull.getPlayerProfile();
+		if(profile == null || profile.getId() == null) return;
+		OfflinePlayer player = Bukkit.getOfflinePlayer(profile.getId());
+		if(player.getPlayer() == null) return;
+		e.getWhoClicked().teleport(player.getPlayer());
+	}
+
+	public static ItemStack buildItem(String name){
+		OfflinePlayer player = Bukkit.getOfflinePlayer(name);
+		PlayerProfile profile = player.getPlayerProfile();
+		ItemStack play = new ItemStack(Material.PLAYER_HEAD, 1);
+		SkullMeta skull = (SkullMeta) play.getItemMeta();
+		skull.setPlayerProfile(profile);
+		play.setItemMeta(skull);
+
+		ItemMeta meta = play.getItemMeta();
+		Component displayName = Component.text("\uE103").color(WHITE).decoration(ITALIC, false).append(Component.text(name).color(GRAY).decoration(ITALIC, true));
+		if(player.getPlayer() != null && player.getPlayer().getGameMode() != GameMode.ADVENTURE) displayName = player.getPlayer().displayName().decoration(ITALIC, false);
+		meta.displayName(displayName);
+		play.setItemMeta(meta);
+
+		return play;
 	}
 }

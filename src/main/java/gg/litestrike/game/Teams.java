@@ -159,7 +159,7 @@ public class Teams {
 	private List<Player> get_players(List<String> team, boolean alive) {
 		List<Player> player_list = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (team.contains(p.getName()) && p.isConnected() && (!alive || !p.getGameMode().equals(GameMode.SPECTATOR))) {
+			if (team.contains(p.getName()) && p.isConnected() && (!alive || !p.getGameMode().equals(GameMode.SPECTATOR) || !p.getGameMode().equals(GameMode.ADVENTURE))) {
 				player_list.add(p);
 			}
 		}

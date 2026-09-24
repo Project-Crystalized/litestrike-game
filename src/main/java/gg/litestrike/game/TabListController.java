@@ -111,7 +111,7 @@ class TabListController {
 		if (player == null) {
 			tag = "[Disconnected] ";
 			name_color = NamedTextColor.GRAY;
-		} else if (player.getGameMode() == GameMode.SPECTATOR) {
+		} else if (player.getGameMode() == GameMode.SPECTATOR || player.getGameMode() == GameMode.ADVENTURE) {
 			tag = "[Dead] ";
 			name_color = NamedTextColor.GRAY;
 		} else if (gc.teams.get_team(player) == Team.Placer) {
