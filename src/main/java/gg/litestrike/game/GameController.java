@@ -356,6 +356,7 @@ public class GameController {
 
 		try {
 			for (Player p : Bukkit.getOnlinePlayers()) {
+				p.setGameMode(GameMode.ADVENTURE);
 				InventoryManager.giveLobbyItems(p);
 				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());

@@ -122,7 +122,7 @@ public class PlayerListener implements Listener {
 
 		} else {
 			// if we are here, it means the player is rejoining
-			GameController.setSpectator(p);
+			p.setGameMode(GameMode.SPECTATOR);
 			Shop s = gc.getShop(p);
 
 			if (s != null) {
