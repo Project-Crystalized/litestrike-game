@@ -15,42 +15,49 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import static net.kyori.adventure.text.Component.text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class TabListController {
+	private static final Component TAB_HEADER = text("LITESTRIKE").color(NamedTextColor.GREEN)
+			.decoration(TextDecoration.BOLD, true).append(text(" \uE100").color(NamedTextColor.WHITE));
+	private static final Component FOOTER_PREFIX = text("")
+			.append(
+					text("----------------------------------\uE101 / \uE103 / A / dmg ---\uE104----")
+							.color(NamedTextColor.GRAY));
+	private static final Component SECTION_DIVIDER = text("\n---------------------------------------------------")
+			.color(NamedTextColor.GRAY);
+	private static final Component FOOTER_SUFFIX = text("\n---------------------------------------------------\n")
+			.color(NamedTextColor.GRAY);
+
 	public TabListController() {
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				if (Litestrike.getInstance().game_controller == null) {
+				GameController gc = Litestrike.getInstance().game_controller;
+				if (gc == null) {
 					cancel();
 					return;
 				}
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					p.sendPlayerListFooter(text("")
-							.append(
-									text("----------------------------------\uE101 / \uE103 / A / dmg ---\uE104----")
-											.color(NamedTextColor.GRAY))
-							.append(render_player_stat(p))
-							.append(text("\n---------------------------------------------------\n").color(NamedTextColor.GRAY)));
 
-					p.sendPlayerListHeader(text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true)
-							.append(text(" \uE100").color(NamedTextColor.WHITE)));
+				Map<Team, List<Component>> rowsByTeam = getPlayerStatRows(gc);
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					p.sendPlayerListFooter(getPlayerListFooter(gc.teams.get_team(p), rowsByTeam));
+					p.sendPlayerListHeader(TAB_HEADER);
+
+					for (Player entry : Bukkit.getOnlinePlayers()) {
+						p.unlistPlayer(entry);
+					}
 				}
 
 			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
+		}.runTaskTimer(Litestrike.getInstance(), 1, 20);
 	}
 
-	private static Component render_player_stat(Player p) {
-		GameController gc = Litestrike.getInstance().game_controller;
-
-		Component footer = text("");
-
-		List<Component> disc_list = new ArrayList<>();
-		List<Component> enemy = new ArrayList<>();
-		List<Component> allay = new ArrayList<>();
+	private static Map<Team, List<Component>> getPlayerStatRows(GameController gc) {
+		Map<Team, List<Component>> rowsByTeam = new HashMap<>();
 
 		for (PlayerData pd : gc.playerDataManager.getAll()) {
 			Player player = Bukkit.getPlayer(pd.player);
@@ -61,11 +68,16 @@ class TabListController {
 					.append(text(pd.assists))
 					.append(text(" / "))
 					.append(text((int) Math.floor(pd.total_damage)))
-					.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
+			.append(text("    " + makeTwoDigits(pd.getMoney(), 4))).color(TextColor.color(0x0ab1c4));
 
-			Component rank = null;
+			Component rank = Component.empty();
 			try {
-				rank = text(" ").append(Ranks.getIcon(p)).append(text(" "));
+				if (player != null) {
+					Component icon = Ranks.getIcon(player);
+					if (!PlainTextComponentSerializer.plainText().serialize(icon).isEmpty()) {
+						rank = text(" ").append(icon).append(text(" "));
+					}
+				}
 			} catch (NoClassDefFoundError e) {
 			}
 			Component player_status = build_player_status(rank, player, pd, gc);
@@ -75,35 +87,30 @@ class TabListController {
 			int center_padding = Math.max(150 - (balance(left_size) + balance(right_size)), 0);
 			String dots = ".".repeat(center_padding);
 			player_status = player_status.append(text(dots).color(NamedTextColor.GRAY)).append(player_stats);
-			// Bukkit.getLogger().severe(pd.player + " : " +
-			// balance(PlainTextComponentSerializer.plainText().serialize(player_status)));
 
-			Team p_team = gc.teams.get_team(p);
-			if (player == null) {
-				disc_list.add(player_status);
-			} else if (gc.teams.get_team(player) == p_team) {
-				allay.add(player_status);
-			} else {
-				enemy.add(player_status);
+			rowsByTeam.computeIfAbsent(gc.teams.get_team(pd.player), k -> new ArrayList<>()).add(player_status);
+		}
+
+		return rowsByTeam;
+	}
+
+	private static Component getPlayerListFooter(Team viewerTeam, Map<Team, List<Component>> rowsByTeam) {
+		Component footer = FOOTER_PREFIX;
+		for (Component c : rowsByTeam.getOrDefault(viewerTeam, List.of())) {
+			footer = footer.append(c);
+		}
+		footer = footer.append(SECTION_DIVIDER);
+		for (Map.Entry<Team, List<Component>> entry : rowsByTeam.entrySet()) {
+			if (entry.getKey() == viewerTeam) {
+				continue;
+			}
+			for (Component c : entry.getValue()) {
+				footer = footer.append(c);
 			}
 		}
-
-		for (Component c : allay) {
-			footer = footer.append(c);
-		}
-		footer = footer.append(text("\n---------------------------------------------------").color(NamedTextColor.GRAY));
-		for (Component c : enemy) {
-			footer = footer.append(c);
-		}
-		if (disc_list.size() != 0) {
-			footer = footer.append(text("\n---------------------------------------------------").color(NamedTextColor.GRAY));
-		}
-		for (Component c : disc_list) {
-			footer = footer.append(c);
-		}
-
-		return footer;
+		return footer.append(FOOTER_SUFFIX);
 	}
+
 
 	private static Component build_player_status(Component rank, Player player, PlayerData pd, GameController gc) {
 		String tag;
@@ -122,10 +129,7 @@ class TabListController {
 			name_color = Teams.BREAKER_GREEN;
 		}
 
-		Component status = text("\n ").append(text(tag));
-		if (rank != null) {
-			status = status.append(rank);
-		}
+		Component status = text("\n ").append(text(tag)).append(rank);
 		return status.append(text(pd.player).color(name_color));
 	}
 

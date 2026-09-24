@@ -57,6 +57,8 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 	public ManualTeams manual_teams;
 
 	public GameConfig gameConfig;
+	//made so it can be acssesed by action bar setters, so it doesn't overwrite the bomb planting, and defusing
+	public BombListener bombListener;
 
 	// constants for Placer and breaker text
 	public static final Component PLACER_TEXT = Component.translatable("crystalized.game.litestrike.placers")
@@ -84,7 +86,8 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		this.getServer().getPluginManager().registerEvents(new DeathHandler(), this);
 		this.getServer().getPluginManager().registerEvents(this.mapdata, this);
 		this.getServer().getPluginManager().registerEvents(new ShopListener(), this);
-		this.getServer().getPluginManager().registerEvents(new BombListener(), this);
+		bombListener = new BombListener();
+		this.getServer().getPluginManager().registerEvents(bombListener, this);
 		this.getServer().getPluginManager().registerEvents(new Communicator(), this);
 		this.getServer().getPluginManager().registerEvents(new GameCompass(), this);
 

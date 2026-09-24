@@ -77,17 +77,14 @@ public class PlayerListener implements Listener {
 		e.getPlayer().getPersistentDataContainer().remove(LSItem.NEGATIVE_EFFECT_IMMUNITY);
 		e.quitMessage(text(""));
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.teams.get_team(e.getPlayer()) != Team.Placer) {
+		if (gc == null) {
+			return;
+		}
+		Team player_team = gc.teams.get_team(e.getPlayer());
+		if (player_team != Team.Placer && player_team != Team.Breaker) {
 			return;
 		}
 		gc.playerDataManager.get(e.getPlayer()).did_leave = true;
-		if (gc.bomb != null && gc.bomb instanceof InvItemBomb) {
-			InvItemBomb bomb = (InvItemBomb) gc.bomb;
-			if (bomb.player.equals(e.getPlayer())) {
-				Item i = Bukkit.getWorld("world").dropItem(e.getPlayer().getLocation(), Bomb.bomb_item());
-				bomb.drop_bomb(i);
-			}
-		}
 	}
 
 	@EventHandler
@@ -120,6 +117,8 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			p.setGameMode(GameMode.SURVIVAL);
 			QueueSystem.qsb.show_queue_scoreboard(p);
+			//No game is going on so removes any potential teams
+			p.getPersistentDataContainer().remove(Teams.TEAM_KEY);
 
 		} else {
 			// if we are here, it means the player is rejoining
@@ -133,6 +132,8 @@ public class PlayerListener implements Listener {
 			// give player the scoreboard and bossbar again
 			ScoreboardController.give_player_scoreboard(p, gc.teams, gc.game_reference);
 			Litestrike.getInstance().bbd.showBossBar();
+			//if the player rejoined updates the teams acordingly
+			gc.teams.updateTeamPDCindividual(p);
 		}
 	}
 
@@ -305,8 +306,10 @@ public class PlayerListener implements Listener {
 				PlayerData targetData = gc.playerDataManager.get(target);
 				if (targetData != null) {
 					targetData.antiHealTicks = ANTI_HEAL_DURATION;
-					//Moved so it prevents the visual glitch
-					target.sendActionBar(Component.text(("")));
+					//Moved so it prevents the visual glitch and doesn't overwrite the bomb usage, but will clean heal arrow
+					if (!Litestrike.getInstance().bombListener.isUsingBomb(target)) {
+						target.sendActionBar(Component.text(("")));
+					}
 					targetData.supportiveHealCooldownTicks = 0;
 					//Anti heal resets the healing cool down, as it totaly overwrites it and removes the posion cool down indicator
 					//sets it to nothing. To reset on anti heal
@@ -490,7 +493,6 @@ public class PlayerListener implements Listener {
 				//Same as dragon breath three ring particles
 				double[] ringRadius = {1.0, 1.5, 2.0};
 				int particlePoints = 20;
-				Particle.DustOptions supportiveParticle = new Particle.DustOptions(Color.AQUA, 1.0F);
 				//The same logic as in dragon breath.
 				for (double radius : ringRadius) {
 					for (int i = 0; i < particlePoints; i++) {
@@ -498,7 +500,18 @@ public class PlayerListener implements Listener {
 						double x = Math.cos(angle) * radius;
 						double z = Math.sin(angle) * radius;
 						Location particleLocation = supportiveLocation.clone().add(x, 0.15, z);
-						supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, supportiveParticle);
+						//supportiveLocation.getWorld().spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, supportiveParticle);
+						//This was added to so that players can see diffrent particles, no package events needed
+						//goes through the players in the world which will view the particles
+						for (Player viewer : supportiveLocation.getWorld().getPlayers()) {
+							//gets the viewers teamer
+							Team viewerTeam = gc.teams.get_team(viewer);
+							//this determines how the arrow should look like based on the shooters team, viewers team and the size
+							//specattorers also handled
+							Particle.DustOptions particle = LSItem.getSupportiveParticle(shooterTeam, viewerTeam, 1.0F);
+							//this spawns the particles for the individual players with the correct color
+							viewer.spawnParticle(Particle.DUST, particleLocation, 1, 0.0, 0.0, 0.0, 0.0, particle);
+						}
 					}
 				}
 
@@ -523,7 +536,15 @@ public class PlayerListener implements Listener {
 						}
 						player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 1.2F);
 						player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.0, 0), 4, 0.35, 0.5, 0.35, 0.0);
-						player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 8, 0.4, 0.5, 0.4, 0.0, supportiveParticle);
+						//This is similiar logic for when you get healed the particles for individual players looks diffrent depended on the team
+						Location healingParticleLocation = player.getLocation().add(0, 1.0, 0);
+						for (Player viewer : player.getWorld().getPlayers()) {
+							Team viewerTeam = gc.teams.get_team(viewer);
+							Particle.DustOptions particle = LSItem.getSupportiveParticle(shooterTeam, viewerTeam, 1.0F);
+							//Healing burst of particles
+							viewer.spawnParticle(Particle.DUST, healingParticleLocation, 8, 0.4, 0.5, 0.4, 0.0, particle);
+						}
+						//player.getWorld().spawnParticle(Particle.DUST, player.getLocation().add(0, 1.0, 0), 8, 0.4, 0.5, 0.4, 0.0, supportiveParticle);
 						pd.supportiveHealCooldownTicks = SUPPORTIVE_HEAL_COOLDOWN;
 					}
 				}

@@ -77,6 +77,9 @@ public class ScoreboardController {
 
 		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true)
 				.append(text(" \uE100").color(NamedTextColor.WHITE));
+		if (Litestrike.getInstance().gameConfig.ranked) {
+			title = title.append(text(" RANKED").color(TextColor.color(0xfbc522)).decoration(TextDecoration.BOLD, true));
+		}
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
@@ -269,6 +272,9 @@ class BedrockScoreboard {
 
 		Component title = text("LITESTRIKE").color(NamedTextColor.GREEN).decoration(TextDecoration.BOLD, true)
 				.append(text(" \uE100").color(NamedTextColor.WHITE));
+		if (Litestrike.getInstance().gameConfig.ranked) {
+			title = title.append(text(" RANKED").color(TextColor.color(0xfbc522)).decoration(TextDecoration.BOLD, true));
+		}
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 

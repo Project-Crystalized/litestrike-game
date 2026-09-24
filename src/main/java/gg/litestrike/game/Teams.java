@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.persistence.PersistentDataType;
 
 public class Teams {
 	// these are the names of the players that where in the game when it started.
@@ -18,6 +20,8 @@ public class Teams {
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 	public static final TextColor SPECTATOR_GREY = TextColor.color(0xb0a2a2);
+	//The team pdc for the cry_essentials plugin to tell which team is on which sided
+	public static final NamespacedKey TEAM_KEY = new NamespacedKey("crystalized", "team");
 
 	// there are basically 3 ways to generate partys:
 	// skillbased: generate_fair_teams
@@ -232,6 +236,29 @@ public class Teams {
 			return SPECTATOR_GREY;
 		}
 	}
+	//This puts the players team in to PDC so esentials can tell which players are on which team
+	//The names of teams can be different in each game, the essentials only need to compare if the name are called the same
+
+	//The update for all players on team swap etc
+	public void updateTeamPDC() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			updateTeamPDCindividual(player);
+		}
+	}
+	//Update for the individual on rejoin
+	public void updateTeamPDCindividual(Player player) {
+		//Gets the team and depending on it sets the PDC
+		Team team = get_team(player);
+		if (team == Team.Breaker) {
+			player.getPersistentDataContainer().set(TEAM_KEY, PersistentDataType.STRING, "breaker");
+		} else if (team == Team.Placer) {
+			player.getPersistentDataContainer().set(TEAM_KEY, PersistentDataType.STRING, "placer");
+		} else {
+			//If it is null makes sure that the key is removed, specators team must be null for proper arrow particles
+			player.getPersistentDataContainer().remove(TEAM_KEY);
+		}
+	}
+
 
 	public int getTeamBreaksAndPlants(Team t) {
 		int sum = 0;
