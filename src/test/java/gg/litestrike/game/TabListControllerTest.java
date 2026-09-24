@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import gg.crystalized.lobby.Leaderboards;
-
 public class TabListControllerTest {
 
 	@Test
@@ -26,8 +24,8 @@ public class TabListControllerTest {
 	@Test
 	void balance_pairs_of_known_glyph_widths() {
 		// 'a' and 'Z' both have glyph width 5, plus 1 for the gap between the two chars
-		assertEquals(2, Leaderboards.balance("a"));
-		assertEquals(5, Leaderboards.balance("aZ"));
-		assertEquals(2, Leaderboards.balance("Z"));
+		assertEquals(2, TabListController.balance("a"));
+		assertEquals(5, TabListController.balance("aZ"));
+		assertEquals(2, TabListController.balance("Z"));
 	}
 }
