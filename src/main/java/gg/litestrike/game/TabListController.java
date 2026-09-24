@@ -1,5 +1,6 @@
 package gg.litestrike.game;
 
+import gg.crystalized.lobby.Leaderboards;
 import gg.crystalized.lobby.Ranks;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -84,7 +85,7 @@ class TabListController {
 
 			String left_size = PlainTextComponentSerializer.plainText().serialize(player_status);
 			String right_size = PlainTextComponentSerializer.plainText().serialize(player_stats);
-			int center_padding = Math.max(150 - (balance(left_size) + balance(right_size)), 0);
+			int center_padding = Math.max(150 - (Leaderboards.balance(left_size) + Leaderboards.balance(right_size)), 0);
 			String dots = ".".repeat(center_padding);
 			player_status = player_status.append(text(dots).color(NamedTextColor.GRAY)).append(player_stats);
 
@@ -131,16 +132,6 @@ class TabListController {
 
 		Component status = text("\n ").append(text(tag)).append(rank);
 		return status.append(text(pd.player).color(name_color));
-	}
-
-	public static int balance(String name) {
-		char[] chars = name.toCharArray();
-		int sum = 0;
-		for (char c : chars) {
-			sum += BitmapGlyphInfo.getBitmapGlyphInfo(c).width;
-		}
-		sum += name.length() - 1;
-		return sum / 2;
 	}
 
 	public static String makeTwoDigits(Integer num, int supposed) {
