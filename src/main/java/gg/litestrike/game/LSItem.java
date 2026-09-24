@@ -50,6 +50,14 @@ public class LSItem {
 	public final String key;
 	private static short creation_number = 1;
 	public final Short id;
+	//Supportive arrow radius, change in incroments of 0.5, should be whole numbers idealy though
+	//Mite wants it to be 4.0, eventualy we can try that, but I would give them a bit more time at 2.0
+	public static final double SUPPORTIVE_ARROW_RADIUS = 2.0;
+	//Regen 1
+	//Duration of self healing for supportive arrow in ticks
+	public static final int SUPPORTIVE_SHOOTER_REGEN_DURATION = 140;
+	//Duration of supporting arrow healing for temates. If radius becomes 4 adjust to be 260
+	public static final int SUPPORTIVE_TEAMMATE_REGEN_DURATION = 200;
 
 	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
 	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");
@@ -935,8 +943,10 @@ public class LSItem {
 			double x = player.getLocation().getX() - circle.location().getX();
 			double z = player.getLocation().getZ() - circle.location().getZ();
 			double horizontalDistanceSquared = (x * x) + (z * z);
-
-			if (horizontalDistanceSquared <= 4.0 && Math.abs(player.getLocation().getY() - circle.location().getY()) <= 2.0) {
+			//Made circle detection work with any radius
+			//The y is height of 2 blocks, so doesn't need to be adapted
+			if (horizontalDistanceSquared <= SUPPORTIVE_ARROW_RADIUS * SUPPORTIVE_ARROW_RADIUS
+					&& Math.abs(player.getLocation().getY() - circle.location().getY()) <= 2.0) {
 				return true;
 			}
 		}
