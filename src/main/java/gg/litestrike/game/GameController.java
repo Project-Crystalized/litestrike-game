@@ -503,7 +503,7 @@ public class GameController {
 			if (teams.get_all_players().contains(p)) {
 				continue;
 			}
-			setSpectator(p);
+			p.setGameMode(GameMode.SPECTATOR);
 		}
 
 		// sound effect has a cooldown, so we call it here instead of in round_start
