@@ -6,4 +6,4 @@ load: POSTWORLD
 
 # softdepend: [Crystalized_Essentials]
 
-depend: [packetevents, Crystalized_Essentials, floodgate]
+depend: [packetevents, ProtocolLib, Crystalized_Essentials, floodgate]

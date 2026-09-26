@@ -132,7 +132,7 @@ public class Shop {
 			inv.addItem(arrows_item);
 		}
 
-if (!(p.getGameMode() == GameMode.ADVENTURE || p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
+if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 			|| gc.round_number == Litestrike.getInstance().gameConfig.switchRound + 1
 			|| gc.round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1)) {
 			// no need to give equipment
