@@ -246,7 +246,7 @@ class PlacedBomb implements Bomb {
 
 	private void explode() {
 		is_detonated = true;
-		block.getWorld().spawnParticle(TRIAL_SPAWNER_DETECTION, block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
+		block.getWorld().spawnParticle(LANDING_LAVA, block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
 		block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, block.getLocation().add(0.5, 0.5, 0.5), 500, 1, 1, 1);
 		// block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"),
 		// Sound.Source.AMBIENT, 20, 1),
