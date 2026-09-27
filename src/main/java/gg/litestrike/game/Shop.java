@@ -30,8 +30,8 @@ import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.enchantments.Enchantment.*;
 
 public class Shop {
-	public static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
-	public static final String SHOP_BACKGROUND_GENERIC = "\uA016";
+	private static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
+	private static final String SHOP_BACKGROUND_GENERIC = "\uA016";
 
 	public Inventory currentView;
 	public String player;

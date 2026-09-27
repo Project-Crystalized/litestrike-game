@@ -332,6 +332,11 @@ public class GameController {
 			bomb = null;
 		}
 
+		for (Player p : teams.get_all_players()) {
+			p.setGameMode(GameMode.ADVENTURE);
+			p.setAllowFlight(true);
+		}
+
 		World w = Bukkit.getWorld("world");
 
 		print_result_table(winner);
