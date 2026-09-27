@@ -482,14 +482,10 @@ public class PlayerListener implements Listener {
 					cancel();
 					return;
 				}
-				//Same as dragon breath three ring particles
-				//Edit: Changed the rings to be able to visualy scale with the radius adjustment
-				double arrowRadius = LSItem.SUPPORTIVE_ARROW_RADIUS;
-				//double[] ringRadius = {1.0, 1.5, 2.0};
 				int particlePoints = 20;
 				//The same logic as in dragon breath.
 				//made it so the ring can sale with radius, adds 0.5 until the radius
-				for (double radius = 1.0; radius <= arrowRadius; radius += 0.5) {
+				for (double radius = 1.0; radius <= LSItem.SUPPORTIVE_ARROW_RADIUS; radius += 0.5) {
 					for (int i = 0; i < particlePoints; i++) {
 						double angle = (Math.PI * 2.0 * i) / particlePoints;
 						double x = Math.cos(angle) * radius;
