@@ -464,16 +464,18 @@ public class BombListener implements Listener {
 	}
 
 	private static final Set<Material> NON_INTERACTABLE = Set.of(
-			Material.PUMPKIN, Material.REDSTONE_ORE, Material.REDSTONE_WIRE,
-			Material.FLOWER_POT);
+			Material.PUMPKIN, Material.REDSTONE_ORE, Material.REDSTONE_WIRE);
 
 	public static boolean isInteractable(Material type) {
 		if (!type.isInteractable()) {
 			return false;
 		}
+		if (type == Material.IRON_TRAPDOOR) {
+			return false;
+		}
 		String name = type.name();
-		return !name.endsWith("_STAIRS") && !name.endsWith("_TRAPDOOR")
-				&& !name.endsWith("_FENCE_GATE") && !NON_INTERACTABLE.contains(type);
+		return !name.endsWith("_STAIRS") && !name.endsWith("_FENCE")
+				&& !NON_INTERACTABLE.contains(type);
 	}
 }
 
