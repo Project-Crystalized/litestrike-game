@@ -269,11 +269,11 @@ public class GameController {
 		// achievement shit, ls_lastalive achievement
 		try {
 			List<Player> alivePlacers = teams.get_alive_placers();
-			if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
+			if (alivePlacers.size() == 1 && winner.equals(Team.Placer)) {
 				Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
 			}
 			List<Player> aliveBreakers = teams.get_alive_breakers();
-			if (aliveBreakers.size() == 1 && winner.equals(Team.Placer)) {
+			if (aliveBreakers.size() == 1 && winner.equals(Team.Breaker)) {
 				Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
 			}
 		} catch (NoClassDefFoundError ex) {
