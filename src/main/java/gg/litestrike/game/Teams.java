@@ -97,8 +97,8 @@ public class Teams {
 
 		List<String> tmp_breakers = teams.subList(0, middle);
 		List<String> tmp_placers = teams.subList(middle, teams.size());
-		int breaker_score = Ranking.get_total_rp_team(tmp_breakers, player_ranks);
-		int placer_score = Ranking.get_total_rp_team(tmp_placers, player_ranks);
+		int breaker_score = Ranking.get_average_rp_team(tmp_breakers, player_ranks);
+		int placer_score = Ranking.get_average_rp_team(tmp_placers, player_ranks);
 
 		return Math.abs(breaker_score - placer_score);
 	}
