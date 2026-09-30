@@ -15,9 +15,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CrossbowMeta;
@@ -66,9 +70,6 @@ public class PlayerListener implements Listener {
 		if (gc == null) {
 			return;
 		}
-		if(e.getPlayer().getGameMode() == GameMode.ADVENTURE){
-			return;
-		}
 		gc.playerDataManager.get(e.getPlayer()).jumps += 1;
 	}
 
@@ -100,7 +101,6 @@ public class PlayerListener implements Listener {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		p.teleport(Litestrike.getInstance().mapdata.get_queue_spawn(p.getWorld()));
-		GameController.unsetSpectator(p);
 		p.getInventory().clear();
 		try {
 			// InventoryManager.giveLobbyItems(p); //why - Callum
@@ -231,10 +231,6 @@ public class PlayerListener implements Listener {
 			return;
 		}
 		if (e.getEntity() instanceof Player player) {
-			if(player.getGameMode() == GameMode.ADVENTURE){
-				e.setCancelled(true);
-				return;
-			}
 			PlayerData pd = gc.playerDataManager.get(player);
 			if (pd == null) return;
 
@@ -253,13 +249,6 @@ public class PlayerListener implements Listener {
 					e.setCancelled(true);
 					return;
 				}
-			}
-		}
-
-		if(e instanceof EntityDamageByEntityEvent ebe){
-			if(ebe.getDamager() instanceof Player p && p.getGameMode() == GameMode.ADVENTURE){
-				e.setCancelled(true);
-				return;
 			}
 		}
 
@@ -490,11 +479,10 @@ public class PlayerListener implements Listener {
 					cancel();
 					return;
 				}
-				//Same as dragon breath three ring particles
-				double[] ringRadius = {1.0, 1.5, 2.0};
 				int particlePoints = 20;
 				//The same logic as in dragon breath.
-				for (double radius : ringRadius) {
+				//made it so the ring can sale with radius, adds 0.5 until the radius
+				for (double radius = 1.0; radius <= LSItem.SUPPORTIVE_ARROW_RADIUS; radius += 0.5) {
 					for (int i = 0; i < particlePoints; i++) {
 						double angle = (Math.PI * 2.0 * i) / particlePoints;
 						double x = Math.cos(angle) * radius;
@@ -514,8 +502,8 @@ public class PlayerListener implements Listener {
 						}
 					}
 				}
-
-				for (Player player : supportiveLocation.getNearbyPlayers(2.0)) {
+				//Now works with radius from LS item. For eassier changes
+				for (Player player : supportiveLocation.getNearbyPlayers(LSItem.SUPPORTIVE_ARROW_RADIUS)) {
 					Team playerTeam = gc.teams.get_team(player);
 					if (playerTeam == null || playerTeam != shooterTeam)continue;
 					PlayerData pd = gc.playerDataManager.get(player);
@@ -528,11 +516,12 @@ public class PlayerListener implements Listener {
 
 					if (pd.supportiveHealCooldownTicks <= 0) {
 						// TODO document less heal for shooter in item description
+						//Made so now it can easily be nerfed in LS item class.
 						if(player.equals(shooter)){
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 140, 0, false, false, true));
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, LSItem.SUPPORTIVE_SHOOTER_REGEN_DURATION, 0, false, false, true));
 						}
 						else {
-							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 0, false, false, true));
+							player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, LSItem.SUPPORTIVE_TEAMMATE_REGEN_DURATION, 0, false, false, true));
 						}
 						player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.7F, 1.2F);
 						player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.0, 0), 4, 0.35, 0.5, 0.35, 0.0);
@@ -564,10 +553,6 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	public void onPotionEffect(EntityPotionEffectEvent event) {
-		if(event.getEntity() instanceof Player p && p.getGameMode() == GameMode.ADVENTURE){
-			event.setCancelled(true);
-			return;
-		}
 		if (event.getCause() != EntityPotionEffectEvent.Cause.ARROW
 				|| !(event.getEntity() instanceof Player target)
 				|| !(event.getSource() instanceof Arrow arrow)) {
@@ -678,23 +663,6 @@ public class PlayerListener implements Listener {
 		if (gc == null) return;
 		PlayerData pd = gc.playerDataManager.get(player);
 		if (pd != null && pd.antiHealTicks > 0) {
-			e.setCancelled(true);
-		}
-	}
-
-	//prevents picking up of items by spectating players.
-	@EventHandler
-	public void onSpectatorPickup(EntityPickupItemEvent e) {
-		if (e.getEntity() instanceof Player p && Litestrike.getInstance().game_controller != null && p.getGameMode() == GameMode.ADVENTURE) {
-			e.setCancelled(true);
-		}
-	}
-
-	//prevents dropping items while player is a spectator.
-	@EventHandler
-	public void onSpectatorDrop(PlayerDropItemEvent e) {
-		Player p = e.getPlayer();
-		if (Litestrike.getInstance().game_controller != null && p.getGameMode() == GameMode.ADVENTURE) {
 			e.setCancelled(true);
 		}
 	}

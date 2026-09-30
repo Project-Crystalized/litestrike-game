@@ -15,14 +15,11 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import io.papermc.paper.entity.LookAnchor;
@@ -272,11 +269,11 @@ public class GameController {
 		// achievement shit, ls_lastalive achievement
 		try {
 			List<Player> alivePlacers = teams.get_alive_placers();
-			if (alivePlacers.size() == 1 && winner.equals(Team.Breaker)) {
+			if (alivePlacers.size() == 1 && winner.equals(Team.Placer)) {
 				Achievement.getAchievement("ls_lastalive", alivePlacers.getFirst()).setProgress(100);
 			}
 			List<Player> aliveBreakers = teams.get_alive_breakers();
-			if (aliveBreakers.size() == 1 && winner.equals(Team.Placer)) {
+			if (aliveBreakers.size() == 1 && winner.equals(Team.Breaker)) {
 				Achievement.getAchievement("ls_lastalive", aliveBreakers.getFirst()).setProgress(100);
 			}
 		} catch (NoClassDefFoundError ex) {
@@ -335,6 +332,11 @@ public class GameController {
 			bomb = null;
 		}
 
+		for (Player p : teams.get_all_players()) {
+			p.setGameMode(GameMode.ADVENTURE);
+			p.setAllowFlight(true);
+		}
+
 		World w = Bukkit.getWorld("world");
 
 		print_result_table(winner);
@@ -356,7 +358,6 @@ public class GameController {
 
 		try {
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				p.setGameMode(GameMode.ADVENTURE);
 				InventoryManager.giveLobbyItems(p);
 				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
@@ -480,7 +481,6 @@ public class GameController {
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getAttribute(Attribute.MAX_HEALTH).getValue());
 			p.clearActivePotionEffects();
-			unsetSpectator(p);
 
 			// clear supporting arrow
 			playerDataManager.get(p).antiHealTicks = 0;
@@ -516,42 +516,6 @@ public class GameController {
 
 		Shop.giveShop_and_update();
 		Communicator.giveRadio();
-	}
-
-	public static void setSpectator(Player p){
-		p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, PotionEffect.INFINITE_DURATION, 0, false, false, true));
-		p.setGameMode(GameMode.ADVENTURE);
-		p.getInventory().clear();
-		p.setInvisible(true);
-		p.setAllowFlight(true);
-		p.setFlying(true);
-		p.setCollidable(false);
-		InventoryManager.giveLobbyItems(p);
-		p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
-		p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
-		p.getInventory().setItem(6, new ItemStack(Material.COMPASS));
-
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			//skips itself
-			if (player.equals(p)) {
-				continue;
-			}
-			//Only the current playing players will not know that the spectator exists
-			if (player.getGameMode() == GameMode.SURVIVAL) {
-				player.hidePlayer(Litestrike.getInstance(), p);
-			}
-		}
-	}
-
-	public static void unsetSpectator(Player p){
-		p.getInventory().clear();
-		p.setInvisible(false);
-		p.setAllowFlight(false);
-		p.setFlying(false);
-		p.setCollidable(true);
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			player.showPlayer(Litestrike.getInstance(), p);
-		}
 	}
 
 	// this will determine the winner of the round and return it.

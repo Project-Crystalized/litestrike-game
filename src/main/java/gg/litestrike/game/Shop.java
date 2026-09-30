@@ -30,8 +30,8 @@ import static org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE;
 import static org.bukkit.enchantments.Enchantment.*;
 
 public class Shop {
-	public static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
-	public static final String SHOP_BACKGROUND_GENERIC = "\uA016";
+	private static final String SHOP_BACKGROUND_DEFAULT = "\uA001";
+	private static final String SHOP_BACKGROUND_GENERIC = "\uA016";
 
 	public Inventory currentView;
 	public String player;
@@ -132,7 +132,7 @@ public class Shop {
 			inv.addItem(arrows_item);
 		}
 
-if (!(p.getGameMode() == GameMode.ADVENTURE || p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
+if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 			|| gc.round_number == Litestrike.getInstance().gameConfig.switchRound + 1
 			|| gc.round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1)) {
 			// no need to give equipment
