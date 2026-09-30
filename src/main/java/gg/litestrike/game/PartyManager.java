@@ -23,7 +23,7 @@ public class PartyManager implements PluginMessageListener {
 
 		ByteArrayDataInput in = ByteStreams.newDataInput(message);
 		String message1 = in.readUTF();
-		if (!(message1.contains("Party"))) {
+		if (!(message1.contains("Party")) && !(message1.contains("Event"))) {
 			return;
 		}
 
