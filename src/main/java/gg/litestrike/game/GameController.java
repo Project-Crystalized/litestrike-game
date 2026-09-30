@@ -342,19 +342,23 @@ public class GameController {
 		print_result_table(winner);
 		teleport_players_podium(w);
 		SoundEffects.round_end_sound(winner);
-		LsDatabase.save_game(winner);
-		for (Player p : teams.get_all_players()) {
-			try {
-				LevelManager.giveExperience(p, 5);
-				LevelManager.giveMoney(p, 20);
 
-				// achievement shit
-				if (teams.get_team(p).equals(winner)) {
-					Achievement.getAchievement("ls_win", p).setProgress(100);
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				LsDatabase.save_game(winner);
+				for (Player p : teams.get_all_players()) {
+					try {
+						LevelManager.giveExperience(p, 5);
+						LevelManager.giveMoney(p, 20);
+						if (teams.get_team(p).equals(winner)) {
+							Achievement.getAchievement("ls_win", p).setProgress(100);
+						}
+					} catch (NoClassDefFoundError e) {
+					}
 				}
-			} catch (NoClassDefFoundError e) {
 			}
-		}
+		}.runTaskAsynchronously(Litestrike.getInstance());
 
 		try {
 			for (Player p : Bukkit.getOnlinePlayers()) {
