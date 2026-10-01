@@ -3,7 +3,6 @@ package gg.litestrike.game;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import gg.crystalized.lobby.*;
@@ -231,39 +230,6 @@ public class GameController {
 		}
 	}
 
-	// true if a teammate dealt meaningful damage this round, using the same
-	// 3.9 threshold DeathHandler uses to credit an assist. must run before
-	// assist_list is cleared in finish_round.
-	private boolean gotTeammateHelp(Player p) {
-		Team team = teams.get_team(p);
-		List<Player> enemies = teams.get_enemy_team_of(p);
-		if (team == null || enemies == null) {
-			return false;
-		}
-		for (Player enemy : enemies) {
-			for (Player teammate : teams.get_all_players()) {
-				if (teammate.equals(p) || teams.get_team(teammate) != team) {
-					continue;
-				}
-				PlayerData tpd = playerDataManager.get(teammate);
-				if (tpd == null) {
-					continue;
-				}
-				Double damage = null;
-				for (Map.Entry<Player, Double> entry : tpd.assist_list.entrySet()) {
-					if (entry.getKey() != null && entry.getKey().getName().equals(enemy.getName())) {
-						damage = entry.getValue();
-						break;
-					}
-				}
-				if (damage != null && damage > 3.9) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	// this is called when we switch from Running to PostRound
 	private void finish_round(Team winner) {
 		round_state = RoundState.PostRound;
@@ -313,12 +279,6 @@ public class GameController {
 		} catch (NoClassDefFoundError ex) {
 		}
 
-		// snapshot teammate help before assist_list is cleared below
-		Map<String, Boolean> gotHelp = new HashMap<>();
-		for (Player p : teams.get_all_players()) {
-			gotHelp.put(p.getName(), gotTeammateHelp(p));
-		}
-
 		for (Player p : teams.get_all_players()) {
 			PlayerData pd = playerDataManager.get(p);
 			pd.assist_list.clear();
@@ -334,14 +294,12 @@ public class GameController {
 						translatable("crystalized.game.litestrike.money.win_round"));
 				SoundEffects.round_won(p);
 
-				// achievement shit, ace needs every killing blow and no teammate help
-			if (!gotHelp.getOrDefault(p.getName(), false)) {
+				// achievement shit
 				int killed_percentage = (pd.killsThisRound * 100) / teams.get_enemy_team_of(p).size();
 				try {
 					Achievement.getAchievement("ls_ace", p).setProgress(killed_percentage);
 				} catch (NoClassDefFoundError e) {
 				}
-			}
 			} else {
 				pd.addMoney(Litestrike.getInstance().gameConfig.loseRoundMoney,
 						translatable("crystalized.game.litestrike.money.loose_round"));
