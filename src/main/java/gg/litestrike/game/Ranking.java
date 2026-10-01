@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -22,77 +23,58 @@ import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 
 public class Ranking {
 
-	public static void do_ranking(Team winner_team) {
+	public static void do_ranking(Team winner_team, GameController gc) {
 		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
 
 		for (PlayerRankedData prd : player_ranks) {
-			Team players_team = get_current_team(prd.uuid);
-			Player p = Bukkit.getPlayer(prd.uuid);
-			if (p == null) {
-				Bukkit.getLogger().info("a player was offline, and therefore lost rp");
-				prd.rp -= 5;
-			}
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
+			Team players_team = gc.teams.get_team(offline_p.getName());
 
 			boolean did_win = players_team == winner_team;
-			double point_change = get_win_loss_points(did_win, prd.rank);
+			double point_change = get_win_loss_points(did_win, prd.rp);
 
-			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(offline_p.getName());
+			PlayerData pd = gc.playerDataManager.get(offline_p.getName());
+			double perfBonus = 0;
 			if (pd == null) {
-				Bukkit.getLogger().warning("ranking: no player data for '" + offline_p.getName()
-						+ "', skipping the performance bonus");
+				Bukkit.getLogger().severe("ranking: no player data for '" + offline_p.getName() + "', skipping the performance bonus");
 			} else {
-				point_change += pd.calc_player_score();
+				perfBonus = pd.calc_player_score();
+				point_change += perfBonus;
+				if (pd.did_leave) {
+					Bukkit.getLogger().info(offline_p.getName() + " player was offline, and therefore lost rp");
+					prd.rp -= 20;
+				}
 			}
-			double change = point_change;
-			int n = prd.rp / 1000;
-			for (int i = n; i > 0; i--) {
-				change = change * 0.9;
-			}
-			point_change = (int) change;
+
 			prd.rp += point_change;
 
-			if (p != null) {
-				if (point_change >= 0) {
-					p.sendMessage(
-							Component.text("You have gained " + Math.abs(point_change) + " rp.").color(GREEN).decoration(BOLD, true));
-					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(GREEN).decoration(BOLD, true));
-				}
-				if (point_change < 0) {
-					p.sendMessage(
-							Component.text("You have lost " + Math.abs(point_change) + " rp.").color(RED).decoration(BOLD, true));
-					p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(RED).decoration(BOLD, true));
-				}
-
-			}
-
-			// do rankup
-			if (did_win && prd.rp > get_rank_min_rp(prd.rank + 1) + 20) {
-				// if the player won, AND he has 20 more rp than the next higher rank
-				prd.rank += 1;
-				if (prd.rank > 10) {
-					prd.rank = 10;
-				} else if (p != null) {
-					p.sendMessage("You have gained a rank!");
-				}
-			} else if (!did_win && prd.rp < get_rank_min_rp(prd.rank) - 20) {
-				prd.rank -= 1;
-				if (prd.rank < 2) {
-					prd.rank = 2;
-				} else if (p != null) {
-					p.sendMessage("You have lost a rank. :(");
-				}
-			}
+			doRankupAndChat(prd, point_change, perfBonus);
 		}
 
 		PlayerRankedData.save_players(player_ranks);
 	}
 
-	// gets the team the player should be on, spectators are on no team and are never ranked
-	private static Team get_current_team(UUID uuid) {
-		GameController gc = Litestrike.getInstance().game_controller;
-		OfflinePlayer p = Bukkit.getOfflinePlayer(uuid);
-		return gc.teams.get_team(p.getName());
+	private static void doRankupAndChat(PlayerRankedData prd, double point_change, double perfBonus) {
+		Player p = Bukkit.getPlayer(prd.uuid);
+		if (p == null)
+			return;
+
+		String gain = "You have gained ";
+		NamedTextColor c = GREEN;
+		if (point_change < 0) {
+			gain = "You have lost ";
+			c = RED;
+		}
+		p.sendMessage(Component.text(gain + Math.abs(point_change) + " rp. (+" + Math.round(perfBonus) + "rp personal score)").color(c).decoration(BOLD, true));
+		p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(c).decoration(BOLD, true));
+
+		int oldRank = prd.rank;
+		prd.rank = rankForRp(prd.rp);
+		if (prd.rank > oldRank) {
+			p.sendMessage("You have gained a rank!");
+		} else if (prd.rank < oldRank) {
+			p.sendMessage("You have lost a rank. :(");
+		}
 	}
 
 	public static int get_total_rp_team(List<String> team, List<PlayerRankedData> player_ranks) {
@@ -107,45 +89,26 @@ public class Ranking {
 			if (!team.contains(name)) {
 				continue;
 			}
-			if (prd.rp < 0) {
-				total += prd.rp;
-				// negative numbers mess up the calculation
-				continue;
-			}
-
-			int win_loss = prd.recent_wins - prd.recent_losses;
-			if (win_loss > 0) {
-				total += prd.rp * Math.pow(1.12, win_loss);
-			} else if (win_loss < 0) {
-				total += prd.rp * Math.pow(0.88, -win_loss);
-			}
+			total += prd.rp;
 		}
 		return total;
 	}
 
-	static int get_win_loss_points(boolean did_win, int rank) {
-		if (!did_win) {
-			if (rank == 10) {
-				return -7;
-			} else {
-				return -6;
+	static int rankForRp(int rp) {
+		for (int rank = 10; rank > 2; rank--) {
+			if (rp >= get_rank_min_rp(rank)) {
+				return rank;
 			}
+		}
+		return 2;
+	}
+
+	static int get_win_loss_points(boolean did_win, int rp) {
+		double fromCenter = (rp - 1100) / 1100.0;
+		if (did_win) {
+			return (int) (16 - 8 * fromCenter);
 		} else {
-			switch (rank) {
-				case 1, 2, 3:
-					return 7;
-				case 4, 5:
-					return 6;
-				case 6, 7:
-					return 5;
-				case 8, 9:
-					return 4;
-				case 10:
-					return 3;
-				default:
-					Bukkit.getLogger().severe("ERROR ranking, rank outside bounds?");
-					return 0;
-			}
+			return (int) -(16 + 8 * fromCenter);
 		}
 	}
 
@@ -179,10 +142,8 @@ class PlayerRankedData {
 	public int rank;
 	public int rp;
 	public UUID uuid;
-	public int recent_wins = 0;
-	public int recent_losses = 0;
 
-	private PlayerRankedData(ResultSet rs, ResultSet rs_last_games, UUID uuid) throws SQLException {
+	private PlayerRankedData(ResultSet rs, UUID uuid) throws SQLException {
 		this.uuid = uuid;
 		if (rs.next()) {
 			this.rank = rs.getInt("rank");
@@ -193,16 +154,6 @@ class PlayerRankedData {
 			Bukkit.getLogger().warning("initialized ranks for a new player");
 			rank = 2;
 			rp = 100;
-		}
-
-		while (rs_last_games.next()) {
-			if (rs_last_games.getInt("was_winner") == 1) {
-				recent_wins += 1;
-			} else if (rs_last_games.getInt("was_winner") == 0) {
-				recent_losses += 1;
-			} else {
-				Bukkit.getLogger().severe("super weird error?!?");
-			}
 		}
 	}
 
@@ -222,21 +173,13 @@ class PlayerRankedData {
 
 		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
 			String query = "SELECT * FROM LsRanks WHERE player_uuid = ?";
-			String query_last_games = "SELECT was_winner "
-					+ "FROM LsGamesPlayers lgp INNER JOIN LitestrikeGames lsg ON lgp.game = lsg.game_id "
-					+ "WHERE player_uuid = ? "
-					+ "ORDER BY timestamp DESC "
-					+ "LIMIT 10;";
 			PreparedStatement ps = conn.prepareStatement(query);
-			PreparedStatement ps_last_games = conn.prepareStatement(query_last_games);
 			for (String player_name : player_names) {
 				UUID uuid = Bukkit.getOfflinePlayer(player_name).getUniqueId();
 
 				ps.setBytes(1, uuid_to_bytes(uuid));
-				ps_last_games.setBytes(1, uuid_to_bytes(uuid));
 				ResultSet rs = ps.executeQuery();
-				ResultSet rs_last_games = ps_last_games.executeQuery();
-				player_ranks.add(new PlayerRankedData(rs, rs_last_games, uuid));
+				player_ranks.add(new PlayerRankedData(rs, uuid));
 			}
 		} catch (SQLException e) {
 			Bukkit.getLogger().warning(e.getMessage());

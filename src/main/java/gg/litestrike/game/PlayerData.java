@@ -36,7 +36,7 @@ public class PlayerData {
 	public int roundWinsOnlyWeapons = 0;
 
 	public int antiHealTicks = 0;
-	//Cooldown between supportive arrow can heal the player again.
+	// Cooldown between supportive arrow can heal the player again.
 	public int supportiveHealCooldownTicks = 0;
 
 	// this keeps track of assits in the current round for this player
@@ -105,14 +105,12 @@ public class PlayerData {
 	}
 
 	public double calc_player_score() {
-		Teams t = Litestrike.getInstance().game_controller.teams;
-		Team team = t.get_team(player);
-		int team_objectives = t.getTeamBreaksAndPlants(team);
-		return calculateScore(kills, assists, team_objectives);
+		return (total_damage / 50) + breaks + plants;
 	}
 
-	public static double calculateScore(int kills, int assists, int team_objectives) {
-		return (kills * 0.34) + (assists * 0.16) + (team_objectives * 0.24);
+	public static double calculateScore(int kills, int assists, int objectives) {
+		// kills * 0.34 + assists * 0.16 + team_objectives * 0.24
+		return kills * 0.34 + assists * 0.16 + objectives * 0.24;
 	}
 
 	public int getTotalMoneyGained() {

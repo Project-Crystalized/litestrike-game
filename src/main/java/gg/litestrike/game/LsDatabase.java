@@ -11,7 +11,8 @@ public class LsDatabase {
 
 	private static String dbDir() {
 		String d = System.getenv("CRYSTALIZED_DB_DIR");
-		if (d == null || d.isBlank()) d = System.getProperty("user.home") + "/databases/test_dbs";
+		if (d == null || d.isBlank())
+			d = System.getProperty("user.home") + "/databases/test_dbs";
 		try {
 			java.nio.file.Files.createDirectories(java.nio.file.Path.of(d));
 		} catch (java.io.IOException e) {
@@ -123,7 +124,7 @@ public class LsDatabase {
 		GameController gc = Litestrike.getInstance().game_controller;
 
 		if (Litestrike.getInstance().gameConfig.ranked) {
-			Ranking.do_ranking(winner);
+			Ranking.do_ranking(winner, gc);
 		}
 
 		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";

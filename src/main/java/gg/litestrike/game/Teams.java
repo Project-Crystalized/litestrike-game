@@ -20,7 +20,7 @@ public class Teams {
 	public static final TextColor PLACER_RED = TextColor.color(0xe31724);
 	public static final TextColor BREAKER_GREEN = TextColor.color(0x0f9415);
 	public static final TextColor SPECTATOR_GREY = TextColor.color(0xb0a2a2);
-	//The team pdc for the cry_essentials plugin to tell which team is on which sided
+	// The team pdc for the cry_essentials plugin to tell which team is on which side
 	public static final NamespacedKey TEAM_KEY = new NamespacedKey("crystalized", "team");
 
 	// there are basically 3 ways to generate partys:
@@ -41,9 +41,9 @@ public class Teams {
 		List<String> list;
 		boolean is_ranked = game_conf.ranked;
 		if (is_ranked) {
-			 list = generate_fair_teams();
+			list = generate_fair_teams();
 		} else {
-			 list = generate_random_teams();
+			list = generate_random_teams();
 		}
 		int middle = list.size() / 2;
 
@@ -236,37 +236,28 @@ public class Teams {
 			return SPECTATOR_GREY;
 		}
 	}
-	//This puts the players team in to PDC so esentials can tell which players are on which team
-	//The names of teams can be different in each game, the essentials only need to compare if the name are called the same
+	// This puts the players team in to PDC so esentials can tell which players are on which team
+	// The names of teams can be different in each game, the essentials only need to compare if the name are called the same
 
-	//The update for all players on team swap etc
+	// The update for all players on team swap etc
 	public void updateTeamPDC() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			updateTeamPDCindividual(player);
 		}
 	}
-	//Update for the individual on rejoin
+
+	// Update for the individual on rejoin
 	public void updateTeamPDCindividual(Player player) {
-		//Gets the team and depending on it sets the PDC
+		// Gets the team and depending on it sets the PDC
 		Team team = get_team(player);
 		if (team == Team.Breaker) {
 			player.getPersistentDataContainer().set(TEAM_KEY, PersistentDataType.STRING, "breaker");
 		} else if (team == Team.Placer) {
 			player.getPersistentDataContainer().set(TEAM_KEY, PersistentDataType.STRING, "placer");
 		} else {
-			//If it is null makes sure that the key is removed, specators team must be null for proper arrow particles
+			// If it is null makes sure that the key is removed, specators team must be null
+			// for proper arrow particles
 			player.getPersistentDataContainer().remove(TEAM_KEY);
 		}
-	}
-
-
-	public int getTeamBreaksAndPlants(Team t) {
-		int sum = 0;
-		List<String> team = (t == Team.Breaker ? breakers : placers);
-		for (String name : team) {
-			PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(name);
-			sum += pd.plants + pd.breaks;
-		}
-		return sum;
 	}
 }

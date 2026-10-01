@@ -10,24 +10,32 @@ import org.junit.jupiter.api.Test;
 public class RankingTest {
 
 	@Test
-	void win_points_by_rank() {
-		assertEquals(7, Ranking.get_win_loss_points(true, 1));
-		assertEquals(7, Ranking.get_win_loss_points(true, 2));
-		assertEquals(7, Ranking.get_win_loss_points(true, 3));
-		assertEquals(6, Ranking.get_win_loss_points(true, 4));
-		assertEquals(6, Ranking.get_win_loss_points(true, 5));
-		assertEquals(5, Ranking.get_win_loss_points(true, 6));
-		assertEquals(5, Ranking.get_win_loss_points(true, 7));
-		assertEquals(4, Ranking.get_win_loss_points(true, 8));
-		assertEquals(4, Ranking.get_win_loss_points(true, 9));
-		assertEquals(3, Ranking.get_win_loss_points(true, 10));
+	void win_points_by_rp() {
+		assertEquals(23, Ranking.get_win_loss_points(true, 100));
+		assertEquals(21, Ranking.get_win_loss_points(true, 300));
+		assertEquals(21, Ranking.get_win_loss_points(true, 400));
+		assertEquals(16, Ranking.get_win_loss_points(true, 1000));
+		assertEquals(13, Ranking.get_win_loss_points(true, 1500));
+		assertEquals(5, Ranking.get_win_loss_points(true, 2500));
+		assertEquals(2, Ranking.get_win_loss_points(true, 3000));
+		// unclamped: far above center even a win costs points
+		assertEquals(-1, Ranking.get_win_loss_points(true, 3500));
 	}
 
 	@Test
-	void loss_points_by_rank() {
-		assertEquals(-6, Ranking.get_win_loss_points(false, 1));
-		assertEquals(-6, Ranking.get_win_loss_points(false, 9));
-		assertEquals(-7, Ranking.get_win_loss_points(false, 10));
+	void loss_points_by_rp() {
+		assertEquals(-8, Ranking.get_win_loss_points(false, 100));
+		assertEquals(-10, Ranking.get_win_loss_points(false, 300));
+		assertEquals(-10, Ranking.get_win_loss_points(false, 400));
+		assertEquals(-15, Ranking.get_win_loss_points(false, 1000));
+		assertEquals(-18, Ranking.get_win_loss_points(false, 1500));
+		assertEquals(-26, Ranking.get_win_loss_points(false, 2500));
+	}
+
+	@Test
+	void average_at_center() {
+		// at the center (1100) a win and a loss cancel out
+		assertEquals(0, Ranking.get_win_loss_points(true, 1100) + Ranking.get_win_loss_points(false, 1100));
 	}
 
 	@Test
