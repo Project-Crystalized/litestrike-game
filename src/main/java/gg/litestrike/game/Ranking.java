@@ -31,7 +31,7 @@ public class Ranking {
 			Team players_team = gc.teams.get_team(offline_p.getName());
 
 			boolean did_win = players_team == winner_team;
-			double point_change = get_win_loss_points(did_win, prd.rp);
+			double rawChange = get_win_loss_points(did_win, prd.rp);
 
 			PlayerData pd = gc.playerDataManager.get(offline_p.getName());
 			double perfBonus = 0;
@@ -39,13 +39,14 @@ public class Ranking {
 				Bukkit.getLogger().severe("ranking: no player data for '" + offline_p.getName() + "', skipping the performance bonus");
 			} else {
 				perfBonus = pd.calc_player_score();
-				point_change += perfBonus;
+				rawChange += perfBonus;
 				if (pd.did_leave) {
 					Bukkit.getLogger().info(offline_p.getName() + " player was offline, and therefore lost rp");
 					prd.rp -= 20;
 				}
 			}
 
+			int point_change = (int) Math.round(rawChange);
 			prd.rp += point_change;
 
 			doRankupAndChat(prd, point_change, perfBonus);
@@ -54,7 +55,7 @@ public class Ranking {
 		PlayerRankedData.save_players(player_ranks);
 	}
 
-	private static void doRankupAndChat(PlayerRankedData prd, double point_change, double perfBonus) {
+	private static void doRankupAndChat(PlayerRankedData prd, int point_change, double perfBonus) {
 		Player p = Bukkit.getPlayer(prd.uuid);
 		if (p == null)
 			return;

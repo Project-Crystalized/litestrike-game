@@ -58,9 +58,7 @@ public class PlayerData {
 			return;
 		}
 		Player p = Bukkit.getPlayer(player);
-		if (p == null) {
-			return;
-		}
+		if (p == null) return;
 		p.sendMessage(translatable("crystalized.game.litestrike.money.receive").color(Litestrike.YELLOW)
 				.append(Component.text(amt + "\uE104").color(TextColor.color(0x0ab1c4)))
 				.append(reason.color(Litestrike.YELLOW)));
@@ -105,12 +103,7 @@ public class PlayerData {
 	}
 
 	public double calc_player_score() {
-		return (total_damage / 50) + breaks + plants;
-	}
-
-	public static double calculateScore(int kills, int assists, int objectives) {
-		// kills * 0.34 + assists * 0.16 + team_objectives * 0.24
-		return kills * 0.34 + assists * 0.16 + objectives * 0.24;
+		return (total_damage / 40) + breaks + plants;
 	}
 
 	public int getTotalMoneyGained() {
