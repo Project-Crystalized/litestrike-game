@@ -126,7 +126,6 @@ public class PlayerListener implements Listener {
 			if (pd != null) {
 				pd.did_leave = false;
 			}
-			p.setGameMode(GameMode.SPECTATOR);
 			Shop s = gc.getShop(p);
 
 			if (s != null) {
@@ -138,6 +137,25 @@ public class PlayerListener implements Listener {
 			Litestrike.getInstance().bbd.showBossBar();
 			//if the player rejoined updates the teams acordingly
 			gc.teams.updateTeamPDCindividual(p);
+
+			p.setGameMode(GameMode.SPECTATOR);
+			if (gc.round_state == RoundState.PreRound ) {
+				World w = Bukkit.getWorld("world");
+				Team team = gc.teams.get_team(p);
+				Location placer_spawn = Litestrike.getInstance().mapdata.get_placer_spawn(w);
+				Location breaker_spawn = Litestrike.getInstance().mapdata.get_breaker_spawn(w);
+				if (team == Team.Placer) {
+					p.teleport(placer_spawn);
+					p.lookAt(breaker_spawn.x(), breaker_spawn.y(), breaker_spawn.z(), LookAnchor.EYES);
+					p.setGameMode(GameMode.SURVIVAL);
+					Shop.giveDefaultArmor(p);
+				} else if (team == Team.Breaker) {
+					p.teleport(breaker_spawn);
+					p.lookAt(placer_spawn.x(), placer_spawn.y(), placer_spawn.z(), LookAnchor.EYES);
+					p.setGameMode(GameMode.SURVIVAL);
+					Shop.giveDefaultArmor(p);
+				}
+			}
 		}
 	}
 
