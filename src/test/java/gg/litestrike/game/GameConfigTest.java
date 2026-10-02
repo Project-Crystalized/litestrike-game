@@ -21,7 +21,7 @@ public class GameConfigTest {
 		GameConfig gc = fresh();
 		assertEquals(28, GameConfig.Setting.values().length);
 		assertEquals(6, gc.playersToStart);
-		assertEquals(8, gc.playerCap);
+		assertEquals(12, gc.playerCap);
 		assertEquals(4, gc.switchRound);
 		assertEquals(20 * 23, gc.preRoundTime);
 		assertEquals(180 * 20, gc.runningTime);

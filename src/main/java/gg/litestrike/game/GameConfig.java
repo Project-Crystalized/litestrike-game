@@ -47,7 +47,7 @@ public class GameConfig {
 	}
 
 	public int playersToStart = 6;
-	public int playerCap = 8;
+	public int playerCap = 12;
 	public int switchRound = 4;
 	public int preRoundTime = 20 * 23;
 	public int runningTime = 180 * 20;
@@ -77,7 +77,7 @@ public class GameConfig {
 
 	public void defaults() {
 		playersToStart = 6;
-		playerCap = 8;
+		playerCap = 12;
 		switchRound = 4;
 		preRoundTime = 20 * 23;
 		runningTime = 180 * 20;
