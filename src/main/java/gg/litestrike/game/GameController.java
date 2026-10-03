@@ -351,9 +351,6 @@ public class GameController {
 					try {
 						LevelManager.giveExperience(p, 5);
 						LevelManager.giveMoney(p, 20);
-						if (teams.get_team(p).equals(winner)) {
-							Achievement.getAchievement("ls_win", p).setProgress(100);
-						}
 					} catch (NoClassDefFoundError e) {
 					}
 				}
@@ -365,6 +362,9 @@ public class GameController {
 				InventoryManager.giveLobbyItems(p);
 				p.getInventory().setItem(App.BackToHub.slot, App.BackToHub.build());
 				p.getInventory().setItem(App.Requeue.slot, App.Requeue.build());
+				if (winner.equals(teams.get_team(p))) {
+					Achievement.getAchievement("ls_win", p).setProgress(100);
+				}
 			}
 		} catch (NoClassDefFoundError e) {
 		}
