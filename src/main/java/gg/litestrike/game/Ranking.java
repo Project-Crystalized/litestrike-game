@@ -29,12 +29,15 @@ public class Ranking {
 		for (PlayerRankedData prd : player_ranks) {
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
 			Team players_team = gc.teams.get_team(offline_p.getName());
+			int oldRp = prd.rp;
 
 			boolean did_win = players_team == winner_team;
-			double rawChange = get_win_loss_points(did_win, prd.rp);
+			int baseChange = get_win_loss_points(did_win, prd.rp);
+			double rawChange = baseChange;
 
 			PlayerData pd = gc.playerDataManager.get(offline_p.getName());
 			double perfBonus = 0;
+			boolean didLeave = false;
 			if (pd == null) {
 				Bukkit.getLogger().severe("ranking: no player data for '" + offline_p.getName() + "', skipping the performance bonus");
 			} else {
@@ -43,31 +46,50 @@ public class Ranking {
 				if (pd.did_leave) {
 					Bukkit.getLogger().info(offline_p.getName() + " player was offline, and therefore lost rp");
 					prd.rp -= 20;
+					didLeave = true;
 				}
 			}
 
 			int point_change = (int) Math.round(rawChange);
 			prd.rp += point_change;
 
-			doRankupAndChat(prd, point_change, perfBonus);
+			doRankupAndChat(prd, oldRp, baseChange, (int) Math.round(perfBonus), did_win, didLeave);
 		}
 
 		PlayerRankedData.save_players(player_ranks);
 	}
 
-	private static void doRankupAndChat(PlayerRankedData prd, int point_change, double perfBonus) {
+	private static void doRankupAndChat(PlayerRankedData prd, int oldRp, int baseChange, int perf, boolean did_win, boolean didLeave) {
 		Player p = Bukkit.getPlayer(prd.uuid);
 		if (p == null)
 			return;
 
-		String gain = "You have gained ";
+		int point_change = prd.rp - oldRp;
+		String action = "gained";
 		NamedTextColor c = GREEN;
 		if (point_change < 0) {
-			gain = "You have lost ";
+			action = "lost";
 			c = RED;
 		}
-		p.sendMessage(Component.text(gain + Math.abs(point_change) + " rp. (+" + Math.round(perfBonus) + "rp personal score)").color(c).decoration(BOLD, true));
-		p.sendMessage(Component.text("Your rp is now " + prd.rp + " rp.").color(c).decoration(BOLD, true));
+		String resultWord = "win";
+		if (!did_win) {
+			resultWord = "loss";
+		}
+		String basePart = "";
+		if (baseChange >= 0) {
+			basePart = "+";
+		}
+		basePart = basePart + baseChange + " " + resultWord;
+		String perfPart = "";
+		if (perf >= 0) {
+			perfPart = "+";
+		}
+		perfPart = perfPart + perf + " personal";
+		String detail = "(" + basePart + ", " + perfPart + ")";
+		if (didLeave) {
+			detail = "(-20 leaving, " + basePart + ", " + perfPart + ")";
+		}
+		p.sendMessage(Component.text("You " + action + " " + Math.abs(point_change) + "rp " + detail + " " + oldRp + " -> " + prd.rp).color(c).decoration(BOLD, true));
 
 		int oldRank = prd.rank;
 		prd.rank = rankForRp(prd.rp);
