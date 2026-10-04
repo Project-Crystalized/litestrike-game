@@ -177,12 +177,16 @@ public class ScoreboardController {
 			gg.litestrike.game.Team players_team = t.get_team(p);
 			if (players_team == gg.litestrike.game.Team.Breaker) {
 				////// the scoreboard bomb display for breakers
-				if (b != null && b instanceof PlacedBomb) {
-					bomb_loc.prefix(Component.text("Bomb: "));
-					bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
-				} else {
-					bomb_loc.prefix(Component.text(""));
-					bomb_loc.suffix(Component.text(""));
+				try {
+					if (b != null && b instanceof PlacedBomb) {
+						bomb_loc.prefix(Component.text("Bomb: "));
+						bomb_loc.suffix(Component.text(((PlacedBomb) b).get_bomb_loc_string(p)));
+					} else {
+						bomb_loc.prefix(Component.text(""));
+						bomb_loc.suffix(Component.text(""));
+					}
+				} catch (Exception ex) {
+					//shut up
 				}
 			} else {
 				////// the scoreboard bomb display for placers and spectators

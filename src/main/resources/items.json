@@ -36,5 +36,12 @@
 		{ "name": "arrow_8", "price": null, "slot": null },
 		{ "name": "spectral_arrow_4", "price": null, "slot": null },
 		{ "name": "supportive_arrow", "price": 500, "slot": 53 }
+	],
+
+	"bedrockShopOrder": [
+		"iron_sword", "underdog_sword", "iron_axe", "slime_sword", "pufferfish_sword",
+		"diamond_chestplate", "iron_chestplate", "golden_apple", "defuser",
+		"ricochet_bow", "marksman_bow", "quickdraw", "crossbow", "multishot_crossbow",
+		"arrow", "locating_arrow", "dragon_arrow", "explosive_arrow", "supportive_arrow", "resistance_potion", "speed1_potion", "speed2_potion"
 	]
 }

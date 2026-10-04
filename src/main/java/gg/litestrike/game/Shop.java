@@ -1,14 +1,21 @@
 package gg.litestrike.game;
 
+import com.google.gson.JsonElement;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,6 +23,11 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import gg.litestrike.game.LSItem.ItemCategory;
 import gg.crystalized.lobby.LobbyDatabase;
+import org.geysermc.cumulus.form.SimpleForm;
+import org.geysermc.cumulus.form.util.FormBuilder;
+import org.geysermc.cumulus.util.FormImage;
+import org.geysermc.floodgate.api.FloodgateApi;
+import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +47,7 @@ public class Shop {
 
 	public Inventory currentView;
 	public String player;
+	public Player p;
 	public String shopBackground;
 	public HashMap<LSItem.ItemCategory, LSItem> currentEquip = new HashMap<>();
 	public HashMap<LSItem.ItemCategory, LSItem> previousEquip = new HashMap<>();
@@ -48,6 +61,7 @@ public class Shop {
 		}
 
 		Litestrike.getInstance().game_controller.shopList.put(p.getName(), this);
+		this.p = p;
 		player = p.getName();
 		shopBackground = getShopBackground(p);
 		currentView = Bukkit.getServer().createInventory(null, 54, title(p.getName()));
@@ -87,9 +101,119 @@ public class Shop {
 		}
 	}
 
+	private void openBedrockShop(boolean isSelling) {
+		FloodgatePlayer fp = FloodgateApi.getInstance().getPlayer(p.getUniqueId());
+		PlayerData pd = Litestrike.getInstance().game_controller.playerDataManager.get(p);
+		List<LSItem> items = new ArrayList<>();
+		for (JsonElement a : LSItem.shopBedrockOrder) {
+			LSItem lsitem = LSItem.getLsItem(a.getAsString());
+			if (lsitem == null) continue;
+			if (lsitem.slot != null) {
+				if (Litestrike.getInstance().game_controller.teams.get_team(p) == Team.Placer && lsitem.categ.equals(ItemCategory.Defuser)) {
+					continue;
+				}
+				items.add(lsitem);
+			}
+		}
+
+		String title = "cry_grid2;§fLitestrike Shop";
+		String content = "§qBuy §ritems here, Click the first button to start selling.";
+		if (isSelling) {
+			title = title + " (Selling)";
+			content = "§mSell §ritems here, Click the first button to start buying again.";
+		}
+
+		SimpleForm.Builder form = SimpleForm.builder()
+				.title(title)
+				.content(content + "\n\n§rYou have \uE104§3" + pd.getMoney() + "§r.")
+				;
+
+		//2 of the same buttons is needed here, just to make the form look nice with how its layed out
+		if (!isSelling) {
+			form = form.button("Sell an Item", FormImage.Type.PATH, "textures/blocks/concrete_red");
+			form = form.button("Sell an Item", FormImage.Type.PATH, "textures/blocks/concrete_red");
+		} else {
+			form = form.button("Buy an Item", FormImage.Type.PATH, "textures/blocks/concrete_green");
+			form = form.button("Buy an Item", FormImage.Type.PATH, "textures/blocks/concrete_green");
+		}
+
+		for (LSItem i : items) {
+			String name;
+			if (i.name != null) {
+				name = i.nameFallback;
+			} else {
+				name = i.item.getI18NDisplayName(); //This is deprecated, theres no better alternative (we cant use components)
+			}
+
+			if (i.bedrockTexture == null) { //should never happen, but just in case
+				form = form.button(name + "\nPrice: \uE104" + i.price);
+			} else {
+				String texture = i.bedrockTexture;
+				String amount = "";
+
+				//underdog sword shit
+				if (i.key.equals("underdog_sword")) {
+					GameController gc = Litestrike.getInstance().game_controller;
+					int rounds_down = 0;
+					if (gc.teams.get_team(p) == Team.Breaker) {
+						rounds_down = gc.placer_wins_amt - gc.breaker_wins_amt;
+					} else {
+						rounds_down = gc.breaker_wins_amt - gc.placer_wins_amt;
+					}
+					if (rounds_down <= 0) {
+						rounds_down = 0;
+					}
+
+					texture = "textures/crystalized/item/underdog_sword_" + (rounds_down + 1);
+				}
+
+				if (i.item.getAmount() != 1) amount = " x" +i.item.getAmount();
+
+
+				//So in form buttons, we cant use components at all, the next best is just working with the internal name
+				form = form.button(
+						name + amount
+								+ "\nPrice: \uE104" + i.price,
+						FormImage.Type.PATH, texture
+				);
+			}
+		}
+
+		form = form.validResultHandler(response -> {
+			if (response.clickedButtonId() <= 1) {
+				openBedrockShop(!isSelling);
+			} else {
+				LSItem i = items.get(response.clickedButtonId() - 2);
+				GameController gc = Litestrike.getInstance().game_controller;
+				Bukkit.getLogger().info("Tried to buy" + i.key + "|" + response.clickedButtonId());
+				if (isSelling) {
+					ShopListener.undoBuy(i.item, p, i.slot);
+				} else {
+					ShopListener.buyItem(p, i.item, i.slot, gc, this);
+				}
+			}
+		});
+
+		fp.sendForm(form);
+	}
+
 	public void open_shop() {
 		update_shop();
+
+		if (isBedrock(p)) {
+			openBedrockShop(false);
+			return;
+		}
+
 		Bukkit.getPlayer(player).openInventory(currentView);
+	}
+
+	public void close_shop() {
+		if (isBedrock(p)) {
+			FloodgateApi.getInstance().closeForm(p.getUniqueId());
+		} else {
+			this.currentView.close();
+		}
 	}
 
 	// this is called once in next_round()
@@ -132,7 +256,7 @@ public class Shop {
 			inv.addItem(arrows_item);
 		}
 
-if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
+		if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 			|| gc.round_number == Litestrike.getInstance().gameConfig.switchRound + 1
 			|| gc.round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1)) {
 			// no need to give equipment
@@ -215,7 +339,7 @@ if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 				inv.clear(i);
 			}
 		}
-		s.currentView.close();
+		s.close_shop();
 		if (p.getItemOnCursor().getType() == EMERALD) {
 			p.setItemOnCursor(null);
 		}
@@ -241,5 +365,9 @@ if (!(p.getGameMode() == GameMode.SPECTATOR || gc.round_number == 1
 				consAndAmmoCount.put(item, 0);
 			}
 		}
+	}
+
+	public boolean isBedrock(Player p) {
+		return FloodgateApi.getInstance().isFloodgatePlayer(p.getUniqueId());
 	}
 }

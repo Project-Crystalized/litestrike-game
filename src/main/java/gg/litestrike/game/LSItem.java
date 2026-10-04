@@ -46,7 +46,9 @@ public class LSItem {
 	public final Integer price;
 	public final Integer slot;
 	public final Component name;
+	public final String nameFallback;
 	public final Integer modelData;
+	public final String bedrockTexture;
 	public final String key;
 	private static short creation_number = 1;
 	public final Short id;
@@ -63,6 +65,7 @@ public class LSItem {
 	public static final NamespacedKey NEGATIVE_EFFECT_IMMUNITY = new NamespacedKey("litestrike", "negative_effect_immunity");
 
 	public static List<LSItem> shopItems = createItems();
+	public static JsonArray shopBedrockOrder = load_bedrock_shop_order();
 
 	public enum ItemCategory {
 		Melee,
@@ -76,14 +79,16 @@ public class LSItem {
 	public final ItemCategory categ;
 
 	public LSItem(ItemStack item, Integer price, List<Component> description, ItemCategory cate, Integer slot,
-			Component name, Integer modelData, String key) {
+			Component name, String nameFallback, Integer modelData, String bedrockTexture, String key) {
 		this.price = price;
 		this.description = description;
 		this.categ = cate;
 		this.item = item;
 		this.slot = slot;
 		this.name = name;
+		this.nameFallback = nameFallback;
 		this.modelData = modelData;
+		this.bedrockTexture = bedrockTexture;
 		this.key = key;
 		this.id = creation_number;
 		creation_number++;
@@ -115,6 +120,15 @@ public class LSItem {
 		}
 
 		item.setItemMeta(meta);
+	}
+
+	public static LSItem getLsItem(String key) {
+		for (LSItem i : shopItems) {
+			if (i.key.equals(key)) {
+				return i;
+			}
+		}
+		return null;
 	}
 
 	private static List<LSItem> createItems() {
@@ -175,6 +189,18 @@ public class LSItem {
 				entries.add(element.getAsJsonObject());
 			}
 			return entries;
+		} catch (Exception e) {
+			throw new IllegalStateException("[Litestrike] items.json invalid: " + e.getMessage(), e);
+		}
+	}
+
+	private static JsonArray load_bedrock_shop_order() {
+		Path path = Litestrike.getInstance().getDataFolder().toPath().resolve("items.json");
+		if (Files.notExists(path)) {
+			throw new IllegalStateException("[Litestrike] items.json missing in " + Litestrike.getInstance().getDataFolder());
+		}
+		try {
+            return JsonParser.parseString(Files.readString(path)).getAsJsonObject().getAsJsonArray("bedrockShopOrder");
 		} catch (Exception e) {
 			throw new IllegalStateException("[Litestrike] items.json invalid: " + e.getMessage(), e);
 		}
@@ -269,11 +295,13 @@ public class LSItem {
 		builders.add(Builder.of(DIAMOND_CHESTPLATE)
 				.key("diamond_chestplate")
 				.enchantment(PROTECTION, 1)
+				.bedrockTexture("textures/items/diamond_chestplate")
 				.category(ItemCategory.Armor));
 
 		builders.add(Builder.of(IRON_SWORD)
 				.key("iron_sword")
 				.description("crystalized.sword.iron.desc")
+				.bedrockTexture("textures/items/iron_sword")
 				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(STONE_SWORD)
@@ -282,6 +310,7 @@ public class LSItem {
 
 		builders.add(Builder.of(IRON_AXE)
 				.key("iron_axe")
+				.bedrockTexture("textures/items/iron_axe")
 				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(BOW)
@@ -290,6 +319,7 @@ public class LSItem {
 
 		builders.add(Builder.of(ARROW, 6)
 				.key("arrow")
+				.bedrockTexture("textures/items/arrow")
 				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(LEATHER_CHESTPLATE)
@@ -304,70 +334,79 @@ public class LSItem {
 
 		builders.add(Builder.of(IRON_PICKAXE)
 				.key("defuser")
-				.name("crystalized.item.defuser.name")
+				.name("crystalized.item.defuser.name", "Defuser")
 				.attributeModifier(Attribute.ATTACK_DAMAGE, 0d, AttributeModifier.Operation.MULTIPLY_SCALAR_1,
 						EquipmentSlotGroup.ANY)
 				.hideAttributes()
 				.description("crystalized.item.defuser.desc1")
 				.description("crystalized.item.defuser.desc2")
+				.bedrockTexture("textures/items/iron_pickaxe")
 				.category(ItemCategory.Defuser));
 
 		builders.add(Builder.of(GOLDEN_APPLE)
 				.key("golden_apple")
 				.description("crystalized.item.gapple.desc1")
 				.description("crystalized.item.gapple.desc2")
+				.bedrockTexture("textures/items/apple_golden")
 				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(IRON_CHESTPLATE)
 				.key("iron_chestplate")
 				.enchantment(PROTECTION, 1)
+				.bedrockTexture("textures/items/iron_chestplate")
 				.category(ItemCategory.Armor));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("quickdraw")
 				.enchantment(QUICK_CHARGE, 1)
 				.model("quick_charge_crossbow")
-				.name("crystalized.crossbow.quickcharge.name")
+				.name("crystalized.crossbow.quickcharge.name", "Quick Charge Crossbow")
 				.description("crystalized.crossbow.quickcharge.desc")
+				.bedrockTexture("textures/crystalized/item/crossbow/quick_charge_crossbow_standby")
 				.category(ItemCategory.Range).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("pufferfish_sword")
 				.model("pufferfish_sword")
-				.name("crystalized.sword.pufferfish.name")
+				.name("crystalized.sword.pufferfish.name", "Pufferfish Sword")
 				.description("crystalized.sword.pufferfish.desc")
+				.bedrockTexture("textures/crystalized/item/pufferfish_sword")
 				.category(ItemCategory.Melee).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("slime_sword")
 				.enchantment(KNOCKBACK, 1)
 				.model("slime_sword")
-				.name("crystalized.sword.slime.name")
+				.name("crystalized.sword.slime.name", "Slime Sword")
 				.description("crystalized.sword.slime.desc1")
 				.description("crystalized.sword.slime.desc2")
+				.bedrockTexture("textures/crystalized/item/slime_sword")
 				.category(ItemCategory.Melee).modelData(1));
 
 		builders.add(Builder.of(BOW)
 				.key("marksman_bow")
 				.model("marksman_bow")
-				.name("crystalized.bow.marksman.name")
+				.name("crystalized.bow.marksman.name", "Marksman Bow")
 				.description("crystalized.bow.marksman.desc")
+				.bedrockTexture("textures/crystalized/item/bow/marksman_bow")
 				.category(ItemCategory.Range).modelData(1));
 
 		builders.add(Builder.of(BOW)
 				.key("ricochet_bow")
 				.enchantment(PUNCH, 1)
 				.model("ricochet_bow")
-				.name("crystalized.bow.ricochet.name")
+				.name("crystalized.bow.ricochet.name", "Ricochet Bow")
 				.description("crystalized.bow.ricochet.desc")
+				.bedrockTexture("textures/crystalized/item/bow/ricochet_bow")
 				.category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("multishot_crossbow")
 				.enchantment(MULTISHOT, 1)
 				.model("multishot_crossbow")
-				.name("crystalized.crossbow.multi.name")
+				.name("crystalized.crossbow.multi.name", "Multishot Crossbow")
 				.description("crystalized.crossbow.multi.desc")
+				.bedrockTexture("textures/crystalized/item/crossbow/multi_crossbow_standby")
 				.category(ItemCategory.Range).modelData(1));
 
 		builders.add(Builder.of(CROSSBOW)
@@ -375,61 +414,68 @@ public class LSItem {
 				.model("charged_crossbow")
 				.enchantable(100)
 				.metaEnchant(UNBREAKING, 1)
-				// Added the enchanting glint to the charged crosbow.
-				.nameRaw("crystalized.crossbow.charged.name")
+				.nameRaw("crystalized.crossbow.charged.name", "Charged Crossbow")
 				.description("crystalized.crossbow.charged.desc")
+				.bedrockTexture("textures/crystalized/item/crossbow/charged_crossbow_standby")
 				.category(ItemCategory.Range).modelData(3));
 
 		builders.add(Builder.of(POTION)
 				.key("speed2_potion")
 				.potionEffect(PotionEffectType.SPEED, 20 * 10, 1)
-				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
+				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false), "Potion of Swiftness 2")
 				.nameField(Component.text("Potion of Swiftness"))
+				.bedrockTexture("textures/items/potion_bottle_drinkable")
 				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(POTION)
 				.key("speed1_potion")
 				.potionEffect(PotionEffectType.SPEED, 20 * 25, 0)
-				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false))
+				.name(Component.text("Potion of Swiftness").color(WHITE).decoration(ITALIC, false), "Potion of Swiftness 1")
 				.nameField(Component.text("Potion of Swiftness"))
+				.bedrockTexture("textures/items/potion_bottle_drinkable")
 				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(POTION)
 				.key("resistance_potion")
 				.potionEffect(PotionEffectType.RESISTANCE, 20 * 25, 0)
-				.name(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false))
+				.name(Component.text("Potion of Resistance").color(WHITE).decoration(ITALIC, false), "Potion of Resistance")
 				.nameField(Component.text("Potion of Resistance"))
+				.bedrockTexture("textures/items/potion_bottle_regeneration") //yes its not the right potion, closest thing to purple there is
 				.category(ItemCategory.Consumable));
 
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("locating_arrow")
-				.name(Component.text("Locating Arrow").decoration(ITALIC, false))
+				.name(Component.text("Locating Arrow").decoration(ITALIC, false), "Locating Arrow")
 				.persistentData(LOCATING_ARROW_KEY, 1)
+				.bedrockTexture("textures/items/arrow") //No proper spectral arrow texture exists in bedrock
 				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("dragon_arrow")
 				.model("dragon_arrow")
-				.name("crystalized.item.dragonarrow.name")
+				.name("crystalized.item.dragonarrow.name", "Dragon Arrow")
 				.description("crystalized.item.dragonarrow.desc")
 				.loreOnItem()
+				.bedrockTexture("textures/crystalized/item/arrow/arrow-dragon")
 				.category(ItemCategory.Ammunition).modelData(1));
 
 		builders.add(Builder.of(ARROW, 3)
 				.key("explosive_arrow")
 				.model("explosive_arrow")
-				.name("crystalized.item.explosivearrow.name")
+				.name("crystalized.item.explosivearrow.name", "Explosive Arrow")
 				.description("crystalized.item.explosivearrow.desc")
 				.loreOnItem()
+				.bedrockTexture("textures/crystalized/item/arrow/arrow-explosive")
 				.category(ItemCategory.Ammunition).modelData(2));
 
 		builders.add(Builder.of(STONE_SWORD)
 				.key("underdog_sword")
 				.model("underdog_sword")
-				.name("crystalized.sword.underdog.name")
+				.name("crystalized.sword.underdog.name", "Underdog Sword")
 				.description("crystalized.sword.underdog.desc")
 				.loreOnItem()
 				.nameField(Component.text("Underdog Sword").decoration(ITALIC, false))
+				.bedrockTexture("a") //is filled out in Shop.java
 				.category(ItemCategory.Melee).modelData(3));
 
 		builders.add(Builder.of(STONE_PICKAXE)
@@ -450,7 +496,7 @@ public class LSItem {
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("crossbow")
-				.nameField(translatable("crystalized.bow.angled.name").decoration(ITALIC, false))
+				.bedrockTexture("textures/items/crossbow_standby")
 				.category(ItemCategory.Range).modelData(1));
 
 		// ItemStack shield = new ItemStack(ENDER_PEARL);
@@ -462,50 +508,58 @@ public class LSItem {
 		builders.add(Builder.of(STONE_SWORD)
 				.key("breeze_dagger")
 				.model("breeze_dagger")
-				.name("crystalized.sword.wind.name")
+				.name("crystalized.sword.wind.name", "Breeze Dagger")
 				.description("crystalized.sword.wind.desc")
 				.persistentData(BREEZE_DAGGER_STATE_KEY, 0)
+				.bedrockTexture("textures/crystalized/item/breeze_dagger")
 				.category(ItemCategory.Melee).modelData(2));
 
 		builders.add(Builder.of(CROSSBOW)
 				.key("precise_crossbow")
 				.model("precise_crossbow")
-				.name("crystalized.crossbow.precise.name")
+				.name("crystalized.crossbow.precise.name", "Precise Crossbow")
 				.description("crystalized.crossbow.precise.desc")
+				.bedrockTexture("textures/crystalized/item/crossbow/precise_crossbow_standby")
 				.category(ItemCategory.Range).modelData(3));
 
 		// normal spectral arrow (vanilla glow, no tracer scan).
 		builders.add(Builder.of(SPECTRAL_ARROW, 3)
 				.key("spectral_arrow")
+				.bedrockTexture("textures/items/arrow") //No proper spectral arrow texture exists in bedrock
 				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(IRON_SWORD)
 				.key("broadsword")
 				.enchantment(SHARPNESS, 1)
-				.name(Component.text("Broadsword").decoration(ITALIC, false))
+				.name(Component.text("Broadsword").decoration(ITALIC, false), "Broadsword")
+				.bedrockTexture("textures/items/iron_sword")
 				.category(ItemCategory.Melee));
 
 		builders.add(Builder.of(BOW)
 				.key("explosive_bow")
 				.model("explosive_bow")
-				.name("crystalized.bow.explosive.name")
+				.name("crystalized.bow.explosive.name", "Explosive Bow")
 				.description("crystalized.bow.explosive.desc1")
 				.description("crystalized.bow.explosive.desc2")
+				.bedrockTexture("textures/crystalized/item/bow/explosive_bow")
 				.category(ItemCategory.Range).modelData(2));
 
 		// healing arrow does 0 damage to enemys TODO mention it in lore
 		builders.add(Builder.of(TIPPED_ARROW, 4)
 				.key("healing_arrow")
-				.name(Component.text("Healing Arrow").decoration(ITALIC, false))
+				.name(Component.text("Healing Arrow").decoration(ITALIC, false), "Healing Arrow")
 				.potionEffect(PotionEffectType.REGENERATION, 80, 1)
+				.bedrockTexture("textures/items/arrow") //TODO no proper texture
 				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(ARROW, 8)
 				.key("arrow_8")
+				.bedrockTexture("textures/items/arrow")
 				.category(ItemCategory.Ammunition));
 
 		builders.add(Builder.of(SPECTRAL_ARROW, 4)
 				.key("spectral_arrow_4")
+				.bedrockTexture("textures/items/arrow") //No proper spectral arrow texture exists in bedrock
 				.category(ItemCategory.Ammunition));
 
 		//Supportive Arrow
@@ -513,7 +567,8 @@ public class LSItem {
 		builders.add(Builder.of(ARROW, 3)
 				.key("supportive_arrow")
 				.model("supportive_arrow")
-				.name(Component.text("Supportive Arrow").decoration(ITALIC, false))
+				.name(Component.text("Supportive Arrow").decoration(ITALIC, false), "Supportive Arrow") //TODO translatable name on the component
+				.bedrockTexture("textures/crystalized/item/arrow/arrow-supportive")
 				.category(ItemCategory.Ammunition));
 
 		return builders;
@@ -528,7 +583,9 @@ public class LSItem {
 		private Integer slot;
 		private ItemCategory categ;
 		private Component name;
+		private String nameFallback;
 		private Integer modelData;
+		private String bedrockTexture;
 		private boolean lore_on_item;
 		private String key;
 
@@ -597,21 +654,28 @@ public class LSItem {
 			return this;
 		}
 
-		public Builder name(String translationKey) {
-			return name(translatable(translationKey).decoration(ITALIC, false));
+		public Builder bedrockTexture(String texture) {
+			this.bedrockTexture = texture;
+			return this;
+		}
+
+		public Builder name(String translationKey, String fallback) {
+			return name(translatable(translationKey).decoration(ITALIC, false), fallback);
 		}
 
 		// name that keeps the default translatable style (no italic:false),
 		// used by the charged crossbow
-		public Builder nameRaw(String translationKey) {
+		public Builder nameRaw(String translationKey, String fallback) {
 			setDisplayName(translatable(translationKey));
 			this.name = translatable(translationKey).decoration(ITALIC, false);
+			this.nameFallback = fallback;
 			return this;
 		}
 
-		public Builder name(Component component) {
+		public Builder name(Component component, String fallback) {
 			setDisplayName(component);
 			this.name = component;
+			this.nameFallback = fallback;
 			return this;
 		}
 
@@ -693,8 +757,8 @@ public class LSItem {
 				meta.lore(description);
 				item.setItemMeta(meta);
 			}
-			return new LSItem(item, price, description.isEmpty() ? null : description, categ, slot, name, modelData,
-					key);
+			return new LSItem(item, price, description.isEmpty() ? null : description, categ, slot, name,
+					nameFallback, modelData, bedrockTexture, key);
 		}
 	}
 

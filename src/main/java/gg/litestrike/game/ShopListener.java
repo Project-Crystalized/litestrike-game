@@ -16,6 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import gg.litestrike.game.LSItem.ItemCategory;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
@@ -56,15 +57,43 @@ public class ShopListener implements Listener {
 			return;
 		}
 
+		buyItem(p, event.getCurrentItem(), event.getSlot(), gc, s);
+	}
+
+	@EventHandler
+	public void onItemPickup(EntityPickupItemEvent e) {
+		if (e.getEntity() instanceof Player p) {
+			GameController gc = Litestrike.getInstance().game_controller;
+			if (gc == null) {
+				return;
+			}
+			// achievement shit, not giving but setup for ls_onlyweapons
+			PlayerData pd = gc.playerDataManager.get(p);
+			if (pd == null) {
+				Bukkit.getLogger().warning("skipped pickup handler for '" + p.getName()
+						+ "', no player data found, is this player part of the current game?");
+				return;
+			}
+			switch (e.getItem().getItemStack().getType()) {
+				case GOLDEN_APPLE,
+						POTION, SPLASH_POTION, LINGERING_POTION -> {
+					pd.eligibleForOnlyWeaponsAchievement = false;
+				}
+				default -> {
+				}
+			}
+		}
+	}
+
+	public static void buyItem(Player p, ItemStack clickedItem, int slot, GameController gc, Shop s) {
 		LSItem clicked_item = null;
 		for (LSItem lsitem : LSItem.shopItems) {
-			if (lsitem.slot == null || lsitem.slot != event.getSlot()) {
+			if (lsitem.slot == null || lsitem.slot != slot) {
 				continue;
 			}
-		if (lsitem.categ == ItemCategory.Defuser && gc.teams.get_team(p) != Team.Breaker) {
-			continue;
-		}
-
+			if (lsitem.categ == ItemCategory.Defuser && gc.teams.get_team(p) != Team.Breaker) {
+				continue;
+			}
 			clicked_item = lsitem;
 			break;
 		}
@@ -137,15 +166,15 @@ public class ShopListener implements Listener {
 			}
 		}
 		p.playSound(Sound.sound(Key.key("block.note_block.harp"), Sound.Source.AMBIENT, 1, 5));
-		s.open_shop();
+		if (!FloodgateApi.getInstance().isFloodgatePlayer(p.getUniqueId())) s.open_shop(); //already done elsewhere
 		s.shopLog.add(clicked_item);
 
 		// achievement shit, not giving but setup for ls_onlyweapons
 		PlayerData pd = gc.playerDataManager.get(p);
 		switch (clicked_item.item.getType()) {
 			case GOLDEN_APPLE,
-					POTION, SPLASH_POTION, LINGERING_POTION,
-					IRON_CHESTPLATE, DIAMOND_CHESTPLATE -> {
+				 POTION, SPLASH_POTION, LINGERING_POTION,
+				 IRON_CHESTPLATE, DIAMOND_CHESTPLATE -> {
 				pd.eligibleForOnlyWeaponsAchievement = false;
 			}
 			default -> {
@@ -153,32 +182,7 @@ public class ShopListener implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onItemPickup(EntityPickupItemEvent e) {
-		if (e.getEntity() instanceof Player p) {
-			GameController gc = Litestrike.getInstance().game_controller;
-			if (gc == null) {
-				return;
-			}
-			// achievement shit, not giving but setup for ls_onlyweapons
-			PlayerData pd = gc.playerDataManager.get(p);
-			if (pd == null) {
-				Bukkit.getLogger().warning("skipped pickup handler for '" + p.getName()
-						+ "', no player data found, is this player part of the current game?");
-				return;
-			}
-			switch (e.getItem().getItemStack().getType()) {
-				case GOLDEN_APPLE,
-						POTION, SPLASH_POTION, LINGERING_POTION -> {
-					pd.eligibleForOnlyWeaponsAchievement = false;
-				}
-				default -> {
-				}
-			}
-		}
-	}
-
-	public void undoBuy(ItemStack item, Player p, int slot) {
+	public static void undoBuy(ItemStack item, Player p, int slot) {
 		Shop s = Litestrike.getInstance().game_controller.getShop(p);
 		GameController gc = Litestrike.getInstance().game_controller;
 		LSItem lsitem = null;
