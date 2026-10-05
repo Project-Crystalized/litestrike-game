@@ -139,14 +139,24 @@ public class Shop {
 
 		for (LSItem i : items) {
 			String name;
+			String belowName;
+
 			if (i.name != null) {
 				name = i.nameFallback;
 			} else {
 				name = i.item.getI18NDisplayName(); //This is deprecated, theres no better alternative (we cant use components)
 			}
 
+			if (isSelling) {
+				belowName = "Sell to gain \uE104" + i.price;
+			} else {
+				String color = "§3";
+				if (pd.getMoney() < i.price) {color = "§m";}
+				belowName = "Price: \uE104" + color + i.price;
+			}
+
 			if (i.bedrockTexture == null) { //should never happen, but just in case
-				form = form.button(name + "\nPrice: \uE104" + i.price);
+				form = form.button(name + "\n" + belowName);
 			} else {
 				String texture = i.bedrockTexture;
 				String amount = "";
@@ -172,8 +182,7 @@ public class Shop {
 
 				//So in form buttons, we cant use components at all, the next best is just working with the internal name
 				form = form.button(
-						name + amount
-								+ "\nPrice: \uE104" + i.price,
+						name + amount + "\n" + belowName,
 						FormImage.Type.PATH, texture
 				);
 			}
