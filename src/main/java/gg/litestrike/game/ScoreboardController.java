@@ -185,8 +185,8 @@ public class ScoreboardController {
 						bomb_loc.prefix(Component.text(""));
 						bomb_loc.suffix(Component.text(""));
 					}
-				} catch (Exception ex) {
-					//shut up
+				} catch (NullPointerException ex) {
+					Bukkit.getLogger().warning("npe happened here");
 				}
 			} else {
 				////// the scoreboard bomb display for placers and spectators
