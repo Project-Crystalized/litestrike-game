@@ -421,7 +421,8 @@ public class PlayerListener implements Listener {
 					}
 					//Does a ray trace, to enssure that the enemy is not behind a wall
 					//direction is being normalizied to keep only direction, though it is not nesseray for this method it is safer
-					RayTraceResult blocked = locatingArrow.getWorld().rayTraceBlocks(locatingArrowsLocation, direction.normalize(), distance);
+					//passable blocks (grass, flowers, torches, ...) don't block the scan
+					RayTraceResult blocked = locatingArrow.getWorld().rayTraceBlocks(locatingArrowsLocation, direction.normalize(), distance, FluidCollisionMode.NEVER, true);
 					if (blocked != null) {
 						continue;
 					}
