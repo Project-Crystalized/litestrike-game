@@ -24,7 +24,7 @@ public class GameConfigTest {
 		assertEquals(12, gc.playerCap);
 		assertEquals(4, gc.switchRound);
 		assertEquals(20 * 23, gc.preRoundTime);
-		assertEquals(180 * 20, gc.runningTime);
+		assertEquals(120 * 20, gc.runningTime);
 		assertEquals(5 * 20, gc.postRoundTime);
 		assertEquals(20 * 12, gc.finishTime);
 		assertEquals(20 * 5, gc.plantTime);

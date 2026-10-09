@@ -50,7 +50,7 @@ public class GameConfig {
 	public int playerCap = 12;
 	public int switchRound = 4;
 	public int preRoundTime = 20 * 23;
-	public int runningTime = 180 * 20;
+	public int runningTime = 120 * 20;
 	public int postRoundTime = 5 * 20;
 	public int finishTime = 20 * 12;
 	public int plantTime = 20 * 5;
@@ -80,7 +80,7 @@ public class GameConfig {
 		playerCap = 12;
 		switchRound = 4;
 		preRoundTime = 20 * 23;
-		runningTime = 180 * 20;
+		runningTime = 120 * 20;
 		postRoundTime = 5 * 20;
 		finishTime = 20 * 12;
 		plantTime = 20 * 5;
