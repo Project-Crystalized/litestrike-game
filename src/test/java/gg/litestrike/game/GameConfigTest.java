@@ -20,7 +20,7 @@ public class GameConfigTest {
 	void fresh_config_has_default_values() {
 		GameConfig gc = fresh();
 		assertEquals(28, GameConfig.Setting.values().length);
-		assertEquals(6, gc.playersToStart);
+		assertEquals(4, gc.playersToStart);
 		assertEquals(12, gc.playerCap);
 		assertEquals(4, gc.switchRound);
 		assertEquals(20 * 23, gc.preRoundTime);
