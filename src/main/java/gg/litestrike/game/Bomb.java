@@ -2,6 +2,9 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,6 +32,9 @@ import static net.kyori.adventure.text.Component.text;
 
 public interface Bomb {
 	static final int DETONATION_TIME = (20 * 40);
+
+	// uuids of players insta-killed by the blast, consumed by DeathHandler for the death effect
+	static final Set<UUID> bomb_deaths = ConcurrentHashMap.newKeySet();
 
 	public static ItemStack bomb_item() {
 		ItemStack item = new ItemStack(Material.ZOMBIE_SPAWN_EGG);
@@ -246,16 +252,20 @@ class PlacedBomb implements Bomb {
 
 	private void explode() {
 		is_detonated = true;
-		block.getWorld().spawnParticle(LANDING_LAVA, block.getLocation().add(0.5, 0.5, 0.5), 5000, 1, 1, 1);
-		block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, block.getLocation().add(0.5, 0.5, 0.5), 500, 1, 1, 1);
-		// block.getWorld().playSound(Sound.sound(Key.key("entity.dragon_fireball.explode"),
-		// Sound.Source.AMBIENT, 20, 1),
-		// block.getX(), block.getY(), block.getZ());
+		Location center = block.getLocation().add(0.5, 0.5, 0.5);
+		block.getWorld().spawnParticle(ELECTRIC_SPARK, center, 200, 1, 1, 1);
+		block.getWorld().spawnParticle(EXPLOSION, center, 4, 1, 1, 1);
+		block.getWorld().spawnParticle(LANDING_LAVA, center, 5000, 2, 2, 2);
+		for (int k = 0; k < 60; k++) {
+			double a = k * Math.PI * 2 / 60;
+			block.getWorld().spawnParticle(CAMPFIRE_COSY_SMOKE, center.clone().add(Math.cos(a) * 8, 0.4, Math.sin(a) * 8), 2, 0.3, 0.3, 0.3);
+		}
 		block.getWorld().playSound(Sound.sound(Key.key("crystalized:effect.shard.detonation"), Sound.Source.AMBIENT, 20, 1),
 				block.getX(), block.getY(), block.getZ());
 		for (Player p : Litestrike.getInstance().game_controller.teams.get_all_players()) {
 			double distance = p.getLocation().distance(block.getLocation());
 			if (distance < 15) {
+				bomb_deaths.add(p.getUniqueId());
 				p.setHealth(0);
 			}
 			if (distance < 30) {

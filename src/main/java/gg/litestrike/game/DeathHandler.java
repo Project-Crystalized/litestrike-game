@@ -26,6 +26,7 @@ import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
+import static org.bukkit.Particle.SOUL_FIRE_FLAME;
 
 public class DeathHandler implements Listener {
 
@@ -37,6 +38,10 @@ public class DeathHandler implements Listener {
 		}
 		Player p = e.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
+
+		if (Bomb.bomb_deaths.remove(p.getUniqueId())) {
+			p.getWorld().spawnParticle(SOUL_FIRE_FLAME, p.getLocation().add(0, 1, 0), 80, 1, 1, 1);
+		}
 
 		// reset killed player
 		p.setGameMode(SPECTATOR);
