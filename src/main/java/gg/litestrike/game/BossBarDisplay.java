@@ -176,7 +176,7 @@ public class BossBarDisplay {
 
 		if (gc.bomb instanceof PlacedBomb) {
 			PlacedBomb pb = (PlacedBomb) gc.bomb;
-			return Bomb.DETONATION_TIME - pb.timer;
+			return Litestrike.getInstance().gameConfig.detonationTime - pb.timer;
 		}
 
 		switch (gc.round_state) {

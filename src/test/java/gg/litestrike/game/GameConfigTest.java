@@ -19,7 +19,7 @@ public class GameConfigTest {
 	@Test
 	void fresh_config_has_default_values() {
 		GameConfig gc = fresh();
-		assertEquals(28, GameConfig.Setting.values().length);
+		assertEquals(29, GameConfig.Setting.values().length);
 		assertEquals(4, gc.playersToStart);
 		assertEquals(12, gc.playerCap);
 		assertEquals(4, gc.switchRound);
@@ -29,6 +29,7 @@ public class GameConfigTest {
 		assertEquals(20 * 12, gc.finishTime);
 		assertEquals(20 * 5, gc.plantTime);
 		assertEquals(20 * 7, gc.breakTime);
+		assertEquals(20 * 40, gc.detonationTime);
 		assertEquals(400, gc.killMoney);
 		assertEquals(50, gc.assistMoney);
 		assertEquals(700, gc.winRoundMoney);
@@ -70,6 +71,7 @@ public class GameConfigTest {
 		assertTrue(gc.fastGame);
 		assertEquals(20 * 5, gc.preRoundTime);
 		assertEquals(1 * 20, gc.postRoundTime);
+		assertEquals(20 * 5, gc.detonationTime);
 	}
 
 	@Test
@@ -80,6 +82,7 @@ public class GameConfigTest {
 		assertFalse(gc.fastGame);
 		assertEquals(20 * 23, gc.preRoundTime);
 		assertEquals(5 * 20, gc.postRoundTime);
+		assertEquals(20 * 40, gc.detonationTime);
 	}
 
 	@Test

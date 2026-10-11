@@ -234,7 +234,7 @@ class PlacedBomb implements Bomb {
 					block.getWorld().spawnParticle(RAID_OMEN, block.getLocation().add(0.5, 0.5, 0.5), 3);
 				}
 
-				if (timer == DETONATION_TIME) {
+				if (timer == Litestrike.getInstance().gameConfig.detonationTime) {
 					remove();
 					explode();
 					cancel();

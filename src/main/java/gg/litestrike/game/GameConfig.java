@@ -21,6 +21,7 @@ public class GameConfig {
 		finishTime,
 		plantTime,
 		breakTime,
+		detonationTime,
 		killMoney,
 		assistMoney,
 		winRoundMoney,
@@ -55,6 +56,7 @@ public class GameConfig {
 	public int finishTime = 20 * 12;
 	public int plantTime = 20 * 5;
 	public int breakTime = 20 * 7;
+	public int detonationTime = 20 * 40;
 	public int killMoney = 400;
 	public int assistMoney = 50;
 	public int winRoundMoney = 700;
@@ -85,6 +87,7 @@ public class GameConfig {
 		finishTime = 20 * 12;
 		plantTime = 20 * 5;
 		breakTime = 20 * 7;
+		detonationTime = 20 * 40;
 		killMoney = 400;
 		assistMoney = 50;
 		winRoundMoney = 700;
@@ -121,6 +124,7 @@ public class GameConfig {
 	private void applyFastGame() {
 		preRoundTime = 20 * 5;
 		postRoundTime = 1 * 20;
+		detonationTime = 20 * 5;
 	}
 
 	public boolean set(String key, String value) {
@@ -144,6 +148,7 @@ public class GameConfig {
 			case finishTime -> finishTime = Integer.parseInt(value);
 			case plantTime -> plantTime = Integer.parseInt(value);
 			case breakTime -> breakTime = Integer.parseInt(value);
+			case detonationTime -> detonationTime = Integer.parseInt(value);
 			case killMoney -> killMoney = Integer.parseInt(value);
 			case assistMoney -> assistMoney = Integer.parseInt(value);
 			case winRoundMoney -> winRoundMoney = Integer.parseInt(value);
@@ -165,6 +170,7 @@ public class GameConfig {
 				} else {
 					preRoundTime = 20 * 23;
 					postRoundTime = 5 * 20;
+					detonationTime = 20 * 40;
 				}
 			}
 			case manualTeamsEnabled -> manualTeamsEnabled = Boolean.parseBoolean(value);
@@ -202,6 +208,7 @@ public class GameConfig {
 			case finishTime -> String.valueOf(finishTime);
 			case plantTime -> String.valueOf(plantTime);
 			case breakTime -> String.valueOf(breakTime);
+			case detonationTime -> String.valueOf(detonationTime);
 			case killMoney -> String.valueOf(killMoney);
 			case assistMoney -> String.valueOf(assistMoney);
 			case winRoundMoney -> String.valueOf(winRoundMoney);
