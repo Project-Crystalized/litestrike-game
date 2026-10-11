@@ -9,6 +9,8 @@ import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -111,11 +113,16 @@ public class Teams {
 
 	private void log_teams(String variant, List<String> breakers, List<String> placers, List<PlayerRankedData> ranks) {
 		Bukkit.getLogger().info("[Teams] variant: " + variant);
-		log_team("breakers", breakers, ranks);
-		log_team("placers", placers, ranks);
+		String breaker_line = log_team("breakers", breakers, ranks);
+		String placer_line = log_team("placers", placers, ranks);
+		if (ranks != null) {
+			// ranked team-making is public: mirror the console breakdown into chat
+			Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(Component.text(breaker_line).color(BREAKER_GREEN));
+			Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(Component.text(placer_line).color(PLACER_RED));
+		}
 	}
 
-	private void log_team(String team_name, List<String> team, List<PlayerRankedData> ranks) {
+	private String log_team(String team_name, List<String> team, List<PlayerRankedData> ranks) {
 		HashMap<String, Integer> rp = new HashMap<>();
 		if (ranks != null) {
 			for (PlayerRankedData prd : ranks) {
@@ -141,7 +148,9 @@ public class Teams {
 			}
 		}
 		String avg = counted > 0 ? "" + (total / counted) : "n/a";
-		Bukkit.getLogger().info("[Teams] " + team_name + " (" + team.size() + " players, avg " + avg + " rp): " + String.join(", ", parts));
+		String line = "[Teams] " + team_name + " (" + team.size() + " players, avg " + avg + " rp): " + String.join(", ", parts);
+		Bukkit.getLogger().info(line);
+		return line;
 	}
 
 	public List<Player> get_placers() {
