@@ -63,6 +63,13 @@ public class ScoreboardController {
 			breakers.addPlayer(player);
 		}
 
+		gg.litestrike.game.Team viewers_team = teams.get_team(p);
+		if (viewers_team == gg.litestrike.game.Team.Placer) {
+			breakers.color(NamedTextColor.YELLOW);
+		} else if (viewers_team == gg.litestrike.game.Team.Breaker) {
+			placers.color(NamedTextColor.YELLOW);
+		}
+
 		try {
 			Ranks.passiveNames(p, Teams.get_team_color(teams.get_team(p.getName())), null, null);
 		} catch (NoClassDefFoundError e) {
