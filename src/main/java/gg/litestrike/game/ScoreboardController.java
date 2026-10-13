@@ -339,6 +339,22 @@ class BedrockScoreboard {
 
 		p.setScoreboard(sb);
 
+		Team placers = sb.registerNewTeam("placers");
+		placers.color(NamedTextColor.RED);
+		placers.setAllowFriendlyFire(false);
+		placers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+		for (Player player : teams.get_placers()) {
+			placers.addPlayer(player);
+		}
+
+		Team breakers = sb.registerNewTeam("breakers");
+		breakers.color(NamedTextColor.GREEN);
+		breakers.setAllowFriendlyFire(false);
+		breakers.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.FOR_OTHER_TEAMS);
+		for (Player player : teams.get_breakers()) {
+			breakers.addPlayer(player);
+		}
+
 		// Couldn't get it to work in the individual methods for updating the
 		// scoreboard, so BukkitRunnable instead
 		new BukkitRunnable() {
