@@ -2,9 +2,9 @@ package gg.litestrike.game;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,9 +32,7 @@ import static net.kyori.adventure.text.Component.text;
 
 public interface Bomb {
 	static final int DETONATION_TIME = (20 * 40);
-
-	// uuids of players insta-killed by the blast, consumed by DeathHandler for the death effect
-	static final Set<UUID> bomb_deaths = ConcurrentHashMap.newKeySet();
+	static final DamageSource EXPLOSION_SOURCE = DamageSource.builder(DamageType.EXPLOSION).build();
 
 	public static ItemStack bomb_item() {
 		ItemStack item = new ItemStack(Material.ZOMBIE_SPAWN_EGG);
@@ -265,11 +263,10 @@ class PlacedBomb implements Bomb {
 		for (Player p : Litestrike.getInstance().game_controller.teams.get_all_players()) {
 			double distance = p.getLocation().distance(block.getLocation());
 			if (distance < 15) {
-				bomb_deaths.add(p.getUniqueId());
-				p.setHealth(0);
+				p.damage(1000, EXPLOSION_SOURCE);
 			}
 			if (distance < 30) {
-				p.damage(30 - distance);
+				p.damage(30 - distance, EXPLOSION_SOURCE);
 			}
 		}
 

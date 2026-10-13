@@ -39,7 +39,7 @@ public class DeathHandler implements Listener {
 		Player p = e.getPlayer();
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		if (Bomb.bomb_deaths.remove(p.getUniqueId())) {
+		if (e.getDamageSource().getDamageType() == DamageType.EXPLOSION) {
 			p.getWorld().spawnParticle(SOUL_FIRE_FLAME, p.getLocation().add(0, 1, 0), 80, 1, 1, 1);
 		}
 
