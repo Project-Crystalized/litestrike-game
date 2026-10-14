@@ -175,8 +175,8 @@ class PlayerRankedData {
 		// a missing row or a zeroed entry means this is a new player
 		if (rank == 0 && rp == 0) {
 			Bukkit.getLogger().warning("initialized ranks for a new player");
-			rank = 2;
-			rp = 100;
+			rp = 500;
+			rank = Ranking.rankForRp(rp);
 		}
 	}
 
