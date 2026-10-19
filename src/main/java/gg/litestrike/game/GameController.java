@@ -264,6 +264,22 @@ public class GameController {
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
 
+		// chat section listing everyone still alive at the end of the round with their health
+		List<Player> alive_players = new ArrayList<>(teams.get_alive_placers());
+		alive_players.addAll(teams.get_alive_breakers());
+		if (!alive_players.isEmpty()) {
+			Component alive_msg = text("-----------------------------\n").color(NamedTextColor.GOLD)
+					.append(text(" ᴀʟɪᴠᴇ ᴘʟᴀʏᴇʀs:").color(Litestrike.YELLOW));
+			for (Player p : alive_players) {
+				alive_msg = alive_msg.append(text("\n ").color(Litestrike.YELLOW))
+						.append(text(p.getName()).color(teams.get_team_color(teams.get_team(p))))
+						.append(text(": ").color(NamedTextColor.GRAY))
+						.append(text("%.2f".formatted(p.getHealth())).color(NamedTextColor.WHITE));
+			}
+			alive_msg = alive_msg.append(text("\n-----------------------------").color(NamedTextColor.GOLD));
+			Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(alive_msg);
+		}
+
 		Litestrike.getInstance().sendPluginMessage("crystalized:essentials", "BreezeDagger_DisableRecharging:false");
 
 		// achievement shit, ls_lastalive achievement
