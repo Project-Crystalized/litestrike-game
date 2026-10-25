@@ -407,7 +407,7 @@ public class PlayerListener implements Listener {
 					cancel();
 					return;
 				}
-				double scanRadius = 20.0;
+				double scanRadius = LSItem.LOCATING_ARROW_RADIUS;
 				for (Player enemy : locatingArrowsLocation.getNearbyPlayers(scanRadius)) {
 					Team enemysTeam = gc.teams.get_team(enemy);
 					if (enemysTeam == null || enemysTeam == shooterTeam) {
