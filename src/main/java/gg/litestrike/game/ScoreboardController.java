@@ -18,6 +18,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import gg.crystalized.lobby.Ranks;
@@ -89,6 +90,7 @@ public class ScoreboardController {
 		}
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+		obj.numberFormat(NumberFormat.blank());
 
 		obj.getScore("11").setScore(11);
 		obj.getScore("11").customName(text(""));
@@ -288,6 +290,7 @@ class BedrockScoreboard {
 		}
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+		obj.numberFormat(NumberFormat.blank());
 
 		obj.getScore("11").setScore(11);
 		obj.getScore("11").customName(text("     "));

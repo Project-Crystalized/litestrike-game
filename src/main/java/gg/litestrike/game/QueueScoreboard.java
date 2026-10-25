@@ -8,6 +8,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -25,6 +26,7 @@ public class QueueScoreboard {
 		Objective obj = sb.registerNewObjective("main", Criteria.DUMMY, title);
 
 		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+		obj.numberFormat(NumberFormat.blank());
 
 		obj.getScore("7").setScore(7);
 		obj.getScore("7").customName(text("   "));
