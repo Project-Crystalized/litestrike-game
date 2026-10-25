@@ -27,6 +27,7 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -422,11 +423,29 @@ public class GameController {
 		}.runTaskLater(Litestrike.getInstance(), Litestrike.getInstance().gameConfig.finishTime - (20 * 2));
 	}
 
+	private void show_announcement(String title_key, String subtitle_key) {
+		Component subtitle = subtitle_key == null ? Component.empty()
+				: translatable(subtitle_key).color(NamedTextColor.WHITE);
+		Audience.audience(Bukkit.getOnlinePlayers()).showTitle(Title.title(
+				translatable(title_key).color(Litestrike.YELLOW).decoration(TextDecoration.BOLD, true),
+				subtitle));
+	}
+
 	// called when we go from PostRound to PreRound and when the first round starts
 	private void next_round() {
 		round_state = RoundState.PreRound;
 		phase_timer = 0;
 		round_number += 1;
+
+		int switch_round = Litestrike.getInstance().gameConfig.switchRound;
+		boolean is_tie_breaker = round_number == (switch_round * 2) + 1;
+		boolean is_switching_sides = round_number == switch_round + 1;
+		boolean is_last_round_on_side = round_number == switch_round || round_number == switch_round * 2;
+
+		if (is_last_round_on_side && !is_switching_sides && !is_tie_breaker) {
+			show_announcement("crystalized.game.litestrike.last_round",
+					"crystalized.game.litestrike.spend_money");
+		}
 
 		if (bomb != null) {
 			bomb.remove();
@@ -439,9 +458,10 @@ public class GameController {
 			ls.mapdata.map_features.reset_structures();
 		}
 
-		if (round_number == Litestrike.getInstance().gameConfig.switchRound + 1) {
+		if (is_switching_sides && !is_tie_breaker) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.switching").color(Litestrike.YELLOW));
+			show_announcement("crystalized.game.litestrike.switching", null);
 			Bukkit.getLogger().info("Switching the Sides");
 			teams.switch_teams();
 			//updates the teams presistant datayh contianters when they switch
@@ -466,9 +486,11 @@ public class GameController {
 				s.resetEquipCounters();
 			}
 		}
-		if (round_number == (Litestrike.getInstance().gameConfig.switchRound * 2) + 1) {
+		if (is_tie_breaker) {
 			Audience.audience(Bukkit.getOnlinePlayers())
 					.sendMessage(translatable("crystalized.game.litestrike.tie_breaker").color(Litestrike.YELLOW));
+			show_announcement("crystalized.game.litestrike.tie_breaker_title",
+					"crystalized.game.litestrike.tie_breaker");
 			for (PlayerData pd : playerDataManager.getAll()) {
 				pd.removeMoney();
 				pd.addMoney(Litestrike.getInstance().gameConfig.lastRoundMoney,
