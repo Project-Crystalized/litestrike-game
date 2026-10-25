@@ -271,7 +271,11 @@ public class Shop {
 		}
 
 		Team player_team = gc.teams.get_team(p);
-		inv.clear();
+		ItemStack[] storage = inv.getStorageContents();
+		for (int i = 0; i < storage.length; i++) {
+			inv.clear(i);
+		}
+		inv.setItemInOffHand(null);
 		p.setItemOnCursor(null);
 		inv.setItem(0, new ItemStack(Material.STONE_SWORD));
 		inv.setItem(1, new ItemStack(Material.BOW));
