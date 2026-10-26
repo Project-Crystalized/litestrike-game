@@ -1,17 +1,20 @@
 package gg.litestrike.game;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +26,8 @@ public class LsDatabaseTest {
 
 	private static final List<String> NEW_COLUMNS = List.of("damage_dealt", "deaths", "did_leave", "jumps", "hits_dealt",
 			"bow_shots");
+
+	private static final UUID PLAYER_UUID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
 	@TempDir
 	Path tempDir;
@@ -46,6 +51,8 @@ public class LsDatabaseTest {
 			assertTrue(tableExists(conn, "LsGamesPlayers"));
 			assertTrue(tableExists(conn, "LsRanks"));
 			assertTrue(getColumns(conn, "LsGamesPlayers").containsAll(NEW_COLUMNS));
+			assertTrue(getColumns(conn, "LsRanks").contains("last_ranked"));
+			assertTrue(isNotNull(conn, "LsRanks", "last_ranked"));
 		}
 	}
 
@@ -67,6 +74,28 @@ public class LsDatabaseTest {
 			assertTrue(tableExists(conn, "LiteStrikeGames"));
 			assertTrue(tableExists(conn, "LsRanks"));
 			assertTrue(getColumns(conn, "LsGamesPlayers").containsAll(NEW_COLUMNS));
+			assertTrue(getColumns(conn, "LsRanks").contains("last_ranked"));
+			assertTrue(isNotNull(conn, "LsRanks", "last_ranked"));
+		}
+	}
+
+	@Test
+	void old_rank_rows_get_last_ranked_initialized() throws SQLException {
+		createOldSchema();
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO LsRanks (player_uuid, rank, rp) VALUES (?, ?, ?);");
+			ps.setBytes(1, PlayerRankedData.uuid_to_bytes(PLAYER_UUID));
+			ps.setInt(2, 6);
+			ps.setInt(3, 1200);
+			ps.executeUpdate();
+		}
+
+		LsDatabase.setup_databases();
+
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			long lastRanked = getLastRanked(conn, PLAYER_UUID);
+			assertTrue(lastRanked > 0);
+			assertEquals(1200, getRp(conn, PLAYER_UUID));
 		}
 	}
 
@@ -111,5 +140,36 @@ public class LsDatabaseTest {
 			}
 		}
 		return columns;
+	}
+
+	private static boolean isNotNull(Connection conn, String table, String column) throws SQLException {
+		try (ResultSet rs = conn.createStatement().executeQuery("PRAGMA table_info(" + table + ");")) {
+			while (rs.next()) {
+				if (rs.getString("name").equals(column)) {
+					return rs.getInt("notnull") == 1;
+				}
+			}
+		}
+		return false;
+	}
+
+	private static long getLastRanked(Connection conn, UUID uuid) throws SQLException {
+		try (PreparedStatement ps = conn.prepareStatement("SELECT last_ranked FROM LsRanks WHERE player_uuid = ?;")) {
+			ps.setBytes(1, PlayerRankedData.uuid_to_bytes(uuid));
+			try (ResultSet rs = ps.executeQuery()) {
+				assertTrue(rs.next());
+				return rs.getLong("last_ranked");
+			}
+		}
+	}
+
+	private static int getRp(Connection conn, UUID uuid) throws SQLException {
+		try (PreparedStatement ps = conn.prepareStatement("SELECT rp FROM LsRanks WHERE player_uuid = ?;")) {
+			ps.setBytes(1, PlayerRankedData.uuid_to_bytes(uuid));
+			try (ResultSet rs = ps.executeQuery()) {
+				assertTrue(rs.next());
+				return rs.getInt("rp");
+			}
+		}
 	}
 }

@@ -25,6 +25,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jspecify.annotations.NonNull;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -118,6 +119,13 @@ public final class Litestrike extends JavaPlugin implements PluginMessageListene
 		bbd = new BossBarDisplay();
 
 		LsDatabase.setup_databases();
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				Ranking.runDecaySweep(Instant.now().getEpochSecond(), false);
+			}
+		}.runTaskTimerAsynchronously(this, 20L, 20L * 60 * 60 * 6);
 
 		World w = Bukkit.getWorld("world");
 

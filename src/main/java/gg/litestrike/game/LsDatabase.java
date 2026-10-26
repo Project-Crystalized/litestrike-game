@@ -62,13 +62,9 @@ public class LsDatabase {
 		String create_ls_ranks = "CREATE TABLE IF NOT EXISTS LsRanks ("
 				+ "player_uuid 		BLOB UNIQUE,"
 				+ "rank						INTEGER,"
-				+ "rp							INTEGER"
+				+ "rp							INTEGER,"
+				+ "last_ranked			INTEGER NOT NULL DEFAULT 0"
 				+ ");";
-
-		// HINT this can be removed at some point, its only here cause damage_dealt
-		// didnt exist originaly so it is added if missing
-		// it also not adds the deaths column which didnt exist before
-		create_damage_deaths_column();
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			Statement stmt = conn.createStatement();
@@ -80,6 +76,13 @@ public class LsDatabase {
 			Bukkit.getLogger().severe("The plugin will keep running, but no game data will be recorded until this is fixed.");
 			Bukkit.getLogger().severe("Error: " + e.getMessage());
 		}
+
+		// HINT this can be removed at some point, its only here cause damage_dealt
+		// didnt exist originaly so it is added if missing
+		// it also not adds the deaths column which didnt exist before
+		create_damage_deaths_column();
+		ensure_ranks_last_ranked_column();
+		initialize_rank_timestamps();
 	}
 
 	// the LsGamesPlayers table has grown over time, so databases created by older
@@ -96,13 +99,30 @@ public class LsDatabase {
 		};
 
 		for (String[] column : columns) {
-			ensure_column(column[0], column[1]);
+			ensure_column("LsGamesPlayers", column[0], column[1]);
 		}
 	}
 
-	private static void ensure_column(String column_name, String definition) {
-		String check_column = "SELECT " + column_name + " FROM LsGamesPlayers LIMIT 1;";
-		String create_column = "ALTER TABLE LsGamesPlayers ADD COLUMN " + definition + ";";
+	private static void ensure_ranks_last_ranked_column() {
+		ensure_column("LsRanks", "last_ranked", "last_ranked INTEGER NOT NULL DEFAULT 0");
+	}
+
+	private static void initialize_rank_timestamps() {
+		String update = "UPDATE LsRanks SET last_ranked = unixepoch() WHERE last_ranked = 0;";
+		try (Connection conn = DriverManager.getConnection(URL)) {
+			int rows = conn.createStatement().executeUpdate(update);
+			if (rows > 0) {
+				Bukkit.getLogger().info("Initialized last_ranked for " + rows + " ranked players.");
+			}
+		} catch (SQLException e) {
+			Bukkit.getLogger().severe("Could not initialize last_ranked in the LsRanks table.");
+			Bukkit.getLogger().severe("Error: " + e.getMessage());
+		}
+	}
+
+	private static void ensure_column(String table, String column_name, String definition) {
+		String check_column = "SELECT " + column_name + " FROM " + table + " LIMIT 1;";
+		String create_column = "ALTER TABLE " + table + " ADD COLUMN " + definition + ";";
 
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			conn.createStatement().execute(check_column);
@@ -110,10 +130,10 @@ public class LsDatabase {
 			// the query failed, which usually means the column is missing, so we add it
 			try (Connection conn = DriverManager.getConnection(URL)) {
 				conn.createStatement().execute(create_column);
-				Bukkit.getLogger().info("Added missing column '" + column_name + "' to the LsGamesPlayers table.");
+				Bukkit.getLogger().info("Added missing column '" + column_name + "' to the " + table + " table.");
 			} catch (SQLException ex) {
 				Bukkit.getLogger().severe("Could not add missing column '" + column_name
-						+ "' to the LsGamesPlayers table. The database is either corrupted or missing entirely.");
+						+ "' to the " + table + " table. The database is either corrupted or missing entirely.");
 				Bukkit.getLogger().severe("Backup or delete the file at " + URL + " and restart the server.");
 				Bukkit.getLogger().severe("Error: " + ex.getMessage());
 			}

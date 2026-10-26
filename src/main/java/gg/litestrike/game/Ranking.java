@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,10 @@ import static net.kyori.adventure.text.format.NamedTextColor.RED;
 import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 
 public class Ranking {
+
+	public static final long DECAY_GRACE_SECONDS = 21L * 24 * 60 * 60;
+	public static final int DECAY_RP = 60;
+	public static final int DECAY_FLOOR_RP = 900;
 
 	public static void do_ranking(Team winner_team, GameController gc) {
 		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
@@ -159,24 +164,76 @@ public class Ranking {
 				return 0;
 		}
 	}
+
+	public static int runDecaySweep(long now, boolean dryRun) {
+		String where = " WHERE rp > ? AND last_ranked > 0 AND last_ranked <= ?";
+
+		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
+			if (dryRun) {
+				try (PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) AS count FROM LsRanks" + where)) {
+					ps.setInt(1, DECAY_FLOOR_RP);
+					ps.setLong(2, now - DECAY_GRACE_SECONDS);
+					try (ResultSet rs = ps.executeQuery()) {
+						return rs.next() ? rs.getInt("count") : 0;
+					}
+				}
+			}
+
+			int affected;
+			try (PreparedStatement ps = conn.prepareStatement(
+					"UPDATE LsRanks SET rp = MAX(?, rp - ?), last_ranked = ?" + where)) {
+				ps.setInt(1, DECAY_FLOOR_RP);
+				ps.setInt(2, DECAY_RP);
+				ps.setLong(3, now);
+				ps.setInt(4, DECAY_FLOOR_RP);
+				ps.setLong(5, now - DECAY_GRACE_SECONDS);
+				affected = ps.executeUpdate();
+			}
+
+			try (PreparedStatement ps = conn.prepareStatement("UPDATE LsRanks SET rank = " + rankCaseSql())) {
+				ps.executeUpdate();
+			}
+
+			if (affected > 0) {
+				Bukkit.getLogger().info("[RankDecay] decayed " + affected + " players by up to " + DECAY_RP + " rp");
+			}
+			return affected;
+		} catch (SQLException e) {
+			Bukkit.getLogger().severe("[RankDecay] sweep failed: " + e.getMessage());
+			return -1;
+		}
+	}
+
+	private static String rankCaseSql() {
+		StringBuilder sql = new StringBuilder("CASE");
+		for (int rank = 10; rank > 2; rank--) {
+			sql.append(" WHEN rp >= ").append(get_rank_min_rp(rank)).append(" THEN ").append(rank);
+		}
+		return sql.append(" ELSE 2 END").toString();
+	}
 }
 
 class PlayerRankedData {
 	public int rank;
 	public int rp;
 	public UUID uuid;
+	public long last_ranked;
 
 	private PlayerRankedData(ResultSet rs, UUID uuid) throws SQLException {
 		this.uuid = uuid;
 		if (rs.next()) {
 			this.rank = rs.getInt("rank");
 			this.rp = rs.getInt("rp");
+			this.last_ranked = rs.getLong("last_ranked");
 		}
 		// a missing row or a zeroed entry means this is a new player
 		if (rank == 0 && rp == 0) {
 			Bukkit.getLogger().warning("initialized ranks for a new player");
 			rp = 500;
 			rank = Ranking.rankForRp(rp);
+		}
+		if (last_ranked == 0) {
+			last_ranked = Instant.now().getEpochSecond();
 		}
 	}
 
@@ -219,14 +276,17 @@ class PlayerRankedData {
 	}
 
 	public static void save_players(List<PlayerRankedData> player_ranks) {
+		long now = Instant.now().getEpochSecond();
 		try (Connection conn = DriverManager.getConnection(LsDatabase.URL)) {
 			for (PlayerRankedData prd : player_ranks) {
-				String update = "INSERT INTO LsRanks (rank, rp, player_uuid) VALUES (?,?,?) ON CONFLICT(player_uuid) DO UPDATE SET rank=excluded.rank, rp=excluded.rp;";
+				prd.last_ranked = now;
+				String update = "INSERT INTO LsRanks (rank, rp, player_uuid, last_ranked) VALUES (?,?,?,?) ON CONFLICT(player_uuid) DO UPDATE SET rank=excluded.rank, rp=excluded.rp, last_ranked=excluded.last_ranked;";
 
 				PreparedStatement ps = conn.prepareStatement(update);
 				ps.setInt(1, prd.rank);
 				ps.setInt(2, prd.rp);
 				ps.setBytes(3, uuid_to_bytes(prd.uuid));
+				ps.setLong(4, now);
 				ps.executeUpdate();
 			}
 		} catch (SQLException e) {
