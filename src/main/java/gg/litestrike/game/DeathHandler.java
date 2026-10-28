@@ -58,7 +58,49 @@ public class DeathHandler implements Listener {
 			// this might still be null!
 		}
 
-		send_death_message(p, killer, get_death_icon(e.getDamageSource().getDamageType(), killer));
+		awardKill(p, killer, get_death_icon(e.getDamageSource().getDamageType(), killer));
+
+		gc.getShop(p).resetEquip();
+		gc.getShop(p).resetEquipCounters();
+	}
+
+	public static void handleCombatLogout(Player p) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		if (gc == null || gc.round_state != GameController.RoundState.Running) {
+			return;
+		}
+		if (p.getGameMode() == SPECTATOR) {
+			return;
+		}
+
+		Team victim_team = gc.teams.get_team(p);
+		if (victim_team != Team.Placer && victim_team != Team.Breaker) {
+			return;
+		}
+
+		PlayerData pd = gc.playerDataManager.get(p);
+		if (pd == null) {
+			return;
+		}
+
+		Player killer = pd.ldt.get_last_damager();
+		if (killer == null || killer == p || !killer.isOnline()) {
+			return;
+		}
+
+		Team killer_team = gc.teams.get_team(killer);
+		if (killer_team == null || killer_team == victim_team) {
+			return;
+		}
+
+		awardKill(p, killer, text(" \uE103 "));
+		pd.assist_list.clear();
+		pd.ldt.clear_damager();
+	}
+
+	private static void awardKill(Player p, Player killer, Component icon) {
+		GameController gc = Litestrike.getInstance().game_controller;
+		send_death_message(p, killer, icon);
 		log_death_message(p, killer);
 
 		// give death/kill and money
@@ -81,9 +123,6 @@ public class DeathHandler implements Listener {
 							.append(text(p.getName()))
 							.color(Teams.get_team_color(gc.teams.get_team(p))));
 		}
-
-		gc.getShop(p).resetEquip();
-		gc.getShop(p).resetEquipCounters();
 
 		Team killed_team = gc.teams.get_team(p);
 		if (killed_team == null) {
@@ -116,7 +155,7 @@ public class DeathHandler implements Listener {
 		}
 	}
 
-	private List<Player> get_assisters(Player p) {
+	private static List<Player> get_assisters(Player p) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		List<Player> assiters = new ArrayList<>();
 		for (PlayerData pd : gc.playerDataManager.getAll()) {
@@ -181,7 +220,7 @@ public class DeathHandler implements Listener {
 		}
 	}
 
-	private void log_death_message(Player p, Player killer) {
+	private static void log_death_message(Player p, Player killer) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		String log_msg = p.getName() + "(" + gc.teams.get_team(p) + ") was killed by ";
 		if (killer != null) {
@@ -192,7 +231,7 @@ public class DeathHandler implements Listener {
 
 	private static final Component death_prefix = text("[\uE103]");
 
-	private void send_death_message(Player p, Player killer, Component icon) {
+	private static void send_death_message(Player p, Player killer, Component icon) {
 		GameController gc = Litestrike.getInstance().game_controller;
 		Component player_name = text(p.getName()).color(Teams.get_team_color(gc.teams.get_team(p)));
 		Component death_message = text("  ");

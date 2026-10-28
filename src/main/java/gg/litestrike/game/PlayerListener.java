@@ -85,7 +85,11 @@ public class PlayerListener implements Listener {
 		if (player_team != Team.Placer && player_team != Team.Breaker) {
 			return;
 		}
-		gc.playerDataManager.get(e.getPlayer()).did_leave = true;
+		PlayerData pd = gc.playerDataManager.get(e.getPlayer());
+		DeathHandler.handleCombatLogout(e.getPlayer());
+		pd.did_leave = true;
+		pd.ldt.clear_damager();
+		pd.assist_list.clear();
 	}
 
 	@EventHandler
