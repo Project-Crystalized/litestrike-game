@@ -60,7 +60,7 @@ public class LSItem {
 	//If radius becomes 4 adjust to be 260
 	public static final int SUPPORTIVE_TEAMMATE_REGEN_DURATION = 200;
 
-	public static final double LOCATING_ARROW_RADIUS = 5.0;
+	public static final double LOCATING_ARROW_RADIUS = 7.0;
 
 	public static final NamespacedKey BREEZE_DAGGER_STATE_KEY = new NamespacedKey("crystalized", "breeze_dagger_state");
 	public static final NamespacedKey LOCATING_ARROW_KEY = new NamespacedKey("crystalized", "locating_arrow");

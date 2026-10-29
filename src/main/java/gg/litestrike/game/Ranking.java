@@ -28,9 +28,27 @@ public class Ranking {
 	public static final int DECAY_RP = 60;
 	public static final int DECAY_FLOOR_RP = 900;
 
-	public static List<Component> do_ranking(Team winner_team, GameController gc) {
+	public record RpChange(
+			UUID uuid,
+			String player,
+			Team team,
+			int rpBefore,
+			int baseChange,
+			int personalChange,
+			int leaveChange,
+			int rpAfter) {
+		public int totalChange() {
+			return rpAfter - rpBefore;
+		}
+
+		public boolean didLeave() {
+			return leaveChange < 0;
+		}
+	}
+
+	public static List<RpChange> do_ranking(Team winner_team, GameController gc) {
 		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
-		List<Component> rp_lines = new ArrayList<>();
+		List<RpChange> changes = new ArrayList<>();
 
 		for (PlayerRankedData prd : player_ranks) {
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
@@ -56,20 +74,28 @@ public class Ranking {
 				}
 			}
 
+			int personalChange = (int) Math.round(perfBonus);
 			int point_change = (int) Math.round(rawChange);
 			prd.rp += point_change;
 
-			doRankupAndChat(prd, oldRp, baseChange, (int) Math.round(perfBonus), did_win, didLeave);
+			int oldRank = prd.rank;
+			prd.rank = rankForRp(prd.rp);
+			doRankupAndChat(prd, oldRp, oldRank, baseChange, personalChange, did_win, didLeave);
 
 			String name = offline_p.getName();
 			if (name == null) {
 				name = prd.uuid.toString();
 			}
-			rp_lines.add(format_rp_line(name, players_team, oldRp, prd.rp, didLeave));
+			changes.add(new RpChange(prd.uuid, name, players_team, oldRp, baseChange, personalChange,
+					didLeave ? -20 : 0, prd.rp));
 		}
 
 		PlayerRankedData.save_players(player_ranks);
-		return rp_lines;
+		return changes;
+	}
+
+	static Component format_rp_line(RpChange change) {
+		return format_rp_line(change.player(), change.team(), change.rpBefore(), change.rpAfter(), change.didLeave());
 	}
 
 	static Component format_rp_line(String name, Team team, int oldRp, int newRp, boolean didLeave) {
@@ -85,7 +111,7 @@ public class Ranking {
 		return line;
 	}
 
-	private static void doRankupAndChat(PlayerRankedData prd, int oldRp, int baseChange, int perf, boolean did_win, boolean didLeave) {
+	private static void doRankupAndChat(PlayerRankedData prd, int oldRp, int oldRank, int baseChange, int perf, boolean did_win, boolean didLeave) {
 		Player p = Bukkit.getPlayer(prd.uuid);
 		if (p == null)
 			return;
@@ -117,8 +143,6 @@ public class Ranking {
 		}
 		p.sendMessage(Component.text("You " + action + " " + Math.abs(point_change) + "rp " + detail + " " + oldRp + " -> " + prd.rp).color(c).decoration(BOLD, true));
 
-		int oldRank = prd.rank;
-		prd.rank = rankForRp(prd.rp);
 		if (prd.rank > oldRank) {
 			p.sendMessage("You have gained a rank!");
 		} else if (prd.rank < oldRank) {

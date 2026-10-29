@@ -74,11 +74,25 @@ public class LsDatabase {
 				+ "last_ranked			INTEGER NOT NULL DEFAULT 0"
 				+ ");";
 
+		String create_ls_rp_history = "CREATE TABLE IF NOT EXISTS LsRpHistory ("
+				+ "player_uuid 		BLOB NOT NULL,"
+				+ "game 					INTEGER NOT NULL REFERENCES LiteStrikeGames(game_id),"
+				+ "rp_before 			INTEGER NOT NULL,"
+				+ "base_change 		INTEGER NOT NULL,"
+				+ "personal_change INTEGER NOT NULL,"
+				+ "leave_change 	INTEGER NOT NULL DEFAULT 0,"
+				+ "rp_after 			INTEGER NOT NULL,"
+				+ "PRIMARY KEY (player_uuid, game)"
+				+ ");";
+		String create_ls_rp_history_index = "CREATE INDEX IF NOT EXISTS idx_lsrp_history_game ON LsRpHistory(game);";
+
 		try (Connection conn = DriverManager.getConnection(URL)) {
 			Statement stmt = conn.createStatement();
 			stmt.execute(create_ls_games);
 			stmt.execute(create_ls_players);
 			stmt.execute(create_ls_ranks);
+			stmt.execute(create_ls_rp_history);
+			stmt.execute(create_ls_rp_history_index);
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("Failed to set up the Litestrike database at " + URL + ".");
 			Bukkit.getLogger().severe("The plugin will keep running, but no game data will be recorded until this is fixed.");
@@ -151,9 +165,9 @@ public class LsDatabase {
 	public static void save_game(Team winner) {
 		GameController gc = Litestrike.getInstance().game_controller;
 
-		List<Component> rp_lines = List.of();
+		List<Ranking.RpChange> rp_changes = List.of();
 		if (Litestrike.getInstance().gameConfig.ranked) {
-			rp_lines = Ranking.do_ranking(winner, gc);
+			rp_changes = Ranking.do_ranking(winner, gc);
 		}
 
 		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
@@ -200,6 +214,20 @@ public class LsDatabase {
 				player_stmt.executeUpdate();
 			}
 
+			String save_rp = "INSERT INTO LsRpHistory(player_uuid, game, rp_before, base_change, "
+					+ "personal_change, leave_change, rp_after) VALUES(?, ?, ?, ?, ?, ?, ?)";
+			PreparedStatement rp_stmt = conn.prepareStatement(save_rp);
+			for (Ranking.RpChange change : rp_changes) {
+				rp_stmt.setBytes(1, uuid_to_bytes(change.uuid()));
+				rp_stmt.setInt(2, game_id);
+				rp_stmt.setInt(3, change.rpBefore());
+				rp_stmt.setInt(4, change.baseChange());
+				rp_stmt.setInt(5, change.personalChange());
+				rp_stmt.setInt(6, change.leaveChange());
+				rp_stmt.setInt(7, change.rpAfter());
+				rp_stmt.executeUpdate();
+			}
+
 			Bukkit.getLogger().info("Successfully wrote data to LsDatabase");
 		} catch (SQLException e) {
 			Bukkit.getLogger().severe("Failed to save this game to the Litestrike database. "
@@ -207,6 +235,10 @@ public class LsDatabase {
 			Bukkit.getLogger().severe("Error: " + e.getMessage());
 		}
 
+		List<Component> rp_lines = new ArrayList<>();
+		for (Ranking.RpChange change : rp_changes) {
+			rp_lines.add(Ranking.format_rp_line(change));
+		}
 		send_spectator_summary(gc, winner, rp_lines);
 	}
 
@@ -299,8 +331,11 @@ public class LsDatabase {
 	}
 
 	private static byte[] uuid_to_bytes(OfflinePlayer p) {
+		return uuid_to_bytes(p.getUniqueId());
+	}
+
+	private static byte[] uuid_to_bytes(UUID uuid) {
 		ByteBuffer bb = ByteBuffer.allocate(16);
-		UUID uuid = p.getUniqueId();
 		bb.putLong(uuid.getMostSignificantBits());
 		bb.putLong(uuid.getLeastSignificantBits());
 		return bb.array();
