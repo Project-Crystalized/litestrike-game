@@ -38,8 +38,8 @@ public class GameConfigTest {
 		assertEquals(5000, gc.lastRoundMoney);
 		assertEquals(0, gc.plantMoney);
 		assertEquals(0, gc.breakMoney);
-		assertEquals(20 * 2, gc.launchPadProtection);
-		assertEquals(20 * 4, gc.launchPadHighPingProtection);
+		assertEquals(20 * 4, gc.launchPadProtection);
+		assertEquals(20 * 6, gc.launchPadHighPingProtection);
 		assertEquals(20 * 6, gc.leviPadProtection);
 		assertEquals(20 * 7, gc.autoJumpPadProtection);
 		assertEquals(20 * 7, gc.jumpPadProtection);
@@ -56,10 +56,12 @@ public class GameConfigTest {
 		GameConfig gc = fresh();
 		gc.set("killMoney", "9999");
 		gc.set("fastGame", "true");
+		gc.set("launchPadProtection", "1");
 		gc.set("placers", "alice,bob");
 		gc.defaults();
 		assertEquals(400, gc.killMoney);
 		assertFalse(gc.fastGame);
+		assertEquals(20 * 4, gc.launchPadProtection);
 		assertEquals(20 * 23, gc.preRoundTime);
 		assertTrue(gc.placers.isEmpty());
 	}

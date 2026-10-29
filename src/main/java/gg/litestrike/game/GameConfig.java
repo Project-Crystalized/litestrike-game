@@ -65,8 +65,8 @@ public class GameConfig {
 	public int lastRoundMoney = 5000;
 	public int plantMoney = 0;
 	public int breakMoney = 0;
-	public int launchPadProtection = 20 * 2;
-	public int launchPadHighPingProtection = 20 * 4;
+	public int launchPadProtection = 20 * 4;
+	public int launchPadHighPingProtection = 20 * 6;
 	public int leviPadProtection = 20 * 6;
 	public int autoJumpPadProtection = 20 * 7;
 	public int jumpPadProtection = 20 * 7;
@@ -96,8 +96,8 @@ public class GameConfig {
 		lastRoundMoney = 5000;
 		plantMoney = 0;
 		breakMoney = 0;
-		launchPadProtection = 20 * 2;
-		launchPadHighPingProtection = 20 * 4;
+		launchPadProtection = 20 * 4;
+		launchPadHighPingProtection = 20 * 6;
 		leviPadProtection = 20 * 6;
 		autoJumpPadProtection = 20 * 7;
 		jumpPadProtection = 20 * 7;

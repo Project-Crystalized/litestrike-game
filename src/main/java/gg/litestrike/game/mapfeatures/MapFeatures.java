@@ -1,8 +1,5 @@
 package gg.litestrike.game.mapfeatures;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,7 +15,8 @@ import com.google.gson.JsonObject;
 import gg.litestrike.game.Litestrike;
 
 public class MapFeatures implements Listener {
-	private static Set<Player> fall_protected_players = new HashSet<>();
+	private static final FallProtectionTracker fall_protection = new FallProtectionTracker();
+	private boolean fall_protection_cleanup_started = false;
 
 	protected static Material launch_pad_block;
 	protected static Material levi_pad_block;
@@ -107,14 +105,29 @@ public class MapFeatures implements Listener {
 		if (cargoDoor != null) {
 			plugin.getServer().getPluginManager().registerEvents(cargoDoor, plugin);
 		}
+		start_fall_protection_cleanup(plugin);
+	}
+
+	private void start_fall_protection_cleanup(Litestrike plugin) {
+		if (fall_protection_cleanup_started) {
+			return;
+		}
+		fall_protection_cleanup_started = true;
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				fall_protection.removeExpired(Bukkit.getCurrentTick());
+			}
+		}.runTaskTimer(plugin, 20, 20);
 	}
 
 	@EventHandler
 	public void onPlayerDamage(EntityDamageEvent e) {
-		if (e.getCause() == DamageCause.FALL && fall_protected_players.contains(e.getEntity())) {
+		if (e.getCause() != DamageCause.FALL || !(e.getEntity() instanceof Player p)) {
+			return;
+		}
+		if (fall_protection.consume(p.getUniqueId(), Bukkit.getCurrentTick())) {
 			e.setCancelled(true);
-			fall_protected_players.remove(e.getEntity());
-			fall_protected_players.removeIf(pl -> !pl.isConnected());
 		}
 	}
 
@@ -129,18 +142,6 @@ public class MapFeatures implements Listener {
 	}
 
 	public static void fall_protect_player(Player p, int time) {
-		fall_protected_players.add(p);
-		new BukkitRunnable() {
-			int i = 0;
-
-			@Override
-			public void run() {
-				i += 20;
-				if (i > time || !fall_protected_players.contains(p)) {
-					fall_protected_players.remove(p);
-					cancel();
-				}
-			}
-		}.runTaskTimer(Litestrike.getInstance(), 5, 20);
+		fall_protection.protect(p.getUniqueId(), Bukkit.getCurrentTick(), time);
 	}
 }
