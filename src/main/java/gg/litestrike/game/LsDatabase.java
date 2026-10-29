@@ -2,10 +2,18 @@ package gg.litestrike.game;
 
 import java.nio.ByteBuffer;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 
 public class LsDatabase {
 
@@ -143,8 +151,9 @@ public class LsDatabase {
 	public static void save_game(Team winner) {
 		GameController gc = Litestrike.getInstance().game_controller;
 
+		List<Component> rp_lines = List.of();
 		if (Litestrike.getInstance().gameConfig.ranked) {
-			Ranking.do_ranking(winner, gc);
+			rp_lines = Ranking.do_ranking(winner, gc);
 		}
 
 		String save_game = "INSERT INTO LiteStrikeGames(placer_wins, breaker_wins, timestamp, map, winner, game_ref) VALUES(?, ?, unixepoch(), ?, ?, ?)";
@@ -197,6 +206,83 @@ public class LsDatabase {
 					+ "The stats of this game will not be recorded.");
 			Bukkit.getLogger().severe("Error: " + e.getMessage());
 		}
+
+		send_spectator_summary(gc, winner, rp_lines);
+	}
+
+	private static void send_spectator_summary(GameController gc, Team winner, List<Component> rp_lines) {
+		List<Player> spectators = new ArrayList<>();
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (gc.teams.get_team(p) == null) {
+				spectators.add(p);
+			}
+		}
+		if (spectators.isEmpty()) {
+			return;
+		}
+
+		float total_damage = 0;
+		int total_jumps = 0;
+		int total_kills = 0;
+		int total_deaths = 0;
+		int total_assists = 0;
+		int total_plants = 0;
+		int total_breaks = 0;
+		int total_hits = 0;
+		int total_bow_shots = 0;
+		int total_money_gained = 0;
+		int total_money_spent = 0;
+		for (PlayerData pd : gc.playerDataManager.getAll()) {
+			total_damage += pd.total_damage;
+			total_jumps += pd.jumps;
+			total_kills += pd.kills;
+			total_deaths += pd.deaths;
+			total_assists += pd.assists;
+			total_plants += pd.plants;
+			total_breaks += pd.breaks;
+			total_hits += pd.hits_dealt;
+			total_bow_shots += pd.bow_shots;
+			total_money_gained += pd.getTotalMoneyGained();
+			total_money_spent += pd.getTotalMoneySpent();
+		}
+
+		Component stat_lines = stat_line("Total damage", "%.1f".formatted(total_damage))
+				.append(stat_line("Total jumps", String.valueOf(total_jumps)))
+				.append(stat_line("Kills / deaths / assists",
+						total_kills + " / " + total_deaths + " / " + total_assists))
+				.append(stat_line("Plants / breaks", total_plants + " / " + total_breaks))
+				.append(stat_line("Hits / bow shots", total_hits + " / " + total_bow_shots))
+				.append(stat_line("Money gained / spent", total_money_gained + " / " + total_money_spent));
+
+		Component winner_text = winner == Team.Placer ? Litestrike.PLACER_TEXT : Litestrike.BREAKER_TEXT;
+		Component message = build_spectator_summary(winner_text, rp_lines,
+				Litestrike.getInstance().gameConfig.ranked, stat_lines);
+		Audience.audience(spectators).sendMessage(message);
+	}
+
+	static Component build_spectator_summary(Component winner_text, List<Component> rp_lines, boolean ranked,
+			Component stat_lines) {
+		Component message = Component.text("-----------------------------\n").color(NamedTextColor.GOLD)
+				.append(Component.text(" ɢᴀᴍᴇ sᴜᴍᴍᴀʀʏ\n").color(Litestrike.YELLOW))
+				.append(Component.text(" Winner: ").color(NamedTextColor.GOLD).decorate(TextDecoration.BOLD))
+				.append(winner_text)
+				.append(Component.text("\n"))
+				.append(stat_lines);
+
+		if (ranked && !rp_lines.isEmpty()) {
+			message = message.append(Component.text(" ʀᴘ ᴄʜᴀɴɢᴇs:\n").color(Litestrike.YELLOW));
+			for (Component line : rp_lines) {
+				message = message.append(line).append(Component.text("\n"));
+			}
+		}
+
+		return message.append(Component.text("-----------------------------").color(NamedTextColor.GOLD));
+	}
+
+	static Component stat_line(String label, String value) {
+		return Component.text(" " + label + ": ").color(Litestrike.YELLOW)
+				.append(Component.text(value).color(NamedTextColor.WHITE))
+				.append(Component.text("\n"));
 	}
 
 	private static byte[] get_bought_items(OfflinePlayer p) {

@@ -28,8 +28,9 @@ public class Ranking {
 	public static final int DECAY_RP = 60;
 	public static final int DECAY_FLOOR_RP = 900;
 
-	public static void do_ranking(Team winner_team, GameController gc) {
+	public static List<Component> do_ranking(Team winner_team, GameController gc) {
 		List<PlayerRankedData> player_ranks = PlayerRankedData.load_player_data();
+		List<Component> rp_lines = new ArrayList<>();
 
 		for (PlayerRankedData prd : player_ranks) {
 			OfflinePlayer offline_p = Bukkit.getOfflinePlayer(prd.uuid);
@@ -59,9 +60,29 @@ public class Ranking {
 			prd.rp += point_change;
 
 			doRankupAndChat(prd, oldRp, baseChange, (int) Math.round(perfBonus), did_win, didLeave);
+
+			String name = offline_p.getName();
+			if (name == null) {
+				name = prd.uuid.toString();
+			}
+			rp_lines.add(format_rp_line(name, players_team, oldRp, prd.rp, didLeave));
 		}
 
 		PlayerRankedData.save_players(player_ranks);
+		return rp_lines;
+	}
+
+	static Component format_rp_line(String name, Team team, int oldRp, int newRp, boolean didLeave) {
+		int change = newRp - oldRp;
+		Component line = Component.text(" ").color(NamedTextColor.GRAY)
+				.append(Component.text(name).color(Teams.get_team_color(team)))
+				.append(Component.text(": ").color(NamedTextColor.GRAY))
+				.append(Component.text((change >= 0 ? "+" : "") + change).color(change >= 0 ? GREEN : RED))
+				.append(Component.text(" (" + oldRp + " -> " + newRp + ")").color(NamedTextColor.GRAY));
+		if (didLeave) {
+			line = line.append(Component.text(" (left)").color(RED));
+		}
+		return line;
 	}
 
 	private static void doRankupAndChat(PlayerRankedData prd, int oldRp, int baseChange, int perf, boolean did_win, boolean didLeave) {
