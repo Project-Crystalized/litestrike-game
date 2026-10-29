@@ -82,18 +82,31 @@ public class ManualTeams {
 		if (Bukkit.getPlayer(player) == null) {
 			sender.sendMessage("Warn: The player " + player + " doesnt seem to be online, adding him anyways");
 		}
+		if (!addToTeam(team, player)) {
+			sender.sendMessage("Error: The team " + team + " doesnt seem to exist");
+			return Command.SINGLE_SUCCESS;
+		}
+		String teamName = team.startsWith("b") ? "breaker" : "placer";
+		sender.sendMessage("added " + player + " to the " + teamName + " team.");
+		return Command.SINGLE_SUCCESS;
+	}
+
+	boolean addToTeam(String team, String player) {
 		if (team.startsWith("b")) {
+			gameConfig.placers.remove(player);
+			gameConfig.breakers.remove(player);
 			gameConfig.breakers.add(player);
 			gameConfig.manualTeamsEnabled = true;
-			sender.sendMessage("added " + player + " to the breaker team.");
-		} else if (team.startsWith("p")) {
-			gameConfig.manualTeamsEnabled = true;
-			gameConfig.placers.add(player);
-			sender.sendMessage("added " + player + " to the placer team.");
-		} else {
-			sender.sendMessage("Error: The team " + team + " doesnt seem to exist");
+			return true;
 		}
-		return Command.SINGLE_SUCCESS;
+		if (team.startsWith("p")) {
+			gameConfig.breakers.remove(player);
+			gameConfig.placers.remove(player);
+			gameConfig.placers.add(player);
+			gameConfig.manualTeamsEnabled = true;
+			return true;
+		}
+		return false;
 	}
 
 	private static List<String> onlinePlayerNames() {

@@ -95,6 +95,14 @@ public class GameConfigTest {
 	}
 
 	@Test
+	void constructor_ignores_free_shop_config() {
+		YamlConfiguration config = new YamlConfiguration();
+		config.set("free-shop", true);
+		GameConfig gc = new GameConfig(config);
+		assertFalse(gc.freeShop);
+	}
+
+	@Test
 	void constructor_reads_team_config() {
 		YamlConfiguration config = new YamlConfiguration();
 		config.set("teams.enable", true);
