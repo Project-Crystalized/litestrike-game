@@ -2,6 +2,10 @@ package gg.litestrike.game.mapfeatures;
 
 import gg.litestrike.game.Litestrike;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -17,14 +21,20 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
 class LaunchPadListener implements Listener {
+	private final Set<UUID> locked = new HashSet<>();
+
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
 		if (p.getGameMode() == GameMode.SPECTATOR) {
+			locked.remove(p.getUniqueId());
 			return;
 		}
 		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
 		if (block_under.getType() == MapFeatures.launch_pad_block) {
+			if (!locked.add(p.getUniqueId())) {
+				return;
+			}
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
 			p.setVelocity(p.getLocation().getDirection().multiply(2));
 			if (p.getPing() > 180) {
@@ -32,6 +42,8 @@ class LaunchPadListener implements Listener {
 			} else {
 				MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.launchPadProtection);
 			}
+		} else {
+			locked.remove(p.getUniqueId());
 		}
 	}
 }
@@ -52,17 +64,26 @@ class LeviPadListener implements Listener {
 }
 
 class AutoJumpPadListener implements Listener {
+	private final Set<UUID> locked = new HashSet<>();
+
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
-		if (p.getGameMode() == GameMode.SPECTATOR)
+		if (p.getGameMode() == GameMode.SPECTATOR) {
+			locked.remove(p.getUniqueId());
 			return;
-		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
-		if (block_under.getType() == MapFeatures.auto_jump_pad_block && p.getVelocity().getY() <= 0) {
-			p.setVelocity(p.getVelocity().add(new Vector(0, 1.32, 0)));
-			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.autoJumpPadProtection);
 		}
+		Block block_under = p.getLocation().getBlock().getRelative(BlockFace.DOWN);
+		if (block_under.getType() != MapFeatures.auto_jump_pad_block) {
+			locked.remove(p.getUniqueId());
+			return;
+		}
+		if (p.getVelocity().getY() > 0 || !locked.add(p.getUniqueId())) {
+			return;
+		}
+		p.setVelocity(p.getVelocity().add(new Vector(0, 1.32, 0)));
+		p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
+		MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.autoJumpPadProtection);
 	}
 }
 
