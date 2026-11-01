@@ -131,6 +131,19 @@ public class SoundEffects {
 				.playSound(Sound.sound(Key.key("block.note_block.bass"), AMBIENT, 1f, 0.594604f));
 	}
 
+	public static void round_time_warning(int secondsLeft) {
+		float pitch = switch (secondsLeft) {
+			case 30 -> 1.0f;
+			case 20 -> 1.25f;
+			case 10 -> 1.5f;
+			default -> 1.0f;
+		};
+		Bukkit.getServer()
+				.playSound(Sound.sound(Key.key("block.note_block.bit"), AMBIENT, 1f, pitch));
+		Bukkit.getServer()
+				.playSound(Sound.sound(Key.key("block.note_block.bass"), AMBIENT, 1f, pitch * 0.5f));
+	}
+
 	public static Sound start_game_sound() {
 		return Sound.sound(Key.key("crystalized:effect.countdown_end"), AMBIENT, 50, 1);
 	}

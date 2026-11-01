@@ -71,6 +71,27 @@ public class GameController {
 		GameFinished,
 	}
 
+	private enum RoundEndReason {
+		BOMB_DETONATED("the bomb detonated"),
+		BOMB_DEFUSED("the bomb was defused"),
+		ALL_BREAKERS_ELIMINATED("all Breakers were eliminated"),
+		TIME_RAN_OUT("time ran out"),
+		ALL_PLACERS_ELIMINATED("all Placers were eliminated");
+
+		private final String description;
+
+		RoundEndReason(String description) {
+			this.description = description;
+		}
+
+		public String description() {
+			return description;
+		}
+	}
+
+	private record RoundResult(Team winner, RoundEndReason reason) {
+	}
+
 	public GameController() {
 		Bukkit.getLogger().info("Starting game with game_id: " + game_reference);
 		for (Player player : teams.get_all_players()) {
@@ -137,8 +158,11 @@ public class GameController {
 				break;
 			case RoundState.Running: {
 				LSItem.doSupportingArrow(this);
-				if (determine_winner() != null) {
-					finish_round(determine_winner());
+				RoundResult result = determine_winner();
+				if (result != null) {
+					finish_round(result.winner(), result.reason());
+				} else {
+					announce_time_warning();
 				}
 			}
 				break;
@@ -156,6 +180,28 @@ public class GameController {
 				break;
 		}
 		return false;
+	}
+
+	// Chat/sound warnings at 30, 20 and 10 seconds left on the round clock.
+	// A placed bomb pauses the round clock, so the warnings are skipped then.
+	private void announce_time_warning() {
+		if (bomb instanceof PlacedBomb) {
+			return;
+		}
+		int remaining = Litestrike.getInstance().gameConfig.runningTime - phase_timer;
+		int secondsLeft;
+		if (remaining == 30 * 20) {
+			secondsLeft = 30;
+		} else if (remaining == 20 * 20) {
+			secondsLeft = 20;
+		} else if (remaining == 10 * 20) {
+			secondsLeft = 10;
+		} else {
+			return;
+		}
+		Audience.audience(Bukkit.getOnlinePlayers())
+				.sendMessage(text(secondsLeft + " seconds left in the round!").color(Litestrike.YELLOW));
+		SoundEffects.round_time_warning(secondsLeft);
 	}
 
 	// this checks if the podium should start
@@ -232,7 +278,7 @@ public class GameController {
 	}
 
 	// this is called when we switch from Running to PostRound
-	private void finish_round(Team winner) {
+	private void finish_round(Team winner, RoundEndReason reason) {
 		round_state = RoundState.PostRound;
 		phase_timer = 0;
 		round_results.add(winner);
@@ -264,6 +310,10 @@ public class GameController {
 				.sendMessage(text("\nᴛʜᴇ ").color(Litestrike.YELLOW).append(winner_component)
 						.append(text(" ᴛᴇᴀᴍ ᴡᴏɴ ʀᴏᴜɴᴅ ").color(Litestrike.YELLOW)).append(text(round_number))
 						.append(text("!\n").color(Litestrike.YELLOW)));
+		Audience.audience(Bukkit.getOnlinePlayers())
+				.sendMessage(text("Round ended: ").color(NamedTextColor.GRAY)
+						.append(text(reason.description()).color(Litestrike.YELLOW)));
+		Bukkit.getLogger().info("Round " + round_number + " ended: " + reason.description());
 
 		// chat section listing everyone still alive at the end of the round with their health
 		List<Player> alive_players = new ArrayList<>(teams.get_alive_placers());
@@ -562,14 +612,14 @@ public class GameController {
 
 	// this will determine the winner of the round and return it.
 	// if the round isnt over, it will return null
-	private Team determine_winner() {
+	private RoundResult determine_winner() {
 		if (bomb instanceof PlacedBomb) {
 			PlacedBomb pb = (PlacedBomb) bomb;
 			if (pb.is_detonated) {
-				return Team.Placer;
+				return new RoundResult(Team.Placer, RoundEndReason.BOMB_DETONATED);
 			}
 			if (pb.is_broken) {
-				return Team.Breaker;
+				return new RoundResult(Team.Breaker, RoundEndReason.BOMB_DEFUSED);
 			}
 		}
 
@@ -582,7 +632,7 @@ public class GameController {
 			}
 		}
 		if (all_breakers_dead) {
-			return Team.Placer;
+			return new RoundResult(Team.Placer, RoundEndReason.ALL_BREAKERS_ELIMINATED);
 		}
 
 		// if the bomb is Placed we skip the rest of the checks
@@ -591,7 +641,7 @@ public class GameController {
 		}
 
 		if (phase_timer == Litestrike.getInstance().gameConfig.runningTime) {
-			return Team.Breaker;
+			return new RoundResult(Team.Breaker, RoundEndReason.TIME_RAN_OUT);
 		}
 
 		// check if all placers are alive
@@ -604,7 +654,7 @@ public class GameController {
 			}
 		}
 		if (all_placers_dead) {
-			return Team.Breaker;
+			return new RoundResult(Team.Breaker, RoundEndReason.ALL_PLACERS_ELIMINATED);
 		}
 
 		return null;
