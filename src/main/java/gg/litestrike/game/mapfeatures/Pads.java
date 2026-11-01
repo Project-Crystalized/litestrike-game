@@ -21,6 +21,9 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 
 class LaunchPadListener implements Listener {
+	private static final double LAUNCH_PAD_HORIZONTAL_SPEED = 1.8;
+	private static final double LAUNCH_PAD_VERTICAL_SPEED = 0.6;
+
 	private final Set<UUID> locked = new HashSet<>();
 
 	@EventHandler
@@ -36,7 +39,11 @@ class LaunchPadListener implements Listener {
 				return;
 			}
 			p.playSound(Sound.sound(Key.key("crystalized:effect.hazard_positive"), Sound.Source.AMBIENT, 1f, 1f));
-			p.setVelocity(p.getLocation().getDirection().multiply(2));
+			double yaw = Math.toRadians(p.getLocation().getYaw());
+			p.setVelocity(new Vector(
+					-Math.sin(yaw) * LAUNCH_PAD_HORIZONTAL_SPEED,
+					LAUNCH_PAD_VERTICAL_SPEED,
+					Math.cos(yaw) * LAUNCH_PAD_HORIZONTAL_SPEED));
 			if (p.getPing() > 180) {
 				MapFeatures.fall_protect_player(p, Litestrike.getInstance().gameConfig.launchPadHighPingProtection);
 			} else {
