@@ -249,6 +249,7 @@ class PlacedBomb implements Bomb {
 	}
 
 	private void explode() {
+		Litestrike.getInstance().bombListener.announce_detonated_while_mining();
 		is_detonated = true;
 		Location center = block.getLocation().add(0.5, 0.5, 0.5);
 		block.getWorld().spawnParticle(ELECTRIC_SPARK, center, 200, 1, 1, 1);

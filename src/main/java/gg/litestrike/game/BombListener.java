@@ -10,6 +10,7 @@ import org.bukkit.event.block.BlockDamageEvent;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.Component.translatable;
+import static net.kyori.adventure.text.format.TextDecoration.BOLD;
 import gg.litestrike.game.GameController.RoundState;
 import gg.litestrike.game.mapfeatures.MapFeatures;
 
@@ -37,6 +38,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import static org.bukkit.Particle.*;
 
@@ -260,6 +262,30 @@ public class BombListener implements Listener {
 		} else {
 			remove_mining_player(e.getPlayer());
 		}
+	}
+
+	public void announce_detonated_while_mining() {
+		if (mining_players.isEmpty()) {
+			return;
+		}
+		int break_time = Litestrike.getInstance().gameConfig.breakTime;
+		int remaining_ticks = break_time - breaking_counter;
+		if (remaining_ticks > 20 * 4) {
+			return;
+		}
+		String secs = String.format("%.2fs", remaining_ticks / 20.0);
+		Component msg = text("ᴛʜᴇ ʙᴏᴍʙ ᴇxᴘʟᴏᴅᴇᴅ ")
+				.color(Litestrike.YELLOW)
+				.append(text(secs).color(NamedTextColor.RED).decorate(BOLD))
+				.append(text(" ꜱᴇᴄᴏɴᴅꜱ ʙᴇꜰᴏʀᴇ ").color(Litestrike.YELLOW));
+		for (int i = 0; i < mining_players.size(); i++) {
+			if (i > 0) {
+				msg = msg.append(text(" & ").color(Litestrike.YELLOW));
+			}
+			msg = msg.append(text(mining_players.get(i).p.getName()).color(Teams.BREAKER_GREEN));
+		}
+		msg = msg.append(text(" ᴡᴏᴜʟᴅ ʜᴀᴠᴇ ʙʀᴏᴋᴇɴ ɪᴛ!").color(Litestrike.YELLOW));
+		Audience.audience(Bukkit.getOnlinePlayers()).sendMessage(msg);
 	}
 
 	private void remove_mining_player(Player p) {
