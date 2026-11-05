@@ -252,7 +252,11 @@ public class PlayerListener implements Listener {
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
 		GameController gc = Litestrike.getInstance().game_controller;
-		if (gc == null || gc.round_state != RoundState.Running) {
+		// PostRound falls through into the normal damage pipeline, so the
+		// settle phase still hurts: players can kill each other, the still
+		// ticking bomb damages, and fall/fire damage is lethal.
+		if (gc == null || gc.round_state == RoundState.PreRound
+				|| gc.round_state == RoundState.GameFinished) {
 			e.setCancelled(true);
 			return;
 		}
